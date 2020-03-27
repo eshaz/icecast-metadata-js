@@ -37,14 +37,12 @@ class IcecastMetadataReader {
   }
 
   /**
-   * @description Reads a byte array and extracts metadata chunks
+   * @description Reads the incoming byte array and saves the metadata and stream data
    * @param {UInt8Array} buffer Byte array from the Icecast stream response body
    * @param {number} currentTime Time in seconds representing current time the audio player is reporting
    * @param {number} endOfBufferTime Time in seconds representing the end of the stored buffer by the audio player
    */
   readBuffer(buffer, currentTime, endOfBufferTime) {
-    // reads the incoming byte array and saves the metadata and stream data
-    // save any partial chunks of metadata or stream data so it can be used
     this._position = 0;
 
     do {
@@ -76,7 +74,6 @@ class IcecastMetadataReader {
    * @description Resets the internal state of the IcecastMetadataReader
    */
   reset() {
-    // clear all state
     this._stream = new Uint8Array();
     this._position = 0;
     this._status = 0;
@@ -84,11 +81,10 @@ class IcecastMetadataReader {
   }
 
   /**
-   * @description Returns and clears the stored buffer of streaming audio data
+   * @description Returns and clears the buffer of streaming audio data
    * @returns {UInt8Array} Stored bytes of stream data
    */
   getStream() {
-    // returns the icecast stream and reset the buffer
     const oldStream = this._stream;
     this._stream = new Uint8Array();
     return oldStream;
@@ -109,7 +105,6 @@ class IcecastMetadataReader {
    * @description Clears all metadata updates and empties the queue
    */
   purgeMetadataQueue() {
-    // clears all of the pending metadata updates and resets the queue
     this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
     this._metadataQueue = [];
   }
