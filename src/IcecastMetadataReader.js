@@ -14,7 +14,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-class IcecastMetadataReader {
+export class IcecastMetadataReader {
   /**
    * @description Reads, parses, and schedules updates for Icecast Metadata from the response body of an Icecast stream mountpoint
    * @param {Object} IcecastMetadataReader constructor parameter
