@@ -14,14 +14,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const {TextDecoder} = require("util")
+const { TextDecoder } = require("util");
 
 class IcecastMetadataParser {
   /**
-   * @description Reads, parses, and schedules updates for Icecast Metadata from the response body of an Icecast stream mountpoint
+   * @description Reads, parses, and schedules updates up to the millisecond for Icecast Metadata from the response body of an Icecast stream mountpoint
+   * @description The accuracy of metadata updates is a direct relationship of the icyMetaInt
    * @param {Object} IcecastMetadataParser constructor parameter
    * @param {number} IcecastMetadataParser.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
-   * @param {number} [IcecastMetadataParser.icyBr] Bitrate of audio stream used to estimate when to update metadata
+   * @param {number} [IcecastMetadataParser.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
    * @param {function} [IcecastMetadataParser.onMetadataUpdate] Callback executed when metadata is scheduled to update
    * @param {function} [IcecastMetadataParser.onMetadataQueue] Callback executed when metadata is discovered and queued for update
    */
@@ -146,7 +147,8 @@ class IcecastMetadataParser {
 
   _enqueueMetadata(meta) {
     this._metadataQueue.push(meta);
-    if (this._onMetadataQueue) this._onMetadataQueue({metadata: meta.metadata, time: meta.time});
+    if (this._onMetadataQueue)
+      this._onMetadataQueue({ metadata: meta.metadata, time: meta.time });
   }
 
   _dequeueMetadata() {

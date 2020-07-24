@@ -20,5 +20,8 @@
   "homepage": "https://github.com/eshaz/icecast-metadata-js#readme",
   "devDependencies": {
     "prettier": "^2.0.2"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
   }
 }
