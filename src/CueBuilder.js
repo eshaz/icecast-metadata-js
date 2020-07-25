@@ -31,6 +31,13 @@ class CueBuilder extends Readable {
   }
 
   /**
+   * @description Returns total number of tracks in the cue file
+   */
+  get trackCount() {
+    return this._trackCount;
+  }
+
+  /**
    * @description Adds a new track to the cue file
    * @param {number} time Time in seconds when the track should start
    * @param {string} title Title of the track
@@ -40,13 +47,6 @@ class CueBuilder extends Readable {
   TRACK ${(this._trackCount += 1)} AUDIO
     TITLE "${title}"
     INDEX 01 ${this._getMinutesSecondsFrames(time)}`);
-  }
-
-  /**
-   * @description Returns total number of tracks in the cue file
-   */
-  getTrackCount() {
-    return this._trackCount;
   }
 
   _startCueFile(title, fileName, comments) {

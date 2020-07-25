@@ -35,8 +35,29 @@ class IcecastMetadataParser {
 
     this._stream = new Uint8Array();
     this._metadataQueue = [];
-    this._position = 0;
-    this._status = 0;
+    this._readPosition = 0;
+    this._step = 0;
+  }
+
+  /**
+   * @description Returns and clears the buffer of streaming audio data
+   * @type {UInt8Array} Stored bytes of stream data
+   */
+  get stream() {
+    const oldStream = this._stream;
+    this._stream = new Uint8Array();
+    return oldStream;
+  }
+
+  /**
+   * @description Returns the metadata queued for updates
+   * @type {{metadata: string, time: number}[]} Queued metadata
+   */
+  get metadataQueue() {
+    return this._metadataQueue.map(({ metadata, time }) => ({
+      metadata,
+      time,
+    }));
   }
 
   /**
@@ -46,31 +67,31 @@ class IcecastMetadataParser {
    * @param {number} endOfBufferTime Time in seconds representing the end of the stored buffer by the audio player
    */
   readBuffer(buffer, currentTime, endOfBufferTime) {
-    this._position = 0;
+    this._readPosition = 0;
 
     do {
-      switch (this._status) {
+      switch (this._step) {
         case 0: // read stream length
           this._bytesToRead = this._icyMetaInt;
-          this._next();
+          this._nextStep();
           break;
         case 1: // read stream chunk
-          this._setStream(this._readData(buffer));
+          this._appendStream(this._readData(buffer));
           break;
         case 2: // read metadata length
           this._bytesToRead = 1; // metadata length is stored in one byte
           this._bytesToRead = this._readData(buffer)[0] * 16; // calculate length of metadata
-          if (!this._bytesToRead) this._next(); // skip the metadata read step if there is nothing to read
+          if (!this._bytesToRead) this._nextStep(); // skip the metadata read step if there is nothing to read
           break;
         case 3: // read metadata chunk
-          this._setMetadata(
+          this._addMetadata(
             this._readData(buffer),
             currentTime,
             endOfBufferTime
           );
           break;
       }
-    } while (this._position < buffer.length);
+    } while (this._readPosition < buffer.length);
   }
 
   /**
@@ -78,30 +99,9 @@ class IcecastMetadataParser {
    */
   reset() {
     this._stream = new Uint8Array();
-    this._position = 0;
-    this._status = 0;
+    this._readPosition = 0;
+    this._step = 0;
     this.purgeMetadataQueue();
-  }
-
-  /**
-   * @description Returns and clears the buffer of streaming audio data
-   * @returns {UInt8Array} Stored bytes of stream data
-   */
-  getStream() {
-    const oldStream = this._stream;
-    this._stream = new Uint8Array();
-    return oldStream;
-  }
-
-  /**
-   * @description Returns the metadata queued for updates
-   * @returns {{metadata: string, time: number}[]} Queued metadata
-   */
-  getMetadataQueue() {
-    return this._metadataQueue.map(({ metadata, time }) => ({
-      metadata,
-      time,
-    }));
   }
 
   /**
@@ -112,28 +112,28 @@ class IcecastMetadataParser {
     this._metadataQueue = [];
   }
 
-  _next() {
+  _nextStep() {
     // cycle through the steps to parse icecast data
-    this._status = (this._status + 1) % 4;
+    this._step = (this._step + 1) % 4;
   }
 
   _readData(value) {
-    const readTo = this._bytesToRead + this._position;
+    const readTo = this._bytesToRead + this._readPosition;
 
     const data =
       readTo < value.length
-        ? value.subarray(this._position, readTo)
-        : value.subarray(this._position);
+        ? value.subarray(this._readPosition, readTo)
+        : value.subarray(this._readPosition);
 
-    this._position += data.length;
+    this._readPosition += data.length;
     this._bytesToRead -= data.length;
 
-    if (this._bytesToRead === 0) this._next();
+    if (this._bytesToRead === 0) this._nextStep();
 
     return data;
   }
 
-  _setStream(data) {
+  _appendStream(data) {
     const newStream = new Uint8Array(this._stream.length + data.length);
     newStream.set(this._stream, 0);
     newStream.set(data, this._stream.length);
@@ -142,7 +142,7 @@ class IcecastMetadataParser {
 
   _getMetadataBitrateOffset() {
     // attempts to synchronize the metadata to bitrate of the audio stream
-    return this._icyBr ? this._position / (this._icyBr * 125) : 0;
+    return this._icyBr ? this._readPosition / (this._icyBr * 125) : 0;
   }
 
   _enqueueMetadata(meta) {
@@ -153,10 +153,10 @@ class IcecastMetadataParser {
 
   _dequeueMetadata() {
     const meta = this._metadataQueue.shift();
-    return meta;
+    if (this._onMetadataUpdate) this._onMetadataUpdate({ metadata: meta.metadata, time: meta.time });
   }
 
-  _setMetadata(data, playTime, readTime) {
+  _addMetadata(data, playTime, readTime) {
     // decode and push the metadata to the queue
     const time = readTime + this._getMetadataBitrateOffset();
 
@@ -170,7 +170,6 @@ class IcecastMetadataParser {
     this._enqueueMetadata({
       _timeoutId: setTimeout(() => {
         this._dequeueMetadata();
-        if (this._onMetadataUpdate) this._onMetadataUpdate(metadata);
       }, metadataTriggerTime),
       metadata,
       time,

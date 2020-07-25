@@ -69,7 +69,7 @@ class IcecastMetadataRecorder {
         res.body.pipe(this._icecast).pipe(this._audioFileWritable);
       })
       .catch((e) => {
-        this._stop();
+        this._closeFiles();
         if (e.name !== "AbortError") {
           throw e;
         }
@@ -83,7 +83,7 @@ class IcecastMetadataRecorder {
     this._controller.abort();
   }
 
-  _stop() {
+  _closeFiles() {
     this._audioFileWritable.close();
     this._cueFileWritable.close();
   }
@@ -92,7 +92,7 @@ class IcecastMetadataRecorder {
     this._icecast = new IcecastMetadataTransformStream({
       icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
       icyBr: parseInt(headers.get("Icy-Br")),
-      onMetadataQueue: this._recordMetadata.bind(this),
+      onMetadataQueue: (meta) => this._recordMetadata(meta)
     });
   }
 
@@ -116,7 +116,7 @@ class IcecastMetadataRecorder {
   }
 
   _recordMetadata(meta) {
-    const trackCount = this._cueBuilder.getTrackCount();
+    const trackCount = this._cueBuilder.trackCount;
 
     /**
      * When there is only one more cue entry remaining
