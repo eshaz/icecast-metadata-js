@@ -153,7 +153,8 @@ class IcecastMetadataParser {
 
   _dequeueMetadata() {
     const meta = this._metadataQueue.shift();
-    if (this._onMetadataUpdate) this._onMetadataUpdate({ metadata: meta.metadata, time: meta.time });
+    if (this._onMetadataUpdate)
+      this._onMetadataUpdate({ metadata: meta.metadata, time: meta.time });
   }
 
   _addMetadata(data, playTime, readTime) {

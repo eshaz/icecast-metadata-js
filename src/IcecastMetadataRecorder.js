@@ -92,7 +92,7 @@ class IcecastMetadataRecorder {
     this._icecast = new IcecastMetadataTransformStream({
       icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
       icyBr: parseInt(headers.get("Icy-Br")),
-      onMetadataQueue: (meta) => this._recordMetadata(meta)
+      onMetadataQueue: (meta) => this._recordMetadata(meta),
     });
   }
 
