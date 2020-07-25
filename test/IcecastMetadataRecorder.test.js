@@ -1,9 +1,20 @@
 const IcecastMetadataRecorder = require("../src/IcecastMetadataRecorder");
 
-const testStream = new IcecastMetadataRecorder({
-  fileName: "isics-all.mp3",
+const isicsAll = new IcecastMetadataRecorder({
+  fileName: "isics-all",
   streamTitle: "ISICS All",
   streamEndpoint: "https://dsmrad.io/stream/isics-all",
+  cueRolloverInterval: 5,
 });
 
-testStream.record();
+const saraAll = new IcecastMetadataRecorder({
+  fileName: "sara-all",
+  streamTitle: "SARA All",
+  streamEndpoint: "https://dsmrad.io/stream/sara-all",
+  cueRolloverInterval: 5,
+});
+
+isicsAll.record();
+saraAll.record();
+
+setTimeout(() => isicsAll.stop(), 2000);
