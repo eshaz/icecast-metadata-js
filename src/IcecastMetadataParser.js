@@ -101,13 +101,13 @@ class IcecastMetadataParser {
     this._stream = new Uint8Array();
     this._readPosition = 0;
     this._step = 0;
-    this.purgeMetadataQueue();
+    this._purgeMetadataQueue();
   }
 
   /**
    * @description Clears all metadata updates and empties the queue
    */
-  purgeMetadataQueue() {
+  _purgeMetadataQueue() {
     this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
     this._metadataQueue = [];
   }
@@ -128,7 +128,7 @@ class IcecastMetadataParser {
     this._readPosition += data.length;
     this._bytesToRead -= data.length;
 
-    if (this._bytesToRead === 0) this._nextStep();
+    this._bytesToRead || this._nextStep();
 
     return data;
   }
