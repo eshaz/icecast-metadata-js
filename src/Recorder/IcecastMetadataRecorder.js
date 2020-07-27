@@ -83,8 +83,9 @@ class IcecastMetadataRecorder {
   }
 
   _closeFiles() {
-    this._audioFileWritable.close();
-    this._cueFileWritable.close();
+    // fetch may throw before we instatiate the writables
+    this._audioFileWritable && this._audioFileWritable.close();
+    this._cueFileWritable && this._cueFileWritable.close();
   }
 
   _getIcecast(headers) {

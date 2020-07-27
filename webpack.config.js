@@ -3,15 +3,16 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = {
   externals: {
     fs: "commonjs fs",
+    path: "commonjs path",
   },
-  entry: __dirname + "/test/IcecastMetadataRecorder.test.js",
+  entry: __dirname + "/src/StreamRecorder/StreamRecorder.js",
   output: {
     path: __dirname + "/dist",
     filename: "recorder.js",
   },
   optimization: {
     concatenateModules: false,
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -24,4 +25,9 @@ module.exports = {
     ],
   },
   target: "node",
+  node: {
+    global: false,
+    __filename: false,
+    __dirname: false,
+  },
 };

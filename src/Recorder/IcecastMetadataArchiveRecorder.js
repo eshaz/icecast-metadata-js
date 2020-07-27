@@ -21,7 +21,7 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
 
     const archiver = new ArchiveRotator({
       archivePath: this._archivePath,
-      archiveDate: this._startDate.toISOString(),
+      archiveDate: this._startDate.toISOString().substring(0, 19), // archive date is more granular to prevent overwriting previous archives
       filesToArchive: this._fileNames,
     });
 
@@ -29,7 +29,8 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   }
 
   _setRollover() {
-    const rolloverTimeout = this._cron.next().getTime() - this._startDate.getTime();
+    const rolloverTimeout =
+      this._cron.next().getTime() - this._startDate.getTime();
     this._rolloverId = setTimeout(() => {
       this._rollover();
     }, rolloverTimeout);

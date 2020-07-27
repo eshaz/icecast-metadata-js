@@ -45,19 +45,19 @@ const signalHandler = (signal) => {
 
   recorderInstances.forEach((recorder) => recorder.stop());
 
-  process.exit(0)
-}
+  process.exit(0);
+};
 
 const main = () => {
   const args = getArgs();
   const command = args._[0];
 
-  const recorders = {
-    archive: getIcecastMetadataArchiveRecorder,
-    record: getIcecastMetadataRecorder,
-  };
+  if (command === "archive") {
+    constructIcecastMetadataReaders(args, getIcecastMetadataArchiveRecorder);
+  } else {
+    constructIcecastMetadataReaders(args, getIcecastMetadataRecorder);
+  }
 
-  constructIcecastMetadataReaders(args, recorders[command]);
   recorderInstances.forEach((recorder) => recorder.record());
 
   process.on("SIGQUIT", signalHandler);
