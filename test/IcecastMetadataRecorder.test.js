@@ -1,4 +1,4 @@
-const IcecastMetadataRecorder = require("../src/IcecastMetadataRecorder");
+const { IcecastMetadataRecorder } = require("../src/IcecastMetadataRecorder");
 
 const isicsAll = new IcecastMetadataRecorder({
   fileName: "isics-all",
@@ -15,4 +15,4 @@ const saraAll = new IcecastMetadataRecorder({
 });
 
 isicsAll.record();
-// saraAll.record();
+saraAll.record();

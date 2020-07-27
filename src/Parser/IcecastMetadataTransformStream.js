@@ -35,7 +35,7 @@ class IcecastMetadataTransformStream extends Transform {
   }
 
   _getTotalTime() {
-    return this._totalReadBytes / (this._icyBr * 125);
+    return this._totalReadBytes / (this._icyBr * 125) || 0;
   }
 
   _transform(chunk, encoding, callback) {

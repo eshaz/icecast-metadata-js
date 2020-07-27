@@ -1,0 +1,11 @@
+{
+    "cue-rollover": 900,
+    "archive-path": "archives",
+    "streams": [
+    {
+        "output": "isics-all.mp3",
+        "name": "ISICS All",
+        "endpoint": "https://dsmrad.io/stream/isics-all",
+        "cue-rollover": 5
+    }]
+}
