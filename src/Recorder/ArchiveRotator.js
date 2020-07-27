@@ -13,8 +13,21 @@ class ArchiveRotator {
   constructor(params) {
     this._archivePath = path.join(params.archivePath, params.archiveDate);
     this._filesToArchive = params.filesToArchive;
+  }
 
-    console.log(params);
+  rotateSync() {
+    try {
+      fs.mkdirSync(this._archivePath, { recursive: true });
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e;
+    }
+
+    this._filesToArchive.forEach((fileName) =>
+      fs.renameSync(
+        path.join(fileName),
+        path.join(this._archivePath, path.basename(fileName))
+      )
+    );
   }
 
   async rotate() {
@@ -23,6 +36,15 @@ class ArchiveRotator {
     } catch (e) {
       if (e.code !== "EEXIST") throw e;
     }
+
+    //return this._filesToArchive
+    //.map((fileName) =>
+    //  this._move(
+    //    path.join(fileName),
+    //    path.join(this._archivePath, path.basename(fileName))
+    //  )
+    //)
+    //.reduce((p, fn) => p.then(fn), Promise.resolve());
 
     return Promise.all(
       this._filesToArchive.map(async (fileName) =>

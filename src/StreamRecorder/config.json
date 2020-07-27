@@ -6,6 +6,7 @@
         "output": "isics-all.mp3",
         "name": "ISICS All",
         "endpoint": "https://dsmrad.io/stream/isics-all",
-        "cue-rollover": 5
+        "cue-rollover": 5,
+        "archive-interval": "*/1 * * * *"
     }]
 }

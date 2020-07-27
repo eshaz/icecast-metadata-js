@@ -2,11 +2,14 @@ const getArgs = require("./get-args");
 const {
   IcecastMetadataArchiveRecorder,
 } = require("../Recorder/IcecastMetadataArchiveRecorder");
+const {
+  IcecastMetadataRecorder,
+} = require("../Recorder/IcecastMetadataRecorder");
 const path = require("path");
 
-const icecastMetadataRecorders = new Map();
+const recorderInstances = new Map();
 
-const getIcecastMetadataRecorder = (params) =>
+const getIcecastMetadataArchiveRecorder = (params) =>
   new IcecastMetadataArchiveRecorder({
     archiveInterval: params["archive-interval"],
     archivePath: path.join(__dirname, params["archive-path"]),
@@ -16,30 +19,50 @@ const getIcecastMetadataRecorder = (params) =>
     output: path.join(__dirname, params.output),
   });
 
-const constructIcecastMetadataReaders = (args) => {
+const getIcecastMetadataRecorder = (params) =>
+  new IcecastMetadataRecorder({
+    name: params.name,
+    endpoint: params.endpoint,
+    cueRollover: params["cue-rollover"],
+    output: path.join(__dirname, params.output),
+  });
+
+const constructIcecastMetadataReaders = (args, recorder) => {
   if (args.streams) {
     args.streams.forEach((stream) => {
-      icecastMetadataRecorders.set(
+      recorderInstances.set(
         stream.output,
-        getIcecastMetadataRecorder({ ...args, ...stream }) // stream args should override global args
+        recorder({ ...args, ...stream }) // stream args should override global args
       );
     });
   } else {
-    icecastMetadataRecorders.set(
-      args.output,
-      getIcecastMetadataRecorder({ ...args })
-    );
+    recorderInstances.set(args.output, recorder({ ...args }));
   }
 };
+
+const signalHandler = (signal) => {
+  console.log(`Received ${signal}. Cleaning up and exiting`);
+
+  recorderInstances.forEach((recorder) => recorder.stop());
+
+  process.exit(0)
+}
 
 const main = () => {
   const args = getArgs();
   const command = args._[0];
 
-  constructIcecastMetadataReaders(args);
-  icecastMetadataRecorders.forEach((recorder) => recorder.record());
+  const recorders = {
+    archive: getIcecastMetadataArchiveRecorder,
+    record: getIcecastMetadataRecorder,
+  };
 
-  setTimeout(() => icecastMetadataRecorders.get("isics-all.mp3").stop(), 1000);
+  constructIcecastMetadataReaders(args, recorders[command]);
+  recorderInstances.forEach((recorder) => recorder.record());
+
+  process.on("SIGQUIT", signalHandler);
+  process.on("SIGTERM", signalHandler);
+  process.on("SIGINT", signalHandler);
 };
 
 main();

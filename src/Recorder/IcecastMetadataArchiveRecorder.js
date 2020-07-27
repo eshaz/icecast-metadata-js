@@ -6,17 +6,16 @@ const { ArchiveRotator } = require("./ArchiveRotator");
 class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   constructor(params) {
     super(params);
-    this._archiveInterval = params.archiveInterval;
     this._archivePath = params.archivePath;
+    this._cron = cron.parseExpression(params.archiveInterval);
   }
 
   record() {
-    // this._getCron();
-    this._setRollover();
     super.record();
+    this._setRollover();
   }
 
-  async stop() {
+  stop() {
     super.stop();
     clearTimeout(this._rolloverId);
 
@@ -26,17 +25,14 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
       filesToArchive: this._fileNames,
     });
 
-    return archiver.rotate();
-  }
-
-  _getCron() {
-    this._cron = cron.parseExpression(this._archiveInterval);
+    archiver.rotateSync();
   }
 
   _setRollover() {
+    const rolloverTimeout = this._cron.next().getTime() - this._startDate.getTime();
     this._rolloverId = setTimeout(() => {
       this._rollover();
-    }, 50000);
+    }, rolloverTimeout);
   }
 
   _rollover() {

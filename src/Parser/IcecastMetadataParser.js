@@ -176,66 +176,6 @@ class IcecastMetadataParser {
       time,
     });
   }
-
-  _getLastMP3HeaderIndex(data) {
-    // NOTE: This currently not used, and un-tested; however, it is kept here for future needs
-    // Enhancements would need to be made to calculate the frame length to ensure the result is actually a header
-    let i = data.length - 4;
-
-    while (i > 0) {
-      // 1st byte must be 255
-      // 11111111
-      // ^^^^^^^^
-      //  (sync)
-
-      // 2nd byte:
-      // (111)(x0)(01)(x) <- checksum
-      //  ^^^  ^^  ^^
-      //  |    |   layer III
-      //  |    mpeg 2 or mpeg 2.5
-      //  sync
-
-      // 3rd byte must not have these bits
-      // (1111)(11)(xx)
-      //  ^^^^  ^^
-      //  |     invalid sample rate
-      //  invalid bitrate
-
-      // 4th byte must have these bits
-      // (??)(xx)(x)(x)(00) <- no pre-emphasis
-      //  ^^            ^^
-      //  |
-      //  00 - Stereo
-      //  01 - Joint stereo (Stereo)
-      //  10 - Dual channel (2 mono channels)
-      //  11 - Single channel (Mono)
-
-      if (!(data[i] ^ 255)) {
-        if (!((data[i + 1] & 238) ^ 226)) {
-          // must be a sync byte
-          if (
-            (data[i + 2] & 240) ^ 240 && // must be MPEG 2 or 2.5 and layer 3
-            (data[i + 2] & 12) ^ 12 && // must have a valid sample rate
-            !((data[i + 3] & 3) ^ 0)
-          ) {
-            // must not have pre-emphasis
-            // && !((data[i+3] & 192) ^ this.streamFormat.channelMode * 64)
-            break;
-          }
-        }
-      }
-      i--;
-    }
-
-    console.log(
-      data[i].toString(2).padStart(8, "0"),
-      data[i + 1].toString(2).padStart(8, "0"),
-      data[i + 2].toString(2).padStart(8, "0"),
-      data[i + 3].toString(2).padStart(8, "0")
-    );
-
-    return i;
-  }
 }
 
 module.exports = IcecastMetadataParser;
