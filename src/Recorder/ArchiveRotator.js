@@ -23,11 +23,21 @@ class ArchiveRotator {
     }
 
     this._filesToArchive.forEach((fileName) =>
-      fs.renameSync(
+      this._moveSync(
         path.join(fileName),
         path.join(this._archivePath, path.basename(fileName))
       )
     );
+  }
+
+  _moveSync(oldPath, newPath) {
+    try {
+      fs.renameSync(oldPath, newPath);
+    } catch (e) {
+      if (e.code !== "EXDEV") throw e;
+      fs.copyFileSync(oldPath, newPath);
+      fs.unlinkSync(oldPath);
+    }
   }
 
   async rotate() {
@@ -36,15 +46,6 @@ class ArchiveRotator {
     } catch (e) {
       if (e.code !== "EEXIST") throw e;
     }
-
-    //return this._filesToArchive
-    //.map((fileName) =>
-    //  this._move(
-    //    path.join(fileName),
-    //    path.join(this._archivePath, path.basename(fileName))
-    //  )
-    //)
-    //.reduce((p, fn) => p.then(fn), Promise.resolve());
 
     return Promise.all(
       this._filesToArchive.map(async (fileName) =>
@@ -57,20 +58,9 @@ class ArchiveRotator {
   }
 
   async _move(oldPath, newPath) {
-    const copy = () => {
-      const rs = fs.createReadStream(oldPath);
-      const ws = fs.createWriteStream(newPath);
-
-      rs.on("close", () => {
-        fs.unlink(oldPath, callback);
-      });
-
-      rs.pipe(ws);
-    };
-
     return fs.promises.rename(oldPath, newPath).catch((e) => {
       if (e.code !== "EXDEV") throw e;
-      copy();
+      fs.promises.copyFile(oldPath, newPath).then(fs.promises.unlink(oldPath));
     });
   }
 }

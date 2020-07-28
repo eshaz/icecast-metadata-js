@@ -26,8 +26,8 @@ class CueBuilder extends Readable {
    */
   constructor({ title, fileName, comments = [] }) {
     super();
-    this._startCueFile(title, fileName, comments);
     this._trackCount = 0;
+    this._startCueFile(title, fileName, comments);
   }
 
   /**

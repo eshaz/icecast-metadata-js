@@ -67,6 +67,7 @@ const getArgs = () =>
           assertNotNull(stream, "endpoint");
           // optional type checks
           assertType(stream, "output", "string");
+          assertType(stream, "output-path", "string");
           assertType(stream, "name", "string");
           assertType(stream, "endpoint", "string");
           assertType(stream, "cue-rollover", "number");
@@ -108,7 +109,7 @@ const getArgs = () =>
           streams: {
             type: "array",
             describe:
-              "JSON Array containing a list of streams to record. \nRequired: {endpoint, output, name} \nOptional: {cue-rollover}",
+              "JSON Array containing a list of streams to record. \nRequired: {endpoint, output, name} \nOptional: {output-path, cue-rollover}",
           },
         })
     )
@@ -133,7 +134,7 @@ const getArgs = () =>
             streams: {
               type: "array",
               describe:
-                "JSON Array containing a list of streams to archive. \nRequired: {endpoint, output, name} \nOptional: {archive-interval, archive-path, cue-rollover}",
+                "JSON Array containing a list of streams to archive. \nRequired: {endpoint, output, name} \nOptional: {output-path, archive-interval, archive-path, cue-rollover}",
             },
           })
           .example([
@@ -151,6 +152,12 @@ const getArgs = () =>
       output: {
         alias: "o",
         describe: "Output file",
+        type: "string",
+        requiresArg: true,
+      },
+      "output-path": {
+        describe:
+          "Output path to prepend to file output (only useful for for JSON config)",
         type: "string",
         requiresArg: true,
       },

@@ -48,12 +48,10 @@ class IcecastMetadataRecorder {
    */
   record() {
     this._startDate = new Date(Date.now());
-    this._fileNames = [];
+    this._fileNames = [this._audioFileName];
     this._cueRolloverCount = 0;
 
     this._controller = new AbortController();
-    this._fileNames.push(this._audioFileName);
-
     this._audioFileWritable = fs.createWriteStream(this._audioFileName);
 
     fetch(this._endpoint, {
@@ -83,9 +81,9 @@ class IcecastMetadataRecorder {
   }
 
   _closeFiles() {
-    // fetch may throw before we instatiate the writables
-    this._audioFileWritable && this._audioFileWritable.close();
-    this._cueFileWritable && this._cueFileWritable.close();
+    // fetch may throw before we instantiate the streams
+    this._audioFileWritable && this._audioFileWritable.end();
+    this._cueFileWritable && this._cueFileWritable.end();
   }
 
   _getIcecast(headers) {
@@ -97,6 +95,14 @@ class IcecastMetadataRecorder {
   }
 
   _getCueBuilder() {
+    // add a rollover number to the file name
+    const cueFileName = this._cueRolloverCount
+      ? `${this._audioFileNameNoExt}.${this._cueRolloverCount}.cue`
+      : `${this._audioFileNameNoExt}.cue`;
+
+    this._cueFileWritable = fs.createWriteStream(cueFileName);
+    this._fileNames.push(cueFileName);
+
     this._cueBuilder = new CueBuilder({
       title: this._name,
       fileName: path.basename(this._audioFileName),
@@ -106,13 +112,6 @@ class IcecastMetadataRecorder {
       ],
     });
 
-    // add a rollover number to the file name
-    const cueFileName = this._cueRolloverCount
-      ? `${this._audioFileNameNoExt}.${this._cueRolloverCount}.cue`
-      : `${this._audioFileNameNoExt}.cue`;
-
-    this._fileNames.push(cueFileName);
-    this._cueFileWritable = fs.createWriteStream(cueFileName);
     this._cueBuilder.pipe(this._cueFileWritable);
   }
 
@@ -128,7 +127,7 @@ class IcecastMetadataRecorder {
      * Reasonable rollover thresholds should be based on your player's limitations.
      * (i.e. Foobar2000 accepts up to 999 tracks in the cue file)
      */
-    if (trackCount + 1 == this._cueRollover) {
+    if (trackCount + 1 === this._cueRollover) {
       this._cueBuilder.addTrack(meta.time, "END");
       this._cueRolloverCount++;
       this._cueFileWritable.close();
@@ -140,7 +139,7 @@ class IcecastMetadataRecorder {
     ).toISOString();
 
     this._cueBuilder.addTrack(
-      trackCount && meta.time, // force metadata for first track to show immediately
+      trackCount && this._cueRolloverCount && meta.time, // force metadata for first track to show immediately
       `${timeStamp} ${meta.metadata}`
     );
   }

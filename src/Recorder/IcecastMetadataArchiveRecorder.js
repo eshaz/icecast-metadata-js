@@ -7,7 +7,7 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   constructor(params) {
     super(params);
     this._archivePath = params.archivePath;
-    this._cron = cron.parseExpression(params.archiveInterval);
+    this._cron = cron.parseExpression(params.archiveInterval, { utc: true });
   }
 
   record() {

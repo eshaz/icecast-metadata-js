@@ -12,11 +12,17 @@ const recorderInstances = new Map();
 const getIcecastMetadataArchiveRecorder = (params) =>
   new IcecastMetadataArchiveRecorder({
     archiveInterval: params["archive-interval"],
-    archivePath: path.join(__dirname, params["archive-path"]),
+    archivePath: path.join(
+      path.isAbsolute(params["archive-path"]) ? "" : __dirname,
+      params["archive-path"]
+    ),
     name: params.name,
     endpoint: params.endpoint,
     cueRollover: params["cue-rollover"],
-    output: path.join(__dirname, params.output),
+    output: path.join(
+      path.isAbsolute(params.output) ? "" : params["output-path"] || __dirname,
+      params.output
+    ),
   });
 
 const getIcecastMetadataRecorder = (params) =>
@@ -24,7 +30,10 @@ const getIcecastMetadataRecorder = (params) =>
     name: params.name,
     endpoint: params.endpoint,
     cueRollover: params["cue-rollover"],
-    output: path.join(__dirname, params.output),
+    output: path.join(
+      path.isAbsolute(params.output) ? "" : params["output-path"] || __dirname,
+      params.output
+    ),
   });
 
 const constructIcecastMetadataReaders = (args, recorder) => {
@@ -54,8 +63,11 @@ const main = () => {
 
   if (command === "archive") {
     constructIcecastMetadataReaders(args, getIcecastMetadataArchiveRecorder);
-  } else {
+  } else if (command === "record") {
     constructIcecastMetadataReaders(args, getIcecastMetadataRecorder);
+  } else {
+    console.error(`Invalid command: ${command}`);
+    process.exit(1);
   }
 
   recorderInstances.forEach((recorder) => recorder.record());

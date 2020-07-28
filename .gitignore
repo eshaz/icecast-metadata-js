@@ -2,3 +2,4 @@ node_modules
 *.log
 *.mp3
 *.cue
+dist
