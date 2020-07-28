@@ -139,7 +139,7 @@ class IcecastMetadataRecorder {
     ).toISOString();
 
     this._cueBuilder.addTrack(
-      trackCount && this._cueRolloverCount && meta.time, // force metadata for first track to show immediately
+      (trackCount || this._cueRolloverCount) && meta.time, // force metadata for first track to show immediately
       `${timeStamp} ${meta.metadata}`
     );
   }
