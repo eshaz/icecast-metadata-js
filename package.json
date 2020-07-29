@@ -4,7 +4,7 @@
   "description": "Client Side Icecast Metadata Reader",
   "main": "audio-handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "format": "prettier --write '**/*.js' --write '**/*.json'",
     "license": "gen license",
     "build-recorder": "webpack --config webpack.config.js"
@@ -21,6 +21,8 @@
   "homepage": "https://github.com/eshaz/icecast-metadata-js#readme",
   "devDependencies": {
     "exports-loader": "^1.1.0",
+    "jest": "^26.1.0",
+    "@types/jest": "^26.0.7",
     "prettier": "^2.0.2",
     "terser-webpack-plugin": "^3.0.7",
     "webpack": "^4.44.0",
