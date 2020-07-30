@@ -22,28 +22,22 @@ const { Transform } = require("stream");
  * @param {Object} IcecastMetadataParser constructor parameter
  * @param {number} IcecastMetadataParser.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
  * @param {number} [IcecastMetadataParser.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
- * @param {function} [IcecastMetadataParser.onMetadataUpdate] Callback executed when metadata is scheduled to update
- * @param {function} [IcecastMetadataParser.onMetadataQueue] Callback executed when metadata is discovered and queued for update
+ * @param {function} [IcecastMetadataParser.onMetadata] Callback executed when metadata is discovered and queued for update
  */
 class IcecastMetadataTransformStream extends Transform {
   constructor(params) {
     super();
 
-    this.icecastMetadataParser = new IcecastMetadataParser(params);
-    this._totalReadBytes = 0;
+    this.icecastMetadataParser = new IcecastMetadataParser({
+      ...params,
+      disableMetadataUpdates: true,
+    });
     this._icyBr = params.icyBr;
   }
 
-  _getTotalTime() {
-    return this._totalReadBytes / (this._icyBr * 125) || 0;
-  }
-
   _transform(chunk, encoding, callback) {
-    this.icecastMetadataParser.readBuffer(chunk, 0, this._getTotalTime());
-
+    this.icecastMetadataParser.readBuffer(chunk);
     const stream = this.icecastMetadataParser.stream;
-    this._totalReadBytes += stream.length;
-
     callback(null, stream);
   }
 }

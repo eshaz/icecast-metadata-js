@@ -32,7 +32,7 @@ const CueBuilder = require("./CueBuilder");
  * @param {number} [IcecastMetadataRecorder.cueRollover=undefined] Number of metadata updates before creating a new cue file. Use for compatibility with applications such as foobar2000.
  */
 class IcecastMetadataRecorder {
-  constructor({ output, name, endpoint, cueRollover }) {
+  constructor({ output, name, endpoint, cueRollover }, done) {
     const FORMAT_MATCHER = /(?:\.([^.]+))?$/;
 
     this._audioFileName = output;
@@ -41,6 +41,7 @@ class IcecastMetadataRecorder {
     this._name = name;
     this._endpoint = endpoint;
     this._cueRollover = cueRollover;
+    this._done = done;
   }
 
   /**
@@ -48,11 +49,21 @@ class IcecastMetadataRecorder {
    */
   record() {
     this._startDate = new Date(Date.now());
-    this._fileNames = [this._audioFileName];
+    this._fileNames = [];
     this._cueRolloverCount = 0;
-
     this._controller = new AbortController();
-    this._audioFileWritable = fs.createWriteStream(this._audioFileName);
+
+    /**
+     * TEST: Replace the date with a mock and create raw response WriteStream
+     *
+     * this._startDate = new Date(1596057371222);
+     * this._raw = fs.createWriteStream(`${this._audioFileName}.raw`);
+     */
+
+    this._audioFileWritable = this._openFile(this._audioFileName);
+    this._audioFileWritable.addListener("finish", () => {
+      this._done && this._done();
+    });
 
     fetch(this._endpoint, {
       method: "GET",
@@ -62,11 +73,16 @@ class IcecastMetadataRecorder {
       .then((res) => {
         this._getIcecast(res.headers);
         this._getCueBuilder();
-
+        /**
+         * TEST: Pipe to a raw response to file for testing
+         * 
+         * res.body.pipe(this._raw);
+         */
         res.body.pipe(this._icecast).pipe(this._audioFileWritable);
       })
       .catch((e) => {
-        this._closeFiles();
+        this._closeFile(this._icecast);
+        this._closeFile(this._cueBuilder);
         if (e.name !== "AbortError") {
           throw e;
         }
@@ -80,17 +96,26 @@ class IcecastMetadataRecorder {
     this._controller.abort();
   }
 
-  _closeFiles() {
-    // fetch may throw before we instantiate the streams
-    this._audioFileWritable && this._audioFileWritable.end();
-    this._cueFileWritable && this._cueFileWritable.end();
+  _openFile(fileName) {
+    try {
+      fs.mkdirSync(path.dirname(fileName), { recursive: true });
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e;
+    }
+
+    this._fileNames.push(fileName);
+    return fs.createWriteStream(fileName);
+  }
+
+  _closeFile(file) {
+    file && file.push(null);
   }
 
   _getIcecast(headers) {
     this._icecast = new IcecastMetadataTransformStream({
       icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
       icyBr: parseInt(headers.get("Icy-Br")),
-      onMetadataQueue: (meta) => this._recordMetadata(meta),
+      onMetadata: (meta) => this._recordMetadata(meta),
     });
   }
 
@@ -100,8 +125,7 @@ class IcecastMetadataRecorder {
       ? `${this._audioFileNameNoExt}.${this._cueRolloverCount}.cue`
       : `${this._audioFileNameNoExt}.cue`;
 
-    this._cueFileWritable = fs.createWriteStream(cueFileName);
-    this._fileNames.push(cueFileName);
+    this._cueFileWritable = this._openFile(cueFileName);
 
     this._cueBuilder = new CueBuilder({
       title: this._name,
@@ -130,7 +154,7 @@ class IcecastMetadataRecorder {
     if (trackCount + 1 === this._cueRollover) {
       this._cueBuilder.addTrack(meta.time, "END");
       this._cueRolloverCount++;
-      this._cueFileWritable.close();
+      this._closeFile(this._cueBuilder);
       this._getCueBuilder();
     }
 

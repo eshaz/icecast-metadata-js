@@ -20,9 +20,9 @@
   },
   "homepage": "https://github.com/eshaz/icecast-metadata-js#readme",
   "devDependencies": {
+    "@types/jest": "^26.0.7",
     "exports-loader": "^1.1.0",
     "jest": "^26.1.0",
-    "@types/jest": "^26.0.7",
     "prettier": "^2.0.2",
     "terser-webpack-plugin": "^3.0.7",
     "webpack": "^4.44.0",
