@@ -21,7 +21,6 @@ const exec = require("child_process").exec;
 const {
   IcecastMetadataRecorder,
 } = require("../../src/Recorder/IcecastMetadataRecorder");
-const { ContextReplacementPlugin } = require("webpack");
 
 jest.mock("node-fetch");
 
