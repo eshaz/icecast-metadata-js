@@ -36,7 +36,13 @@ class IcecastMetadataTransformStream extends Transform {
   }
 
   _transform(chunk, encoding, callback) {
-    this.icecastMetadataParser.readBuffer(chunk);
+    this.icecastMetadataParser.readBuffer(
+      chunk,
+      0,
+      this.icecastMetadataParser.getTimeByBytes(
+        this.icecastMetadataParser.streamBytesRead
+      )
+    );
     const stream = this.icecastMetadataParser.stream;
     callback(null, stream);
   }

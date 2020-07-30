@@ -75,7 +75,7 @@ class IcecastMetadataRecorder {
         this._getCueBuilder();
         /**
          * TEST: Pipe to a raw response to file for testing
-         * 
+         *
          * res.body.pipe(this._raw);
          */
         res.body.pipe(this._icecast).pipe(this._audioFileWritable);

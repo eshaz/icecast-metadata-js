@@ -30,7 +30,7 @@ class IcecastMetadataParser {
   constructor({
     icyMetaInt,
     icyBr,
-    disableMetadataUpdates = false,
+    disableMetadataUpdates,
     onMetadataUpdate,
     onMetadata,
   }) {
@@ -101,11 +101,7 @@ class IcecastMetadataParser {
    * @param {number} [currentTime] Time in seconds representing current time the audio player is reporting
    * @param {number} [endOfBufferTime] Time in seconds representing the end of the stored buffer by the audio player
    */
-  readBuffer(
-    buffer,
-    currentTime = 0,
-    endOfBufferTime = this.getTimeByBytes(this._streamBytesRead)
-  ) {
+  readBuffer(buffer, currentTime, endOfBufferTime) {
     this._readPosition = 0;
 
     do {
@@ -193,11 +189,11 @@ class IcecastMetadataParser {
     this._stream = newStream;
   }
 
-  _enqueueMetadata(metadata, time, triggerTime) {
+  _enqueueMetadata(metadata, time, playTime) {
     this._metadataQueue.push({
       _timeoutId: setTimeout(() => {
         this._dequeueMetadata();
-      }, triggerTime * 1000), // trigger timeout relative to play position
+      }, (time - playTime) * 1000), // trigger timeout relative to play position
       metadata,
       time,
     });
@@ -219,7 +215,7 @@ class IcecastMetadataParser {
       .replace(/';.*/, ""); // "The Stream Title"
 
     this._disableMetadataUpdates ||
-      this._enqueueMetadata(metadata, time, time - playTime);
+      this._enqueueMetadata(metadata, time, playTime);
     this._onMetadata && this._onMetadata({ metadata, time });
 
     this._metadataBytesRead += data.length;
