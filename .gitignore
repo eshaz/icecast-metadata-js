@@ -1,4 +1,6 @@
 node_modules
 *.log
-*.mp3
-*.cue
+src/**.mp3
+src/**.cue
+test/temp/*
+dist
