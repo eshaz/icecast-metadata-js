@@ -20,8 +20,8 @@ class CueBuilder extends Readable {
   /**
    * @description Generates a CD cue file based on the SCSI-3 Multimedia Commands specification
    * @param {Object} CueFileGenerator constructor parameter
-   * @param {number} CueFileGenerator.title Title of the cue file
-   * @param {number} CueFileGenerator.fileName Filename of the audio file referenced by this cue file
+   * @param {string} CueFileGenerator.title Title of the cue file
+   * @param {string} CueFileGenerator.fileName Filename of the audio file referenced by this cue file
    * @param {Array<string>} [CueFileGenerator.comments] Comments to be added to the top of the file
    */
   constructor({ title, fileName, comments = [] }) {

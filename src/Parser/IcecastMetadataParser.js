@@ -15,6 +15,7 @@
 */
 
 const { TextDecoder } = require("util");
+const BufferArray = require("./BufferArray");
 
 class IcecastMetadataParser {
   /**
@@ -41,7 +42,7 @@ class IcecastMetadataParser {
     this._onMetadataUpdate = onMetadataUpdate;
     this._onMetadata = onMetadata;
 
-    this._stream = new Uint8Array();
+    this._stream = new BufferArray();
     this._metadataQueue = [];
     this._readPosition = 0;
     this._step = 0;
@@ -54,8 +55,8 @@ class IcecastMetadataParser {
    * @type {UInt8Array} Stored bytes of stream data
    */
   get stream() {
-    const oldStream = this._stream;
-    this._stream = new Uint8Array();
+    const oldStream = this._stream.readAll;
+    this._stream.init();
     return oldStream;
   }
 
@@ -103,6 +104,7 @@ class IcecastMetadataParser {
    */
   readBuffer(buffer, currentTime, endOfBufferTime) {
     this._readPosition = 0;
+    this._stream.newBuffer(buffer.length);
 
     do {
       switch (this._step) {
@@ -134,7 +136,7 @@ class IcecastMetadataParser {
    * @description Resets the internal state of the IcecastMetadataReader
    */
   reset() {
-    this._stream = new Uint8Array();
+    this._stream.init();
     this._readPosition = 0;
     this._step = 0;
     this._streamBytesRead = 0;
@@ -182,11 +184,9 @@ class IcecastMetadataParser {
    * @param {UInt8Array} data Data to append
    */
   _appendStream(data) {
+    this._stream.append(data);
+
     this._streamBytesRead += data.length;
-    const newStream = new Uint8Array(this._stream.length + data.length);
-    newStream.set(this._stream, 0);
-    newStream.set(data, this._stream.length);
-    this._stream = newStream;
   }
 
   _enqueueMetadata(metadata, time, playTime) {
@@ -206,7 +206,10 @@ class IcecastMetadataParser {
   }
 
   _addMetadata(data, playTime, readTime) {
-    // calculate the time metadata was received based on the number of audio bytes read
+    /**
+     * Metadata time is sum of the total time elapsed when readBuffer is called
+     * with the offset of the audio bytes read so far while parsing.
+     */
     const time = readTime + this.getTimeByBytes(this._stream.length);
 
     const metadata = this._dec
