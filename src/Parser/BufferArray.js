@@ -40,7 +40,7 @@ class BufferArray {
     this._buffers.forEach((buf) => {
       returnBuffer.set(buf, offset);
       offset += buf.length;
-    })
+    });
 
     return returnBuffer;
   }
@@ -64,7 +64,9 @@ class BufferArray {
   }
 
   _trimTail() {
-    this._buffers[this._numberBuffers] = this._buffers[this._numberBuffers].subarray(0, this._currentLength);
+    this._buffers[this._numberBuffers] = this._buffers[
+      this._numberBuffers
+    ].subarray(0, this._currentLength);
   }
 
   _newBuffer(length) {

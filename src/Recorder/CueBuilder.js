@@ -62,7 +62,7 @@ class CueBuilder extends Readable {
   _read() {} // required to extend the Readable class, but we only need to use the built in read method
 
   _append(string) {
-    //this.push(string, "ascii");
+    this.push(string, "ascii");
   }
 
   /**
