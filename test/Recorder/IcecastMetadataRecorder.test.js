@@ -16,7 +16,6 @@
 
 const fs = require("fs");
 const fetch = require("node-fetch");
-const exec = require("child_process").exec;
 
 const {
   IcecastMetadataRecorder,
