@@ -5,6 +5,7 @@ class BufferArray {
   constructor() {
     this.init();
 
+    // Use fast buffer allocation if this is a NodeJS runtime or Uint8Array if a browser runtime
     this._bufferFunction =
       typeof module !== "undefined" && module.exports
         ? (length) => Buffer.allocUnsafe(length)
