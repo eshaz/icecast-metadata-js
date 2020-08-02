@@ -18,7 +18,7 @@
   Based on documentation from:
   * http://www.13thmonkey.org/documentation/SCSI/x3_304_1997.pdf
   * https://wiki.hydrogenaud.io/index.php?title=Cue_sheet
-*/ 
+*/
 
 const { Readable } = require("stream");
 
@@ -85,7 +85,7 @@ class CueBuilder extends Readable {
 
   /**
    * @description Adds a new track to the cue file
-   * @param {Object} entries Object with 
+   * @param {Object} entries Object with
    * @param {string} title Title of the track
    */
   addTrack(entries, time, comments, fileType) {
@@ -94,7 +94,7 @@ class CueBuilder extends Readable {
     // only add a file entry if one is passed in
     const fileEntry = CueBuilder._getFileEntry(entries, fileType);
 
-    // 
+    //
     fileEntry && trackEntries.push(fileEntry);
     trackEntries.push(
       `  TRACK ${(this._trackCount += 1)} AUDIO`,
