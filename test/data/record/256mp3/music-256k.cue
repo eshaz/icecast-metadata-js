@@ -11,9 +11,9 @@ TITLE "Drone Zone: Atmospheric ambient space music. Serve Best Chilled. Safe wit
 FILE "music-256k.mp3" WAVE
   TRACK 1 AUDIO
     REM STREAMURL "http://somafm.com/logos/512/dronezone512.png"
-    TITLE "2020-07-29T21:16:11.722Z Djivan Gasparyan - Brother Hunter"
+    TITLE "Djivan Gasparyan - Brother Hunter"
     INDEX 01 00:00:00
   TRACK 2 AUDIO
     REM STREAMURL "http://somafm.com/logos/512/dronezone512.png"
-    TITLE "2020-07-29T21:19:25.722Z Harold Budd & John Foxx - Some Way Through All The Cities"
+    TITLE "Harold Budd & John Foxx - Some Way Through All The Cities"
     INDEX 01 03:14:38

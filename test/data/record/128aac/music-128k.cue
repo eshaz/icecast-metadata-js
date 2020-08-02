@@ -12,9 +12,9 @@ TITLE "Deep Space One"
 FILE "music-128k.aac" WAVE
   TRACK 1 AUDIO
     REM STREAMURL "http://somafm.com/logos/512/deepspaceone512.png"
-    TITLE "2020-07-29T21:16:12.222Z Tlon - In The Shadow Of Unexpectation"
+    TITLE "Tlon - In The Shadow Of Unexpectation"
     INDEX 01 00:00:00
   TRACK 2 AUDIO
     REM STREAMURL "http://somafm.com/logos/512/deepspaceone512.png"
-    TITLE "2020-07-29T21:17:30.222Z SinQ - Rain"
+    TITLE "SinQ - Rain"
     INDEX 01 01:19:00

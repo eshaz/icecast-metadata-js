@@ -63,12 +63,9 @@ const assertCronString = (obj, a) => {
 
 const getArgs = () =>
   argv
-    .config("config", (configPath) => {
-      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    })
     .check((argv) => {
       // assert exclusive or condition for streams ^ (endpoint, output, name)
-      const exclusiveValid = ["endpoint", "output"].reduce(
+      const exclusiveValid = ["output", "endpoint"].reduce(
         (acc, field) => exclusive(argv, "streams", field),
         false
       );
@@ -169,12 +166,6 @@ const getArgs = () =>
         type: "string",
         requiresArg: true,
       },
-      "output-path": {
-        describe:
-          "Output path to prepend to file output (only useful for for JSON config)",
-        type: "string",
-        requiresArg: true,
-      },
       endpoint: {
         alias: "e",
         describe: "Web address of the stream",
@@ -183,9 +174,17 @@ const getArgs = () =>
       },
       name: {
         alias: "n",
-        describe: "Name of the stream. Overrides the value in the `icy-name` header",
+        describe:
+          "Name of the stream. Overrides the value in the `icy-name` header",
         type: "string",
         requiresArg: true,
+      },
+      "prepend-date": {
+        alias: "d",
+        describe:
+          "Prepend an ISO date to the title of each cue entry (i.e. YYYY-MM-DDTHH:MM:SS.SSSZ)",
+        type: "boolean",
+        default: false,
       },
       "cue-rollover": {
         alias: "r",
@@ -194,9 +193,18 @@ const getArgs = () =>
         type: "number",
         requiresArg: true,
       },
+      "output-path": {
+        describe:
+          "Output path to prepend to file output (only useful for for JSON config)",
+        type: "string",
+        requiresArg: true,
+      },
       "--version": {
         hidden: true,
       },
+    })
+    .config("config", (configPath) => {
+      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
     })
     .wrap(argv.terminalWidth()).argv;
 

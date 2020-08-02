@@ -56,6 +56,7 @@ describe("Given the IcecastMetadataRecorder", () => {
     const metadataRecorder = new IcecastMetadataRecorder(
       {
         output: `${params.actualPath}${params.expectedFileName}.${params.expectedFileFormat}`,
+        prependDate: params.expectedPrependDate,
         name: params.expectedStreamTitle,
         endpoint: "https://example.com",
         cueRollover: params.expectedCueRollover,
@@ -72,6 +73,7 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileName = "isics-all";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "isics-all";
+    const expectedPrependDate = true;
 
     beforeAll((done) => {
       const headers = new Map();
@@ -85,6 +87,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
+          expectedPrependDate
         },
         headers,
         done
@@ -106,6 +109,7 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileName = "isics-all";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "isics-all";
+    const expectedPrependDate = true;
     const expectedCueRollover = 10;
 
     beforeAll((done) => {
@@ -120,6 +124,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
+          expectedPrependDate,
           expectedCueRollover,
         },
         headers,
@@ -151,9 +156,10 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedPath = "./test/data/record/256mp3/";
     const expectedFileName = "music-256k";
     const expectedFileFormat = "mp3";
+    const expectedPrependDate = false;
 
     beforeAll((done) => {
-      const headers = new Map();      
+      const headers = new Map();
       headers.set("icy-br", "256");
       headers.set("icy-metaint", "16000");
       headers.set("icy-genre", "Techno Ambient Space");
@@ -177,7 +183,8 @@ describe("Given the IcecastMetadataRecorder", () => {
           actualPath,
           expectedPath,
           expectedFileName,
-          expectedFileFormat
+          expectedFileFormat,
+          expectedPrependDate
         },
         headers,
         done
@@ -199,6 +206,7 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileFormat = "aac";
     const expectedFileName = "music-128k";
     const expectedStreamTitle = "Deep Space One";
+    const expectedPrependDate = false;
 
     beforeAll((done) => {
       const headers = new Map();
@@ -226,6 +234,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
+          expectedPrependDate
         },
         headers,
         done
