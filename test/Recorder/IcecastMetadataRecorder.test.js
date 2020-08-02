@@ -151,20 +151,33 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedPath = "./test/data/record/256mp3/";
     const expectedFileName = "music-256k";
     const expectedFileFormat = "mp3";
-    const expectedStreamTitle = "Drone Zone";
 
     beforeAll((done) => {
-      const headers = new Map();
+      const headers = new Map();      
       headers.set("icy-br", "256");
       headers.set("icy-metaint", "16000");
+      headers.set("icy-genre", "Techno Ambient Space");
+      headers.set(
+        "icy-name",
+        "Drone Zone: Atmospheric ambient space music. Serve Best Chilled. Safe with most medications. [SomaFM]"
+      );
+      headers.set(
+        "icy-notice1",
+        `<BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>`
+      );
+      headers.set(
+        "icy-notice2",
+        `SHOUTcast Distributed Network Audio Server/Linux v1.9.5<BR>`
+      );
+      headers.set("icy-pub", "0");
+      headers.set("icy-url", "http://somafm.com");
 
       runIcecastParser(
         {
           actualPath,
           expectedPath,
           expectedFileName,
-          expectedFileFormat,
-          expectedStreamTitle,
+          expectedFileFormat
         },
         headers,
         done

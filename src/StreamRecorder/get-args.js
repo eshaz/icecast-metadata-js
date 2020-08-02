@@ -68,7 +68,7 @@ const getArgs = () =>
     })
     .check((argv) => {
       // assert exclusive or condition for streams ^ (endpoint, output, name)
-      const exclusiveValid = ["endpoint", "output", "name"].reduce(
+      const exclusiveValid = ["endpoint", "output"].reduce(
         (acc, field) => exclusive(argv, "streams", field),
         false
       );
@@ -79,7 +79,6 @@ const getArgs = () =>
         argv.streams.forEach((stream) => {
           // required fields
           assertNotNull(stream, "output");
-          assertNotNull(stream, "name");
           assertNotNull(stream, "endpoint");
           // optional type checks
           assertType(stream, "output", "string");
@@ -94,7 +93,6 @@ const getArgs = () =>
       } else {
         // required fields
         assertNotNull(argv, "output");
-        assertNotNull(argv, "name");
         assertNotNull(argv, "endpoint");
         // optional type checks
         assertType(argv, "output", "string");
@@ -109,7 +107,7 @@ const getArgs = () =>
 
       return true;
     })
-    .command("record", "Records an Icecast stream with metadata", (yargs) =>
+    .command("record", "Records Icecast stream(s) with metadata", (yargs) =>
       yargs
         .example([
           [
@@ -131,7 +129,7 @@ const getArgs = () =>
     )
     .command(
       "archive",
-      "Records an Icecast stream with metadata and archives over a given interval.",
+      "Records Icecast stream(s) with metadata and archives over a given interval.",
       (yargs) =>
         yargs
           .options({
@@ -185,7 +183,8 @@ const getArgs = () =>
       },
       name: {
         alias: "n",
-        describe: "Name of the stream",
+        describe: "Name of the stream. Overrides the value in the `icy-name` header",
+        type: "string",
         requiresArg: true,
       },
       "cue-rollover": {
