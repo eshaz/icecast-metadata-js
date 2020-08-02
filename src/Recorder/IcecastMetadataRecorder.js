@@ -33,12 +33,16 @@ const CueBuilder = require("./CueBuilder");
  * @param {number} [IcecastMetadataRecorder.cueRollover=undefined] Number of metadata updates before creating a new cue file. Use for compatibility with applications such as foobar2000.
  */
 class IcecastMetadataRecorder {
-  constructor({ output, name, endpoint, prependDate, cueRollover }, done) {
+  constructor(
+    { output, name, endpoint, prependDate, dateEntries, cueRollover },
+    done
+  ) {
     const FORMAT_MATCHER = /(?:\.([^.]+))?$/;
 
     this._audioFileName = output;
     this._audioFileNameNoExt = output.replace(FORMAT_MATCHER, "");
     this._format = output.match(FORMAT_MATCHER)[1];
+    this._dateEntries = dateEntries;
     this._prependDate = prependDate;
     this._name = name;
     this._endpoint = endpoint;
@@ -75,7 +79,11 @@ class IcecastMetadataRecorder {
 
     fetch(this._endpoint, {
       method: "GET",
-      headers: { "Icy-MetaData": "1" },
+      headers: {
+        "Icy-MetaData": "1",
+        "User-Agent":
+          "Icecast Metadata Recorder - https://github.com/eshaz/icecast-metadata-js",
+      },
       signal: this._controller.signal,
     })
       .then((res) => {
@@ -185,6 +193,9 @@ class IcecastMetadataRecorder {
     this._cueBuilder.addTrack(
       {
         title: this._prependDate ? `${timeStamp} ${StreamTitle}` : StreamTitle,
+        ...(this._dateEntries
+          ? { date: `${timeStamp.substring(0, 16)}Z` }
+          : {}),
         ...restOfMetadata,
       },
       (trackCount || this._cueRolloverCount) && meta.time // force metadata for first track to show immediately

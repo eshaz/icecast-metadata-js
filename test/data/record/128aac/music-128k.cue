@@ -11,10 +11,12 @@ REM DATE "2020-07-29T21:16:11.222Z"
 TITLE "Deep Space One"
 FILE "music-128k.aac" WAVE
   TRACK 1 AUDIO
+    REM DATE "2020-07-29T21:16Z"
     REM STREAMURL "http://somafm.com/logos/512/deepspaceone512.png"
     TITLE "Tlon - In The Shadow Of Unexpectation"
     INDEX 01 00:00:00
   TRACK 2 AUDIO
+    REM DATE "2020-07-29T21:17Z"
     REM STREAMURL "http://somafm.com/logos/512/deepspaceone512.png"
     TITLE "SinQ - Rain"
     INDEX 01 01:19:00

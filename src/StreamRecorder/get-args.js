@@ -179,10 +179,17 @@ const getArgs = () =>
         type: "string",
         requiresArg: true,
       },
-      "prepend-date": {
+      "date-entries": {
         alias: "d",
         describe:
-          "Prepend an ISO date to the title of each cue entry (i.e. YYYY-MM-DDTHH:MM:SS.SSSZ)",
+          "Add a date to the DATE field of the cue entry (i.e. YYYY-MM-DDTHH:MMZ)",
+        type: "boolean",
+        default: false,
+      },
+      "prepend-date": {
+        alias: "p",
+        describe:
+          "Prepend an ISO date to the TITLE of each cue entry (i.e. YYYY-MM-DDTHH:MM:SS.SSSZ)",
         type: "boolean",
         default: false,
       },

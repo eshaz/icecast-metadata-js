@@ -36,6 +36,7 @@ const getIcecastMetadataArchiveRecorder = (params) =>
     endpoint: params.endpoint,
     cueRollover: params["cue-rollover"],
     prependDate: params["prepend-date"],
+    dateEntries: params["date-entries"],
     output: path.join(
       path.isAbsolute(params.output) ? "" : params["output-path"] || __dirname,
       params.output
@@ -48,6 +49,7 @@ const getIcecastMetadataRecorder = (params) =>
     endpoint: params.endpoint,
     cueRollover: params["cue-rollover"],
     prependDate: params["prepend-date"],
+    dateEntries: params["date-entries"],
     output: path.join(
       path.isAbsolute(params.output) ? "" : params["output-path"] || __dirname,
       params.output

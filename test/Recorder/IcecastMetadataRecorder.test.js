@@ -56,6 +56,7 @@ describe("Given the IcecastMetadataRecorder", () => {
     const metadataRecorder = new IcecastMetadataRecorder(
       {
         output: `${params.actualPath}${params.expectedFileName}.${params.expectedFileFormat}`,
+        dateEntries: params.expectedDateEntries,
         prependDate: params.expectedPrependDate,
         name: params.expectedStreamTitle,
         endpoint: "https://example.com",
@@ -87,7 +88,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
-          expectedPrependDate
+          expectedPrependDate,
         },
         headers,
         done
@@ -184,7 +185,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedPath,
           expectedFileName,
           expectedFileFormat,
-          expectedPrependDate
+          expectedPrependDate,
         },
         headers,
         done
@@ -207,6 +208,7 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileName = "music-128k";
     const expectedStreamTitle = "Deep Space One";
     const expectedPrependDate = false;
+    const expectedDateEntries = true;
 
     beforeAll((done) => {
       const headers = new Map();
@@ -234,7 +236,8 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
-          expectedPrependDate
+          expectedPrependDate,
+          expectedDateEntries,
         },
         headers,
         done
