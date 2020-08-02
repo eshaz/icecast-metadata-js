@@ -55,10 +55,9 @@ const supportedTrackEntries = [
 class CueBuilder extends Readable {
   /**
    * @description Generates a CD cue file based on the SCSI-3 Multimedia Commands specification
-   * @param {Object} CueFileGenerator constructor parameter
-   * @param {string} CueFileGenerator.title Title of the cue file
-   * @param {string} CueFileGenerator.fileName Filename of the audio file referenced by this cue file
-   * @param {Array<string>} [CueFileGenerator.comments] Comments to be added to the top of the file
+   * @param {Object} entries Key-Value pairs to add as entries to the top of the cue file
+   * @param {Array<string>} [comments] Comments to be added to the top of the file
+   * @param {string} [fileType=WAVE] Audio file type for the cue file.
    */
   constructor(entries, comments = [], fileType = "WAVE") {
     super();
@@ -85,8 +84,9 @@ class CueBuilder extends Readable {
 
   /**
    * @description Adds a new track to the cue file
-   * @param {Object} entries Object with
-   * @param {string} title Title of the track
+   * @param {Object} entries Key-Value pairs to add as entries to track
+   * @param {Array<string>} [comments] Comments to be added to the track
+   * @param {string} [fileType=WAVE] Audio file type for the track file. Only used when the `file` parameter is present in `entries`
    */
   addTrack(entries, time, comments, fileType) {
     const trackEntries = [];
