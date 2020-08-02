@@ -51,8 +51,8 @@ describe("Given the IcecastMetadataRecorder", () => {
       `${params.expectedPath}${params.expectedFileName}.${params.expectedFileFormat}.raw`
     );
     const headers = new Map();
-    headers.set("Icy-Br", params.expectecIcyBr);
-    headers.set("Icy-MetaInt", params.expectedIcyMetaInt);
+    headers.set("icy-br", params.expectecIcyBr);
+    headers.set("icy-metaint", params.expectedIcyMetaInt);
 
     fetch.mockResolvedValue({ headers, body });
 

@@ -212,10 +212,14 @@ class IcecastMetadataParser {
      */
     const time = readTime + this.getTimeByBytes(this._stream.length);
 
-    const metadata = this._dec
-      .decode(data) // "StreamTitle='The Stream Title';      "
-      .replace(/.*StreamTitle='/, "") // "The Stream Title';      "
-      .replace(/';.*/, ""); // "The Stream Title"
+    const metadata = Object.fromEntries(
+      this._dec
+        .decode(data) //                     "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
+        .replace(/\0*$/g, "") //             "StreamTitle='The Stream Title';StreamUrl='https://example.com';"
+        .split("';") //                     ["StreamTitle='The Stream Title, "StreamUrl='https://example.com", ""]
+        .filter((val) => val) //            ["StreamTitle='The Stream Title, "StreamUrl='https://example.com"]
+        .map((val) => val.split("='")) //  [["StreamTitle", "The Stream Title"], ["StreamUrl", "https://example.com"]]
+    );
 
     this._disableMetadataUpdates ||
       this._enqueueMetadata(metadata, time, playTime);
