@@ -123,7 +123,7 @@ class IcecastMetadataParser {
    * @description Reads the incoming byte array and saves the metadata and stream data
    * @param {UInt8Array} buffer Byte array from the Icecast stream response body
    * @param {number} [currentTime] Time in seconds representing current time the audio player is reporting
-   * @param {number} [endOfBufferTime] Time in seconds representing the end of the stored buffer by the audio player
+   * @param {number} [endOfBufferTime] Total time in seconds that the audio player has played and has buffered
    */
   readBuffer(buffer, currentTime, endOfBufferTime) {
     this._readPosition = 0;
@@ -213,7 +213,6 @@ class IcecastMetadataParser {
 
   /**
    * @description Appends audio data to the internal audio stream buffer
-   * @type {number} Number of bytes written to the audio stream buffer
    * @param {UInt8Array} data Data to append
    */
   _appendStream(data) {
@@ -224,7 +223,6 @@ class IcecastMetadataParser {
 
   /**
    * @description Appends metadata to the internal metadata buffer
-   * @type {number} Number of bytes written to the metadata buffer
    * @param {UInt8Array} data Data to append
    */
   _appendMetadata(data) {
