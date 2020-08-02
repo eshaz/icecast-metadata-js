@@ -11,7 +11,6 @@ class BufferArray {
         ? (length) => Buffer.allocUnsafe(length)
         : (length) => new Uint8Array(length);
   }
-
   /**
    * @description Resets all internal state
    */
@@ -19,7 +18,7 @@ class BufferArray {
     this._buffers = [];
     this._totalBytes = 0;
     this._currentLength = 0;
-    this._numberBuffers = 0;
+    this._currentIndex = -1;
   }
 
   /**
@@ -33,9 +32,8 @@ class BufferArray {
    * @type {Uint8Array} Returns all stored data
    */
   get readAll() {
-    let current = this._head;
     let offset = 0;
-    this._trimTail();
+    this._buffers.length && this._trimTail();
     const returnBuffer = this._newBuffer(this._totalBytes);
 
     this._buffers.forEach((buf) => {
@@ -50,8 +48,11 @@ class BufferArray {
    * @description Adds a new buffer using Buffer.allocUnsafe
    * @param {number} length Bytes to allocate for the buffer
    */
-  newBuffer(length) {
+  addBuffer(length) {
+    this._buffers.length && this._trimTail();
     this._buffers.push(this._newBuffer(length));
+    this._currentLength = 0;
+    this._currentIndex++;
   }
 
   /**
@@ -59,14 +60,14 @@ class BufferArray {
    * @param {Uint8Array} data Data to append
    */
   append(data) {
-    this._buffers[this._numberBuffers].set(data, this._currentLength);
+    this._buffers[this._currentIndex].set(data, this._currentLength);
     this._currentLength += data.length;
     this._totalBytes += data.length;
   }
 
   _trimTail() {
-    this._buffers[this._numberBuffers] = this._buffers[
-      this._numberBuffers
+    this._buffers[this._currentIndex] = this._buffers[
+      this._currentIndex
     ].subarray(0, this._currentLength);
   }
 
