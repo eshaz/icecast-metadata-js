@@ -25,9 +25,22 @@ class IcecastMetadataParser {
    * @param {number} IcecastMetadataParser.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
    * @param {number} [IcecastMetadataParser.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
    * @param {function} [IcecastMetadataParser.disableMetadataUpdates] Disables deferred metadata updates
-   * @param {function} [IcecastMetadataParser.onMetadataUpdate] Callback executed when metadata is scheduled to update
-   * @param {function} [IcecastMetadataParser.onMetadata] Callback executed when metadata is discovered and queued for update
+   * @param {onMetadataUpdate} [IcecastMetadataParser.onMetadataUpdate] Callback executed when metadata is scheduled to update
+   * @param {onMetadata} [IcecastMetadataParser.onMetadata] Callback executed when metadata is discovered and queued for update
+   *
+   * @callback onMetadataUpdate
+   * @param {Object} metadata Object containing all metadata received.
+   * @param {string} [metadata.StreamTitle] Title of the metadata update.
+   * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
+   * @param {number} time Time in seconds the metadata should be displayed / recorded
+   *
+   * @callback onMetadata
+   * @param {Object} metadata Object containing all metadata received.
+   * @param {string} [metadata.StreamTitle] Title of the metadata update.
+   * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
+   * @param {number} time Time in seconds the metadata should be displayed / recorded
    */
+
   constructor({
     icyMetaInt,
     icyBr,
@@ -212,10 +225,14 @@ class IcecastMetadataParser {
      */
     const time = readTime + this.getTimeByBytes(this._stream.length);
 
-    const metadata = this._dec
-      .decode(data) // "StreamTitle='The Stream Title';      "
-      .replace(/.*StreamTitle='/, "") // "The Stream Title';      "
-      .replace(/';.*/, ""); // "The Stream Title"
+    const metadata = Object.fromEntries(
+      this._dec
+        .decode(data) //                     "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
+        .replace(/\0*$/g, "") //             "StreamTitle='The Stream Title';StreamUrl='https://example.com';"
+        .split("';") //                     ["StreamTitle='The Stream Title, "StreamUrl='https://example.com", ""]
+        .filter((val) => val) //            ["StreamTitle='The Stream Title, "StreamUrl='https://example.com"]
+        .map((val) => val.split("='")) //  [["StreamTitle", "The Stream Title"], ["StreamUrl", "https://example.com"]]
+    );
 
     this._disableMetadataUpdates ||
       this._enqueueMetadata(metadata, time, playTime);

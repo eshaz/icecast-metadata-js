@@ -1,5 +1,5 @@
 /**
- * @description Stores a collection of buffers as a linked list.
+ * @description Stores a collection of buffers as an array.
  */
 class BufferArray {
   constructor() {

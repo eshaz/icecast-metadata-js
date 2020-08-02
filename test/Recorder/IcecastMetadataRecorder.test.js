@@ -46,13 +46,10 @@ describe("Given the IcecastMetadataRecorder", () => {
     });
   };
 
-  const runIcecastParser = (params, done) => {
+  const runIcecastParser = (params, headers, done) => {
     const body = fs.createReadStream(
       `${params.expectedPath}${params.expectedFileName}.${params.expectedFileFormat}.raw`
     );
-    const headers = new Map();
-    headers.set("Icy-Br", params.expectecIcyBr);
-    headers.set("Icy-MetaInt", params.expectedIcyMetaInt);
 
     fetch.mockResolvedValue({ headers, body });
 
@@ -75,10 +72,12 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileName = "isics-all";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "isics-all";
-    const expectecIcyBr = "16";
-    const expectedIcyMetaInt = "64";
 
     beforeAll((done) => {
+      const headers = new Map();
+      headers.set("icy-br", "16");
+      headers.set("icy-metaint", "64");
+
       runIcecastParser(
         {
           actualPath,
@@ -86,9 +85,8 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
-          expectecIcyBr,
-          expectedIcyMetaInt,
         },
+        headers,
         done
       );
     });
@@ -108,11 +106,13 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileName = "isics-all";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "isics-all";
-    const expectecIcyBr = "16";
-    const expectedIcyMetaInt = "64";
     const expectedCueRollover = 10;
 
     beforeAll((done) => {
+      const headers = new Map();
+      headers.set("icy-br", "16");
+      headers.set("icy-metaint", "64");
+
       runIcecastParser(
         {
           actualPath,
@@ -120,10 +120,9 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
-          expectecIcyBr,
-          expectedIcyMetaInt,
           expectedCueRollover,
         },
+        headers,
         done
       );
     });
@@ -153,10 +152,12 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileName = "music-256k";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "Drone Zone";
-    const expectecIcyBr = "256";
-    const expectedIcyMetaInt = "16000";
 
     beforeAll((done) => {
+      const headers = new Map();
+      headers.set("icy-br", "256");
+      headers.set("icy-metaint", "16000");
+
       runIcecastParser(
         {
           actualPath,
@@ -164,9 +165,8 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
-          expectecIcyBr,
-          expectedIcyMetaInt,
         },
+        headers,
         done
       );
     });
@@ -186,10 +186,26 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileFormat = "aac";
     const expectedFileName = "music-128k";
     const expectedStreamTitle = "Deep Space One";
-    const expectecIcyBr = "128";
-    const expectedIcyMetaInt = "16000";
 
     beforeAll((done) => {
+      const headers = new Map();
+      headers.set("icy-br", "128");
+      headers.set("icy-metaint", "16000");
+      headers.set("icy-genre", "Ambient Space");
+      headers.set(
+        "icy-name",
+        "Deep Space One: Deep ambient electronic and space music. [SomaFM]"
+      );
+      headers.set(
+        "icy-notice1",
+        `<BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>`
+      );
+      headers.set(
+        "icy-notice2",
+        `SHOUTcast Distributed Network Audio Server/Linux v1.9.5<BR>`
+      );
+      headers.set("icy-pub", "0");
+      headers.set("icy-url", "http://somafm.com");
       runIcecastParser(
         {
           actualPath,
@@ -197,9 +213,8 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileName,
           expectedFileFormat,
           expectedStreamTitle,
-          expectecIcyBr,
-          expectedIcyMetaInt,
         },
+        headers,
         done
       );
     });

@@ -14,20 +14,65 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+/*
+  Based on documentation from:
+  * http://www.13thmonkey.org/documentation/SCSI/x3_304_1997.pdf
+  * https://wiki.hydrogenaud.io/index.php?title=Cue_sheet
+*/
+
 const { Readable } = require("stream");
+
+// File Types
+const WAVE = "WAVE";
+const MP3 = "MP3";
+const AIFF = "AIFF";
+const BINARY = "BINARY";
+const MOTOROLA = "MOTOROLA";
+const DEFAULT_FILETYPE = WAVE;
+
+// Entries
+const CATALOG = "CATALOG";
+const PERFORMER = "PERFORMER";
+const SONGWRITER = "SONGWRITER";
+const TITLE = "TITLE";
+const FILE = "FILE";
+const ISRC = "ISRC";
+const POSTGAP = "POSTGAP";
+const PREGAP = "PREGAP";
+
+const supportedFileTypes = [WAVE, MP3, AIFF, BINARY, MOTOROLA];
+const supportedDiscEntries = [CATALOG, PERFORMER, SONGWRITER, TITLE, FILE];
+const supportedTrackEntries = [
+  ISRC,
+  SONGWRITER,
+  PERFORMER,
+  TITLE,
+  //POSTGAP,
+  //PREGAP,
+  FILE,
+];
 
 class CueBuilder extends Readable {
   /**
    * @description Generates a CD cue file based on the SCSI-3 Multimedia Commands specification
-   * @param {Object} CueFileGenerator constructor parameter
-   * @param {string} CueFileGenerator.title Title of the cue file
-   * @param {string} CueFileGenerator.fileName Filename of the audio file referenced by this cue file
-   * @param {Array<string>} [CueFileGenerator.comments] Comments to be added to the top of the file
+   * @param {Object} entries Key-Value pairs to add as entries to the top of the cue file
+   * @param {Array<string>} [comments] Comments to be added to the top of the file
+   * @param {string} [fileType=WAVE] Audio file type for the cue file.
    */
-  constructor({ title, fileName, comments = [] }) {
+  constructor(entries, comments = [], fileType = "WAVE") {
     super();
     this._trackCount = 0;
-    this._startCueFile(title, fileName, comments);
+    this._startCueFile(entries, comments, fileType);
+  }
+
+  _startCueFile(entries, comments, fileType) {
+    const beginningCue = [
+      ...CueBuilder._getEntries(entries, comments, supportedDiscEntries),
+    ];
+    const fileEntry = CueBuilder._getFileEntry(entries, fileType);
+    fileEntry && beginningCue.push(fileEntry);
+
+    this._append(beginningCue.join("\n"));
   }
 
   /**
@@ -39,24 +84,71 @@ class CueBuilder extends Readable {
 
   /**
    * @description Adds a new track to the cue file
-   * @param {number} time Time in seconds when the track should start
-   * @param {string} title Title of the track
+   * @param {Object} entries Key-Value pairs to add as entries to track
+   * @param {Array<string>} [comments] Comments to be added to the track
+   * @param {string} [fileType=WAVE] Audio file type for the track file. Only used when the `file` parameter is present in `entries`
    */
-  addTrack(time, title) {
-    this._append(`
-  TRACK ${(this._trackCount += 1)} AUDIO
-    TITLE "${title}"
-    INDEX 01 ${this._getMinutesSecondsFrames(time)}`);
+  addTrack(entries, time, comments, fileType) {
+    const trackEntries = [];
+
+    // only add a file entry if one is passed in
+    const fileEntry = CueBuilder._getFileEntry(entries, fileType);
+
+    //
+    fileEntry && trackEntries.push(fileEntry);
+    trackEntries.push(
+      `  TRACK ${(this._trackCount += 1)} AUDIO`,
+      `    ${CueBuilder._getEntries(
+        entries,
+        comments,
+        supportedTrackEntries
+      ).join("\n    ")}`,
+      `    INDEX 01 ${CueBuilder._getMinutesSecondsFrames(time)}`
+    );
+
+    this._append("\n" + trackEntries.join("\n"));
   }
 
-  _startCueFile(title, fileName, comments) {
-    const remBlock = comments.reduce(
-      (acc, comment) => acc + "REM " + comment + "\n",
-      ""
-    );
-    this._append(
-      remBlock + 'TITLE "' + title + '"\nFILE "' + fileName + '" WAVE'
-    );
+  // prettier-ignore
+  static _formatEntry(name, value, suffix) {
+    return `${name} "${value}"${suffix ? " " + suffix : ""}`;
+  }
+
+  static _formatComment(comment) {
+    return `REM ${comment}`;
+  }
+
+  static _getFileEntry(entries, filetype = DEFAULT_FILETYPE) {
+    const fileEntry = Object.entries(entries)
+      .filter(([key]) => key.toUpperCase() === FILE)
+      .map(([key, value]) => value)[0];
+
+    if (fileEntry) {
+      return CueBuilder._formatEntry(
+        FILE,
+        fileEntry,
+        supportedFileTypes.includes(filetype.toUpperCase())
+          ? filetype.toUpperCase()
+          : DEFAULT_FILETYPE
+      );
+    }
+  }
+
+  static _getEntries(entries, comments = [], supportedEntries) {
+    const entriesBlock = [];
+
+    Object.entries(entries).forEach(([key, value]) => {
+      const name = key.toUpperCase();
+      if (name !== FILE) {
+        supportedEntries.includes(name)
+          ? entriesBlock.push(CueBuilder._formatEntry(name, value))
+          : comments.push(CueBuilder._formatEntry(name, value)); // add to the comments block if an entry is not a supported at the disc level
+      }
+    });
+
+    const commentsBlock = comments.map(CueBuilder._formatComment);
+
+    return [...commentsBlock, ...entriesBlock];
   }
 
   _read() {} // required to extend the Readable class, but we only need to use the built in read method
@@ -69,10 +161,12 @@ class CueBuilder extends Readable {
    * @description Calculates the Minutes:Seconds:Frames time to be entered into a new entry's index.
    * @param {number} seconds Time in seconds
    */
-  _getMinutesSecondsFrames(seconds) {
-    const second = Math.floor(seconds) % 60;
-    const minute = Math.floor(seconds / 60);
-    const frame = Math.round(74 * (seconds % 1));
+  static _getMinutesSecondsFrames(seconds) {
+    const totalFrames = Math.round(seconds * 75);
+
+    const frame = totalFrames % 75;
+    const second = Math.floor(totalFrames / 75) % 60;
+    const minute = Math.floor(totalFrames / 4500);
 
     return [minute, second, frame]
       .map((value) => value.toString().padStart(2, 0))
