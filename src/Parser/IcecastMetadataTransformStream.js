@@ -19,17 +19,25 @@ const { Transform } = require("stream");
 
 /**
  * @description An IcecastMetadataParser implemented as a Transform stream
- * @param {Object} IcecastMetadataParser constructor parameter
- * @param {number} IcecastMetadataParser.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
- * @param {number} [IcecastMetadataParser.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
- * @param {function} [IcecastMetadataParser.onMetadata] Callback executed when metadata is discovered and queued for update
+ * @param {Object} IcecastMetadataTransformStream constructor parameter
+ * @param {number} IcecastMetadataTransformStream.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
+ * @param {number} IcecastMetadataTransformStream.icyBr Bitrate of audio stream used to increase accuracy when to updating metadata
+ * @param {onMetadata} IcecastMetadataTransformStream.onMetadata Callback executed when metadata is discovered and queued for update
+ *
+ * @callback onMetadata
+ * @param {Object} metadata Object containing all metadata received.
+ * @param {string} [metadata.StreamTitle] Title of the metadata update.
+ * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
+ * @param {number} time Time in seconds the metadata should be displayed / recorded
  */
 class IcecastMetadataTransformStream extends Transform {
-  constructor(params) {
+  constructor({ icyMetaInt, icyBr, onMetadata }) {
     super();
 
     this.icecastMetadataParser = new IcecastMetadataParser({
-      ...params,
+      icyMetaInt,
+      icyBr,
+      onMetadata,
       disableMetadataUpdates: true,
     });
     this._icyBr = params.icyBr;
