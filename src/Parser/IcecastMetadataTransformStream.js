@@ -40,7 +40,7 @@ class IcecastMetadataTransformStream extends Transform {
       onMetadata,
       disableMetadataUpdates: true,
     });
-    this._icyBr = params.icyBr;
+    this._icyBr = icyBr;
   }
 
   _transform(chunk, encoding, callback) {

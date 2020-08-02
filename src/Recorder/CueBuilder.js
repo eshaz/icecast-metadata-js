@@ -166,7 +166,7 @@ class CueBuilder extends Readable {
 
     const frame = totalFrames % 75;
     const second = Math.floor(totalFrames / 75) % 60;
-    const minute = Math.floor(totalFrames / 75 / 60);
+    const minute = Math.floor(totalFrames / 4500);
 
     return [minute, second, frame]
       .map((value) => value.toString().padStart(2, 0))
