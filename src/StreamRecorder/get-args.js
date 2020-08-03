@@ -63,12 +63,9 @@ const assertCronString = (obj, a) => {
 
 const getArgs = () =>
   argv
-    .config("config", (configPath) => {
-      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    })
     .check((argv) => {
-      // assert exclusive or condition for streams ^ (endpoint, output, name)
-      const exclusiveValid = ["endpoint", "output", "name"].reduce(
+      // assert exclusive or condition for streams
+      const exclusiveValid = ["output", "endpoint"].reduce(
         (acc, field) => exclusive(argv, "streams", field),
         false
       );
@@ -79,7 +76,6 @@ const getArgs = () =>
         argv.streams.forEach((stream) => {
           // required fields
           assertNotNull(stream, "output");
-          assertNotNull(stream, "name");
           assertNotNull(stream, "endpoint");
           // optional type checks
           assertType(stream, "output", "string");
@@ -94,7 +90,6 @@ const getArgs = () =>
       } else {
         // required fields
         assertNotNull(argv, "output");
-        assertNotNull(argv, "name");
         assertNotNull(argv, "endpoint");
         // optional type checks
         assertType(argv, "output", "string");
@@ -109,7 +104,7 @@ const getArgs = () =>
 
       return true;
     })
-    .command("record", "Records an Icecast stream with metadata", (yargs) =>
+    .command("record", "Records Icecast stream(s) with metadata", (yargs) =>
       yargs
         .example([
           [
@@ -131,7 +126,7 @@ const getArgs = () =>
     )
     .command(
       "archive",
-      "Records an Icecast stream with metadata and archives over a given interval.",
+      "Records Icecast stream(s) with metadata and archives over a given interval.",
       (yargs) =>
         yargs
           .options({
@@ -171,12 +166,6 @@ const getArgs = () =>
         type: "string",
         requiresArg: true,
       },
-      "output-path": {
-        describe:
-          "Output path to prepend to file output (only useful for for JSON config)",
-        type: "string",
-        requiresArg: true,
-      },
       endpoint: {
         alias: "e",
         describe: "Web address of the stream",
@@ -185,8 +174,24 @@ const getArgs = () =>
       },
       name: {
         alias: "n",
-        describe: "Name of the stream",
+        describe:
+          "Name of the stream. Overrides the value in the `icy-name` header",
+        type: "string",
         requiresArg: true,
+      },
+      "date-entries": {
+        alias: "d",
+        describe:
+          "Add a date to the DATE field of the cue entry (i.e. YYYY-MM-DDTHH:MMZ)",
+        type: "boolean",
+        default: false,
+      },
+      "prepend-date": {
+        alias: "p",
+        describe:
+          "Prepend an ISO date to the TITLE of each cue entry (i.e. YYYY-MM-DDTHH:MM:SS.SSSZ)",
+        type: "boolean",
+        default: false,
       },
       "cue-rollover": {
         alias: "r",
@@ -195,9 +200,18 @@ const getArgs = () =>
         type: "number",
         requiresArg: true,
       },
+      "output-path": {
+        describe:
+          "Output path to prepend to file output (only useful for for JSON config)",
+        type: "string",
+        requiresArg: true,
+      },
       "--version": {
         hidden: true,
       },
+    })
+    .config("config", (configPath) => {
+      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
     })
     .wrap(argv.terminalWidth()).argv;
 
