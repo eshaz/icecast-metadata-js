@@ -64,7 +64,7 @@ const assertCronString = (obj, a) => {
 const getArgs = () =>
   argv
     .check((argv) => {
-      // assert exclusive or condition for streams ^ (endpoint, output, name)
+      // assert exclusive or condition for streams
       const exclusiveValid = ["output", "endpoint"].reduce(
         (acc, field) => exclusive(argv, "streams", field),
         false
