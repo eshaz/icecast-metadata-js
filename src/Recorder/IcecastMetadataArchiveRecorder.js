@@ -53,7 +53,7 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   }
 
   _rollover() {
-    super.stop();
+    const stopped = super.stop();
 
     const archiver = new ArchiveRotator({
       archivePath: this._archivePath,
@@ -61,7 +61,7 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
       filesToArchive: this._fileNames,
     });
 
-    archiver.rotate().then(() => this.record());
+    stopped.then(() => archiver.rotate()).then(() => this.record());
   }
 }
 

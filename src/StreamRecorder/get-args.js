@@ -120,7 +120,7 @@ const getArgs = () =>
           streams: {
             type: "array",
             describe:
-              "JSON Array containing a list of streams to record. \nRequired: {endpoint, output, name} \nOptional: {output-path, cue-rollover}",
+              "JSON Array containing a list of streams to record. \nRequired: {endpoint, output} \nOptional: {name, output-path, cue-rollover, date-entries, prepend-date}",
           },
         })
     )
@@ -145,7 +145,7 @@ const getArgs = () =>
             streams: {
               type: "array",
               describe:
-                "JSON Array containing a list of streams to archive. \nRequired: {endpoint, output, name} \nOptional: {output-path, archive-interval, archive-path, cue-rollover}",
+                "JSON Array containing a list of streams to archive. \nRequired: {endpoint, output} \nOptional: {name, output-path, archive-interval, archive-path, cue-rollover, date-entries, prepend-date}",
             },
           })
           .example([
@@ -159,6 +159,9 @@ const getArgs = () =>
             ],
           ])
     )
+    .config("config", (configPath) => {
+      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    })
     .options({
       output: {
         alias: "o",
@@ -187,7 +190,6 @@ const getArgs = () =>
         default: false,
       },
       "prepend-date": {
-        alias: "p",
         describe:
           "Prepend an ISO date to the TITLE of each cue entry (i.e. YYYY-MM-DDTHH:MM:SS.SSSZ)",
         type: "boolean",
@@ -209,9 +211,6 @@ const getArgs = () =>
       "--version": {
         hidden: true,
       },
-    })
-    .config("config", (configPath) => {
-      return JSON.parse(fs.readFileSync(configPath, "utf-8"));
     })
     .wrap(argv.terminalWidth()).argv;
 

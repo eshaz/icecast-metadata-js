@@ -33,10 +33,14 @@ const CueBuilder = require("./CueBuilder");
  * @param {number} [IcecastMetadataRecorder.cueRollover=undefined] Number of metadata updates before creating a new cue file. Use for compatibility with applications such as foobar2000.
  */
 class IcecastMetadataRecorder {
-  constructor(
-    { output, name, endpoint, prependDate, dateEntries, cueRollover },
-    done
-  ) {
+  constructor({
+    output,
+    name,
+    endpoint,
+    prependDate,
+    dateEntries,
+    cueRollover,
+  }) {
     const FORMAT_MATCHER = /(?:\.([^.]+))?$/;
 
     this._audioFileName = output;
@@ -47,7 +51,6 @@ class IcecastMetadataRecorder {
     this._name = name;
     this._endpoint = endpoint;
     this._cueRollover = cueRollover;
-    this._done = done;
   }
 
   _init() {
@@ -65,6 +68,14 @@ class IcecastMetadataRecorder {
     this._audioFileWritable = null;
     this._cueBuilder = null;
     this._cueFileWritable = null;
+
+    this._stopResolve;
+    this._stopPromise = new Promise((resolve) => (this._stopResolve = resolve));
+
+    this._stopResolve;
+    this._recordPromise = new Promise(
+      (resolve) => (this._recordResolve = resolve)
+    );
   }
 
   /**
@@ -74,7 +85,8 @@ class IcecastMetadataRecorder {
     this._init();
     this._audioFileWritable = this._openFile(this._audioFileName);
     this._audioFileWritable.addListener("finish", () => {
-      this._done && this._done();
+      this._recordResolve();
+      this._stopResolve();
     });
 
     fetch(this._endpoint, {
@@ -104,13 +116,19 @@ class IcecastMetadataRecorder {
           throw e;
         }
       });
+
+    return this._recordPromise;
   }
 
   /**
    * @description Stops recording the Icecast stream
    */
-  stop() {
+  async stop() {
     this._controller.abort();
+    this._closeFile(this._icecast);
+    this._closeFile(this._cueBuilder);
+
+    return this._stopPromise;
   }
 
   _openFile(fileName) {

@@ -53,19 +53,16 @@ describe("Given the IcecastMetadataRecorder", () => {
 
     fetch.mockResolvedValue({ headers, body });
 
-    const metadataRecorder = new IcecastMetadataRecorder(
-      {
-        output: `${params.actualPath}${params.expectedFileName}.${params.expectedFileFormat}`,
-        dateEntries: params.expectedDateEntries,
-        prependDate: params.expectedPrependDate,
-        name: params.expectedStreamTitle,
-        endpoint: "https://example.com",
-        cueRollover: params.expectedCueRollover,
-      },
-      done
-    );
+    const metadataRecorder = new IcecastMetadataRecorder({
+      output: `${params.actualPath}${params.expectedFileName}.${params.expectedFileFormat}`,
+      dateEntries: params.expectedDateEntries,
+      prependDate: params.expectedPrependDate,
+      name: params.expectedStreamTitle,
+      endpoint: "https://example.com",
+      cueRollover: params.expectedCueRollover,
+    });
 
-    metadataRecorder.record();
+    metadataRecorder.record().then(() => done());
   };
 
   describe("Given no cue rollover", () => {

@@ -90,11 +90,11 @@ const main = () => {
     process.exit(1);
   }
 
-  recorderInstances.forEach((recorder) => recorder.record());
-
   process.on("SIGQUIT", signalHandler);
   process.on("SIGTERM", signalHandler);
   process.on("SIGINT", signalHandler);
+
+  recorderInstances.forEach((recorder) => recorder.record());
 };
 
 main();
