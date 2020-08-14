@@ -21,6 +21,7 @@ const { AbortController } = require("abort-controller");
 
 const IcecastMetadataTransformStream = require("../Parser/IcecastMetadataTransformStream");
 const CueBuilder = require("./CueBuilder");
+const EBMLBuilder = require("./EBMLBuilder");
 
 /**
  * @description Records an Icecast Stream with Metadata into an audio file and a cue file
@@ -51,6 +52,9 @@ class IcecastMetadataRecorder {
     this._name = name;
     this._endpoint = endpoint;
     this._cueRollover = cueRollover;
+
+    this.ebml = new EBMLBuilder({ title: "Test", bitrate: 128 });
+    this.ebml.addTrack();
   }
 
   _init() {
@@ -69,6 +73,8 @@ class IcecastMetadataRecorder {
     this._cueBuilder = null;
     this._cueFileWritable = null;
 
+    this._shouldStop = false;
+
     this._stopResolve;
     this._stopPromise = new Promise((resolve) => (this._stopResolve = resolve));
 
@@ -85,6 +91,7 @@ class IcecastMetadataRecorder {
     this._init();
     this._audioFileWritable = this._openFile(this._audioFileName);
     this._audioFileWritable.addListener("finish", () => {
+      //console.log(new Date(Date.now()).toISOString(), "Stopped", this._audioFileName, "Should have stopped?", this._shouldStop, "Response: ", this._res.status, this._res.statusText);
       this._recordResolve();
       this._stopResolve();
     });
@@ -107,7 +114,8 @@ class IcecastMetadataRecorder {
          *
          * res.body.pipe(this._raw);
          */
-        res.body.pipe(this._icecast).pipe(this._audioFileWritable);
+
+        res.body.pipe(this._icecast).pipe(this.ebml);
       })
       .catch((e) => {
         this._closeFile(this._icecast);
@@ -125,6 +133,7 @@ class IcecastMetadataRecorder {
    */
   async stop() {
     this._controller.abort();
+    this._shouldStop = true;
     this._closeFile(this._icecast);
     this._closeFile(this._cueBuilder);
 
@@ -218,6 +227,8 @@ class IcecastMetadataRecorder {
       },
       (trackCount || this._cueRolloverCount) && meta.time // force metadata for first track to show immediately
     );
+
+    this.ebml.addChapter(StreamTitle, meta.time);
   }
 }
 

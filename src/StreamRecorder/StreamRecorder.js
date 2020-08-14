@@ -22,6 +22,7 @@ const {
   IcecastMetadataRecorder,
 } = require("../Recorder/IcecastMetadataRecorder");
 const path = require("path");
+const fs = require("fs");
 
 const recorderInstances = new Map();
 
@@ -90,11 +91,19 @@ const main = () => {
     process.exit(1);
   }
 
-  process.on("SIGQUIT", signalHandler);
-  process.on("SIGTERM", signalHandler);
-  process.on("SIGINT", signalHandler);
-
   recorderInstances.forEach((recorder) => recorder.record());
+
+  const stop = () => {
+    recorderInstances.get(args.output).stop();
+    fs.writeFileSync(
+      "test.ebml",
+      recorderInstances.get(args.output).ebml.build()
+    );
+  };
+
+  process.on("SIGQUIT", stop);
+  process.on("SIGTERM", stop);
+  process.on("SIGINT", stop);
 };
 
 main();
