@@ -14,7 +14,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const { TextDecoder } = require("util");
 const BufferArray = require("./BufferArray");
 
 const READ_STREAM_LENGTH = 0;
@@ -55,7 +54,6 @@ class IcecastMetadataParser {
     onMetadataUpdate,
     onMetadata,
   }) {
-    this._dec = new TextDecoder("utf-8");
     this._icyMetaInt = icyMetaInt;
     this._icyBr = icyBr;
     this._disableMetadataUpdates = disableMetadataUpdates;
@@ -263,14 +261,13 @@ class IcecastMetadataParser {
      * Metadata is a string of key=value pairs delimited by a semicolon.
      * The string is a fixed length and any unused bytes at the end are 0x00.
      */
-    const metadata = Object.fromEntries(
-      this._dec
-        .decode(this._metadataBuffer.readAll) // "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
-        .replace(/\0*$/g, "") //                 "StreamTitle='The Stream Title';StreamUrl='https://example.com';"
-        .split("';") //                         ["StreamTitle='The Stream Title, "StreamUrl='https://example.com", ""]
-        .filter((val) => val) //                ["StreamTitle='The Stream Title, "StreamUrl='https://example.com"]
-        .map((val) => val.split("='")) //      [["StreamTitle", "The Stream Title"], ["StreamUrl", "https://example.com"]]
-    ); //                                       { StreamTitle: "The Stream Title", StreamUrl: "https://example.com" }
+    const metadata = {};
+    String.fromCharCode(...this._metadataBuffer.readAll) //    "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
+      .replace(/\0*$/g, "") //                                 "StreamTitle='The Stream Title';StreamUrl='https://example.com';"
+      .split("';") //                                         ["StreamTitle='The Stream Title, "StreamUrl='https://example.com", ""]
+      .filter((val) => val) //                                ["StreamTitle='The Stream Title, "StreamUrl='https://example.com"]
+      .map((val) => val.split("='")) //                      [["StreamTitle", "The Stream Title"], ["StreamUrl", "https://example.com"]]
+      .forEach(([key, value]) => (metadata[key] = value)); // { StreamTitle: "The Stream Title", StreamUrl: "https://example.com" }
 
     /**
      * Metadata time is sum of the total time elapsed when readBuffer is called
