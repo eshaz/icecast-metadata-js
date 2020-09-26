@@ -32,9 +32,16 @@ describe("Icecast Metadata Parser", () => {
     });
   });
 
+  const originalConsoleError = console.error;
+
+  beforeEach(() => {
+    console.error = jest.fn();
+  });
+
   afterEach(() => {
     jest.resetAllMocks();
     icecastMetadataParser.reset();
+    console.error = originalConsoleError;
   });
 
   it("should expose audio data in get stream from an Icecast response binary", () => {
@@ -218,137 +225,110 @@ describe("Icecast Metadata Parser", () => {
       expect(mockOnMetadata).toBeCalledTimes(1);
     });
   });
-});
 
-describe("Parsing Metadata", () => {
-  it("should parse a metadata string to into a set of key value pairs", () => {
-    const metadataString =
-      "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0";
-    const expectedMetadata = {
-      StreamTitle: "The Stream Title",
-      StreamUrl: "https://example.com",
-    };
+  describe("Parsing Metadata", () => {
+    it("should parse a metadata string to into a set of key value pairs", () => {
+      const metadataString =
+        "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0";
+      const expectedMetadata = {
+        StreamTitle: "The Stream Title",
+        StreamUrl: "https://example.com",
+      };
 
-    const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-      metadataString
-    );
+      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        metadataString
+      );
 
-    expect(returnedMetadata).toEqual(expectedMetadata);
-  });
+      expect(returnedMetadata).toEqual(expectedMetadata);
+    });
 
-  it("should parse given the metadata does not contain ending null characters", () => {
-    const metadataString =
-      "StreamTitle='The Stream Title';StreamUrl='https://example.com';";
-    const expectedMetadata = {
-      StreamTitle: "The Stream Title",
-      StreamUrl: "https://example.com",
-    };
+    it("should parse given the metadata does not contain ending null characters", () => {
+      const metadataString =
+        "StreamTitle='The Stream Title';StreamUrl='https://example.com';";
+      const expectedMetadata = {
+        StreamTitle: "The Stream Title",
+        StreamUrl: "https://example.com",
+      };
 
-    const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-      metadataString
-    );
+      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        metadataString
+      );
 
-    expect(returnedMetadata).toEqual(expectedMetadata);
-  });
+      expect(returnedMetadata).toEqual(expectedMetadata);
+    });
 
-  it("should parse given the metadata does not contain an ending semi-colon", () => {
-    const metadataString =
-      "StreamTitle='The Stream Title';StreamUrl='https://example.com'";
-    const expectedMetadata = {
-      StreamTitle: "The Stream Title",
-      StreamUrl: "https://example.com",
-    };
+    it("should parse given the metadata does not contain an ending semi-colon", () => {
+      const metadataString =
+        "StreamTitle='The Stream Title';StreamUrl='https://example.com'";
+      const expectedMetadata = {
+        StreamTitle: "The Stream Title",
+        StreamUrl: "https://example.com",
+      };
 
-    const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-      metadataString
-    );
+      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        metadataString
+      );
 
-    expect(returnedMetadata).toEqual(expectedMetadata);
-  });
+      expect(returnedMetadata).toEqual(expectedMetadata);
+    });
 
-  it("should parse given the metadata does not contain an ending quote", () => {
-    const metadataString =
-      "StreamTitle='The Stream Title';StreamUrl='https://example.c";
-    const expectedMetadata = {
-      StreamTitle: "The Stream Title",
-      StreamUrl: "https://example.c",
-    };
+    it("should add incomplete metadata values given the metadata length was not enough", () => {
+      const metadataString =
+        "StreamTitle='The Stream Title';StreamUrl='https://example.c";
+      const expectedMetadata = {
+        StreamTitle: "The Stream Title",
+        StreamUrl: "https://example.c",
+      };
 
-    const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-      metadataString
-    );
+      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        metadataString
+      );
 
-    expect(returnedMetadata).toEqual(expectedMetadata);
-  });
+      expect(returnedMetadata).toEqual(expectedMetadata);
+    });
 
-  it("should parse given the metadata contains one key value pair", () => {
-    const metadataString = "StreamTitle='The Stream Title';\0\0\0";
-    const expectedMetadata = { StreamTitle: "The Stream Title" };
+    it("should not add incomplete metadata values given they are malformed", () => {
+      const metadataString =
+        "StreamTitle='The Stream Title';StreamUrl='https://example.c\0\0\0\0";
+      const expectedMetadata = {
+        StreamTitle: "The Stream Title",
+      };
 
-    const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-      metadataString
-    );
+      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        metadataString
+      );
 
-    expect(returnedMetadata).toEqual(expectedMetadata);
-  });
+      expect(returnedMetadata).toEqual(expectedMetadata);
+    });
 
-  it("should parse given the metadata has multiple key value pairs", () => {
-    const metadataString =
-      "StreamTitle='The Stream Title';StreamUrl='https://example.com';AnotherKey='Some other value 123';\0";
-    const expectedMetadata = {
-      AnotherKey: "Some other value 123",
-      StreamTitle: "The Stream Title",
-      StreamUrl: "https://example.com",
-    };
-
-    const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-      metadataString
-    );
-
-    expect(returnedMetadata).toEqual(expectedMetadata);
-  });
-
-  describe("Given the metadata keys", () => {
-    it("should parse given the metadata contains one valid key value pair", () => {
-      const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
+    it("should parse given the metadata contains one key value pair", () => {
+      const metadataString = "StreamTitle='The Stream Title';\0\0\0";
       const expectedMetadata = { StreamTitle: "The Stream Title" };
-  
+
       const returnedMetadata = IcecastMetadataParser.parseMetadataString(
         metadataString
       );
-  
+
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
 
-    it("should parse given the metadata key has spaces", () => {
-      const metadataString = "Stream Title='The Stream Title';\0";
-      const expectedMetadata = { "Stream Title": "The Stream Title" };
-  
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-        metadataString
-      );
-  
-      expect(returnedMetadata).toEqual(expectedMetadata);
-    });
-  
-    it("should parse given the metadata contains a malformed key", () => {
-      const metadataString = "StreamTitle='The Stream Title';StreamU\0";
-      const expectedMetadata = { StreamTitle: "The Stream Title" };
-  
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-        metadataString
-      );
-  
-      expect(returnedMetadata).toEqual(expectedMetadata);
-    });
-  })
+    it("should return an empty object given there is malformed metadata", () => {
+      const metadataString = "StreamTitl";
+      const expectedMetadata = {};
 
-  describe("Given the metadata values", () => {
-    it("should parse a metadata value given contains a quote", () => {
+      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        metadataString
+      );
+
+      expect(returnedMetadata).toEqual(expectedMetadata);
+    });
+
+    it("should parse given the metadata has multiple key value pairs", () => {
       const metadataString =
-        "StreamTitle='The Stream Title's';StreamUrl='https://example.com';";
+        "StreamTitle='The Stream Title';StreamUrl='https://example.com';AnotherKey='Some other value 123';\0";
       const expectedMetadata = {
-        StreamTitle: "The Stream Title's",
+        AnotherKey: "Some other value 123",
+        StreamTitle: "The Stream Title",
         StreamUrl: "https://example.com",
       };
 
@@ -359,13 +339,9 @@ describe("Parsing Metadata", () => {
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
 
-    it("should parse a metadata value given contains an equal sign", () => {
-      const metadataString =
-        "StreamTitle='The Stream = Titles';StreamUrl='https://example.com';";
-      const expectedMetadata = {
-        StreamTitle: "The Stream = Titles",
-        StreamUrl: "https://example.com",
-      };
+    it("should return an empty object given there is no metadata", () => {
+      const metadataString = "";
+      const expectedMetadata = {};
 
       const returnedMetadata = IcecastMetadataParser.parseMetadataString(
         metadataString
@@ -374,34 +350,171 @@ describe("Parsing Metadata", () => {
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
 
-    it("should parse a metadata value given contains an equal sign", () => {
-      const metadataString =
-        "StreamTitle='The Stream = Titles';StreamUrl='https://example.com';";
-      const expectedMetadata = {
-        StreamTitle: "The Stream = Titles",
-        StreamUrl: "https://example.com",
-      };
+    it("should log an error and return an empty object given the incoming value is not a string", () => {
+      const metadataString = undefined;
+      const expectedMetadata = {};
 
       const returnedMetadata = IcecastMetadataParser.parseMetadataString(
         metadataString
       );
 
+      expect(console.error).toHaveBeenCalledWith(
+        "Metadata must be of type string, instead got",
+        undefined
+      );
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
 
-    it("should parse a metadata value given contains a semi-colon", () => {
-      const metadataString =
-        "StreamTitle='The Stream;Titles';StreamUrl='https://example.com';";
-      const expectedMetadata = {
-        StreamTitle: "The Stream;Titles",
-        StreamUrl: "https://example.com",
-      };
+    describe("Given the metadata keys", () => {
+      it("should parse given the metadata key has spaces", () => {
+        const metadataString = "Stream Title='The Stream Title';\0";
+        const expectedMetadata = { "Stream Title": "The Stream Title" };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-        metadataString
-      );
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
 
-      expect(returnedMetadata).toEqual(expectedMetadata);
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given the metadata key is malformed", () => {
+        const metadataString = "StreamTitle='The Stream Title';StreamU";
+        const expectedMetadata = { StreamTitle: "The Stream Title" };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+    });
+
+    describe("Given the metadata values", () => {
+      it("should parse given the metadata has only one valid key value pair", () => {
+        const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
+        const expectedMetadata = { StreamTitle: "The Stream Title" };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata value contains a quote", () => {
+        const metadataString =
+          "StreamTitle='The Stream Title's';StreamUrl='https://example.com';";
+        const expectedMetadata = {
+          StreamTitle: "The Stream Title's",
+          StreamUrl: "https://example.com",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata value contains an equal sign", () => {
+        const metadataString =
+          "StreamTitle='The Stream = Titles';StreamUrl='https://example.com';";
+        const expectedMetadata = {
+          StreamTitle: "The Stream = Titles",
+          StreamUrl: "https://example.com",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata value contains an equal sign", () => {
+        const metadataString =
+          "StreamTitle='The Stream = Titles';StreamUrl='https://example.com';";
+        const expectedMetadata = {
+          StreamTitle: "The Stream = Titles",
+          StreamUrl: "https://example.com",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata value contains a semi-colon", () => {
+        const metadataString =
+          "StreamTitle='The Stream;Titles';StreamUrl='https://example.com';";
+        const expectedMetadata = {
+          StreamTitle: "The Stream;Titles",
+          StreamUrl: "https://example.com",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata value is an empty string", () => {
+        const metadataString = "StreamTitle='';";
+        const expectedMetadata = {
+          StreamTitle: "",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata there are two values that are empty strings", () => {
+        const metadataString = "StreamTitle='';StreamUrl='';";
+        const expectedMetadata = {
+          StreamTitle: "",
+          StreamUrl: "",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata the first value is an empty string", () => {
+        const metadataString = "StreamTitle='';StreamUrl='some url';";
+        const expectedMetadata = {
+          StreamTitle: "",
+          StreamUrl: "some url",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata the second value is an empty string", () => {
+        const metadataString = "StreamTitle='some title';StreamUrl='';";
+        const expectedMetadata = {
+          StreamTitle: "some title",
+          StreamUrl: "",
+        };
+
+        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
     });
   });
 });

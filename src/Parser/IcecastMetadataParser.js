@@ -17,11 +17,12 @@
 const BufferArray = require("./BufferArray");
 
 const READ_STREAM_LENGTH = 0;
-const READ_STREAM_CHUNK = 1;
+const READ_STREAM = 1;
 const READ_METADATA_LENGTH = 2;
 const CHECK_FOR_METADATA = 3;
-const READ_METADATA_CHUNK = 4;
-const ADD_METADATA = 5;
+const INITIALIZE_METADATA = 4;
+const READ_METADATA = 5;
+const ADD_METADATA = 6;
 
 class IcecastMetadataParser {
   /**
@@ -69,6 +70,39 @@ class IcecastMetadataParser {
     this._metadataBytesRead = 0;
     this._metadataCurrentTime = 0;
     this._metadataEndOfBufferTime = 0;
+  }
+
+  /**
+   * @description Parses key value pairs from metadata string
+   * @param {string} metaString String containing Icecast metadata
+   * @type {Object} Key Value pairs extracted from the metadata
+   */
+  static parseMetadataString(metaString) {
+    /**
+     * Metadata is a string of key='value' pairs delimited by a semicolon.
+     * The string is a fixed length and any unused bytes at the end are 0x00.
+     * i.e. "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
+     */
+    const metadata = {};
+
+    // [{key: "StreamTitle", val: "The Stream Title"}, {key: "StreamUrl", val: "https://example.com"}]
+    try {
+      for (let match of metaString.matchAll(
+        /(?<key>[ -~]+?)='(?<val>[ -~]*?)(;$|';|'$|$)/g
+      )) {
+        metadata[match.groups.key] = match.groups.val;
+      }
+    } catch (e) {
+      if (typeof metaString !== "string") {
+        console.error(
+          "Metadata must be of type string, instead got",
+          metaString
+        );
+      }
+    }
+
+    // {StreamTitle: "The Stream Title", StreamUrl: "https://example.com"}
+    return metadata;
   }
 
   /**
@@ -133,7 +167,7 @@ class IcecastMetadataParser {
           this._bytesToRead = this._icyMetaInt;
           this._nextStep();
           break;
-        case READ_STREAM_CHUNK:
+        case READ_STREAM:
           this._appendStream(this._readData(buffer));
           break;
         case READ_METADATA_LENGTH:
@@ -142,14 +176,15 @@ class IcecastMetadataParser {
           break;
         case CHECK_FOR_METADATA:
           this._metadataBytesRead++; // count the metadata length
-          if (!this._bytesToRead) {
-            this._step = READ_STREAM_LENGTH; // skip the metadata read steps if there is nothing to read
-          } else {
-            this._startReadingMetadata(currentTime, endOfBufferTime);
-            this._nextStep();
-          }
+          this._step = this._bytesToRead
+            ? INITIALIZE_METADATA
+            : READ_STREAM_LENGTH; // skip the metadata steps if there is no metadata to read
           break;
-        case READ_METADATA_CHUNK:
+        case INITIALIZE_METADATA:
+          this._startReadingMetadata(currentTime, endOfBufferTime);
+          this._nextStep();
+          break;
+        case READ_METADATA:
           this._appendMetadata(this._readData(buffer));
           break;
         case ADD_METADATA:
@@ -157,7 +192,7 @@ class IcecastMetadataParser {
           this._nextStep();
           break;
       }
-    } while (this._readPosition < buffer.length);
+    } while (this._readPosition !== buffer.length);
   }
 
   /**
@@ -175,26 +210,15 @@ class IcecastMetadataParser {
     this._purgeMetadataQueue();
   }
 
-  /**
-   * @description Clears all metadata updates and empties the queue
-   */
-  _purgeMetadataQueue() {
-    this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
-    this._metadataQueue = [];
-  }
-
   _nextStep() {
     // cycle through the steps to parse icecast data
-    this._step = (this._step + 1) % 6;
+    this._step = (this._step + 1) % 7;
   }
 
   _readData(value) {
     const readTo = this._bytesToRead + this._readPosition;
 
-    const data =
-      readTo < value.length
-        ? value.subarray(this._readPosition, readTo)
-        : value.subarray(this._readPosition);
+    const data = value.subarray(this._readPosition, readTo);
 
     this._readPosition += data.length;
     this._bytesToRead -= data.length;
@@ -230,6 +254,14 @@ class IcecastMetadataParser {
   }
 
   /**
+   * @description Clears all metadata updates and empties the queue
+   */
+  _purgeMetadataQueue() {
+    this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
+    this._metadataQueue = [];
+  }
+
+  /**
    * @description Creates a new metadata buffer and saves the timestamps for adding the metadata
    * @param {number} currentTime Current time the audio player is reporting
    * @param {number} endOfBufferTime Total time buffered in the audio player
@@ -258,24 +290,16 @@ class IcecastMetadataParser {
 
   _addMetadata() {
     /**
-     * Metadata is a string of key=value pairs delimited by a semicolon.
-     * The string is a fixed length and any unused bytes at the end are 0x00.
-     */
-    const metadata = {};
-    String.fromCharCode(...this._metadataBuffer.readAll) //    "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
-      .replace(/\0*$/g, "") //                                 "StreamTitle='The Stream Title';StreamUrl='https://example.com';"
-      .split("';") //                                         ["StreamTitle='The Stream Title, "StreamUrl='https://example.com", ""]
-      .filter((val) => val) //                                ["StreamTitle='The Stream Title, "StreamUrl='https://example.com"]
-      .map((val) => val.split("='")) //                      [["StreamTitle", "The Stream Title"], ["StreamUrl", "https://example.com"]]
-      .forEach(([key, value]) => (metadata[key] = value)); // { StreamTitle: "The Stream Title", StreamUrl: "https://example.com" }
-
-    /**
      * Metadata time is sum of the total time elapsed when readBuffer is called
      * with the offset of the audio bytes read so far while parsing.
      */
     const time =
       this._metadataEndOfBufferTime +
       this.getTimeByBytes(this._streamBuffer.length);
+
+    const metadata = IcecastMetadataParser.parseMetadataString(
+      String.fromCharCode(...this._metadataBuffer.readAll)
+    );
 
     // metadata callbacks
     this._disableMetadataUpdates ||
