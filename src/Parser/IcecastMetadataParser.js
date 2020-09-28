@@ -57,12 +57,10 @@ class IcecastMetadataParser {
     this._metadataBuffer = new BufferArray();
     this._metadataQueue = [];
     this._readPosition = 0;
-    this._streamBytesRead = 0;
-    this._metadataBytesRead = 0;
     this._metadataCurrentTime = 0;
     this._metadataEndOfBufferTime = 0;
     this._metadataLength = 0;
-    this._chunkLength = 0;
+    this._remainingData = 0;
     this._step = 0;
   }
 
@@ -125,7 +123,7 @@ class IcecastMetadataParser {
    * @type Total stream bytes
    */
   get streamBytesRead() {
-    return this._streamBytesRead;
+    return this._streamBuffer.totalBytes;
   }
 
   /**
@@ -133,7 +131,7 @@ class IcecastMetadataParser {
    * @type {number} Total metadata bytes read
    */
   get metadataBytesRead() {
-    return this._metadataBytesRead;
+    return this._metadataBuffer.totalBytes;
   }
 
   /**
@@ -154,15 +152,16 @@ class IcecastMetadataParser {
   readBuffer(buffer, currentTime, endOfBufferTime) {
     this._readPosition = 0;
     this._streamBuffer.addBuffer(buffer.length);
+    this._metadataCurrentTime = currentTime;
+    this._metadataEndOfBufferTime = endOfBufferTime;
 
     for (const step of this._steps(buffer.length)) {
-      step(buffer, currentTime, endOfBufferTime);
+      step(buffer);
     }
   }
 
   *_steps(bufferLength) {
     const steps = [
-      "READ_STREAM_LENGTH",
       "READ_STREAM",
       "READ_METADATA_LENGTH",
       "INITIALIZE_METADATA",
@@ -171,39 +170,36 @@ class IcecastMetadataParser {
     ];
 
     const stepsFuncs = {
-      READ_STREAM_LENGTH: () => {
-        this._reading = false;
-      },
       READ_STREAM: (buffer) => {
-        this._appendStream(this._readData(buffer, this._icyMetaInt));
+        this._streamBuffer.append(this._readData(buffer, this._icyMetaInt));
       },
       READ_METADATA_LENGTH: (buffer) => {
-        this._metadataLength = this._readData(buffer, 1)[0] * 16; // calculate length of metadata
+        this._metadataLength = this._readData(buffer, 1)[0] * 16;
       },
-      INITIALIZE_METADATA: (buffer, currentTime, endOfBufferTime) => {
-        this._metadataBytesRead++; // count the metadata length
-        this._startReadingMetadata(currentTime, endOfBufferTime);
+      INITIALIZE_METADATA: () => {
+        this._metadataBuffer.addBuffer(this._metadataLength);
       },
       READ_METADATA: (buffer) => {
-        this._appendMetadata(this._readData(buffer, this._metadataLength));
+        this._metadataBuffer.append(
+          this._readData(buffer, this._metadataLength)
+        );
       },
       ADD_METADATA: () => {
         this._addMetadata(this._metadataBuffer.readAll);
-        this._metadataBuffer.init();
       },
     };
 
-    while (this._readPosition !== bufferLength) {
-      if (!this._reading) {
-        if (this._step === 2 && !this._metadataLength) {
+    do {
+      yield stepsFuncs[steps[this._step]];
+
+      if (!this._remainingData) {
+        if (this._step === 1 && !this._metadataLength) {
           this._step = 0;
         } else {
           this._step = (this._step + 1) % steps.length;
         }
       }
-
-      yield stepsFuncs[steps[this._step]];
-    }
+    } while (this._readPosition !== bufferLength)
   }
 
   /**
@@ -214,52 +210,25 @@ class IcecastMetadataParser {
     this._metadataBuffer.init();
     this._readPosition = 0;
     this._step = 0;
-    this._streamBytesRead = 0;
-    this._metadataBytesRead = 0;
     this._metadataCurrentTime = 0;
     this._metadataEndOfBufferTime = 0;
     this._metadataLength = 0;
-    this._chunkLength = 0;
+    this._remainingData = 0;
     this._purgeMetadataQueue();
   }
 
   _readData(value, bytes) {
-    this._chunkLength = this._chunkLength || bytes;
+    this._remainingData = this._remainingData || bytes;
 
-    const readTo = this._chunkLength + this._readPosition;
-
-    const data = value.subarray(this._readPosition, readTo);
+    const data = value.subarray(
+      this._readPosition,
+      this._remainingData + this._readPosition
+    );
 
     this._readPosition += data.length;
-    this._chunkLength -= data.length;
+    this._remainingData -= data.length;
 
-    /**
-     * If we have more bytes to read, but we have ran out of
-     * data in `value`, continue this on this step when record is
-     * called again.
-     */
-    this._reading = this._chunkLength;
     return data;
-  }
-
-  /**
-   * @description Appends audio data to the internal audio stream buffer
-   * @param {UInt8Array} data Data to append
-   */
-  _appendStream(data) {
-    this._streamBuffer.append(data);
-
-    this._streamBytesRead += data.length;
-  }
-
-  /**
-   * @description Appends metadata to the internal metadata buffer
-   * @param {UInt8Array} data Data to append
-   */
-  _appendMetadata(data) {
-    this._metadataBuffer.append(data);
-
-    this._metadataBytesRead += data.length;
   }
 
   /**
@@ -268,17 +237,6 @@ class IcecastMetadataParser {
   _purgeMetadataQueue() {
     this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
     this._metadataQueue = [];
-  }
-
-  /**
-   * @description Creates a new metadata buffer and saves the timestamps for adding the metadata
-   * @param {number} currentTime Current time the audio player is reporting
-   * @param {number} endOfBufferTime Total time buffered in the audio player
-   */
-  _startReadingMetadata(currentTime, endOfBufferTime) {
-    this._metadataBuffer.addBuffer(this._metadataLength);
-    this._metadataCurrentTime = currentTime;
-    this._metadataEndOfBufferTime = endOfBufferTime;
   }
 
   _enqueueMetadata(metadata, time, playTime) {
@@ -314,6 +272,8 @@ class IcecastMetadataParser {
     this._disableMetadataUpdates ||
       this._enqueueMetadata(metadata, time, this._metadataCurrentTime);
     this._onMetadata && this._onMetadata({ metadata, time });
+
+    this._metadataBuffer.init();
   }
 }
 
