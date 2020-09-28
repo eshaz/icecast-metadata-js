@@ -41,7 +41,8 @@ class BufferArray {
    */
   get readAll() {
     let offset = 0;
-    this._buffers.length && this._trimTail();
+    this._trimTail();
+
     const returnBuffer = this._newBuffer(this._length);
 
     this._buffers.forEach((buf) => {
@@ -57,7 +58,8 @@ class BufferArray {
    * @param {number} length Bytes to allocate for the buffer
    */
   addBuffer(length) {
-    this._buffers.length && this._trimTail();
+    this._trimTail();
+
     this._buffers.push(this._newBuffer(length));
     this._currentLength = 0;
     this._currentIndex++;
@@ -68,16 +70,23 @@ class BufferArray {
    * @param {Uint8Array} data Data to append
    */
   append(data) {
+    this._buffers.length || this.addBuffer(data.length);
     this._buffers[this._currentIndex].set(data, this._currentLength);
+
     this._currentLength += data.length;
     this._length += data.length;
     this._totalBytes += data.length;
   }
 
   _trimTail() {
-    this._buffers[this._currentIndex] = this._buffers[
-      this._currentIndex
-    ].subarray(0, this._currentLength);
+    if (
+      this._buffers.length &&
+      this._buffers[this._currentIndex].length !== this._currentLength
+    ) {
+      this._buffers[this._currentIndex] = this._buffers[
+        this._currentIndex
+      ].subarray(0, this._currentLength);
+    }
   }
 
   _newBuffer(length) {

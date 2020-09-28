@@ -16,6 +16,13 @@
 
 const BufferArray = require("./BufferArray");
 
+const INITIALIZE_STREAM = 0;
+const READ_STREAM = 1;
+const READ_METADATA_LENGTH = 2;
+const INITIALIZE_METADATA = 3;
+const READ_METADATA = 4;
+const ADD_METADATA = 5;
+
 class IcecastMetadataParser {
   /**
    * @description Reads, parses, and schedules updates up to the millisecond for Icecast Metadata from the response body of an Icecast stream mountpoint
@@ -63,6 +70,10 @@ class IcecastMetadataParser {
     this._remainingData = 0;
 
     this._steps = {
+      INITIALIZE_STREAM: () => {
+          this._streamBuffer.addBuffer(this._icyMetaInt);
+          return this._steps.READ_STREAM;
+      },
       READ_STREAM: (buffer) => {
         this._streamBuffer.append(this._readData(buffer, this._icyMetaInt));
 
@@ -77,7 +88,7 @@ class IcecastMetadataParser {
           ? this._steps.READ_METADATA_LENGTH
           : this._metadataLength
           ? this._steps.INITIALIZE_METADATA
-          : this._steps.READ_STREAM;
+          : this._steps.INITIALIZE_STREAM;
       },
       INITIALIZE_METADATA: () => {
         this._metadataBuffer.addBuffer(this._metadataLength);
@@ -93,11 +104,11 @@ class IcecastMetadataParser {
       },
       ADD_METADATA: () => {
         this._addMetadata(this._metadataBuffer.readAll);
-        return this._steps.READ_STREAM;
+        return this._steps.INITIALIZE_STREAM;
       },
     };
 
-    this._step = this._steps.READ_STREAM;
+    this._step = this._steps.INITIALIZE_STREAM;
   }
 
   /**
@@ -187,7 +198,6 @@ class IcecastMetadataParser {
    */
   readBuffer(buffer, currentTime, endOfBufferTime) {
     this._readPosition = 0;
-    this._streamBuffer.addBuffer(buffer.length);
     this._metadataCurrentTime = currentTime;
     this._metadataEndOfBufferTime = endOfBufferTime;
 
@@ -203,7 +213,7 @@ class IcecastMetadataParser {
     this._streamBuffer.init();
     this._metadataBuffer.init();
     this._readPosition = 0;
-    this._step = this._steps.READ_STREAM;
+    this._step = this._steps.INITIALIZE_STREAM;
     this._metadataCurrentTime = 0;
     this._metadataEndOfBufferTime = 0;
     this._metadataLength = 0;
@@ -216,7 +226,7 @@ class IcecastMetadataParser {
 
     const data = value.subarray(
       this._readPosition,
-      this._remainingData + this._readPosition
+      this._readPosition + this._remainingData
     );
 
     this._readPosition += data.length;
