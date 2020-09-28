@@ -61,7 +61,43 @@ class IcecastMetadataParser {
     this._metadataEndOfBufferTime = 0;
     this._metadataLength = 0;
     this._remainingData = 0;
-    this._step = 0;
+
+    this._steps = {
+      READ_STREAM: (buffer) => {
+        this._streamBuffer.append(this._readData(buffer, this._icyMetaInt));
+
+        return this._remainingData
+          ? this._steps.READ_STREAM
+          : this._steps.READ_METADATA_LENGTH;
+      },
+      READ_METADATA_LENGTH: (buffer) => {
+        this._metadataLength = this._readData(buffer, 1)[0] * 16;
+
+        return this._remainingData
+          ? this._steps.READ_METADATA_LENGTH
+          : this._metadataLength
+          ? this._steps.INITIALIZE_METADATA
+          : this._steps.READ_STREAM;
+      },
+      INITIALIZE_METADATA: () => {
+        this._metadataBuffer.addBuffer(this._metadataLength);
+        return this._steps.READ_METADATA;
+      },
+      READ_METADATA: (buffer) => {
+        this._metadataBuffer.append(
+          this._readData(buffer, this._metadataLength)
+        );
+        return this._remainingData
+          ? this._steps.READ_METADATA
+          : this._steps.ADD_METADATA;
+      },
+      ADD_METADATA: () => {
+        this._addMetadata(this._metadataBuffer.readAll);
+        return this._steps.READ_STREAM;
+      },
+    };
+
+    this._step = this._steps.READ_STREAM;
   }
 
   /**
@@ -155,51 +191,9 @@ class IcecastMetadataParser {
     this._metadataCurrentTime = currentTime;
     this._metadataEndOfBufferTime = endOfBufferTime;
 
-    for (const step of this._steps(buffer.length)) {
-      step(buffer);
-    }
-  }
-
-  *_steps(bufferLength) {
-    const steps = [
-      "READ_STREAM",
-      "READ_METADATA_LENGTH",
-      "INITIALIZE_METADATA",
-      "READ_METADATA",
-      "ADD_METADATA",
-    ];
-
-    const stepsFuncs = {
-      READ_STREAM: (buffer) => {
-        this._streamBuffer.append(this._readData(buffer, this._icyMetaInt));
-      },
-      READ_METADATA_LENGTH: (buffer) => {
-        this._metadataLength = this._readData(buffer, 1)[0] * 16;
-      },
-      INITIALIZE_METADATA: () => {
-        this._metadataBuffer.addBuffer(this._metadataLength);
-      },
-      READ_METADATA: (buffer) => {
-        this._metadataBuffer.append(
-          this._readData(buffer, this._metadataLength)
-        );
-      },
-      ADD_METADATA: () => {
-        this._addMetadata(this._metadataBuffer.readAll);
-      },
-    };
-
     do {
-      yield stepsFuncs[steps[this._step]];
-
-      if (!this._remainingData) {
-        if (this._step === 1 && !this._metadataLength) {
-          this._step = 0;
-        } else {
-          this._step = (this._step + 1) % steps.length;
-        }
-      }
-    } while (this._readPosition !== bufferLength)
+      this._step = this._step(buffer);
+    } while (this._readPosition !== buffer.length);
   }
 
   /**
@@ -209,7 +203,7 @@ class IcecastMetadataParser {
     this._streamBuffer.init();
     this._metadataBuffer.init();
     this._readPosition = 0;
-    this._step = 0;
+    this._step = this._steps.READ_STREAM;
     this._metadataCurrentTime = 0;
     this._metadataEndOfBufferTime = 0;
     this._metadataLength = 0;
