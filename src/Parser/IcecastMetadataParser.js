@@ -118,7 +118,7 @@ class IcecastMetadataParser {
       for (let match of metaString.matchAll(
         /(?<key>[ -~]+?)='(?<val>[ -~]*?)(;$|';|'$|$)/g
       )) {
-        metadata[match.groups.key] = match.groups.val;
+        metadata[match["groups"]["key"]] = match["groups"]["val"];
       }
     } catch (e) {
       if (typeof metaString !== "string") {
