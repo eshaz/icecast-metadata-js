@@ -9,8 +9,8 @@ const fs = require("fs");
 
 function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
-  let remainingData = 0; // and keep track of current step
-  let readingMetadata = false;
+  let remainingData = 0; // track any remaining data in read step
+  let readingMetadata = false; // track which read step is being performed
 
   function* readBuffer(type) {
     let dataRead = 0;
@@ -31,9 +31,9 @@ function* read(buffer, icyMetaInt) {
   }
 
   function* readMetadata() {
-    const metadataLength = buffer[0] * 16;
+    const metadataLength = remainingData || buffer[0] * 16;
 
-    if (metadataLength || remainingData) {
+    if (metadataLength) {
       remainingData = remainingData || metadataLength + 1;
       return yield* readBuffer("metadata");
     } else {
@@ -74,7 +74,7 @@ let streamArray = [];
 
 let rawBuffs = [];
 let currentPosition = 0;
-const increment = 60000;
+const increment = 13;
 
 while (currentPosition + increment <= raw.length) {
   rawBuffs.push(raw.subarray(currentPosition, increment + currentPosition));
@@ -83,12 +83,15 @@ while (currentPosition + increment <= raw.length) {
 
 const reader = read(rawBuffs[0], 64);
 
+let numberRead = 0
+
 for (
   let currentBuffer = 1;
   currentBuffer !== rawBuffs.length;
   currentBuffer++
 ) {
   for (let i = reader.next(); i.value.length !== 0; i = reader.next()) {
+    numberRead++;
     if (i.value.type === "metadata") {
       console.log(String.fromCharCode(...i.value.data));
       metadata++;
