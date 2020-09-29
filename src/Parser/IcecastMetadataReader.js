@@ -10,7 +10,7 @@ const fs = require("fs");
 function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   let remainingData = 0; // and keep track of current step
-  let currentStep = "stream";
+  let readingMetadata = false;
 
   function* readBuffer(type) {
     let dataRead = 0;
@@ -44,19 +44,10 @@ function* read(buffer, icyMetaInt) {
   while (true) {
     while (buffer.length) {
       // read until current buffer is empty
-      if (currentStep === "stream") {
-        buffer = yield* readStream();
-        if (!remainingData) {
-          currentStep = "metadata"
-        }
-      }
+      buffer = readingMetadata ? yield* readMetadata() : yield* readStream();
 
-      if (currentStep === "metadata") {      
-        buffer = yield* readMetadata();
-        if (!remainingData) {
-          currentStep = "stream"
-        }
-      }
+      // change the read step if done reading data
+      if (!remainingData) readingMetadata ^= true;
     }
 
     let nextBuffer = yield buffer; // yield a zero length buffer, and accept a new buffer
