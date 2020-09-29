@@ -71,8 +71,8 @@ class IcecastMetadataParser {
 
     this._steps = {
       INITIALIZE_STREAM: () => {
-          this._streamBuffer.addBuffer(this._icyMetaInt);
-          return this._steps.READ_STREAM;
+        this._streamBuffer.addBuffer(this._icyMetaInt);
+        return this._steps.READ_STREAM;
       },
       READ_STREAM: (buffer) => {
         this._streamBuffer.append(this._readData(buffer, this._icyMetaInt));
