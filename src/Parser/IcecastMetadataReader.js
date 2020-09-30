@@ -44,28 +44,29 @@ function* read(buffer, icyMetaInt) {
       remainingData -= data.length;
       done = readTo === buffer.length;
 
-      if (!remainingData && type === "stream") {
-        metadataLength = data[data.length - 1] * 16;
-        data = buffer.subarray(0, data.length - 1);
-      }
+      if (!remainingData) {
+        if (type === "stream") {
+          metadataLength = data[data.length - 1] * 16;
+          data = buffer.subarray(0, data.length - 1);
+        } else {
+          metadataLength = 0;
+        }
 
-      if (!remainingData && type === "metadata") {
-        metadataLength = 0;
-      }
-
-      if (!remainingData && tempData.length) {
-        data = Buffer.concat([...tempData, data]);
-
-        //const string = String.fromCharCode(...data);
-        //const hex = [...data].map((b) => b.toString(16))
-
-        tempData = [];
+        if (tempData.length) {
+          data = Buffer.concat([...tempData, data]);
+  
+          //const string = String.fromCharCode(...data);
+          //const hex = [...data].map((b) => b.toString(16))
+  
+          tempData = [];
+        } 
       } else if (done) {
         tempData.push(data);
         data = Buffer.allocUnsafe(0);
       }
-
+      
       newBuffer = yield { data, type, done };
+      
     } while (remainingData && !done);
 
     if (newBuffer) {
@@ -99,7 +100,7 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const rawBuffs = getBuffArray(200);
+const rawBuffs = getBuffArray(600);
 const reader = read(rawBuffs[0], 64);
 
 for (
