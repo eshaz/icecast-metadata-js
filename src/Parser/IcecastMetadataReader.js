@@ -6,7 +6,7 @@ const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
 // Generator yields after the buffer is exhausted, (keeps track data remaining)
 //   (stream + metadata length) and metadata generators are nested, yielding until all data exhausted from step then returning remaining data.
 
-const fs = require("fs")
+const fs = require("fs");
 
 const getBuffArray = (increment) => {
   let rawBuffs = [];
@@ -26,8 +26,6 @@ const soma =
   "/home/ethan/git/eshaz/icecast-metadata-js/test/data/record/256mp3/music-256k.mp3.raw";
 const raw = fs.readFileSync(isics);
 
-;
-
 function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   let remainingData = 0; // track any remaining data in read step
@@ -46,34 +44,23 @@ function* read(buffer, icyMetaInt) {
       remainingData -= data.length;
       done = readTo === buffer.length;
 
-
-      if (done) {
-        if (remainingData) {
-          tempData.push(data);
-          data = Buffer.allocUnsafe(0);
-        } else {
-          data = Buffer.concat([...tempData, data]);
-
-          const string = String.fromCharCode(...data);
-          const hex = [...data].map((b) => b.toString(16))
-
-          tempData = [];
-        }
-      } else if (tempData.length) { // if done and no remaining data, need to do this
+      if (!remainingData && tempData.length) {
         data = Buffer.concat([...tempData, data]);
 
-        const string = String.fromCharCode(...data);
-        const hex = [...data].map((b) => b.toString(16))
+        //const string = String.fromCharCode(...data);
+        //const hex = [...data].map((b) => b.toString(16))
 
         tempData = [];
-      } 
-      
-      newBuffer = yield { data, type, done }
+      } else if (done) {
+        tempData.push(data);
+        data = Buffer.allocUnsafe(0);
+      }
 
+      newBuffer = yield { data, type, done };
     } while (remainingData && !done);
 
     if (newBuffer) {
-      buffer = newBuffer
+      buffer = newBuffer;
       readTo = 0;
     }
 
@@ -113,7 +100,7 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const rawBuffs = getBuffArray(65);
+const rawBuffs = getBuffArray(3);
 const reader = read(rawBuffs[0], 64);
 
 for (
