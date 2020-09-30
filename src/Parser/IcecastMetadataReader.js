@@ -29,7 +29,6 @@ const raw = fs.readFileSync(isics);
 function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   let remainingData = 0; // track any remaining data in read step
-  let readingMetadata = false; // track which read step is being performed
   let metadataLength = 0;
   let tempData = [];
 
@@ -45,9 +44,13 @@ function* read(buffer, icyMetaInt) {
       remainingData -= data.length;
       done = readTo === buffer.length;
 
-      if (!remainingData && !readingMetadata) {
+      if (!remainingData && type === "stream") {
         metadataLength = data[data.length - 1] * 16;
         data = buffer.subarray(0, data.length - 1);
+      }
+
+      if (!remainingData && type === "metadata") {
+        metadataLength = 0;
       }
 
       if (!remainingData && tempData.length) {
@@ -79,21 +82,12 @@ function* read(buffer, icyMetaInt) {
   }
 
   function* readMetadata() {
-    if (metadataLength) {
-      remainingData = remainingData || metadataLength;
-      return yield* readBuffer("metadata");
-    } else {
-      return buffer;
-    }
+    remainingData = remainingData || metadataLength;
+    return yield* readBuffer("metadata");
   }
 
   while (true) {
-    // read until current buffer is empty
-    buffer = readingMetadata ? yield* readMetadata() : yield* readStream();
-
-    // change the read step if done reading data
-    // if (!remainingData) readingMetadata ^= true;
-    if (!remainingData) readingMetadata = !readingMetadata;
+    buffer = metadataLength ? yield* readMetadata() : yield* readStream();
   }
 }
 
@@ -105,7 +99,7 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const rawBuffs = getBuffArray(3);
+const rawBuffs = getBuffArray(200);
 const reader = read(rawBuffs[0], 64);
 
 for (
