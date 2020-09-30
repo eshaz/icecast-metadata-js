@@ -25,24 +25,27 @@ const isics =
 const soma =
   "/home/ethan/git/eshaz/icecast-metadata-js/test/data/record/256mp3/music-256k.mp3.raw";
 
-function* read(buffer, icyMetaInt) {
+function* read(icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   let remainingData = 0; // track any remaining data in read step
   let metadataLength = 0;
   let tempData = [];
+  let buffer;
+  let data;
 
   function* readBuffer(type) {
     let newBuffer;
     let readTo;
-    let done = !buffer || buffer.length;
-    let data = buffer.subarray(0, remainingData);
+    let done = !(buffer && buffer.length);
 
-    if (buffer.length) {
+    if (!done) {
+      data = buffer.subarray(0, remainingData);
       readTo = data.length;
       remainingData -= data.length;
       done = readTo === buffer.length;
 
-      if (!remainingData) { // all data is read for this step
+      if (!remainingData) {
+        // all data is read for this step
         if (type === "stream") {
           metadataLength = data[data.length - 1] * 16; // calculate metadata length
           data = buffer.subarray(0, data.length - 1); // remove metadata length from return
@@ -52,17 +55,18 @@ function* read(buffer, icyMetaInt) {
 
         if (tempData.length) {
           data = Buffer.concat([...tempData, data]);
-  
+
           //const string = String.fromCharCode(...data);
           //const hex = [...data].map((b) => b.toString(16))
-  
+
           tempData = [];
-        } 
-      } else if (done) { // some data is left, but the buffer is empty
+        }
+      } else if (done) {
+        // some data is left, but the buffer is empty
         tempData.push(data); // store in temp buffer
         data = Buffer.allocUnsafe(0); // return no data to consumer
       }
-    };
+    }
 
     newBuffer = yield { data, type, done };
 
@@ -99,8 +103,10 @@ let streamArray = [];
 
 const raw = fs.readFileSync(isics);
 
-const rawBuffs = getBuffArray(60000);
-const reader = read(rawBuffs[0], 64);
+const rawBuffs = getBuffArray(3);
+const reader = read(64);
+
+reader.next()
 
 for (
   let currentBuffer = 0;
