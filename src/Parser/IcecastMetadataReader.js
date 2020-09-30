@@ -30,6 +30,7 @@ function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   let remainingData = 0; // track any remaining data in read step
   let readingMetadata = false; // track which read step is being performed
+  let metadataLength = 0;
   let tempData = [];
 
   function* readBuffer(type) {
@@ -43,6 +44,11 @@ function* read(buffer, icyMetaInt) {
       readTo = data.length;
       remainingData -= data.length;
       done = readTo === buffer.length;
+
+      if (!remainingData && !readingMetadata) {
+        metadataLength = data[data.length - 1] * 16;
+        data = buffer.subarray(0, data.length - 1);
+      }
 
       if (!remainingData && tempData.length) {
         data = Buffer.concat([...tempData, data]);
@@ -68,18 +74,16 @@ function* read(buffer, icyMetaInt) {
   }
 
   function* readStream() {
-    remainingData = remainingData || icyMetaInt;
+    remainingData = remainingData || icyMetaInt + 1;
     return yield* readBuffer("stream");
   }
 
   function* readMetadata() {
-    const metadataLength = remainingData || buffer[0] * 16;
-
     if (metadataLength) {
-      remainingData = remainingData || metadataLength + 1;
+      remainingData = remainingData || metadataLength;
       return yield* readBuffer("metadata");
     } else {
-      return buffer.subarray(1);
+      return buffer;
     }
   }
 
@@ -88,7 +92,8 @@ function* read(buffer, icyMetaInt) {
     buffer = readingMetadata ? yield* readMetadata() : yield* readStream();
 
     // change the read step if done reading data
-    if (!remainingData) readingMetadata ^= true;
+    // if (!remainingData) readingMetadata ^= true;
+    if (!remainingData) readingMetadata = !readingMetadata;
   }
 }
 
