@@ -1,3 +1,4 @@
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
 // Generator yields after stream read + metadata length completes
 //   .next() takes in the metadata times
 // Generator yields after metadata read completes
@@ -31,42 +32,57 @@ function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   let remainingData = 0; // track any remaining data in read step
   let readingMetadata = false; // track which read step is being performed
-  let tempData;
+  let tempData = [];
 
   function* readBuffer(type) {
-    let data;
+    let newBuffer;
+    let readTo;
+    let done;
 
     do {
-      data = buffer.subarray(0, remainingData);
+      let data = buffer.subarray(0, remainingData);
+
+      readTo = data.length;
       remainingData -= data.length;
+      done = readTo === buffer.length;
 
-      if (data.length === buffer.length) {
-        // done
-        tempData = data;
 
-        let newBuffer = yield { data: Buffer.alloc(0), type };
+      if (done) {
+        if (remainingData) {
+          tempData.push(data);
+          data = Buffer.allocUnsafe(0);
+        } else {
+          data = Buffer.concat([...tempData, data]);
 
-        if (newBuffer) {
-          buffer = newBuffer
+          const string = String.fromCharCode(...data);
+          const hex = [...data].map((b) => b.toString(16))
+
+          tempData = [];
         }
-      } else if (tempData) {
-        const fullData = Buffer.concat([tempData, data]);
-        const string = String.fromCharCode(...fullData);
-        const hex = [...fullData].map((b) => b.toString(16))
-        yield { data: fullData, type };
+      } else if (tempData.length) { // if done and no remaining data, need to do this
+        data = Buffer.concat([...tempData, data]);
 
-        tempData = null;
-      } else {
-        yield { data, type };
-      }
-    } while (remainingData);
+        const string = String.fromCharCode(...data);
+        const hex = [...data].map((b) => b.toString(16))
 
-    return buffer.subarray(data.length); // return the remaining data in the buffer
+        tempData = [];
+      } 
+      
+      newBuffer = yield { data, type, done }
+
+    } while (remainingData && !done);
+
+    if (newBuffer) {
+      buffer = newBuffer
+      readTo = 0;
+    }
+
+    return buffer.subarray(readTo); // return the remaining data in the buffer
   }
 
   function* readStream() {
     remainingData = remainingData || icyMetaInt;
-    return yield* readBuffer(0, "stream");
+    return yield* readBuffer("stream");
   }
 
   function* readMetadata() {
@@ -97,7 +113,7 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const rawBuffs = getBuffArray(60000);
+const rawBuffs = getBuffArray(65);
 const reader = read(rawBuffs[0], 64);
 
 for (
@@ -107,7 +123,7 @@ for (
 ) {
   for (
     let iterator = reader.next(rawBuffs[currentBuffer]);
-    iterator.value.data.length !== 0;
+    !iterator.value.done;
     iterator = reader.next()
   ) {
     if (iterator.value.type === "metadata") {
