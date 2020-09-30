@@ -24,7 +24,6 @@ const isics =
   "/home/ethan/git/eshaz/icecast-metadata-js/test/data/record/no-rollover/isics-all.mp3.raw";
 const soma =
   "/home/ethan/git/eshaz/icecast-metadata-js/test/data/record/256mp3/music-256k.mp3.raw";
-const raw = fs.readFileSync(isics);
 
 function* read(buffer, icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
@@ -35,19 +34,18 @@ function* read(buffer, icyMetaInt) {
   function* readBuffer(type) {
     let newBuffer;
     let readTo;
-    let done;
+    let done = !buffer || buffer.length;
+    let data = buffer.subarray(0, remainingData);
 
-    do {
-      let data = buffer.subarray(0, remainingData);
-
+    if (buffer.length) {
       readTo = data.length;
       remainingData -= data.length;
       done = readTo === buffer.length;
 
-      if (!remainingData) {
+      if (!remainingData) { // all data is read for this step
         if (type === "stream") {
-          metadataLength = data[data.length - 1] * 16;
-          data = buffer.subarray(0, data.length - 1);
+          metadataLength = data[data.length - 1] * 16; // calculate metadata length
+          data = buffer.subarray(0, data.length - 1); // remove metadata length from return
         } else {
           metadataLength = 0;
         }
@@ -60,14 +58,13 @@ function* read(buffer, icyMetaInt) {
   
           tempData = [];
         } 
-      } else if (done) {
-        tempData.push(data);
-        data = Buffer.allocUnsafe(0);
+      } else if (done) { // some data is left, but the buffer is empty
+        tempData.push(data); // store in temp buffer
+        data = Buffer.allocUnsafe(0); // return no data to consumer
       }
-      
-      newBuffer = yield { data, type, done };
-      
-    } while (remainingData && !done);
+    };
+
+    newBuffer = yield { data, type, done };
 
     if (newBuffer) {
       buffer = newBuffer;
@@ -100,7 +97,9 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const rawBuffs = getBuffArray(600);
+const raw = fs.readFileSync(isics);
+
+const rawBuffs = getBuffArray(60000);
 const reader = read(rawBuffs[0], 64);
 
 for (
