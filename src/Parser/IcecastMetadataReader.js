@@ -31,8 +31,7 @@ function* read(icyMetaInt) {
     metadata: 0, // metadata length derived from metadata length byte
   };
 
-  // statistics for bytes read and metadata triggering
-  const stats = {
+  const stats = { // statistics for bytes read and metadata triggering
     metadataBytesRead: 0,
     streamBytesRead: 0,
     totalBytesRead: 0,
@@ -60,7 +59,7 @@ function* read(icyMetaInt) {
     stats.streamBytesRead += icyMetaInt;
     stats.totalBytesRead += lengths.stream;
 
-    lengths.metadata = data[data.length - 1] * 16; // check metadata length
+    lengths.metadata = data[data.length - 1] << 4; // metadata length is the first byte after icy-meta-int * 2^4
     remainingData = lengths.metadata || lengths.stream; // set remaining data to metadata length if there is metadata
 
     return popPartialData(buffer.subarray(0, data.length - 1)); // trim metadata length byte
