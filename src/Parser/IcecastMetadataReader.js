@@ -29,7 +29,8 @@ function* read(icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
   const streamLength = icyMetaInt + 1;
   let remainingData = streamLength; // track any remaining data in read step
-  let metadataLength = 0;
+  let readingMetadata = false;
+
   let partialData = [];
   let buffer;
 
@@ -44,20 +45,22 @@ function* read(icyMetaInt) {
       remainingData -= bytesRead;
 
       if (!remainingData) {
-        if (type === "stream") {
-          metadataLength = data[bytesRead - 1] * 16; // calculate metadata length
-          data = buffer.subarray(0, bytesRead - 1); // remove metadata length from return
+        if (!readingMetadata) {
+          readingMetadata = data[bytesRead - 1] * 16; // check metadata length
+          data = buffer.subarray(0, bytesRead - 1); // trim metadata length byte
 
-          remainingData = metadataLength || streamLength;
+          remainingData = readingMetadata || streamLength;
         } else {
           remainingData = streamLength;
-          metadataLength = 0;
+          readingMetadata = false;
         }
 
         if (partialData.length) {
-          data = Buffer.concat([...partialData, data]); // prepend out any partial data
+          data = Buffer.concat([...partialData, data]); // prepend any partial data
           partialData = [];
         }
+
+        data = { [type]: data };
       } else if (bytesRead === buffer.length) {
         partialData.push(data); // store partial data if buffer is empty
         data = undefined; // tell consumer to supply more data in .next() call
@@ -65,11 +68,11 @@ function* read(icyMetaInt) {
     }
 
     // buffer passed in with .next() or remaining buffer
-    return (yield { data, type }) || buffer.subarray(bytesRead);
+    return (yield data) || buffer.subarray(bytesRead);
   }
 
   while (true) {
-    buffer = metadataLength
+    buffer = readingMetadata
       ? yield* readBuffer("metadata")
       : yield* readBuffer("stream");
   }
@@ -97,14 +100,14 @@ for (
 ) {
   for (
     let iterator = reader.next(rawBuffs[currentBuffer]);
-    iterator.value.data; // returns data, and done, data get lost
+    iterator.value; // returns data, and done, data get lost
     iterator = reader.next()
   ) {
-    if (iterator.value.type === "metadata") {
-      console.log(String.fromCharCode(...iterator.value.data));
+    if (iterator.value.metadata) {
+      console.log(String.fromCharCode(...iterator.value.metadata));
       metadata++;
     } else {
-      streamArray.push(iterator.value.data);
+      streamArray.push(iterator.value.stream);
     }
   }
 }
