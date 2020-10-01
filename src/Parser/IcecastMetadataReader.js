@@ -56,23 +56,23 @@ function* read(icyMetaInt) {
     return undefined; // tell consumer to supply more data in .next() call
   };
 
-  const readStream = (data) => {
+  const getStream = (data) => {
     stats.streamBytesRead += icyMetaInt;
     stats.totalBytesRead += lengths.stream;
 
     lengths.metadata = data[data.length - 1] * 16; // check metadata length
     remainingData = lengths.metadata || lengths.stream; // set remaining data to metadata length if there is metadata
 
-    return { stream: popPartialData(buffer.subarray(0, data.length - 1)) }; // trim metadata length byte
+    return popPartialData(buffer.subarray(0, data.length - 1)); // trim metadata length byte
   };
 
-  const readMetadata = (data) => {
+  const getMetadata = (data) => {
     stats.metadataBytesRead += lengths.metadata;
 
-    remainingData = lengths.stream;
     lengths.metadata = 0;
+    remainingData = lengths.stream;
 
-    return { metadata: popPartialData(data) };
+    return popPartialData(data);
   };
 
   while (true) {
@@ -82,15 +82,14 @@ function* read(icyMetaInt) {
       rawData = buffer.subarray(0, remainingData);
       remainingData -= rawData.length;
 
+      const bufferExhausted = rawData.length === buffer.length;
+
       value =
-        rawData.length === buffer.length && remainingData
-          ? pushPartialData(rawData)
-          : {
-              ...(lengths.metadata
-                ? readMetadata(rawData)
-                : readStream(rawData)),
-              ...stats,
-            };
+        bufferExhausted && remainingData
+          ? pushPartialData(rawData) // hold back any remaining data if the buffer is completely read
+          : lengths.metadata // yield metadata or stream
+          ? { metadata: getMetadata(rawData), ...stats }
+          : { stream: getStream(rawData), ...stats };
     }
 
     buffer = (yield value) || buffer.subarray(rawData.length);
