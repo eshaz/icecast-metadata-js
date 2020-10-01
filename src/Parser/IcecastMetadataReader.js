@@ -34,15 +34,16 @@ function* read(icyMetaInt) {
   let partialData = [];
   let buffer;
 
-  function* readBuffer(type) {
+  while (true) {
     let data;
     let bytesRead;
 
     if (buffer && buffer.length) {
       data = buffer.subarray(0, remainingData);
-      bytesRead = data.length;
 
+      bytesRead = data.length;
       remainingData -= bytesRead;
+      const type = readingMetadata ? "metadata" : "stream";
 
       if (!remainingData) {
         if (!readingMetadata) {
@@ -68,13 +69,7 @@ function* read(icyMetaInt) {
     }
 
     // buffer passed in with .next() or remaining buffer
-    return (yield data) || buffer.subarray(bytesRead);
-  }
-
-  while (true) {
-    buffer = readingMetadata
-      ? yield* readBuffer("metadata")
-      : yield* readBuffer("stream");
+    buffer = (yield data) || buffer.subarray(bytesRead);
   }
 }
 
