@@ -26,13 +26,10 @@ const soma =
   "/home/ethan/git/eshaz/icecast-metadata-js/test/data/record/256mp3/music-256k.mp3.raw";
 
 function* read(icyMetaInt) {
-  // recursively reads stream data and metadata from the front of the buffer
-  const streamLength = icyMetaInt + 1;
-  let metadataLength = 0;
-
-  let remainingData = streamLength; // track any remaining data in read step
-  let partialData = []; // store any partial data chunks
-  let buffer; // current buffer being processed
+  const lengths = {
+    stream: icyMetaInt + 1, // metadata interval plus the metadata length byte
+    metadata: 0, // metadata length derived from metadata length byte
+  };
 
   // statistics for bytes read and metadata triggering
   const stats = {
@@ -41,9 +38,14 @@ function* read(icyMetaInt) {
     totalBytesRead: 0,
   };
 
+  let remainingData = lengths.stream,
+    partialData = [],
+    buffer,
+    rawData;
+
   const popPartialData = (data) => {
     if (partialData.length) {
-      data = Buffer.concat([...partialData, data]); // prepend any partial data
+      data = Buffer.concat([...partialData, data]);
       partialData = [];
     }
     return data;
@@ -56,24 +58,22 @@ function* read(icyMetaInt) {
 
   const readStream = (data) => {
     stats.streamBytesRead += icyMetaInt;
-    stats.totalBytesRead += streamLength;
+    stats.totalBytesRead += lengths.stream;
 
-    metadataLength = data[data.length - 1] * 16; // check metadata length
-    remainingData = metadataLength || streamLength; // set remaining data to metadata length if there is metadata
+    lengths.metadata = data[data.length - 1] * 16; // check metadata length
+    remainingData = lengths.metadata || lengths.stream; // set remaining data to metadata length if there is metadata
 
     return { stream: popPartialData(buffer.subarray(0, data.length - 1)) }; // trim metadata length byte
   };
 
   const readMetadata = (data) => {
-    stats.metadataBytesRead += metadataLength;
+    stats.metadataBytesRead += lengths.metadata;
 
-    remainingData = streamLength;
-    metadataLength = 0;
+    remainingData = lengths.stream;
+    lengths.metadata = 0;
 
     return { metadata: popPartialData(data) };
   };
-
-  let rawData;
 
   while (true) {
     let value;
@@ -84,7 +84,7 @@ function* read(icyMetaInt) {
 
       if (!remainingData) {
         value = {
-          ...(metadataLength ? readMetadata(rawData) : readStream(rawData)),
+          ...(lengths.metadata ? readMetadata(rawData) : readStream(rawData)),
           ...stats,
         };
       } else if (rawData.length === buffer.length) {
