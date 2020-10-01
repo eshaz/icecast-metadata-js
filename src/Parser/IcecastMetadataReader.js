@@ -27,66 +27,72 @@ const soma =
 
 function* read(icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
-  let remainingData = streamLength; // track any remaining data in read step
-  let partialData = [];
-  let buffer;
-
   const streamLength = icyMetaInt + 1;
   let metadataLength = 0;
 
+  let remainingData = streamLength; // track any remaining data in read step
+  let partialData = []; // store any partial data chunks
+  let buffer; // current buffer being processed
+
   // statistics for bytes read and metadata triggering
-  let metadataBytesRead = 0;
-  let streamBytesRead = 0;
-  let totalBytesRead = 0;
+  const stats = {
+    metadataBytesRead: 0,
+    streamBytesRead: 0,
+    totalBytesRead: 0,
+  };
+
+  const popPartialData = (data) => {
+    if (partialData.length) {
+      data = Buffer.concat([...partialData, data]); // prepend any partial data
+      partialData = [];
+    }
+    return data;
+  };
+
+  const pushPartialData = (data) => {
+    partialData.push(data); // store partial data if buffer is empty
+    return undefined; // tell consumer to supply more data in .next() call
+  };
+
+  const readStream = (data) => {
+    stats.streamBytesRead += icyMetaInt;
+    stats.totalBytesRead += streamLength;
+
+    metadataLength = data[data.length - 1] * 16; // check metadata length
+    remainingData = metadataLength || streamLength; // set remaining data to metadata length if there is metadata
+
+    return { stream: popPartialData(buffer.subarray(0, data.length - 1)) }; // trim metadata length byte
+  };
+
+  const readMetadata = (data) => {
+    stats.metadataBytesRead += metadataLength;
+
+    remainingData = streamLength;
+    metadataLength = 0;
+
+    return { metadata: popPartialData(data) };
+  };
+
+  let rawData;
 
   while (true) {
-    let data;
-    let bytesRead;
+    let value;
 
     if (buffer && buffer.length) {
-      data = buffer.subarray(0, remainingData);
-
-      bytesRead = data.length;
-      remainingData -= bytesRead;
-
-      const type = metadataLength ? "metadata" : "stream";
+      rawData = buffer.subarray(0, remainingData);
+      remainingData -= rawData.length;
 
       if (!remainingData) {
-        if (!metadataLength) {
-          streamBytesRead += icyMetaInt;
-          totalBytesRead += streamLength;
-
-          metadataLength = data[bytesRead - 1] * 16; // check metadata length
-          data = buffer.subarray(0, bytesRead - 1); // trim metadata length byte
-
-          remainingData = metadataLength || streamLength;
-        } else {
-          // stats
-          metadataBytesRead += metadataLength;
-
-          remainingData = streamLength;
-          metadataLength = 0;
-        }
-
-        if (partialData.length) {
-          data = Buffer.concat([...partialData, data]); // prepend any partial data
-          partialData = [];
-        }
-
-        data = {
-          [type]: data,
-          metadataBytesRead,
-          streamBytesRead,
-          totalBytesRead,
+        value = {
+          ...(metadataLength ? readMetadata(rawData) : readStream(rawData)),
+          ...stats,
         };
-      } else if (bytesRead === buffer.length) {
-        partialData.push(data); // store partial data if buffer is empty
-        data = undefined; // tell consumer to supply more data in .next() call
+      } else if (rawData.length === buffer.length) {
+        value = pushPartialData(rawData);
       }
     }
 
-    // buffer passed in with .next() or remaining buffer
-    buffer = (yield data) || buffer.subarray(bytesRead);
+    buffer = (yield value) || buffer.subarray(rawData.length);
   }
 }
 
@@ -98,10 +104,10 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const raw = fs.readFileSync(soma);
+const raw = fs.readFileSync(isics);
 
-const rawBuffs = getBuffArray(60000);
-const reader = read(16000);
+const rawBuffs = getBuffArray(4);
+const reader = read(64);
 
 reader.next();
 
@@ -124,10 +130,9 @@ for (
       streamArray.push(iterator.value.stream);
     }
 
-    value = iterator.value
+    value = iterator.value;
   }
 }
-
 
 fs.writeFileSync(__dirname + "/test.mp3", Buffer.concat(streamArray));
 
