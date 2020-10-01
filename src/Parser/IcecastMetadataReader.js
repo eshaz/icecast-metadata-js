@@ -27,7 +27,8 @@ const soma =
 
 function* read(icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
-  let remainingData = 0; // track any remaining data in read step
+  const streamLength = icyMetaInt + 1;
+  let remainingData = streamLength; // track any remaining data in read step
   let metadataLength = 0;
   let tempData = [];
   let buffer;
@@ -42,15 +43,18 @@ function* read(icyMetaInt) {
       data = buffer.subarray(0, remainingData);
       readTo = data.length;
       remainingData -= data.length;
-      done = readTo === buffer.length;
+      done = readTo === buffer.length; 
 
       if (!remainingData) {
         // all data is read for this step
         if (type === "stream") {
           metadataLength = data[data.length - 1] * 16; // calculate metadata length
           data = buffer.subarray(0, data.length - 1); // remove metadata length from return
+
+          remainingData = metadataLength || streamLength
         } else {
-          metadataLength = 0;
+          remainingData = streamLength;
+          metadataLength = 0
         }
 
         if (tempData.length) {
@@ -79,12 +83,10 @@ function* read(icyMetaInt) {
   }
 
   function* readStream() {
-    remainingData = remainingData || icyMetaInt + 1;
     return yield* readBuffer("stream");
   }
 
   function* readMetadata() {
-    remainingData = remainingData || metadataLength;
     return yield* readBuffer("metadata");
   }
 
@@ -103,7 +105,7 @@ let streamArray = [];
 
 const raw = fs.readFileSync(isics);
 
-const rawBuffs = getBuffArray(3);
+const rawBuffs = getBuffArray(60000);
 const reader = read(64);
 
 reader.next()
