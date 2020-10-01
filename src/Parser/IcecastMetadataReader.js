@@ -27,12 +27,17 @@ const soma =
 
 function* read(icyMetaInt) {
   // recursively reads stream data and metadata from the front of the buffer
-  const streamLength = icyMetaInt + 1;
   let remainingData = streamLength; // track any remaining data in read step
-  let readingMetadata = false;
-
   let partialData = [];
   let buffer;
+
+  const streamLength = icyMetaInt + 1;
+  let metadataLength = 0;
+
+  // statistics for bytes read and metadata triggering
+  let metadataBytesRead = 0;
+  let streamBytesRead = 0;
+  let totalBytesRead = 0;
 
   while (true) {
     let data;
@@ -43,17 +48,24 @@ function* read(icyMetaInt) {
 
       bytesRead = data.length;
       remainingData -= bytesRead;
-      const type = readingMetadata ? "metadata" : "stream";
+
+      const type = metadataLength ? "metadata" : "stream";
 
       if (!remainingData) {
-        if (!readingMetadata) {
-          readingMetadata = data[bytesRead - 1] * 16; // check metadata length
+        if (!metadataLength) {
+          streamBytesRead += icyMetaInt;
+          totalBytesRead += streamLength;
+
+          metadataLength = data[bytesRead - 1] * 16; // check metadata length
           data = buffer.subarray(0, bytesRead - 1); // trim metadata length byte
 
-          remainingData = readingMetadata || streamLength;
+          remainingData = metadataLength || streamLength;
         } else {
+          // stats
+          metadataBytesRead += metadataLength;
+
           remainingData = streamLength;
-          readingMetadata = false;
+          metadataLength = 0;
         }
 
         if (partialData.length) {
@@ -61,7 +73,12 @@ function* read(icyMetaInt) {
           partialData = [];
         }
 
-        data = { [type]: data };
+        data = {
+          [type]: data,
+          metadataBytesRead,
+          streamBytesRead,
+          totalBytesRead,
+        };
       } else if (bytesRead === buffer.length) {
         partialData.push(data); // store partial data if buffer is empty
         data = undefined; // tell consumer to supply more data in .next() call
@@ -81,12 +98,14 @@ const getBuf = (num) => Buffer.from([...Array(num).keys()]);
 let metadata = 0;
 let streamArray = [];
 
-const raw = fs.readFileSync(isics);
+const raw = fs.readFileSync(soma);
 
 const rawBuffs = getBuffArray(60000);
-const reader = read(64);
+const reader = read(16000);
 
 reader.next();
+
+let value;
 
 for (
   let currentBuffer = 0;
@@ -104,8 +123,11 @@ for (
     } else {
       streamArray.push(iterator.value.stream);
     }
+
+    value = iterator.value
   }
 }
+
 
 fs.writeFileSync(__dirname + "/test.mp3", Buffer.concat(streamArray));
 
