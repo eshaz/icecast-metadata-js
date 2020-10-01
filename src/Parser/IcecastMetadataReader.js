@@ -32,12 +32,12 @@ function* read(icyMetaInt) {
   let metadataLength = 0;
   let tempData = [];
   let buffer;
-  let data;
 
   function* readBuffer(type) {
     let newBuffer;
     let readTo;
     let done = !(buffer && buffer.length);
+    let data;
 
     if (!done) {
       data = buffer.subarray(0, remainingData);
@@ -68,13 +68,11 @@ function* read(icyMetaInt) {
       } else if (done) {
         // some data is left, but the buffer is empty
         tempData.push(data); // store in temp buffer
-        data = Buffer.allocUnsafe(0); // return no data to consumer
+        data = undefined; // return no data to consumer
       }
     }
 
-    newBuffer = yield { data, type, done }; // if done and data, data will be lost
-
-    data = Buffer.allocUnsafe(0)
+    newBuffer = yield { data, type }; // if done and data, data will be lost
 
     if (newBuffer) {
       buffer = newBuffer;
@@ -113,7 +111,7 @@ for (
 ) {
   for (
     let iterator = reader.next(rawBuffs[currentBuffer]);
-    iterator.value.data.length; // returns data, and done, data get lost
+    iterator.value.data; // returns data, and done, data get lost
     iterator = reader.next()
   ) {
     if (iterator.value.type === "metadata") {
