@@ -72,7 +72,9 @@ function* read(icyMetaInt) {
       }
     }
 
-    newBuffer = yield { data, type, done };
+    newBuffer = yield { data, type, done }; // if done and data, data will be lost
+
+    data = Buffer.allocUnsafe(0)
 
     if (newBuffer) {
       buffer = newBuffer;
@@ -99,7 +101,7 @@ let streamArray = [];
 
 const raw = fs.readFileSync(isics);
 
-const rawBuffs = getBuffArray(60000);
+const rawBuffs = getBuffArray(3);
 const reader = read(64);
 
 reader.next();
@@ -111,7 +113,7 @@ for (
 ) {
   for (
     let iterator = reader.next(rawBuffs[currentBuffer]);
-    !iterator.value.done;
+    iterator.value.data.length; // returns data, and done, data get lost
     iterator = reader.next()
   ) {
     if (iterator.value.type === "metadata") {
