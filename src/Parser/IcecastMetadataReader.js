@@ -82,14 +82,15 @@ function* read(icyMetaInt) {
       rawData = buffer.subarray(0, remainingData);
       remainingData -= rawData.length;
 
-      if (!remainingData) {
-        value = {
-          ...(lengths.metadata ? readMetadata(rawData) : readStream(rawData)),
-          ...stats,
-        };
-      } else if (rawData.length === buffer.length) {
-        value = pushPartialData(rawData);
-      }
+      value =
+        rawData.length === buffer.length && remainingData
+          ? pushPartialData(rawData)
+          : {
+              ...(lengths.metadata
+                ? readMetadata(rawData)
+                : readStream(rawData)),
+              ...stats,
+            };
     }
 
     buffer = (yield value) || buffer.subarray(rawData.length);
@@ -106,7 +107,7 @@ let streamArray = [];
 
 const raw = fs.readFileSync(isics);
 
-const rawBuffs = getBuffArray(4);
+const rawBuffs = getBuffArray(60000);
 const reader = read(64);
 
 reader.next();
@@ -133,6 +134,9 @@ for (
     value = iterator.value;
   }
 }
+
+reader.next();
+reader.next();
 
 fs.writeFileSync(__dirname + "/test.mp3", Buffer.concat(streamArray));
 
