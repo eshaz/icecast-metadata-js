@@ -30,26 +30,23 @@ function* read(icyMetaInt) {
   const streamLength = icyMetaInt + 1;
   let remainingData = streamLength; // track any remaining data in read step
   let metadataLength = 0;
-  let tempData = [];
+  let partialData = [];
   let buffer;
 
   function* readBuffer(type) {
-    let newBuffer;
-    let readTo;
-    let done = !(buffer && buffer.length);
     let data;
+    let bytesRead;
 
-    if (!done) {
+    if (buffer && buffer.length) {
       data = buffer.subarray(0, remainingData);
-      readTo = data.length;
-      remainingData -= data.length;
-      done = readTo === buffer.length;
+      bytesRead = data.length;
+
+      remainingData -= bytesRead;
 
       if (!remainingData) {
-        // all data is read for this step
         if (type === "stream") {
-          metadataLength = data[data.length - 1] * 16; // calculate metadata length
-          data = buffer.subarray(0, data.length - 1); // remove metadata length from return
+          metadataLength = data[bytesRead - 1] * 16; // calculate metadata length
+          data = buffer.subarray(0, bytesRead - 1); // remove metadata length from return
 
           remainingData = metadataLength || streamLength;
         } else {
@@ -57,29 +54,18 @@ function* read(icyMetaInt) {
           metadataLength = 0;
         }
 
-        if (tempData.length) {
-          data = Buffer.concat([...tempData, data]);
-
-          //const string = String.fromCharCode(...data);
-          //const hex = [...data].map((b) => b.toString(16))
-
-          tempData = [];
+        if (partialData.length) {
+          data = Buffer.concat([...partialData, data]); // prepend out any partial data
+          partialData = [];
         }
-      } else if (done) {
-        // some data is left, but the buffer is empty
-        tempData.push(data); // store in temp buffer
-        data = undefined; // return no data to consumer
+      } else if (bytesRead === buffer.length) {
+        partialData.push(data); // store partial data if buffer is empty
+        data = undefined; // tell consumer to supply more data in .next() call
       }
     }
 
-    newBuffer = yield { data, type }; // if done and data, data will be lost
-
-    if (newBuffer) {
-      buffer = newBuffer;
-      readTo = 0;
-    }
-
-    return buffer.subarray(readTo); // return the remaining data in the buffer
+    // buffer passed in with .next() or remaining buffer
+    return (yield { data, type }) || buffer.subarray(bytesRead);
   }
 
   while (true) {
@@ -99,7 +85,7 @@ let streamArray = [];
 
 const raw = fs.readFileSync(isics);
 
-const rawBuffs = getBuffArray(3);
+const rawBuffs = getBuffArray(60000);
 const reader = read(64);
 
 reader.next();
