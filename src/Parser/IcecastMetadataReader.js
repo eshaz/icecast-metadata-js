@@ -36,7 +36,7 @@ function* generator(icyMetaInt) {
     remainingData = icyMetaInt;
 
     do {
-      const stream = yield* incrementCurrentValue();
+      const stream = yield* getNextValue();
       stats.streamBytesRead += stream.length;
 
       yield { stream, stats: { ...stats } };
@@ -47,39 +47,37 @@ function* generator(icyMetaInt) {
     remainingData = 1;
 
     do {
-      remainingData = (yield* incrementCurrentValue())[0] * 16;
+      remainingData = (yield* getNextValue())[0] * 16;
     } while (remainingData === 1);
   }
 
+  function* storeMetadata(currentMetadata) {
+    const metadataBuffer = new MetadataBuffer(
+      remainingData + currentMetadata.length
+    );
+    metadataBuffer.push(currentMetadata);
+
+    do {
+      metadataBuffer.push(yield* getNextValue());
+    } while (remainingData);
+
+    return metadataBuffer.pop();
+  }
+
   function* getMetadata() {
-    let metadata = yield* incrementCurrentValue();
-
-    if (remainingData) {
-      const metadataBuffer = new MetadataBuffer(
-        remainingData + metadata.length
-      );
-      metadataBuffer.push(metadata);
-
-      while (remainingData) {
-        const nextMetadata = yield* incrementCurrentValue();
-
-        metadataBuffer.push(nextMetadata);
-      }
-
-      metadata = metadataBuffer.pop();
-    }
+    let metadata = yield* getNextValue();
+    if (remainingData) metadata = yield* storeMetadata(metadata);
 
     stats.metadataBytesRead += metadata.length;
-
     yield { metadata: parseMetadata(metadata), stats: { ...stats } };
   }
 
-  function* incrementCurrentValue() {
+  function* getNextValue() {
     while (!(buffer && buffer.length)) {
       buffer = yield;
     }
     const value = buffer.subarray(0, remainingData);
-    
+
     remainingData -= value.length;
     stats.totalBytesRead += value.length;
     buffer = buffer.subarray(value.length);
