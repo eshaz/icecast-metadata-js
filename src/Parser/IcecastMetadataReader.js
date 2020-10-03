@@ -23,11 +23,6 @@ const parseMetadata = (metadataBytes) =>
   parseMetadataString(String.fromCharCode(...metadataBytes));
 
 function* generator(icyMetaInt) {
-  const lengths = {
-    stream: icyMetaInt + 1, // metadata interval plus the metadata length byte
-    metadata: 0, // metadata length derived from metadata length byte
-  };
-
   const stats = {
     // statistics for bytes read and metadata triggering
     metadataBytesRead: 0,
@@ -35,64 +30,68 @@ function* generator(icyMetaInt) {
     totalBytesRead: 0,
   };
 
-  let remainingData = lengths.stream,
-    buffer,
-    currentValue;
+  let remainingData, buffer;
 
-  const getStream = (data) => {
-    if (!remainingData) {
-      lengths.metadata = data[data.length - 1] * 16; // metadata length is the first byte after icy-meta-int * 2^4
-      remainingData = lengths.metadata || lengths.stream; // set remaining data to metadata length if there is metadata
+  function* getStream() {
+    remainingData = icyMetaInt;
 
-      data = data.subarray(0, data.length - 1); // trim metadata length byte
-    }
+    do {
+      const stream = yield* incrementCurrentValue();
+      stats.streamBytesRead += stream.length;
 
-    stats.streamBytesRead += data.length;
+      yield { stream, stats: { ...stats } };
+    } while (remainingData);
+  }
 
-    return { stream: data, stats: { ...stats } };
-  };
+  function* getMetadataLength() {
+    remainingData = 1;
 
-  function* getMetadata(data) {
-    if (data.length < lengths.metadata) {
-      const metadataBuffer = new MetadataBuffer(lengths.metadata);
-      metadataBuffer.push(data);
+    do {
+      remainingData = (yield* incrementCurrentValue())[0] * 16;
+    } while (remainingData === 1);
+  }
 
-      while (metadataBuffer.length < lengths.metadata) {
-        buffer = yield;
-        metadataBuffer.push(readData(buffer));
+  function* getMetadata() {
+    let metadata = yield* incrementCurrentValue();
+
+    if (remainingData) {
+      const metadataBuffer = new MetadataBuffer(
+        remainingData + metadata.length
+      );
+      metadataBuffer.push(metadata);
+
+      while (remainingData) {
+        const nextMetadata = yield* incrementCurrentValue();
+
+        metadataBuffer.push(nextMetadata);
       }
 
-      data = metadataBuffer.pop();
+      metadata = metadataBuffer.pop();
     }
-    
-    stats.metadataBytesRead += lengths.metadata;
 
-    lengths.metadata = 0;
-    remainingData = lengths.stream;
+    stats.metadataBytesRead += metadata.length;
 
-    yield { metadata: parseMetadata(data), stats: { ...stats } };
+    yield { metadata: parseMetadata(metadata), stats: { ...stats } };
   }
 
-  const readData = () => {
-    currentValue = buffer.subarray(0, remainingData);
-    remainingData -= currentValue.length;
-    stats.totalBytesRead += currentValue.length;
-
-    return currentValue;
-  }
-
-  while (true) {
-    if (buffer && buffer.length) {
-      readData(buffer);
-      
-      buffer =
-        (lengths.metadata
-          ? yield* getMetadata(currentValue)
-          : yield getStream(currentValue)) || buffer.subarray(currentValue.length);
-    } else {
+  function* incrementCurrentValue() {
+    while (!(buffer && buffer.length)) {
       buffer = yield;
     }
+    const value = buffer.subarray(0, remainingData);
+    
+    remainingData -= value.length;
+    stats.totalBytesRead += value.length;
+    buffer = buffer.subarray(value.length);
+
+    return value;
   }
+
+  do {
+    yield* getStream();
+    yield* getMetadataLength();
+    remainingData && (yield* getMetadata());
+  } while (true);
 }
 
 function read(icyMetaInt) {
