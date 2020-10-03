@@ -1,228 +1,331 @@
 const fs = require("fs");
-const IcecastMetadataParser = require("../../src/Parser/IcecastMetadataParser");
+const IcecastMetadataReader = require("../../src/Parser/IcecastMetadataReader");
 
-describe("Icecast Metadata Parser", () => {
-  let rawData,
-    expectedAudio,
-    icecastMetadataParser,
-    mockOnMetadata,
-    mockOnMetadataUpdate;
+const getBuffArray = (buffer, increment) => {
+  let rawBuffs = [];
 
-  const metaInt = 16000;
+  for (let currPos = 0; currPos <= buffer.length; currPos += increment) {
+    rawBuffs.push(buffer.subarray(currPos, increment + currPos));
+  }
+
+  return rawBuffs;
+};
+
+const readChunk = (reader, chunk) => {
+  let stream = [];
+  let metadata = [];
+
+  for (let i = reader.next(chunk); i.value; i = reader.next()) {
+    if (i.value.stream) {
+      stream.push(i.value);
+    } else if (i.value.metadata) {
+      metadata.push(i.value);
+    }
+  }
+
+  return { stream, metadata };
+};
+
+const readChunks = (reader, data, chunkSize) => {
+  let stream = [];
+  let metadata = [];
+  const bufferArray = getBuffArray(data, chunkSize);
+
+  for (
+    let currentBuffer = 0;
+    currentBuffer !== bufferArray.length;
+    currentBuffer++
+  ) {
+    for (
+      let iterator = reader.next(bufferArray[currentBuffer]);
+      iterator.value; // returns data, and done, data get lost
+      iterator = reader.next()
+    ) {
+      if (iterator.value.metadata) {
+        metadata.push(iterator.value);
+      } else {
+        stream.push(iterator.value);
+      }
+    }
+  }
+
+  return { stream, metadata };
+};
+
+const concatAudio = (values) =>
+  Buffer.concat(
+    values.flatMap((value) => value.stream.map(({ stream }) => stream))
+  );
+
+describe("Icecast Metadata Reader", () => {
+  let raw256k, expected256kAudio, raw16k, expected16k, mockOnMetadataUpdate;
+
+  const somaMetaInt = 16000;
+  const isicsMetaInt = 64;
 
   beforeAll((done) => {
     Promise.all([
       fs.promises.readFile("test/data/record/256mp3/music-256k.mp3.raw"),
       fs.promises.readFile("test/data/record/256mp3/music-256k.mp3"),
-    ]).then(([raw, expected]) => {
-      rawData = raw;
-      expectedAudio = expected;
+      fs.promises.readFile("test/data/record/no-rollover/isics-all.mp3.raw"),
+      fs.promises.readFile("test/data/record/no-rollover/isics-all.mp3"),
+    ]).then(([r256k, e256, r16k, e16k]) => {
+      raw256k = r256k;
+      expected256kAudio = e256;
+      raw16k = r16k;
+      expected16k = e16k;
       done();
     });
 
-    mockOnMetadata = jest.fn();
     mockOnMetadataUpdate = jest.fn();
-
-    icecastMetadataParser = new IcecastMetadataParser({
-      icyBr: 256,
-      icyMetaInt: metaInt,
-      disableMetadataUpdates: true,
-      onMetadata: mockOnMetadata,
-      onMetadataUpdate: mockOnMetadataUpdate,
-    });
-  });
-
-  const originalConsoleError = console.error;
-
-  beforeEach(() => {
-    console.error = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
-    icecastMetadataParser.reset();
-    console.error = originalConsoleError;
-  });
-
-  it("should expose audio data in get stream from an Icecast response binary", () => {
-    icecastMetadataParser.readBuffer(rawData, 0, 0);
-
-    const expectedAudio = fs.readFileSync(
-      "test/data/record/256mp3/music-256k.mp3"
-    );
-
-    expect(
-      Buffer.compare(icecastMetadataParser.stream, expectedAudio)
-    ).toBeFalsy();
-  });
-
-  it("should call the onMetadata callback for each metadata updates", () => {
-    icecastMetadataParser.readBuffer(rawData, 0, 0);
-
-    expect(mockOnMetadata.mock.calls[0][0]).toEqual({
-      metadata: {
-        StreamTitle: "Djivan Gasparyan - Brother Hunter",
-        StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
-      },
-      time: 0.5,
-    });
-    expect(mockOnMetadata.mock.calls[1][0]).toEqual({
-      metadata: {
-        StreamTitle:
-          "Harold Budd & John Foxx - Some Way Through All The Cities",
-        StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
-      },
-      time: 194.5,
-    });
-    expect(mockOnMetadata.mock.calls[2]).toEqual(undefined);
   });
 
   describe("Reading chunks", () => {
-    const readChunks = (sizeToRead) => {
-      let offset = 0;
-
-      while (offset <= rawData.length) {
-        const chunk = rawData.subarray(offset, sizeToRead + offset);
-        icecastMetadataParser.readBuffer(chunk, 0, 0);
-
-        offset += sizeToRead;
-      }
-    };
-
-    const expectMetadata = () => {
-      expect(mockOnMetadata.mock.calls[0][0]).toEqual({
+    const expectMetadata = (metadata) => {
+      expect(metadata.length).toEqual(2);
+      expect(metadata[0]).toEqual({
         metadata: {
           StreamTitle: "Djivan Gasparyan - Brother Hunter",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 0.5,
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+        },
       });
-      expect(mockOnMetadata.mock.calls[1][0]).toEqual({
+      expect(metadata[1]).toEqual({
         metadata: {
           StreamTitle:
             "Harold Budd & John Foxx - Some Way Through All The Cities",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 194.5,
+        stats: {
+          metadataBytesRead: 256,
+          streamBytesRead: 6224000,
+          totalBytesRead: 6224645,
+        },
       });
-      expect(mockOnMetadata.mock.calls[2]).toEqual(undefined);
     };
+
     it("should return the correct audio given it is read in chunks smaller than the metaint", () => {
-      readChunks(15999);
-      expect(
-        Buffer.compare(icecastMetadataParser.stream, expectedAudio)
-      ).toBeFalsy();
-      expectMetadata();
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const returnedValues = readChunks(reader, raw256k, 15999);
+
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expectMetadata(returnedValues.metadata);
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
     it("should return the correct audio given it is read in chunks larger than the metaint", () => {
-      readChunks(16001);
-      expect(
-        Buffer.compare(icecastMetadataParser.stream, expectedAudio)
-      ).toBeFalsy();
-      expectMetadata();
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const returnedValues = readChunks(reader, raw256k, 16001);
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expectMetadata(returnedValues.metadata);
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
     it("should return the correct audio given it is read in chunks of equal size to the metaint", () => {
-      readChunks(16000);
-      expect(
-        Buffer.compare(icecastMetadataParser.stream, expectedAudio)
-      ).toBeFalsy();
-      expectMetadata();
-    });
-    it("should return the correct audio given it is read in chunks of random size", () => {
-      readChunks(Math.floor(Math.random() * 30000));
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const returnedValues = readChunks(reader, raw256k, 16000);
+      const returnedAudio = concatAudio([returnedValues]);
 
-      expect(
-        Buffer.compare(icecastMetadataParser.stream, expectedAudio)
-      ).toBeFalsy();
-      expectMetadata();
+      expectMetadata(returnedValues.metadata);
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+    });
+
+    it("should return the correct audio given it is read in chunks of random size", () => {
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const returnedValues = readChunks(
+        reader,
+        raw256k,
+        Math.floor(Math.random() * 30000)
+      );
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expectMetadata(returnedValues.metadata);
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+    });
+
+    it("should return the correct audio given it is read in chunks of 1 size", () => {
+      const reader = IcecastMetadataReader.read(isicsMetaInt);
+      const returnedValues = readChunks(reader, raw16k, 10);
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expect(returnedValues.metadata.length).toEqual(259);
+      expect(Buffer.compare(returnedAudio, expected16k)).toBeFalsy();
     });
   });
 
   describe("Metadata Chunks", () => {
     it("should defer metadata update if still reading first metadata chunk", () => {
-      icecastMetadataParser.readBuffer(rawData.subarray(0, 16004), 0, 0);
-      icecastMetadataParser.readBuffer(rawData.subarray(16004, 16800), 0, 0);
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const noMetadata = readChunk(reader, raw256k.subarray(0, 16004));
+      const metadata = readChunk(reader, raw256k.subarray(16004, 16800));
+      const rest = readChunk(reader, raw256k.subarray(16800));
 
-      expect(mockOnMetadata.mock.calls[0][0]).toEqual({
+      expect(noMetadata.metadata).toEqual([]);
+      expect(metadata.metadata[0]).toEqual({
         metadata: {
           StreamTitle: "Djivan Gasparyan - Brother Hunter",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 0.5,
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+        },
       });
-      expect(mockOnMetadata.mock.calls[1]).toEqual(undefined);
+
+      expect(
+        Buffer.compare(
+          concatAudio([noMetadata, metadata, rest]),
+          expected256kAudio
+        )
+      ).toBeFalsy();
+    });
+
+    it("should update metadata as soon as it is available", () => {
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const noMetadata = readChunk(reader, raw256k.subarray(0, 16004));
+      const metadata = readChunk(reader, raw256k.subarray(16004, 16113));
+      const rest = readChunk(reader, raw256k.subarray(16113));
+
+      expect(noMetadata.metadata).toEqual([]);
+      expect(metadata.metadata[0]).toEqual({
+        metadata: {
+          StreamTitle: "Djivan Gasparyan - Brother Hunter",
+          StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
+        },
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+        },
+      });
+      expect(
+        Buffer.compare(
+          concatAudio([noMetadata, metadata, rest]),
+          expected256kAudio
+        )
+      ).toBeFalsy();
     });
 
     it("should defer metadata update if still reading second metadata chunk", () => {
-      icecastMetadataParser.readBuffer(rawData.subarray(0, 6224510), 0, 0);
-      icecastMetadataParser.readBuffer(rawData.subarray(6224510), 0, 0);
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const firstValue = readChunk(reader, raw256k.subarray(0, 6224510));
+      const secondValue = readChunk(reader, raw256k.subarray(6224510));
 
-      expect(mockOnMetadata.mock.calls[0][0]).toEqual({
+      expect(firstValue.metadata[0]).toEqual({
         metadata: {
           StreamTitle: "Djivan Gasparyan - Brother Hunter",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 0.5,
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+        },
       });
-      expect(mockOnMetadata.mock.calls[1][0]).toEqual({
+      expect(firstValue.metadata[1]).toEqual(undefined);
+
+      expect(secondValue.metadata[0]).toEqual({
         metadata: {
           StreamTitle:
             "Harold Budd & John Foxx - Some Way Through All The Cities",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 194.5,
+        stats: {
+          metadataBytesRead: 256,
+          streamBytesRead: 6224000,
+          totalBytesRead: 6224645,
+        },
       });
-      expect(mockOnMetadata.mock.calls[2]).toEqual(undefined);
+      expect(
+        Buffer.compare(
+          concatAudio([firstValue, secondValue]),
+          expected256kAudio
+        )
+      ).toBeFalsy();
     });
 
     it("should defer metadata update if still reading metadata length byte", () => {
-      icecastMetadataParser.readBuffer(rawData.subarray(0, 16000));
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const values = readChunk(reader, raw256k.subarray(0, 16000));
+      const rest = readChunk(reader, raw256k.subarray(16000));
 
-      expect(mockOnMetadata).toBeCalledTimes(0);
+      expect(values.metadata.length).toEqual(0);
+      expect(
+        Buffer.compare(concatAudio([values, rest]), expected256kAudio)
+      ).toBeFalsy();
     });
 
     it("should not update metadata given length byte is zero", () => {
-      icecastMetadataParser.readBuffer(rawData.subarray(0, 120000), 0, 0);
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const values = readChunk(reader, raw256k.subarray(0, 120000));
+      const rest = readChunk(reader, raw256k.subarray(120000));
 
-      expect(mockOnMetadata).toBeCalledTimes(1);
+      expect(values.metadata.length).toEqual(1);
+      expect(
+        Buffer.compare(concatAudio([values, rest]), expected256kAudio)
+      ).toBeFalsy();
     });
 
     it("should update metadata as expected given the we are only reading zero or one byte at a time during the length step", () => {
-      icecastMetadataParser.readBuffer(rawData.subarray(0, 15999), 0, 0);
-      icecastMetadataParser.readBuffer(rawData.subarray(15999, 15999), 0, 0); // zero bytes
-      icecastMetadataParser.readBuffer(rawData.subarray(15999, 16000), 0, 0); // one byte
-      icecastMetadataParser.readBuffer(rawData.subarray(16000, 16000), 0, 0); // zero bytes
-      icecastMetadataParser.readBuffer(rawData.subarray(16000, 16001), 0, 0); // one byte (metadata length should be here)
-      icecastMetadataParser.readBuffer(rawData.subarray(16001, 16001), 0, 0); // zero bytes
-      icecastMetadataParser.readBuffer(rawData.subarray(16001, 120000), 0, 0);
+      const reader = IcecastMetadataReader.read(somaMetaInt);
 
-      expect(mockOnMetadata.mock.calls[0][0]).toEqual({
+      const values = [
+        readChunk(reader, raw256k.subarray(0, 15999)),
+        readChunk(reader, raw256k.subarray(15999, 15999)), // zero bytes
+        readChunk(reader, raw256k.subarray(15999, 16000)), // one byte
+        readChunk(reader, raw256k.subarray(16000, 16000)), // zero bytes
+        readChunk(reader, raw256k.subarray(16000, 16001)), // one byte (metadata length should be here)
+        readChunk(reader, raw256k.subarray(16001, 16001)), // zero bytes
+        readChunk(reader, raw256k.subarray(16001, 120000)),
+        readChunk(reader, raw256k.subarray(120000)),
+      ];
+
+      expect(values[6].metadata[0]).toEqual({
         metadata: {
           StreamTitle: "Djivan Gasparyan - Brother Hunter",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 0.5,
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+        },
       });
-
-      expect(mockOnMetadata).toBeCalledTimes(1);
+      expect(
+        Buffer.compare(concatAudio(values), expected256kAudio)
+      ).toBeFalsy();
     });
-    it("should update metadata as expected given readBuffer is called with a zero length buffer", () => {
-      icecastMetadataParser.readBuffer(rawData.subarray(0, 15243), 0, 0);
-      icecastMetadataParser.readBuffer(rawData.subarray(15243, 15243), 0, 0);
-      icecastMetadataParser.readBuffer(rawData.subarray(15243, 16456), 0, 0);
-      icecastMetadataParser.readBuffer(rawData.subarray(16456, 120000), 0, 0);
 
-      expect(mockOnMetadata.mock.calls[0][0]).toEqual({
+    it("should update metadata as expected given readBuffer is called with a zero length buffer", () => {
+      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const values = [
+        readChunk(reader, raw256k.subarray(0, 15243)),
+        readChunk(reader, raw256k.subarray(15243, 15243)),
+        readChunk(reader, raw256k.subarray(15243, 16456)),
+        readChunk(reader, raw256k.subarray(16456)),
+      ];
+
+      expect(values[2].metadata[0]).toEqual({
         metadata: {
           StreamTitle: "Djivan Gasparyan - Brother Hunter",
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
-        time: 0.5,
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+        },
       });
-
-      expect(mockOnMetadata).toBeCalledTimes(1);
+      expect(
+        Buffer.compare(concatAudio(values), expected256kAudio)
+      ).toBeFalsy();
     });
   });
 
@@ -235,7 +338,7 @@ describe("Icecast Metadata Parser", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -250,7 +353,7 @@ describe("Icecast Metadata Parser", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -265,7 +368,7 @@ describe("Icecast Metadata Parser", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -280,7 +383,7 @@ describe("Icecast Metadata Parser", () => {
         StreamUrl: "https://example.c",
       };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -294,7 +397,7 @@ describe("Icecast Metadata Parser", () => {
         StreamTitle: "The Stream Title",
       };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -305,7 +408,7 @@ describe("Icecast Metadata Parser", () => {
       const metadataString = "StreamTitle='The Stream Title';\0\0\0";
       const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -316,7 +419,7 @@ describe("Icecast Metadata Parser", () => {
       const metadataString = "StreamTitl";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -332,7 +435,7 @@ describe("Icecast Metadata Parser", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
@@ -343,25 +446,10 @@ describe("Icecast Metadata Parser", () => {
       const metadataString = "";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
         metadataString
       );
 
-      expect(returnedMetadata).toEqual(expectedMetadata);
-    });
-
-    it("should log an error and return an empty object given the incoming value is not a string", () => {
-      const metadataString = undefined;
-      const expectedMetadata = {};
-
-      const returnedMetadata = IcecastMetadataParser.parseMetadataString(
-        metadataString
-      );
-
-      expect(console.error).toHaveBeenCalledWith(
-        "Metadata must be of type string, instead got",
-        undefined
-      );
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
 
@@ -370,7 +458,7 @@ describe("Icecast Metadata Parser", () => {
         const metadataString = "Stream Title='The Stream Title';\0";
         const expectedMetadata = { "Stream Title": "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -381,7 +469,7 @@ describe("Icecast Metadata Parser", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamU";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -394,7 +482,7 @@ describe("Icecast Metadata Parser", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -409,7 +497,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -424,7 +512,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -439,7 +527,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -454,7 +542,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -467,7 +555,7 @@ describe("Icecast Metadata Parser", () => {
           StreamTitle: "",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -481,7 +569,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -495,7 +583,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "some url",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 
@@ -509,7 +597,7 @@ describe("Icecast Metadata Parser", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataParser.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString
         );
 

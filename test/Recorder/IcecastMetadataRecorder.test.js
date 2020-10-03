@@ -34,13 +34,16 @@ describe("Given the IcecastMetadataRecorder", () => {
     global.Date.now = realDate;
   });
 
+  const matchFiles = (expectedPath, actualPath, fileName) =>
+    Promise.all([
+      fs.promises.readFile(expectedPath + fileName),
+      fs.promises.readFile(actualPath + fileName),
+    ]).then(([expected, actual]) => Buffer.compare(expected, actual));
+
   const assertFilesMatch = (expectedPath, actualPath, fileName) => {
     it(`should match ${fileName}`, (done) => {
-      Promise.all([
-        fs.promises.readFile(expectedPath + fileName),
-        fs.promises.readFile(actualPath + fileName),
-      ]).then(([expected, actual]) => {
-        expect(Buffer.compare(expected, actual)).toBeFalsy();
+      matchFiles(expectedPath, actualPath, fileName).then((notMatch) => {
+        expect(notMatch).toBeFalsy();
         done();
       });
     });
@@ -92,13 +95,19 @@ describe("Given the IcecastMetadataRecorder", () => {
       );
     });
 
-    assertFilesMatch(
-      expectedPath,
-      actualPath,
-      `${expectedFileName}.${expectedFileFormat}`
-    );
+    it("should match isics-all.mp3", (done) => {
+      matchFiles(expectedPath, actualPath, "isics-all.mp3").then((notMatch) => {
+        expect(notMatch).toBeFalsy();
+        done();
+      });
+    });
 
-    assertFilesMatch(expectedPath, actualPath, `${expectedFileName}.cue`);
+    it("should match isics-all.cue", (done) => {
+      matchFiles(expectedPath, actualPath, "isics-all.cue").then((notMatch) => {
+        expect(notMatch).toBeFalsy();
+        done();
+      });
+    });
   });
 
   describe("Given Cue rollover is set to 10", () => {
@@ -130,13 +139,19 @@ describe("Given the IcecastMetadataRecorder", () => {
       );
     });
 
-    assertFilesMatch(
-      expectedPath,
-      actualPath,
-      `${expectedFileName}.${expectedFileFormat}`
-    );
+    it("should match isics-all.mp3", (done) => {
+      matchFiles(expectedPath, actualPath, "isics-all.mp3").then((notMatch) => {
+        expect(notMatch).toBeFalsy();
+        done();
+      });
+    });
 
-    assertFilesMatch(expectedPath, actualPath, `${expectedFileName}.cue`);
+    it("should match isics-all.cue", (done) => {
+      matchFiles(expectedPath, actualPath, "isics-all.cue").then((notMatch) => {
+        expect(notMatch).toBeFalsy();
+        done();
+      });
+    });
 
     new Array(32)
       .fill({})
@@ -189,13 +204,23 @@ describe("Given the IcecastMetadataRecorder", () => {
       );
     });
 
-    assertFilesMatch(
-      expectedPath,
-      actualPath,
-      `${expectedFileName}.${expectedFileFormat}`
-    );
+    it("should match music-256k.mp3", (done) => {
+      matchFiles(expectedPath, actualPath, "music-256k.mp3").then(
+        (notMatch) => {
+          expect(notMatch).toBeFalsy();
+          done();
+        }
+      );
+    });
 
-    assertFilesMatch(expectedPath, actualPath, `${expectedFileName}.cue`);
+    it("should match music-256k.cue", (done) => {
+      matchFiles(expectedPath, actualPath, "music-256k.cue").then(
+        (notMatch) => {
+          expect(notMatch).toBeFalsy();
+          done();
+        }
+      );
+    });
   });
 
   describe("Given aac 128k music", () => {
@@ -241,12 +266,22 @@ describe("Given the IcecastMetadataRecorder", () => {
       );
     });
 
-    assertFilesMatch(
-      expectedPath,
-      actualPath,
-      `${expectedFileName}.${expectedFileFormat}`
-    );
+    it("should match music-128k.aac", (done) => {
+      matchFiles(expectedPath, actualPath, "music-128k.aac").then(
+        (notMatch) => {
+          expect(notMatch).toBeFalsy();
+          done();
+        }
+      );
+    });
 
-    assertFilesMatch(expectedPath, actualPath, `${expectedFileName}.cue`);
+    it("should match music-128k.cue", (done) => {
+      matchFiles(expectedPath, actualPath, "music-128k.cue").then(
+        (notMatch) => {
+          expect(notMatch).toBeFalsy();
+          done();
+        }
+      );
+    });
   });
 });

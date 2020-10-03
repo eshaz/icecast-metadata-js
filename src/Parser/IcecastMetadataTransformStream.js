@@ -14,7 +14,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const IcecastMetadataParser = require("./IcecastMetadataParser");
+const { read } = require("./IcecastMetadataReader");
 const { Transform } = require("stream");
 
 /**
@@ -34,25 +34,32 @@ class IcecastMetadataTransformStream extends Transform {
   constructor({ icyMetaInt, icyBr, onMetadata }) {
     super();
 
-    this.icecastMetadataParser = new IcecastMetadataParser({
-      icyMetaInt,
-      icyBr,
-      onMetadata,
-      disableMetadataUpdates: true,
-    });
+    this._onMetadata = onMetadata;
+    this._generator = read(icyMetaInt);
     this._icyBr = icyBr;
   }
 
+  _handleMetadata({ metadata, stats: { streamBytesRead } }) {
+    this._onMetadata({
+      metadata,
+      time: streamBytesRead / (this._icyBr * 125),
+    });
+  }
+
   _transform(chunk, encoding, callback) {
-    this.icecastMetadataParser.readBuffer(
-      chunk,
-      0,
-      this.icecastMetadataParser.getTimeByBytes(
-        this.icecastMetadataParser.streamBytesRead
-      )
-    );
-    const stream = this.icecastMetadataParser.stream;
-    callback(null, stream);
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {
+      if (i.value.stream) {
+        this.push(i.value.stream);
+      } else {
+        this._handleMetadata(i.value);
+      }
+    }
+
+    callback(null);
   }
 }
 
