@@ -36,24 +36,8 @@ function* generator(icyMetaInt) {
   };
 
   let remainingData = lengths.stream,
-    metadataBuffer = null,
     buffer,
-    rawData;
-
-  const popPartialMetadata = (data) => {
-    if (metadataBuffer) {
-      metadataBuffer.push(data);
-      data = metadataBuffer.pop();
-      metadataBuffer = null;
-    }
-    return data;
-  };
-
-  const pushPartialMetadata = (data) => {
-    metadataBuffer = metadataBuffer ? metadataBuffer : new MetadataBuffer(lengths.metadata)
-    metadataBuffer.push(data); // store partial data if buffer is empty
-    return undefined; // tell consumer to supply more data in .next() call
-  };
+    currentValue;
 
   const getStream = (data) => {
     if (!remainingData) {
@@ -65,36 +49,49 @@ function* generator(icyMetaInt) {
 
     stats.streamBytesRead += data.length;
 
-    return data;
+    return { stream: data, stats: { ...stats } };
   };
 
-  const getMetadata = (data) => {
+  function* getMetadata(data) {
+    if (data.length < lengths.metadata) {
+      const metadataBuffer = new MetadataBuffer(lengths.metadata);
+      metadataBuffer.push(data);
+
+      while (metadataBuffer.length < lengths.metadata) {
+        buffer = yield;
+        metadataBuffer.push(readData(buffer));
+      }
+
+      data = metadataBuffer.pop();
+    }
+    
     stats.metadataBytesRead += lengths.metadata;
 
     lengths.metadata = 0;
     remainingData = lengths.stream;
 
-    return parseMetadata(popPartialMetadata(data));
-  };
+    yield { metadata: parseMetadata(data), stats: { ...stats } };
+  }
+
+  const readData = () => {
+    currentValue = buffer.subarray(0, remainingData);
+    remainingData -= currentValue.length;
+    stats.totalBytesRead += currentValue.length;
+
+    return currentValue;
+  }
 
   while (true) {
-    let value;
-
     if (buffer && buffer.length) {
-      rawData = buffer.subarray(0, remainingData);
-      remainingData -= rawData.length;
-      stats.totalBytesRead += rawData.length;
-
-      const bufferExhausted = rawData.length === buffer.length;
-
-      value = lengths.metadata
-        ? bufferExhausted && remainingData
-          ? pushPartialMetadata(rawData)
-          : { metadata: getMetadata(rawData), stats: { ...stats } }
-        : { stream: getStream(rawData), stats: { ...stats } };
+      readData(buffer);
+      
+      buffer =
+        (lengths.metadata
+          ? yield* getMetadata(currentValue)
+          : yield getStream(currentValue)) || buffer.subarray(currentValue.length);
+    } else {
+      buffer = yield;
     }
-
-    buffer = (yield value) || buffer.subarray(rawData.length);
   }
 }
 

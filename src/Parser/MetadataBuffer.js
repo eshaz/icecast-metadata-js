@@ -1,3 +1,4 @@
+// Use fast buffer allocation if this is a NodeJS runtime or Uint8Array if a browser runtime
 const bufferFunction =
   typeof module !== "undefined" && module.exports
     ? (length) => Buffer.allocUnsafe(length)
@@ -8,9 +9,12 @@ const bufferFunction =
  */
 class MetadataBuffer {
   constructor(expectedLength) {
-    // Use fast buffer allocation if this is a NodeJS runtime or Uint8Array if a browser runtime
     this._buffer = bufferFunction(expectedLength);
-    this._length = 0
+    this._length = 0;
+  }
+
+  get length() {
+    return this._length;
   }
 
   /**
