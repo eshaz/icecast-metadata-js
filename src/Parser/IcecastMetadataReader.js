@@ -1,3 +1,5 @@
+const MetadataBuffer = require("./MetadataBuffer");
+
 const parseMetadataString = (metadataString) => {
   /**
    * Metadata is a string of key='value' pairs delimited by a semicolon.
@@ -34,20 +36,22 @@ function* generator(icyMetaInt) {
   };
 
   let remainingData = lengths.stream,
-    partialData = [],
+    metadataBuffer = null,
     buffer,
     rawData;
 
   const popPartialMetadata = (data) => {
-    if (partialData.length) {
-      data = Buffer.concat([...partialData, data]);
-      partialData = [];
+    if (metadataBuffer) {
+      metadataBuffer.push(data);
+      data = metadataBuffer.pop();
+      metadataBuffer = null;
     }
     return data;
   };
 
   const pushPartialMetadata = (data) => {
-    partialData.push(data); // store partial data if buffer is empty
+    metadataBuffer = metadataBuffer ? metadataBuffer : new MetadataBuffer(lengths.metadata)
+    metadataBuffer.push(data); // store partial data if buffer is empty
     return undefined; // tell consumer to supply more data in .next() call
   };
 
