@@ -107,7 +107,7 @@ describe("Icecast Metadata Parser", () => {
       });
       expect(mockOnMetadata.mock.calls[2]).toEqual(undefined);
     };
-    it("should return the correct audio given it is read in chunks larger than the metaint", () => {
+    it("should return the correct audio given it is read in chunks smaller than the metaint", () => {
       readChunks(15999);
       expect(
         Buffer.compare(icecastMetadataParser.stream, expectedAudio)
@@ -115,7 +115,7 @@ describe("Icecast Metadata Parser", () => {
       expectMetadata();
     });
 
-    it("should return the correct audio given it is read in chunks smaller than the metaint", () => {
+    it("should return the correct audio given it is read in chunks larger than the metaint", () => {
       readChunks(16001);
       expect(
         Buffer.compare(icecastMetadataParser.stream, expectedAudio)
