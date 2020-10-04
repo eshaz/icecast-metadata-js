@@ -14,9 +14,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const BufferArray = require("./MetadataBuffer");
-const { read } = require("./IcecastMetadataReader");
-
 class IcecastMetadataQueue {
   /**
    * @description Reads, parses, and schedules updates up to the millisecond for Icecast Metadata from the response body of an Icecast stream mountpoint

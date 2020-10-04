@@ -109,7 +109,8 @@ describe("Icecast Metadata Reader", () => {
     };
 
     it("should return the correct audio given it is read in chunks smaller than the metaint", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
+
       const returnedValues = readChunks(reader, raw256k, 15999);
 
       const returnedAudio = concatAudio([returnedValues]);
@@ -119,7 +120,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should return the correct audio given it is read in chunks larger than the metaint", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const returnedValues = readChunks(reader, raw256k, 16001);
       const returnedAudio = concatAudio([returnedValues]);
 
@@ -128,7 +129,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should return the correct audio given it is read in chunks of equal size to the metaint", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const returnedValues = readChunks(reader, raw256k, 16000);
       const returnedAudio = concatAudio([returnedValues]);
 
@@ -137,7 +138,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should return the correct audio given it is read in chunks of random size", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const returnedValues = readChunks(
         reader,
         raw256k,
@@ -150,8 +151,9 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should return the correct audio given it is read in chunks of 1 size", () => {
-      const reader = IcecastMetadataReader.read(isicsMetaInt);
+      const reader = new IcecastMetadataReader(isicsMetaInt);
       const returnedValues = readChunks(reader, raw16k, 10);
+
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedValues.metadata.length).toEqual(259);
@@ -161,7 +163,7 @@ describe("Icecast Metadata Reader", () => {
 
   describe("Metadata Chunks", () => {
     it("should defer metadata update if still reading first metadata chunk", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const noMetadata = readChunk(reader, raw256k.subarray(0, 16004));
       const metadata = readChunk(reader, raw256k.subarray(16004, 16800));
       const rest = readChunk(reader, raw256k.subarray(16800));
@@ -188,7 +190,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should update metadata as soon as it is available", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const noMetadata = readChunk(reader, raw256k.subarray(0, 16004));
       const metadata = readChunk(reader, raw256k.subarray(16004, 16113));
       const rest = readChunk(reader, raw256k.subarray(16113));
@@ -214,7 +216,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should defer metadata update if still reading second metadata chunk", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const firstValue = readChunk(reader, raw256k.subarray(0, 6224510));
       const secondValue = readChunk(reader, raw256k.subarray(6224510));
 
@@ -252,7 +254,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should defer metadata update if still reading metadata length byte", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const values = readChunk(reader, raw256k.subarray(0, 16000));
       const rest = readChunk(reader, raw256k.subarray(16000));
 
@@ -263,7 +265,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should not update metadata given length byte is zero", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const values = readChunk(reader, raw256k.subarray(0, 120000));
       const rest = readChunk(reader, raw256k.subarray(120000));
 
@@ -274,7 +276,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should update metadata as expected given the we are only reading zero or one byte at a time during the length step", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
 
       const values = [
         readChunk(reader, raw256k.subarray(0, 15999)),
@@ -304,7 +306,7 @@ describe("Icecast Metadata Reader", () => {
     });
 
     it("should update metadata as expected given readBuffer is called with a zero length buffer", () => {
-      const reader = IcecastMetadataReader.read(somaMetaInt);
+      const reader = new IcecastMetadataReader(somaMetaInt);
       const values = [
         readChunk(reader, raw256k.subarray(0, 15243)),
         readChunk(reader, raw256k.subarray(15243, 15243)),
