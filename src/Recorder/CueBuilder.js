@@ -20,8 +20,6 @@
   * https://wiki.hydrogenaud.io/index.php?title=Cue_sheet
 */
 
-const { Readable } = require("stream");
-
 // File Types
 const WAVE = "WAVE";
 const MP3 = "MP3";
@@ -52,27 +50,15 @@ const supportedTrackEntries = [
   FILE,
 ];
 
-class CueBuilder extends Readable {
+class CueBuilder {
   /**
    * @description Generates a CD cue file based on the SCSI-3 Multimedia Commands specification
    * @param {Object} entries Key-Value pairs to add as entries to the top of the cue file
    * @param {Array<string>} [comments] Comments to be added to the top of the file
    * @param {string} [fileType=WAVE] Audio file type for the cue file.
    */
-  constructor(entries, comments = [], fileType = "WAVE") {
-    super();
+  constructor() {
     this._trackCount = 0;
-    this._startCueFile(entries, comments, fileType);
-  }
-
-  _startCueFile(entries, comments, fileType) {
-    const beginningCue = [
-      ...CueBuilder._getEntries(entries, comments, supportedDiscEntries),
-    ];
-    const fileEntry = CueBuilder._getFileEntry(entries, fileType);
-    fileEntry && beginningCue.push(fileEntry);
-
-    this._append(beginningCue.join("\n"));
   }
 
   /**
@@ -106,7 +92,17 @@ class CueBuilder extends Readable {
       `    INDEX 01 ${CueBuilder._getMinutesSecondsFrames(time)}`
     );
 
-    this._append("\n" + trackEntries.join("\n"));
+    return "\n" + trackEntries.join("\n");
+  }
+
+  static getHeader(entries, comments = [], fileType = "WAVE") {
+    const beginningCue = [
+      ...CueBuilder._getEntries(entries, comments, supportedDiscEntries),
+    ];
+    const fileEntry = CueBuilder._getFileEntry(entries, fileType);
+    fileEntry && beginningCue.push(fileEntry);
+
+    return beginningCue.join("\n");
   }
 
   // prettier-ignore
@@ -149,12 +145,6 @@ class CueBuilder extends Readable {
     const commentsBlock = comments.map(CueBuilder._formatComment);
 
     return [...commentsBlock, ...entriesBlock];
-  }
-
-  _read() {} // required to extend the Readable class, but we only need to use the built in read method
-
-  _append(string) {
-    this.push(string, "ascii");
   }
 
   /**

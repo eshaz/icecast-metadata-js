@@ -38,7 +38,7 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
     const archiver = new ArchiveRotator({
       archivePath: this._archivePath,
       archiveDate: `${this._startDate.toISOString().substring(0, 16)}:00`, // archive date is more granular to prevent overwriting previous archives
-      filesToArchive: this._fileNames,
+      filesToArchive: this.fileNames,
     });
 
     archiver.rotateSync();
@@ -58,7 +58,7 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
     const archiver = new ArchiveRotator({
       archivePath: this._archivePath,
       archiveDate: this._startDate.toISOString().substring(0, 10),
-      filesToArchive: this._fileNames,
+      filesToArchive: this.fileNames,
     });
 
     stopped.then(() => archiver.rotate()).then(() => this.record());

@@ -15,7 +15,35 @@
 */
 
 const { read } = require("./IcecastMetadataReader");
-const { Transform } = require("stream");
+const { Writable, Readable } = require("stream");
+
+class IcecastStream extends Readable {
+  constructor() {
+    super();
+  }
+
+  append(stream) {
+    this.push(stream);
+  }
+
+  _read() {}
+}
+
+class IcecastMetadata extends Readable {
+  constructor({ icyBr }) {
+    super({ objectMode: true });
+    this._icyBr = icyBr;
+  }
+
+  append({ metadata, stats: { streamBytesRead } }) {
+    super.push({
+      metadata,
+      time: streamBytesRead / (this._icyBr * 125),
+    });
+  }
+
+  _read() {}
+}
 
 /**
  * @description An IcecastMetadataParser implemented as a Transform stream
@@ -30,36 +58,44 @@ const { Transform } = require("stream");
  * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
  * @param {number} time Time in seconds the metadata should be displayed / recorded
  */
-class IcecastMetadataTransformStream extends Transform {
-  constructor({ icyMetaInt, icyBr, onMetadata }) {
+class IcecastMetadataTransformStream extends Writable {
+  constructor({ icyMetaInt, icyBr }) {
     super();
 
-    this._onMetadata = onMetadata;
     this._generator = read(icyMetaInt);
     this._icyBr = icyBr;
+
+    this._stream = new IcecastStream();
+    this._metadata = new IcecastMetadata({ icyBr });
   }
 
-  _handleMetadata({ metadata, stats: { streamBytesRead } }) {
-    this._onMetadata({
-      metadata,
-      time: streamBytesRead / (this._icyBr * 125),
-    });
+  get stream() {
+    return this._stream;
   }
 
-  _transform(chunk, encoding, callback) {
+  get metadata() {
+    return this._metadata;
+  }
+
+  _write(chunk, enc, next) {
     for (
       let i = this._generator.next(chunk);
       i.value;
       i = this._generator.next()
     ) {
       if (i.value.stream) {
-        this.push(i.value.stream);
+        this._stream.append(i.value.stream);
       } else {
-        this._handleMetadata(i.value);
+        this.metadata.append(i.value);
       }
     }
+    next();
+  }
 
-    callback(null);
+  end() {
+    this._stream.push(null);
+    this._metadata.push(null);
+    super.end();
   }
 }
 
