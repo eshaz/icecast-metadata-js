@@ -25,6 +25,7 @@ jest.mock("node-fetch");
 
 describe("Given the IcecastMetadataRecorder", () => {
   const realDate = Date.now;
+  let metadataRecorder;
 
   beforeAll(() => {
     global.Date.now = jest.fn(() => 1596057371222);
@@ -56,7 +57,7 @@ describe("Given the IcecastMetadataRecorder", () => {
 
     fetch.mockResolvedValue({ headers, body });
 
-    const metadataRecorder = new IcecastMetadataRecorder({
+    metadataRecorder = new IcecastMetadataRecorder({
       output: `${params.actualPath}${params.expectedFileName}.${params.expectedFileFormat}`,
       dateEntries: params.expectedDateEntries,
       prependDate: params.expectedPrependDate,
@@ -151,6 +152,46 @@ describe("Given the IcecastMetadataRecorder", () => {
         expect(notMatch).toBeFalsy();
         done();
       });
+    });
+
+    it("should return the correct file names written", () => {
+      expect(metadataRecorder.fileNames).toEqual([
+        "./test/temp/isics-all.mp3",
+        "./test/temp/isics-all.cue",
+        "./test/temp/isics-all.1.cue",
+        "./test/temp/isics-all.2.cue",
+        "./test/temp/isics-all.3.cue",
+        "./test/temp/isics-all.4.cue",
+        "./test/temp/isics-all.5.cue",
+        "./test/temp/isics-all.6.cue",
+        "./test/temp/isics-all.7.cue",
+        "./test/temp/isics-all.8.cue",
+        "./test/temp/isics-all.9.cue",
+        "./test/temp/isics-all.10.cue",
+        "./test/temp/isics-all.11.cue",
+        "./test/temp/isics-all.12.cue",
+        "./test/temp/isics-all.13.cue",
+        "./test/temp/isics-all.14.cue",
+        "./test/temp/isics-all.15.cue",
+        "./test/temp/isics-all.16.cue",
+        "./test/temp/isics-all.17.cue",
+        "./test/temp/isics-all.18.cue",
+        "./test/temp/isics-all.19.cue",
+        "./test/temp/isics-all.20.cue",
+        "./test/temp/isics-all.21.cue",
+        "./test/temp/isics-all.22.cue",
+        "./test/temp/isics-all.23.cue",
+        "./test/temp/isics-all.24.cue",
+        "./test/temp/isics-all.25.cue",
+        "./test/temp/isics-all.26.cue",
+        "./test/temp/isics-all.27.cue",
+        "./test/temp/isics-all.28.cue",
+        "./test/temp/isics-all.29.cue",
+        "./test/temp/isics-all.30.cue",
+        "./test/temp/isics-all.31.cue",
+        "./test/temp/isics-all.32.cue",
+        "./test/temp/isics-all.33.cue",
+      ]);
     });
 
     new Array(32)

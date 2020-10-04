@@ -2,16 +2,14 @@ const CueBuilder = require("../../src/Recorder/CueBuilder");
 
 describe("Cue Builder", () => {
   describe("Start Cue File", () => {
-    it("should start a new cue file when instantiated", () => {
-      const cueBuilder = new CueBuilder(
+    it("should start get a properly formatted header", () => {
+      const string = CueBuilder.getHeader(
         {
           title: "someTitle",
           performer: "somePerformer",
         },
         ["a comment", "another comment"]
       );
-
-      const string = cueBuilder.read();
 
       // prettier-ignore
       const expectedString = 
@@ -20,12 +18,12 @@ REM another comment
 TITLE "someTitle"
 PERFORMER "somePerformer"`;
 
-      expect(string.toString()).toEqual(expectedString);
+      expect(string).toEqual(expectedString);
     });
 
     describe("File Logic", () => {
-      it("should add a file to the start when passed in", () => {
-        const cueBuilder = new CueBuilder(
+      it("should add a file to the cue header", () => {
+        const string = CueBuilder.getHeader(
           {
             title: "someTitle",
             performer: "somePerformer",
@@ -35,8 +33,6 @@ PERFORMER "somePerformer"`;
           "AIFF"
         );
 
-        const string = cueBuilder.read();
-
         // prettier-ignore
         const expectedString = 
 `REM a comment
@@ -45,11 +41,11 @@ TITLE "someTitle"
 PERFORMER "somePerformer"
 FILE "some-file.mp3" AIFF`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should default to WAVE if the filetype is not passed in", () => {
-        const cueBuilder = new CueBuilder(
+        const string = CueBuilder.getHeader(
           {
             title: "someTitle",
             performer: "somePerformer",
@@ -57,8 +53,6 @@ FILE "some-file.mp3" AIFF`;
           },
           ["a comment", "another comment"]
         );
-
-        const string = cueBuilder.read();
 
         // prettier-ignore
         const expectedString = 
@@ -68,11 +62,11 @@ TITLE "someTitle"
 PERFORMER "somePerformer"
 FILE "some-file.mp3" WAVE`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should default to WAVE if the filetype is not validfor a cue file", () => {
-        const cueBuilder = new CueBuilder(
+        const string = CueBuilder.getHeader(
           {
             title: "someTitle",
             performer: "somePerformer",
@@ -82,8 +76,6 @@ FILE "some-file.mp3" WAVE`;
           "FLAC"
         );
 
-        const string = cueBuilder.read();
-
         // prettier-ignore
         const expectedString = 
 `REM a comment
@@ -92,13 +84,13 @@ TITLE "someTitle"
 PERFORMER "somePerformer"
 FILE "some-file.flac" WAVE`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
     });
 
     describe("Comments vs Entries", () => {
       it("should pass in valid disc level entries and others as comments", () => {
-        const cueBuilder = new CueBuilder(
+        const string = CueBuilder.getHeader(
           {
             title: "someTitle",
             performer: "somePerformer",
@@ -109,8 +101,6 @@ FILE "some-file.flac" WAVE`;
           },
           ["a comment", "another comment"]
         );
-
-        const string = cueBuilder.read();
 
         // prettier-ignore
         const expectedString = 
@@ -123,11 +113,11 @@ PERFORMER "somePerformer"
 SONGWRITER "A Songwriter"
 CATALOG "asdbc1321654"`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should pass anything in the comments array as a comment", () => {
-        const cueBuilder = new CueBuilder(
+        const string = CueBuilder.getHeader(
           {
             title: "someTitle",
             performer: "somePerformer",
@@ -136,8 +126,6 @@ CATALOG "asdbc1321654"`;
           },
           ["a comment", "TITLE another title", "My very own cue file"]
         );
-
-        const string = cueBuilder.read();
 
         // prettier-ignore
         const expectedString = 
@@ -149,7 +137,7 @@ PERFORMER "somePerformer"
 SONGWRITER "A Songwriter"
 CATALOG "asdbc1321654"`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
     });
   });
@@ -158,45 +146,31 @@ CATALOG "asdbc1321654"`;
     let cueBuilder, expectedString;
 
     beforeEach(() => {
-      cueBuilder = new CueBuilder(
-        {
-          title: "someTitle",
-          performer: "somePerformer",
-        },
-        ["a comment", "another comment"]
-      );
-
-      // prettier-ignore
-      expectedString = 
-`REM a comment
-REM another comment
-TITLE "someTitle"
-PERFORMER "somePerformer"`;
+      cueBuilder = new CueBuilder();
     });
 
     describe("Add Track", () => {
       it("should add a track", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
           },
           0
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should add another track and increment the track number", () => {
-        cueBuilder.addTrack(
+        const track1 = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
@@ -204,27 +178,29 @@ PERFORMER "somePerformer"`;
           0
         );
 
-        cueBuilder.addTrack(
+        const track2 = cueBuilder.addTrack(
           {
             title: "Another Track",
             performer: "My Performer 2",
           },
           10
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        const expectedTrack1 = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
-    INDEX 01 00:00:00
+    INDEX 01 00:00:00`
+        // prettier-ignore
+        const expectedTrack2 = `
   TRACK 2 AUDIO
     TITLE "Another Track"
     PERFORMER "My Performer 2"
     INDEX 01 00:10:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(track1).toEqual(expectedTrack1);
+        expect(track2).toEqual(expectedTrack2);
       });
 
       it("should return the total number of tracks give the get trackCount is called", () => {
@@ -243,26 +219,13 @@ PERFORMER "somePerformer"`;
           },
           10
         );
-        const string = cueBuilder.read();
-
-        // prettier-ignore
-        expectedString += `
-  TRACK 1 AUDIO
-    TITLE "My Track"
-    PERFORMER "My Performer"
-    INDEX 01 00:00:00
-  TRACK 2 AUDIO
-    TITLE "Another Track"
-    PERFORMER "My Performer 2"
-    INDEX 01 00:10:00`;
-
         expect(cueBuilder.trackCount).toEqual(2);
       });
     });
 
     describe("File Logic", () => {
       it("should add a file to the track", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
@@ -272,21 +235,20 @@ PERFORMER "somePerformer"`;
           [],
           "MP3"
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
 FILE "Track 1.mp3" MP3
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should default to WAVE for the filetime is not passed in", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
@@ -295,21 +257,20 @@ FILE "Track 1.mp3" MP3
           0,
           []
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
 FILE "Track 1.mp3" WAVE
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should default to WAVE given the filetype passed in is not valid", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
@@ -319,21 +280,20 @@ FILE "Track 1.mp3" WAVE
           [],
           "MIDI"
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
 FILE "Track 1.mp3" WAVE
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should add a file for each track that is entered with the file parameter set", () => {
-        cueBuilder.addTrack(
+        const track1 = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
@@ -341,7 +301,7 @@ FILE "Track 1.mp3" WAVE
           },
           0
         );
-        cueBuilder.addTrack(
+        const track2 = cueBuilder.addTrack(
           {
             title: "An AIFF Track",
             performer: "My Performer 2",
@@ -350,7 +310,7 @@ FILE "Track 1.mp3" WAVE
           [],
           "AIFF"
         );
-        cueBuilder.addTrack(
+        const track3 = cueBuilder.addTrack(
           {
             title: "Another AIFF Track",
             performer: "My Performer 2",
@@ -360,10 +320,9 @@ FILE "Track 1.mp3" WAVE
           [],
           "AIFF"
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
 FILE "Track 1.mp3" WAVE
   TRACK 1 AUDIO
     TITLE "My Track"
@@ -379,13 +338,13 @@ FILE "sound2.aiff" AIFF
     PERFORMER "My Performer 2"
     INDEX 01 07:45:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(track1 + track2 + track3).toEqual(expectedString);
       });
     });
 
     describe("Comments vs Entries", () => {
       it("should pass in valid track level entries and others as comments", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
@@ -399,10 +358,9 @@ FILE "sound2.aiff" AIFF
           [],
           "MP3"
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
 FILE "Track 1.mp3" MP3
   TRACK 1 AUDIO
     REM IRSC "1321654"
@@ -413,11 +371,11 @@ FILE "Track 1.mp3" MP3
     SONGWRITER "I write Music"
     INDEX 01 00:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should pass in anything in the comments array as a comment", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             Title: "My Track",
             Performer: "My Performer",
@@ -431,10 +389,9 @@ FILE "Track 1.mp3" MP3
           ['title "Some Title"', "Am I a Comment?"],
           "MP3"
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
 FILE "Track 1.mp3" MP3
   TRACK 1 AUDIO
     REM title "Some Title"
@@ -447,109 +404,104 @@ FILE "Track 1.mp3" MP3
     SONGWRITER "I write Music"
     INDEX 01 00:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
     });
 
     describe("Time Formatting", () => {
       it("should put CD frames (75 per second) into the frames", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
           },
           1.4567
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:01:34`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should round up to the next second if greater than or equal to 74.5 frames", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
           },
           1.994
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:02:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should round down if less than or equal to 74.4 frames", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
           },
           1.993
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 00:01:74`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should roll over to 1:00 when 60 seconds", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
           },
           60
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 01:00:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
 
       it("should not roll over for any number of minutes", () => {
-        cueBuilder.addTrack(
+        const string = cueBuilder.addTrack(
           {
             title: "My Track",
             performer: "My Performer",
           },
           10001234
         );
-        const string = cueBuilder.read();
 
         // prettier-ignore
-        expectedString += `
+        expectedString = `
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
     INDEX 01 166687:14:00`;
 
-        expect(string.toString()).toEqual(expectedString);
+        expect(string).toEqual(expectedString);
       });
     });
   });
