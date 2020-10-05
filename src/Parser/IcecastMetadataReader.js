@@ -1,4 +1,19 @@
-const { EventEmitter } = require("events");
+/* Copyright 2020 Ethan Halsall
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>
+*/
+
 const MetadataBuffer = require("./MetadataBuffer");
 
 class Stats {
@@ -6,6 +21,7 @@ class Stats {
     this._metadataBytesRead = 0;
     this._streamBytesRead = 0;
     this._totalBytesRead = 0;
+    this._currentStreamPosition = 0;
   }
 
   get stats() {
@@ -13,6 +29,7 @@ class Stats {
       metadataBytesRead: this._metadataBytesRead,
       streamBytesRead: this._streamBytesRead,
       totalBytesRead: this._totalBytesRead,
+      currentStreamPosition: this._currentStreamPosition,
     };
   }
 
@@ -27,23 +44,43 @@ class Stats {
   set addBytes(bytes) {
     this._totalBytesRead += bytes;
   }
+
+  set currentStreamPosition(bytes) {
+    this._currentStreamPosition = bytes;
+  }
+
+  set addCurrentStreamPosition(bytes) {
+    this._currentStreamPosition += bytes;
+  }
 }
+
+const noOp = () => {};
 
 /**
  * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
  * @param {number} icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
- * @fires IcecastMetadataReader#metadata
- * @fires IcecastMetadataReader#stream
+ *
+ * @callback onMetadata
+ * @param {object} value Object containing Metadata and Statistics
+ * @param {object} metadata Object containing the metadata received.
+ * @param {string} [metadata.StreamTitle] Title of the metadata update.
+ * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
+ * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
+ *
+ * @callback onStream
+ * @param {object} value Object containing Stream data and Statistics
+ * @param {Uint8Array} stream Object containing the stream buffer.
+ * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
  */
-class IcecastMetadataReader extends EventEmitter {
-  constructor(icyMetaInt) {
-    super();
-
+class IcecastMetadataReader {
+  constructor({ icyMetaInt, onStream = noOp, onMetadata = noOp }) {
     this._icyMetaInt = icyMetaInt;
     this._remainingData = 0;
     this._currentPosition = 0;
     this._buffer = null;
     this._stats = new Stats();
+    this._onStream = onStream;
+    this._onMetadata = onMetadata;
 
     this._generator = this._generator();
     this._generator.next();
@@ -87,7 +124,11 @@ class IcecastMetadataReader extends EventEmitter {
    * @param {Uint8Array} chunk Bytes to split into stream and metadata
    */
   readAll(chunk) {
-    for (let i = this._generator.next(chunk); i.value; i = this._generator.next()) {}
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {}
   }
 
   /**
@@ -113,17 +154,18 @@ class IcecastMetadataReader extends EventEmitter {
     do {
       const stream = yield* this._getNextValue();
       this._stats.addStreamBytes = stream.length;
+      this._stats.addCurrentStreamPosition = stream.length;
 
       const streamPayload = { stream, stats: this._stats.stats };
       /**
-       * Stream event.
+       * Stream callback.
        *
-       * @event IcecastMetadataReader#stream
+       * @callback onStream
        * @type {object}
        * @property {Uint8Array} stream Stream bytes.
        * @property {object} stats Statistics on bytes read.
        */
-      this.emit("stream", streamPayload);
+      this._onStream(streamPayload);
 
       yield streamPayload;
     } while (this._remainingData);
@@ -148,16 +190,16 @@ class IcecastMetadataReader extends EventEmitter {
       stats: this._stats.stats,
     };
     /**
-     * Metadata event.
+     * Metadata callback.
      *
-     * @event IcecastMetadataReader#metadata
+     * @callback onMetadata
      * @type {object}
      * @property {object} metadata Metadata key value pairs..
      * @param {property} [metadata.StreamTitle] Title of the metadata update.
      * @param {property} [metadata.StreamUrl] Url (usually album art) of the metadata update.
      * @property {object} stats Statistics on bytes read.
      */
-    this.emit("metadata", metadataPayload);
+    this._onMetadata(metadataPayload);
 
     yield metadataPayload;
   }
@@ -180,6 +222,7 @@ class IcecastMetadataReader extends EventEmitter {
     while (!this._buffer || this._currentPosition === this._buffer.length) {
       this._buffer = yield; // if out of data, accept new data in the .next() call
       this._currentPosition = 0;
+      this._stats.currentStreamPosition = 0;
     }
     const value = this._buffer.subarray(
       this._currentPosition,

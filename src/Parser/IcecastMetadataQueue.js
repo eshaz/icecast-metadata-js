@@ -16,14 +16,11 @@
 
 class IcecastMetadataQueue {
   /**
-   * @description Reads, parses, and schedules updates up to the millisecond for Icecast Metadata from the response body of an Icecast stream mountpoint
+   * @description Schedules updates up to the millisecond for Icecast Metadata from the response body of an Icecast stream mountpoint
    * @description The accuracy of metadata updates is a direct relationship of the icyMetaInt
-   * @param {Object} IcecastMetadataParser constructor parameter
-   * @param {number} IcecastMetadataParser.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
-   * @param {number} [IcecastMetadataParser.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
-   * @param {boolean} [IcecastMetadataParser.disableMetadataUpdates] Disables scheduled metadata updates
-   * @param {onMetadataUpdate} [IcecastMetadataParser.onMetadataUpdate] Callback executed when metadata is scheduled to update
-   * @param {onMetadata} [IcecastMetadataParser.onMetadata] Callback executed when metadata is discovered and queued for update
+   * @param {Object} IcecastMetadataQueue constructor parameter
+   * @param {number} [IcecastMetadataQueue.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
+   * @param {onMetadataUpdate} [IcecastMetadataQueue.onMetadataUpdate] Callback executed when metadata is scheduled to update
    *
    * @callback onMetadataUpdate
    * @param {Object} metadata Object containing all metadata received.
@@ -31,22 +28,12 @@ class IcecastMetadataQueue {
    * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
    * @param {number} time Time in seconds the metadata should be displayed / recorded
    *
-   * @callback onMetadata
-   * @param {Object} metadata Object containing all metadata received.
-   * @param {string} [metadata.StreamTitle] Title of the metadata update.
-   * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
-   * @param {number} time Time in seconds the metadata should be displayed / recorded
    */
 
-  constructor({ icyMetaInt, icyBr, onMetadataUpdate, onMetadata }) {
-    this._icyMetaInt = icyMetaInt;
+  constructor({ icyBr, onMetadataUpdate = () => {} }) {
     this._icyBr = icyBr;
     this._onMetadataUpdate = onMetadataUpdate;
-    this._onMetadata = onMetadata;
-
     this._metadataQueue = [];
-    this._metadataCurrentTime = 0;
-    this._metadataEndOfBufferTime = 0;
   }
 
   /**
@@ -61,6 +48,23 @@ class IcecastMetadataQueue {
   }
 
   /**
+   *
+   * @param {object} metadata Metadata object returned from IcecastMetadataReader
+   * @param {number} bufferOffset Total buffered audio in seconds
+   */
+  addMetadata({ metadata, stats }, bufferOffset) {
+    /**
+     * Metadata time is derived from the total number of stream bytes read
+     * since the latest buffer input. The buffer offset should be the total
+     * seconds of audio in the player buffer when the metadata was read.
+     */
+    const time =
+      bufferOffset + this.getTimeByBytes(stats.currentStreamPosition);
+
+    this._enqueueMetadata(metadata, time);
+  }
+
+  /**
    * @description Calculates audio stream length based on bitrate
    * @param {number} bytesRead Number of bytes
    * @type {number} Seconds
@@ -70,47 +74,25 @@ class IcecastMetadataQueue {
   }
 
   /**
-   * @description Resets the internal state of the IcecastMetadataReader
-   */
-  reset() {
-    this._purgeMetadataQueue();
-  }
-
-  /**
    * @description Clears all metadata updates and empties the queue
    */
-  _purgeMetadataQueue() {
+  purgeMetadataQueue() {
     this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
     this._metadataQueue = [];
   }
 
-  _enqueueMetadata(metadata, time, playTime) {
+  _enqueueMetadata(metadata, time) {
     this._metadataQueue.push({
       _timeoutId: setTimeout(() => {
         this._dequeueMetadata();
-      }, (time - playTime) * 1000), // trigger timeout relative to play position
+      }, time * 1000), // trigger timeout relative to play position
       metadata,
-      time,
     });
   }
 
   _dequeueMetadata() {
-    const meta = this._metadataQueue.shift();
-    this._onMetadataUpdate &&
-      this._onMetadataUpdate({ metadata: meta.metadata, time: meta.time });
-  }
-
-  _addMetadata(metadata, currentTime, endOfBufferTime) {
-    /**
-     * Metadata time is sum of the total time elapsed when readBuffer is called
-     * with the offset of the audio bytes read so far while parsing.
-     */
-    const time = currentTime + endOfBufferTime;
-
-    // metadata callbacks
-    this._disableMetadataUpdates ||
-      this._enqueueMetadata(metadata, time, currentTime);
-    this._onMetadata && this._onMetadata({ ...metadata, time });
+    const { metadata } = this._metadataQueue.shift();
+    this._onMetadataUpdate(metadata);
   }
 }
 
