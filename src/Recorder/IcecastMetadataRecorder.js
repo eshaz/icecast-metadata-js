@@ -19,7 +19,7 @@ const path = require("path");
 const fetch = require("node-fetch").default;
 const { AbortController } = require("abort-controller");
 
-const IcecastMetadataTransformStream = require("../Parser/IcecastMetadataTransformStream");
+const IcecastMetadataStream = require("../Parser/IcecastMetadataStream");
 const CueWriter = require("./CueWriter");
 
 /**
@@ -61,7 +61,7 @@ class IcecastMetadataRecorder {
   }
 
   _getIcecast() {
-    this._icecast = new IcecastMetadataTransformStream({
+    this._icecast = new IcecastMetadataStream({
       icyMetaInt: parseInt(this._icyHeaders["metaint"]),
       icyBr: parseInt(this._icyHeaders["br"]),
     });
@@ -131,10 +131,10 @@ class IcecastMetadataRecorder {
          *
          * res.body.pipe(this._raw);
          */
-        res.body.pipe(this._icecast);
-
         this._icecast.stream.pipe(this._audioFileWritable);
         this._icecast.metadata.pipe(this._cueWriter);
+
+        res.body.pipe(this._icecast);
       })
       .catch((e) => {
         this._closeFile(this._icecast);
