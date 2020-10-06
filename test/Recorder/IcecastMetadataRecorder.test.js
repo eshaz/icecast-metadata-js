@@ -17,9 +17,7 @@
 const fs = require("fs");
 const fetch = require("node-fetch");
 
-const {
-  IcecastMetadataRecorder,
-} = require("../../src/Recorder/IcecastMetadataRecorder");
+const IcecastMetadataRecorder = require("../../src/Recorder/IcecastMetadataRecorder");
 
 jest.mock("node-fetch");
 

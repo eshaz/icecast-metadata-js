@@ -15,12 +15,8 @@
 */
 
 const getArgs = require("./get-args");
-const {
-  IcecastMetadataArchiveRecorder,
-} = require("../Recorder/IcecastMetadataArchiveRecorder");
-const {
-  IcecastMetadataRecorder,
-} = require("../Recorder/IcecastMetadataRecorder");
+const IcecastMetadataArchiveRecorder = require("../Recorder/IcecastMetadataArchiveRecorder");
+const IcecastMetadataRecorder = require("../Recorder/IcecastMetadataRecorder");
 const path = require("path");
 
 const recorderInstances = new Map();

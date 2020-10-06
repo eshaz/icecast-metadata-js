@@ -172,4 +172,4 @@ class IcecastMetadataRecorder {
   }
 }
 
-module.exports = { IcecastMetadataRecorder };
+module.exports = IcecastMetadataRecorder;

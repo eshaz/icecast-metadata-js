@@ -16,8 +16,8 @@
 
 const cron = require("cron-parser");
 
-const { IcecastMetadataRecorder } = require("./IcecastMetadataRecorder");
-const { ArchiveRotator } = require("./ArchiveRotator");
+const IcecastMetadataRecorder = require("./IcecastMetadataRecorder");
+const ArchiveRotator = require("./ArchiveRotator");
 
 class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   constructor(params) {
@@ -65,4 +65,4 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   }
 }
 
-module.exports = { IcecastMetadataArchiveRecorder };
+module.exports = IcecastMetadataArchiveRecorder;

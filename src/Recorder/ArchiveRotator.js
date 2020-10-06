@@ -80,4 +80,4 @@ class ArchiveRotator {
   }
 }
 
-module.exports = { ArchiveRotator };
+module.exports = ArchiveRotator;
