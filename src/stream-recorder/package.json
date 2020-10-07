@@ -1,0 +1,35 @@
+{
+  "name": "stream-recorder",
+  "version": "0.0.0",
+  "description": "Icecast stream recorder that saves audio and metadata",
+  "scripts": {
+    "test": "jest",
+    "format": "prettier --write '**/*.js' --write '**/*.json' --write '**/*.html'",
+    "build-recorder": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eshaz/icecast-metadata-js.git"
+  },
+  "author": "Ethan Halsall",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/eshaz/icecast-metadata-js/issues"
+  },
+  "homepage": "https://github.com/eshaz/icecast-metadata-js#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.7",
+    "exports-loader": "^1.1.0",
+    "jest": "^26.1.0",
+    "prettier": "^2.0.2",
+    "terser-webpack-plugin": "^3.0.7",
+    "webpack": "^4.44.0",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "cron-parser": "^2.15.0",
+    "node-fetch": "^2.6.1",
+    "yargs": "^15.4.1"
+  }
+}

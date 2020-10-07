@@ -1,5 +1,5 @@
 const fs = require("fs");
-const IcecastMetadataReader = require("../../src/Parser/IcecastMetadataReader");
+const IcecastMetadataReader = require("../src/IcecastMetadataReader");
 
 const getBuffArray = (buffer, increment) => {
   let rawBuffs = [];
@@ -65,10 +65,10 @@ describe("Icecast Metadata Reader", () => {
 
   beforeAll((done) => {
     Promise.all([
-      fs.promises.readFile("test/data/record/256mp3/music-256k.mp3.raw"),
-      fs.promises.readFile("test/data/record/256mp3/music-256k.mp3"),
-      fs.promises.readFile("test/data/record/no-rollover/isics-all.mp3.raw"),
-      fs.promises.readFile("test/data/record/no-rollover/isics-all.mp3"),
+      fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3.raw"),
+      fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3"),
+      fs.promises.readFile("../../test/data/record/no-rollover/isics-all.mp3.raw"),
+      fs.promises.readFile("../../test/data/record/no-rollover/isics-all.mp3"),
     ]).then(([r256k, e256, r16k, e16k]) => {
       raw256k = r256k;
       expected256kAudio = e256;

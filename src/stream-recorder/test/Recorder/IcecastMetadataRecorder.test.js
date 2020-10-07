@@ -16,7 +16,6 @@
 
 const fs = require("fs");
 const fetch = require("node-fetch");
-
 const IcecastMetadataRecorder = require("../../src/Recorder/IcecastMetadataRecorder");
 
 jest.mock("node-fetch");
@@ -68,8 +67,8 @@ describe("Given the IcecastMetadataRecorder", () => {
   };
 
   describe("Given no cue rollover", () => {
-    const actualPath = "./test/temp/";
-    const expectedPath = "./test/data/record/no-rollover/";
+    const actualPath = "../../test/temp/";
+    const expectedPath = "../../test/data/record/no-rollover/";
     const expectedFileName = "isics-all";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "isics-all";
@@ -110,8 +109,8 @@ describe("Given the IcecastMetadataRecorder", () => {
   });
 
   describe("Given Cue rollover is set to 10", () => {
-    const actualPath = "./test/temp/";
-    const expectedPath = "./test/data/record/rollover/";
+    const actualPath = "../../test/temp/";
+    const expectedPath = "../../test/data/record/rollover/";
     const expectedFileName = "isics-all";
     const expectedFileFormat = "mp3";
     const expectedStreamTitle = "isics-all";
@@ -154,41 +153,41 @@ describe("Given the IcecastMetadataRecorder", () => {
 
     it("should return the correct file names written", () => {
       expect(metadataRecorder.fileNames).toEqual([
-        "./test/temp/isics-all.mp3",
-        "./test/temp/isics-all.cue",
-        "./test/temp/isics-all.1.cue",
-        "./test/temp/isics-all.2.cue",
-        "./test/temp/isics-all.3.cue",
-        "./test/temp/isics-all.4.cue",
-        "./test/temp/isics-all.5.cue",
-        "./test/temp/isics-all.6.cue",
-        "./test/temp/isics-all.7.cue",
-        "./test/temp/isics-all.8.cue",
-        "./test/temp/isics-all.9.cue",
-        "./test/temp/isics-all.10.cue",
-        "./test/temp/isics-all.11.cue",
-        "./test/temp/isics-all.12.cue",
-        "./test/temp/isics-all.13.cue",
-        "./test/temp/isics-all.14.cue",
-        "./test/temp/isics-all.15.cue",
-        "./test/temp/isics-all.16.cue",
-        "./test/temp/isics-all.17.cue",
-        "./test/temp/isics-all.18.cue",
-        "./test/temp/isics-all.19.cue",
-        "./test/temp/isics-all.20.cue",
-        "./test/temp/isics-all.21.cue",
-        "./test/temp/isics-all.22.cue",
-        "./test/temp/isics-all.23.cue",
-        "./test/temp/isics-all.24.cue",
-        "./test/temp/isics-all.25.cue",
-        "./test/temp/isics-all.26.cue",
-        "./test/temp/isics-all.27.cue",
-        "./test/temp/isics-all.28.cue",
-        "./test/temp/isics-all.29.cue",
-        "./test/temp/isics-all.30.cue",
-        "./test/temp/isics-all.31.cue",
-        "./test/temp/isics-all.32.cue",
-        "./test/temp/isics-all.33.cue",
+        "../../test/temp/isics-all.mp3",
+        "../../test/temp/isics-all.cue",
+        "../../test/temp/isics-all.1.cue",
+        "../../test/temp/isics-all.2.cue",
+        "../../test/temp/isics-all.3.cue",
+        "../../test/temp/isics-all.4.cue",
+        "../../test/temp/isics-all.5.cue",
+        "../../test/temp/isics-all.6.cue",
+        "../../test/temp/isics-all.7.cue",
+        "../../test/temp/isics-all.8.cue",
+        "../../test/temp/isics-all.9.cue",
+        "../../test/temp/isics-all.10.cue",
+        "../../test/temp/isics-all.11.cue",
+        "../../test/temp/isics-all.12.cue",
+        "../../test/temp/isics-all.13.cue",
+        "../../test/temp/isics-all.14.cue",
+        "../../test/temp/isics-all.15.cue",
+        "../../test/temp/isics-all.16.cue",
+        "../../test/temp/isics-all.17.cue",
+        "../../test/temp/isics-all.18.cue",
+        "../../test/temp/isics-all.19.cue",
+        "../../test/temp/isics-all.20.cue",
+        "../../test/temp/isics-all.21.cue",
+        "../../test/temp/isics-all.22.cue",
+        "../../test/temp/isics-all.23.cue",
+        "../../test/temp/isics-all.24.cue",
+        "../../test/temp/isics-all.25.cue",
+        "../../test/temp/isics-all.26.cue",
+        "../../test/temp/isics-all.27.cue",
+        "../../test/temp/isics-all.28.cue",
+        "../../test/temp/isics-all.29.cue",
+        "../../test/temp/isics-all.30.cue",
+        "../../test/temp/isics-all.31.cue",
+        "../../test/temp/isics-all.32.cue",
+        "../../test/temp/isics-all.33.cue",
       ]);
     });
 
@@ -204,8 +203,8 @@ describe("Given the IcecastMetadataRecorder", () => {
   });
 
   describe("Given mp3 256k music", () => {
-    const actualPath = "./test/temp/";
-    const expectedPath = "./test/data/record/256mp3/";
+    const actualPath = "../../test/temp/";
+    const expectedPath = "../../test/data/record/256mp3/";
     const expectedFileName = "music-256k";
     const expectedFileFormat = "mp3";
     const expectedPrependDate = false;
@@ -263,8 +262,8 @@ describe("Given the IcecastMetadataRecorder", () => {
   });
 
   describe("Given aac 128k music", () => {
-    const actualPath = "./test/temp/";
-    const expectedPath = "./test/data/record/128aac/";
+    const actualPath = "../../test/temp/";
+    const expectedPath = "../../test/data/record/128aac/";
     const expectedFileFormat = "aac";
     const expectedFileName = "music-128k";
     const expectedStreamTitle = "Deep Space One";

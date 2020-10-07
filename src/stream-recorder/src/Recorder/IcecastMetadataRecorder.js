@@ -19,7 +19,7 @@ const path = require("path");
 const fetch = require("node-fetch").default;
 const { AbortController } = require("abort-controller");
 
-const IcecastMetadataStream = require("../Parser/IcecastMetadataStream");
+const IcecastMetadataStream = require("../../../icecast-metadata-js/src/IcecastMetadataStream");
 const CueWriter = require("./CueWriter");
 
 /**
