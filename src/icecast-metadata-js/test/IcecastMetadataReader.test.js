@@ -67,7 +67,9 @@ describe("Icecast Metadata Reader", () => {
     Promise.all([
       fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3.raw"),
       fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3"),
-      fs.promises.readFile("../../test/data/record/no-rollover/isics-all.mp3.raw"),
+      fs.promises.readFile(
+        "../../test/data/record/no-rollover/isics-all.mp3.raw"
+      ),
       fs.promises.readFile("../../test/data/record/no-rollover/isics-all.mp3"),
     ]).then(([r256k, e256, r16k, e16k]) => {
       raw256k = r256k;
@@ -494,6 +496,20 @@ describe("Icecast Metadata Reader", () => {
       it("should parse given the metadata has only one valid key value pair", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
+
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
+      it("should parse given metadata value contains non alpha numeric characters", () => {
+        const metadataString =
+          "StreamTitle='Nils Landgren & Jan LundgrenÂ  - Why Did You Let Me Go';\0\0\0\0\0\0";
+        const expectedMetadata = {
+          StreamTitle: "Nils Landgren & Jan LundgrenÂ  - Why Did You Let Me Go",
+        };
 
         const returnedMetadata = IcecastMetadataReader.parseMetadataString(
           metadataString

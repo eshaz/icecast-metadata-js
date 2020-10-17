@@ -100,7 +100,7 @@ class IcecastMetadataReader {
     const metadata = {};
     // [{key: "StreamTitle", val: "The Stream Title"}, {key: "StreamUrl", val: "https://example.com"}]
     for (let match of metadataString.matchAll(
-      /(?<key>[ -~]+?)='(?<val>[ -~]*?)(;$|';|'$|$)/g
+      /(?<key>[^\0]+?)='(?<val>[^\0]*?)(;$|';|'$|$)/g
     )) {
       metadata[match["groups"]["key"]] = match["groups"]["val"];
     }

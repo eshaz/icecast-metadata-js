@@ -4,7 +4,7 @@
   "description": "Client Side Icecast Metadata Reader",
   "scripts": {
     "test": "jest",
-    "format": "prettier --write '**/*.js' --write '**/*.json' --write '**/*.html'",
+    "format": "prettier --write '**/*.js' --write '**/*.json'",
     "build-parser": "webpack --config webpack.config.js"
   },
   "repository": {
