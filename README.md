@@ -250,3 +250,38 @@ fetch("https://example.com/stream", {
 
 </pre>
 
+
+
+
+---
+
+
+# Demo
+
+This is a React application that demonstrates a common usage of the `icecast-metadata-js` package.
+
+### Run Locally
+
+Supported Browsers:
+ * Chrome
+
+Un-supported Browsers:
+ * Firefox *MediaSource mine types `audio/mpeg` and `audio/aac` are not supported*
+
+* `cd src/demo`
+* `npm i`
+* `npm start` -> Runs a local server on http://localhost:3000
+
+### Adding your own Icecast stream
+
+### CORS
+
+If you want to serve your stream and website on a different origin, you will need make sure your CORS configuration includes the below configuration to enable metadata and stream information.
+
+```
+Access-Control-Allow-Origin: 'https://your-origin.example.com'
+Access-Control-Allow-Methods: 'GET, OPTIONS'
+Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
+Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url';
+```
+

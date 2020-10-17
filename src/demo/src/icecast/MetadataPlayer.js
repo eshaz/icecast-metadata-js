@@ -3,20 +3,21 @@ import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import BufferArray from "./BufferArray";
 
 export default class MetadataPlayer {
-  constructor({ endpoint, metaInt, onMetadataUpdate }) {
+  constructor({ endpoint, metaInt, onMetadataUpdate, audioElement }) {
     this._endpoint = endpoint;
     this._metaInt = metaInt;
     this._icecastMetadataQueue = new IcecastMetadataQueue({
       onMetadataUpdate: (meta) => onMetadataUpdate(meta),
     });
+    this._audioElement = audioElement;
+    this._onMetadataUpdate = onMetadataUpdate;
 
     this._icecast = null;
     this._streamBuffer = new BufferArray();
-  }
 
-  set audioElement(audioElement) {
-    this._audioElement = audioElement;
-    this._createMediaSource(audioElement);
+    this._audioElement.onplay = () => this.play();
+    this._audioElement.onpause = () => this.stop();
+    this._createMediaSource();
   }
 
   _onMetadata(value) {
@@ -26,16 +27,16 @@ export default class MetadataPlayer {
     );
   }
 
-  _createMediaSource(audioElement) {
+  _createMediaSource() {
     this._mediaSource = new MediaSource();
-    audioElement.src = URL.createObjectURL(this._mediaSource);
+    this._audioElement.src = URL.createObjectURL(this._mediaSource);
   }
 
   _destroyMediaSource() {
     this._playPromise
       .then(() => this._audioElement.removeAttribute("src"))
       .then(() => this._audioElement.load())
-      .then(() => this._createMediaSource(this._audioElement))
+      .then(() => this._createMediaSource())
       .catch(() => {});
   }
 
@@ -43,9 +44,11 @@ export default class MetadataPlayer {
     this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
   }
 
-  _handleError() {
-    this._icecastMetadataQueue.purgeMetadataQueue();
+  _handleError(e) {
+    console.error(e)
     this._destroyMediaSource();
+    this._icecastMetadataQueue.purgeMetadataQueue();
+    this._onMetadataUpdate({});
   }
 
   async _readIcecastResponse(value) {
@@ -74,6 +77,7 @@ export default class MetadataPlayer {
   }
 
   play() {
+    this._onMetadataUpdate({ StreamTitle: "Loading..." });
     this._controller = new AbortController();
     this._playPromise = this._audioElement.play();
 
@@ -85,16 +89,12 @@ export default class MetadataPlayer {
       mode: "cors",
       signal: this._controller.signal,
     })
-      .then((res) => {
+      .then(async (res) => {
         this._addSourceBuffer(res.headers.get("content-type"));
-
         this._icecast = new IcecastMetadataReader({
           icyMetaInt: parseInt(res.headers.get("Icy-MetaInt")) || this._metaInt,
         });
 
-        return res;
-      })
-      .then(async (res) => {
         const reader = res.body.getReader();
         const readerIterator = {
           [Symbol.asyncIterator]: () => ({
@@ -106,10 +106,10 @@ export default class MetadataPlayer {
           await this._readIcecastResponse(chunk);
         }
       })
-      .catch(() => this._handleError());
+      .catch((e) => this._handleError(e));
   }
 
   stop() {
-    this._controller.abort();
+    this._controller && this._controller.abort();
   }
 }

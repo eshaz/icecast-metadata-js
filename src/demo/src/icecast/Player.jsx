@@ -1,29 +1,31 @@
-import React, { useEffect, createRef } from "react";
+import React, { useEffect, createRef, useState } from "react";
 import MetadataPlayer from "./MetadataPlayer";
 
-export default (props) => {
+export default ({ station }) => {
   const audio = createRef(null);
-
-  const metadataPlayer = new MetadataPlayer({
-    endpoint: props.station.endpoint,
-    metaInt: props.station.metaInt,
-    onMetadataUpdate: (value) => {
-      props.setMetadata(value);
-    },
-  });
+  const [metadata, setMetadata] = useState({});
 
   useEffect(() => {
-    metadataPlayer.audioElement = audio.current;
-  }, [props.station]);
+    const metadataPlayer = new MetadataPlayer({
+      endpoint: station.endpoint,
+      metaInt: station.metaInt,
+      audioElement: audio.current,
+      onMetadataUpdate: setMetadata,
+    });
+
+    return () => metadataPlayer.stop();
+  }, [station, setMetadata]);
 
   return (
-    <audio
-      ref={audio}
-      controls
-      onPlay={() => metadataPlayer.play()}
-      onPause={() => metadataPlayer.stop()}
-    >
-      This browser does not support HTML5 Audio
-    </audio>
+    <div className="player">
+      <audio ref={audio} controls>
+        This browser does not support HTML5 Audio
+      </audio>
+      <p>
+        {metadata.StreamTitle === undefined
+          ? "Select a station and press Play"
+          : metadata.StreamTitle}
+      </p>
+    </div>
   );
 };
