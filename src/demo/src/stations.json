@@ -3,142 +3,186 @@
     "name": "DSMRad.io ISICS All",
     "description": "Des Moines IA, Police Scanner",
     "link": "https://dsmrad.io",
-    "endpoint": "https://dsmrad.io/stream/isics-all",
-    "type": "mp3"
+    "endpoint": "https://dsmrad.io/stream/isics-all"
   },
   {
     "name": "DSMRad.io SARA All",
     "description": "Des Moines IA, Police Scanner",
     "link": "https://dsmrad.io",
-    "endpoint": "https://dsmrad.io/stream/sara-all",
-    "type": "mp3"
-  },
-  {
-    "name": "Jazz Cafe",
-    "description": "Jazz Cafe offers an uplifting brew of fresh and golden smooth jazz with a bit of RnB flavoring.",
-    "link": "http://jazz-cafe.org",
-    "endpoint": "http://radio.wanderingsheep.net:8000/jazzcafe",
-    "metaInt": 16000,
-    "type": "mp3"
-  },
-  {
-    "name": "Jazzy Cool",
-    "description": "90.9 Jazzy rádió - Jazzy Cool",
-    "endpoint": "http://s04.diazol.hu:9530/live.mp3",
-    "metaInt": 16000,
-    "type": "mp3"
-  },
-  {
-    "name": "Jazzy Soul",
-    "description": "90.9 Jazzy rádió - Soul stream",
-    "endpoint": "http://s04.diazol.hu:9520/live.mp3",
-    "metaInt": 16000,
-    "type": "mp3"
-  },
-  {
-    "name": "90.9 Jazzy Rádió",
-    "description": "",
-    "endpoint": "http://s04.diazol.hu:9500/live.mp3",
-    "metaInt": 16000,
-    "type": "mp3"
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
-    "endpoint": "http://stream.dancewave.online:8080/dance.aac",
-    "metaInt": 16384,
-    "type": "mp3"
-  },
-  {
-    "name": "Dance Wave Retro!",
-    "description": "All Dance before 2000!",
-    "endpoint": "http://stream.dancewave.online:8080/retrodance.aac",
-    "metaInt": 16384,
-    "type": "mp3"
-  },
-  {
-    "name": "Metro DANCE! Radio",
-    "description": "",
-    "endpoint": "http://eu1.reliastream.com:7017/MDR",
-    "metaInt": 16000,
-    "type": "mp3"
-  },
-  {
-    "name": "Radioparty.pl",
-    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
-    "endpoint": "http://s1.radioparty.pl:8000/stream",
-    "metaInt": 16384,
-    "type": "mp3"
+    "endpoint": "https://dsmrad.io/stream/sara-all"
   },
   {
     "name": "Radio Cumbernauld",
     "description": "Broadcasting local news and music from Cumbernauld Scotland",
     "link": "https://www.radiocumbernauld.uk/",
     "endpoint": "http://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
-    "metaInt": 16384,
-    "type": "aac"
+    "metaInt": 16384
   },
   {
-    "name": "LO NUESTRO 102.1 FM",
-    "description": "LO NUESTRO 102.1 FM",
-    "endpoint": "http://www.streaming507.net:8136/stream",
-    "metaInt": 16000,
-    "type": "aac"
+    "name": "90.9 Jazzy rádió - Jazzy Cool",
+    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
+    "link": "https://jazzy.hu/",
+    "endpoint": "http://s04.diazol.hu:9530/live.mp3",
+    "metaInt": 16000
   },
   {
-    "name": "SamaRadio",
+    "name": "90.9 Jazzy rádió - Jazzy Groove",
+    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
+    "link": "https://jazzy.hu/",
+    "endpoint": "http://s04.diazol.hu:9510/live.mp3",
+    "metaInt": 16000
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Soul",
+    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
+    "link": "https://jazzy.hu/",
+    "endpoint": "http://s04.diazol.hu:9520/live.mp3",
+    "metaInt": 16000
+  },
+  {
+    "name": "90.9 Jazzy Rádió",
+    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
+    "link": "https://jazzy.hu/",
+    "endpoint": "http://s04.diazol.hu:9500/live.mp3",
+    "metaInt": 16000
+  },
+  {
+    "name": "Jazz Cafe",
+    "description": "Jazz Cafe offers an uplifting brew of fresh and golden smooth jazz with a bit of RnB flavoring.",
+    "link": "http://jazz-cafe.org",
+    "endpoint": "http://radio.wanderingsheep.net:8000/jazzcafe",
+    "metaInt": 16000
+  },
+  {
+    "name": "OroyaWave",
+    "description": "Alternative Rock Brit Pop Chillwave Coldwave Darkwave Deathrock Dream Pop EBM Electroclash Ethereal Experimental Glam Goth Rock Indie Rock Italo-Disco Minimal New Wave No Wave Post-Punk Punk Synth-Pop Synthwave Shoegaze Techno Vaporwave",
+    "link": "http://www.oroyawave.com/",
+    "endpoint": "https://streamingv2.shoutcast.com/oroyawave",
+    "metaInt": 16000
+  },
+  {
+    "name": "OroyaWave-Minimal",
+    "description": "minimal wave minimal electronic minimal synth coldwave new wave technopop synthpop electropunk electroclash synthwave retrowave outrun darksynth cyberpunk and some vaporwave musics.",
+    "link": "http://www.oroyawave.com/",
+    "endpoint": "https://streamingv2.shoutcast.com/oroyawave-minimal",
+    "metaInt": 16000
+  },
+  {
+    "name": "Radioparty.pl",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanalglowny.html",
+    "endpoint": "http://s1.radioparty.pl:8000/stream",
+    "metaInt": 16384
+  },
+  {
+    "name": "Radioparty.pl - House",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanalhouse.html",
+    "endpoint": "http://s1.radioparty.pl:8000/house",
+    "metaInt": 16384
+  },
+  {
+    "name": "Radioparty.pl - Trance",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanaltrance.html",
+    "endpoint": "https://s2.radioparty.pl:8015/trance",
+    "metaInt": 16384
+  },
+  {
+    "name": "Radioparty.pl - Vocal Trance",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanalvtrance.html",
+    "endpoint": "https://s2.radioparty.pl:8015/vocaltrance",
+    "metaInt": 16384
+  },
+  {
+    "name": "Radioparty.pl - DJ Mixes",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanaldjmixes.html",
+    "endpoint": "http://s1.radioparty.pl:8000/djmixes",
+    "metaInt": 16000
+  },
+  {
+    "name": "Radioparty.pl - Energy 2000",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanalenergy2000.html",
+    "endpoint": "http://s1.radioparty.pl:8000/energy2000",
+    "metaInt": 16384
+  },
+  {
+    "name": "Dance Wave!",
+    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
+    "link": "https://dancewave.online/",
+    "endpoint": "http://stream.dancewave.online:8080/dance.mp3",
+    "metaInt": 16384
+  },
+  {
+    "name": "Dance Wave Retro!",
+    "description": "All Dance before 2000!",
+    "link": "https://retro.dancewave.online/",
+    "endpoint": "http://stream.dancewave.online:8080/retrodance.mp3",
+    "metaInt": 16384
+  },
+  {
+    "name": "Metro DANCE! Radio",
+    "description": "Metro Dance Radio - home station of the morning show BODRA SMYANA (Cool Shift) broadcasted live every weekday morning 7 - 11 am and rebroadcasted through all Metro Cast Stations as well as on the major local FM outlets in Bulgaria.",
+    "link": "https://dab.bg/radiochannel/metro/",
+    "endpoint": "http://eu1.reliastream.com:7017/MDR",
+    "metaInt": 16000
+  },
+  {
+    "name": "Sama Radio Senegal",
     "description": "Good Vibes from Senegal West Africa! Sama Radio Dakar Senegal créée en Août 2013. Avec un groupe de jeunes ambitieux Sénégalais elle est aujourd hui la première chaîne indépendante et qui résume l ensemble du Paysage médiatique Sénégalais.",
+    "link": "https://www.sunufm.com/samaradio/",
     "endpoint": "http://streamingv2.shoutcast.com/SamaRadio",
-    "metaInt": 16000,
-    "type": "aac"
+    "metaInt": 16000
   },
   {
     "name": "Atmospheres Radio",
     "description": "Music by students, staff and friends of the Royal Welsh College of Music and Drama",
+    "link": "https://streaming.galaxywebsolutions.com/AudioPlayer/9040",
     "endpoint": "http://streaming.galaxywebsolutions.com:9040/stream",
-    "metaInt": 16000,
-    "type": "mp3"
+    "metaInt": 16000
   },
   {
-    "name": "AIFR- Alverno Inferno Free Radio",
+    "name": "Lo Nuestro 102.1",
+    "description": "La mejor música típica de Panamá.",
+    "link": "https://www.fmlonuestro.com/",
+    "endpoint": "http://www.streaming507.net:8136/stream",
+    "metaInt": 16000
+  },
+  {
+    "name": "AIFR Alverno Inferno Free Radio",
     "description": "Alverno College On-Line Radio Station",
+    "link": "http://www-staging.alverno.edu/technology/mediahub/aifr.php",
     "endpoint": "http://pavo.prostreaming.net:8022/stream",
-    "metaInt": 16000,
-    "type": "mp3"
+    "metaInt": 16000
   },
   {
     "name": "TheIndieBlend",
-    "description": "Music. Discovery. Unleashed. Here s an Indie station that mixes it up -- pulling only the best songs played by KCRW-FM Los Angeles DJ Sticky/past WVUM-FM Miami DJ Tom Jackson Radio Eins 95.8 FM Berlin",
-    "endpoint": "http://streaming307.radionomy.com/TheIndieBlend",
-    "metaInt": 16000,
-    "type": "mp3"
+    "description": "Music. Discovery. Unleashed. Here's an Indie station that mixes it up -- pulling only the best songs played by KCRW-FM Los Angeles DJ Sticky/past WVUM-FM Miami DJ Tom Jackson Radio Eins 95.8 FM Berlin",
+    "link": "http://theindieblend.playtheradio.com/",
+    "endpoint": "http://streaming307.radionomy.com/TheIndieBlend?icy=http",
+    "metaInt": 16000
   },
   {
     "name": "HAWK Radio - Hilbert College",
-    "description": "",
-    "endpoint": "http://streamingv2.shoutcast.com/HAWK-Radio-Hilbert-College",
-    "metaInt": 16000,
-    "type": "mp3"
+    "description": "Modern Music from Hip Hop to Rock!",
+    "link": "https://www.hilbert.edu/academics/undergraduate-programs/dmac/hawk-radio",
+    "endpoint": "http://streamingv2.shoutcast.com/HAWK-Radio-Hilbert-College?icy=http",
+    "metaInt": 16000
   },
   {
-    "name": "CiTR Live - Broadcasting from the University of British Columbia Vancouver",
+    "name": "CiTR Live",
     "description": "CiTR 101.9FM/Discorder Magazine is the campus radio station and magazine of the University of British Columbia-Vancouver, broadcasting from traditional unceded Musqueam territory and streaming online",
+    "link": "https://www.citr.ca/",
     "endpoint": "http://stream.kanefm.com:1037/listen",
-    "metaInt": 16000,
-    "type": "mp3"
+    "metaInt": 16000
   },
   {
     "name": "Andean Music",
     "description": "Folklore Andean Acoustic Electronic Underground",
     "endpoint": "https://streamingv2.shoutcast.com/andeanmusic?icy=http",
-    "metaInt": 16000,
-    "type": "mp3"
-  },
-  {
-    "name": "OroyaWave-Minimal",
-    "description": "minimal wave minimal electronic minimal synth coldwave new wave technopop synthpop electropunk electroclash synthwave retrowave outrun darksynth cyberpunk and some vaporwave musics.",
-    "endpoint": "https://streamingv2.shoutcast.com/oroyawave-minimal?icy=http",
-    "metaInt": 16000,
-    "type": "mp3"
+    "metaInt": 16000
   }
 ]

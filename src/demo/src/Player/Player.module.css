@@ -1,10 +1,8 @@
 .player {
     display: flex;
     align-items: center;
-    position: sticky;
-    background: black;
-    top: 0;
     width: 100%;
+    padding-bottom: calc(1px + .5vmin);
 }
 
 .metadata {
@@ -23,7 +21,7 @@
 }
 
 .link {
-    color: green;
+    text-decoration: none;
 }
 
 .visitStation {
@@ -33,5 +31,6 @@
 
 svg {
     height: calc(40px + 2vmin);
-    padding: calc(2px + 2vmin);
+    padding: calc(4px + 2vmin);
+    padding-left: calc(8px + 2vmin);
 }

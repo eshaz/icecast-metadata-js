@@ -2,14 +2,22 @@ import React, { useState } from "react";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
+import styles from "./App.module.css";
+import About from "./About/About";
 
 function App() {
   const [station, setStation] = useState();
 
   return (
     <div>
-      <Player station={station}></Player>
+      <header className={styles.header}>
+        <About />
+      </header>
+      <div className={styles.headerGradient}></div>
       <StationSelector stations={stations} changeStation={setStation} />
+      <footer className={styles.footer}>
+        <Player station={station}></Player>
+      </footer>
     </div>
   );
 }

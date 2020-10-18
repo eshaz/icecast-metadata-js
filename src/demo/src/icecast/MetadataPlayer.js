@@ -31,7 +31,7 @@ export default class MetadataPlayer {
     this._mediaSource = new MediaSource();
     this._audioElement.src = URL.createObjectURL(this._mediaSource);
 
-    await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this._mediaSource.addEventListener(
         "sourceopen",
         () => {
@@ -44,6 +44,7 @@ export default class MetadataPlayer {
   }
 
   _destroyMediaSource() {
+    this._mediaSource = null;
     this._playPromise &&
       this._playPromise
         .then(() => this._audioElement.removeAttribute("src"))
@@ -77,25 +78,50 @@ export default class MetadataPlayer {
     });
   }
 
-  play(endpoint, metaInt) {
-    if (this._playing) {
-      this.stop();
-    }
+  async fetchMimeType(endpoint) {
+    const headResponse = await fetch(endpoint, {
+      method: "HEAD",
+      mode: "cors",
+    }).catch(() => {});
 
-    this._onMetadataUpdate({ StreamTitle: "Loading..." });
-    this._playing = true;
-    this._controller = new AbortController();
+    return headResponse ? headResponse : new Promise(() => {});
+  }
 
-    fetch(endpoint, {
+  async fetchStream(endpoint) {
+    return fetch(endpoint, {
       method: "GET",
       headers: {
         "Icy-MetaData": "1",
       },
       mode: "cors",
       signal: this._controller.signal,
-    })
+    });
+  }
+
+  play(endpoint, metaInt) {
+    if (this._playing) {
+      this.stop();
+    }
+
+    this._playing = true;
+    this._controller = new AbortController();
+
+    const streamPromise = this.fetchStream(endpoint);
+
+    Promise.race([this.fetchMimeType(endpoint), streamPromise])
       .then(async (res) => {
-        await this._createMediaSource(res.headers.get("content-type"));
+        const mimeType = res.headers.get("content-type");
+
+        if (MediaSource.isTypeSupported(mimeType)) {
+          await this._createMediaSource(mimeType);
+          return streamPromise;
+        } else {
+          throw new Error(
+            `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
+          );
+        }
+      })
+      .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
         this._icecast = new IcecastMetadataReader({
@@ -115,9 +141,7 @@ export default class MetadataPlayer {
       })
       .catch((e) => {
         if (e.name !== "AbortError") {
-          this._onMetadataUpdate({
-            StreamTitle: `Error Connecting: ${e.message}`,
-          });
+          this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
       });
@@ -127,6 +151,5 @@ export default class MetadataPlayer {
     this._playing = false;
     this._controller.abort();
     this._icecastMetadataQueue.purgeMetadataQueue();
-    this._onMetadataUpdate({});
   }
 }

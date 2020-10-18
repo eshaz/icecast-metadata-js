@@ -1,10 +1,6 @@
 .station {
     display: flex;
-    border-bottom: 2px solid black;
-}
-
-.station:last-child {
-    border-bottom: none;
+    border-top: 2px solid black;
 }
 
 .stationRadio {
