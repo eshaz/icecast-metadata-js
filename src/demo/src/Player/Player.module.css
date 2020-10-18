@@ -17,7 +17,9 @@
 	border: none;
     padding: 0;
 	cursor: pointer;
-    outline: inherit;
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 .link {

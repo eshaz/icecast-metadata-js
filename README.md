@@ -6,7 +6,7 @@ Iceacast Metadata JS is an evolving Javascript based tool set for parsing, recor
 
 ## Checkout the demo [here](ttps://eshaz.github.io/icecast-metadata-js/)!
 
-## npm package coming soon!
+### npm package coming soon!
 
 ## Modules:
  * [Stream Recorder](#stream-recorder)
@@ -14,6 +14,8 @@ Iceacast Metadata JS is an evolving Javascript based tool set for parsing, recor
  * [Icecast Metadata Parser](#icecast-metadata-parser)
    * NodeJS and Browser based module for reading audio and metadata from an Icecast response body
    * This module actively used here to display realtime metadata updates: https://dsmrad.io
+ * [Demo](#demo)
+   * React application that demonstrates how to use the MediaSource Extentions API with `icecast-metadata-js`
 
 ---
 
@@ -260,31 +262,40 @@ fetch("https://example.com/stream", {
 
 # Demo
 
-This is a React application that demonstrates a common usage of the `icecast-metadata-js` package.
+This is a React application that demonstrates how to use the MediaSource Extentions API with `icecast-metadata-js`.
+
 
 ## https://eshaz.github.io/icecast-metadata-js/
 
-### Run Locally
+### Browser compatibility
 
-Supported Browsers:
+The demo is based on the MediaSource Extentions (MSE) API. Some browsers do not support common audio formats with the MSE API. *(i.e. Firefox does not support audio/mpeg or audio/aac)*
+
+Checkout this link to see which codecs your browser supports.
+https://cconcolato.github.io/media-mime-support/#audio_codecs
+
+
+#### Supported Browsers:
  * Chrome
 
-Un-supported Browsers:
- * Firefox *MediaSource mine types `audio/mpeg` and `audio/aac` are not supported*
+#### Un-supported Browsers:
+ * Firefox *MediaSource codecs `audio/mpeg` and `audio/aac` are not supported*
+
+### Running Locally
 
 * `cd src/demo`
 * `npm i`
 * `npm start` -> Runs a local server on http://localhost:3000
 
-### Adding your own Icecast stream
+## Adding your own Icecast stream
 
 ### CORS
 
 If you want to serve your stream and website on a different origin, you will need make sure your CORS configuration includes the below configuration to enable metadata and stream information.
 
 ```
-Access-Control-Allow-Origin: 'https://your-origin.example.com'
-Access-Control-Allow-Methods: 'GET, OPTIONS'
+Access-Control-Allow-Origin: 'https://your-website-origin.example.com'
+Access-Control-Allow-Methods: 'GET, HEAD, OPTIONS'
 Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
 Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url';
 ```
