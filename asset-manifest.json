@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/icecast-metadata-js/static/css/main.27ef7586.chunk.css",
+    "main.css": "/icecast-metadata-js/static/css/main.b7b413af.chunk.css",
     "main.js": "/icecast-metadata-js/static/js/main.44f9a110.chunk.js",
     "main.js.map": "/icecast-metadata-js/static/js/main.44f9a110.chunk.js.map",
     "runtime-main.js": "/icecast-metadata-js/static/js/runtime-main.e917606f.js",
@@ -8,9 +8,9 @@
     "static/js/2.a083189d.chunk.js": "/icecast-metadata-js/static/js/2.a083189d.chunk.js",
     "static/js/2.a083189d.chunk.js.map": "/icecast-metadata-js/static/js/2.a083189d.chunk.js.map",
     "index.html": "/icecast-metadata-js/index.html",
-    "precache-manifest.7b0474cce7229875f9284b913981b208.js": "/icecast-metadata-js/precache-manifest.7b0474cce7229875f9284b913981b208.js",
+    "precache-manifest.a61d575270ea8b1b1b1d71fd10d2e9fd.js": "/icecast-metadata-js/precache-manifest.a61d575270ea8b1b1b1d71fd10d2e9fd.js",
     "service-worker.js": "/icecast-metadata-js/service-worker.js",
-    "static/css/main.27ef7586.chunk.css.map": "/icecast-metadata-js/static/css/main.27ef7586.chunk.css.map",
+    "static/css/main.b7b413af.chunk.css.map": "/icecast-metadata-js/static/css/main.b7b413af.chunk.css.map",
     "static/js/2.a083189d.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.a083189d.chunk.js.LICENSE.txt",
     "static/media/pause.b0b65543.svg": "/icecast-metadata-js/static/media/pause.b0b65543.svg",
     "static/media/play.0187bd2f.svg": "/icecast-metadata-js/static/media/play.0187bd2f.svg"
@@ -18,7 +18,7 @@
   "entrypoints": [
     "static/js/runtime-main.e917606f.js",
     "static/js/2.a083189d.chunk.js",
-    "static/css/main.27ef7586.chunk.css",
+    "static/css/main.b7b413af.chunk.css",
     "static/js/main.44f9a110.chunk.js"
   ]
 }
