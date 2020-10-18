@@ -14,7 +14,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const MetadataBuffer = require("./MetadataBuffer");
+import MetadataBuffer from "./MetadataBuffer";
 
 class Stats {
   constructor() {
@@ -72,7 +72,7 @@ const noOp = () => {};
  * @param {Uint8Array} stream Object containing the stream buffer.
  * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
  */
-class IcecastMetadataReader {
+export default class IcecastMetadataReader {
   constructor({ icyMetaInt, onStream = noOp, onMetadata = noOp }) {
     this._icyMetaInt = icyMetaInt;
     this._remainingData = 0;
@@ -238,5 +238,3 @@ class IcecastMetadataReader {
     return value;
   }
 }
-
-module.exports = IcecastMetadataReader;

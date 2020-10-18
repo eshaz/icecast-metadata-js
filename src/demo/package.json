@@ -11,6 +11,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "gh-pages": "^3.1.0",
     "prettier": "^2.1.2"
   },
   "scripts": {
@@ -18,11 +19,14 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write '**/*.js' --write '**/*.json' --write '**/*.jsx'"
+    "format": "prettier --write '**/*.js' --write '**/*.json' --write '**/*.jsx'",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
+  "homepage": "http://eshaz.github.io/icecast-metadata-js",
   "browserslist": {
     "production": [
       ">0.2%",
