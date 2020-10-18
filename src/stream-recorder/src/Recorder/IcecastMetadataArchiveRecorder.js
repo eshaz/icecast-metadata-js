@@ -26,9 +26,10 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
     this._cron = cron.parseExpression(params.archiveInterval, { utc: true });
   }
 
-  record() {
-    super.record();
+  async record() {
+    const recordPromise = super.record();
     this._setRollover();
+    return recordPromise;
   }
 
   stop() {

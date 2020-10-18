@@ -53,6 +53,10 @@ class IcecastMetadataRecorder {
     };
   }
 
+  get endpoint() {
+    return this._endpoint;
+  }
+
   _getIcyHeaders(headers) {
     headers.forEach((value, name) => {
       if (name.match(/^icy*/))
@@ -61,10 +65,32 @@ class IcecastMetadataRecorder {
   }
 
   _getIcecast() {
-    this._icecast = new IcecastMetadataStream({
+    const icecastParams = {
       icyMetaInt: parseInt(this._icyHeaders["metaint"]),
       icyBr: parseInt(this._icyHeaders["br"]),
-    });
+    };
+
+    if (!icecastParams.icyMetaInt) {
+      console.error(
+        `Icecast server: ${this._endpoint} did not respond with a valid Icy-MetaInt header`
+      );
+      console.error(
+        "Please manually specify a metadata interval to record this stream"
+      );
+      console.error("Received 'ICY-' headers", this._icyHeaders);
+      throw new Error("Invalid Icecast Metadata Interval");
+    }
+
+    if (!icecastParams.icyBr) {
+      console.warn(
+        `Icecast server: ${this._endpoint} did not respond with a valid Icy-Br header`
+      );
+      console.error("Please manually specify a bitrate to record this stream");
+      console.error("Received 'ICY-' headers", this._icyHeaders);
+      throw new Error("Invalid Icecast Bitrate");
+    }
+
+    this._icecast = new IcecastMetadataStream(icecastParams);
   }
 
   _getCueWriter() {
@@ -99,13 +125,13 @@ class IcecastMetadataRecorder {
   }
 
   get fileNames() {
-    return [...this._fileNames, ...this._cueWriter.fileNames];
+    return [...this._fileNames, ...(this._cueWriter?.fileNames || [])];
   }
 
   /**
    * @description Fetches and starts recording the icecast stream
    */
-  record() {
+  async record() {
     this._init();
     this._audioFileWritable = this._openFile(this._fileName);
     this._audioFileWritable.addListener("finish", () => {
@@ -113,7 +139,7 @@ class IcecastMetadataRecorder {
       this._stopResolve();
     });
 
-    fetch(this._endpoint, {
+    return fetch(this._endpoint, {
       method: "GET",
       headers: {
         "Icy-MetaData": "1",
@@ -135,6 +161,8 @@ class IcecastMetadataRecorder {
         this._icecast.metadata.pipe(this._cueWriter);
 
         res.body.pipe(this._icecast);
+
+        return this._recordPromise;
       })
       .catch((e) => {
         this._closeFile(this._icecast);
@@ -142,8 +170,6 @@ class IcecastMetadataRecorder {
           throw e;
         }
       });
-
-    return this._recordPromise;
   }
 
   /**

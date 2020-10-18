@@ -5,7 +5,7 @@ module.exports = {
     fs: "commonjs fs",
     path: "commonjs path",
   },
-  entry: __dirname + "/src/StreamRecorder/StreamRecorder.js",
+  entry: __dirname + "/src/StreamRecorder.js",
   output: {
     path: __dirname + "/dist",
     filename: "recorder.js",
