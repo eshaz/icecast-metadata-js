@@ -9,16 +9,15 @@ function App() {
   const [station, setStation] = useState();
 
   return (
-    <div>
+    <>
       <header className={styles.header}>
         <About />
       </header>
-      <div className={styles.headerGradient}></div>
       <StationSelector stations={stations} changeStation={setStation} />
       <footer className={styles.footer}>
         <Player station={station}></Player>
       </footer>
-    </div>
+    </>
   );
 }
 

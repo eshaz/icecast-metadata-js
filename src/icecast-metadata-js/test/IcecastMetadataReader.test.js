@@ -518,6 +518,20 @@ describe("Icecast Metadata Reader", () => {
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
 
+      it("should parse given metadata value contains unicode", () => {
+        const metadataString =
+          "StreamTitle='Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな';\0\0\0\0\0\0";
+        const expectedMetadata = {
+          StreamTitle: "Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな",
+        };
+
+        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+          metadataString
+        );
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+      });
+
       it("should parse given metadata value contains a quote", () => {
         const metadataString =
           "StreamTitle='The Stream Title's';StreamUrl='https://example.com';";
