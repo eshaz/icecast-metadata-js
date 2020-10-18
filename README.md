@@ -4,7 +4,7 @@ _Please Note: This is an unreleased work in progress. Expect frequent breaking c
 
 Iceacast Metadata JS is an evolving Javascript based tool set for parsing, recording, and archiving Icecast streams with metadata.
 
-## Checkout the demo [here](ttps://eshaz.github.io/icecast-metadata-js/)!
+## Checkout the demo [here](https://eshaz.github.io/icecast-metadata-js/)!
 
 ### npm package coming soon!
 
