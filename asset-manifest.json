@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/icecast-metadata-js/static/css/main.c82afa75.chunk.css",
-    "main.js": "/icecast-metadata-js/static/js/main.44f9a110.chunk.js",
-    "main.js.map": "/icecast-metadata-js/static/js/main.44f9a110.chunk.js.map",
+    "main.js": "/icecast-metadata-js/static/js/main.c1036007.chunk.js",
+    "main.js.map": "/icecast-metadata-js/static/js/main.c1036007.chunk.js.map",
     "runtime-main.js": "/icecast-metadata-js/static/js/runtime-main.e917606f.js",
     "runtime-main.js.map": "/icecast-metadata-js/static/js/runtime-main.e917606f.js.map",
     "static/js/2.a083189d.chunk.js": "/icecast-metadata-js/static/js/2.a083189d.chunk.js",
     "static/js/2.a083189d.chunk.js.map": "/icecast-metadata-js/static/js/2.a083189d.chunk.js.map",
     "index.html": "/icecast-metadata-js/index.html",
-    "precache-manifest.e0a829d73e820386718abc7a2d66d54a.js": "/icecast-metadata-js/precache-manifest.e0a829d73e820386718abc7a2d66d54a.js",
+    "precache-manifest.6b5ffc93a62ae417d98b33665f71dbf2.js": "/icecast-metadata-js/precache-manifest.6b5ffc93a62ae417d98b33665f71dbf2.js",
     "service-worker.js": "/icecast-metadata-js/service-worker.js",
     "static/css/main.c82afa75.chunk.css.map": "/icecast-metadata-js/static/css/main.c82afa75.chunk.css.map",
     "static/js/2.a083189d.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.a083189d.chunk.js.LICENSE.txt",
@@ -19,6 +19,6 @@
     "static/js/runtime-main.e917606f.js",
     "static/js/2.a083189d.chunk.js",
     "static/css/main.c82afa75.chunk.css",
-    "static/js/main.44f9a110.chunk.js"
+    "static/js/main.c1036007.chunk.js"
   ]
 }
