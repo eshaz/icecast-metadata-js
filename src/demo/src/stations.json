@@ -1,19 +1,22 @@
 [
   {
-    "name": "DSMRadio ISICS All",
+    "name": "DSMRad.io ISICS All",
     "description": "Des Moines IA, Police Scanner",
+    "link": "https://dsmrad.io",
     "endpoint": "https://dsmrad.io/stream/isics-all",
     "type": "mp3"
   },
   {
-    "name": "DSMRadio SARA All",
+    "name": "DSMRad.io SARA All",
     "description": "Des Moines IA, Police Scanner",
-    "endpoint": "https://dsmrad.io/stream/isics-all",
+    "link": "https://dsmrad.io",
+    "endpoint": "https://dsmrad.io/stream/sara-all",
     "type": "mp3"
   },
   {
     "name": "Jazz Cafe",
     "description": "Jazz Cafe offers an uplifting brew of fresh and golden smooth jazz with a bit of RnB flavoring.",
+    "link": "http://jazz-cafe.org",
     "endpoint": "http://radio.wanderingsheep.net:8000/jazzcafe",
     "metaInt": 16000,
     "type": "mp3"
@@ -40,13 +43,6 @@
     "type": "mp3"
   },
   {
-    "name": "Frisk Groove",
-    "description": "Disco, Funk and Soulful Grooves",
-    "endpoint": "http://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
-    "metaInt": 16384,
-    "type": "aac"
-  },
-  {
     "name": "Dance Wave!",
     "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
     "endpoint": "http://stream.dancewave.online:8080/dance.aac",
@@ -68,14 +64,16 @@
     "type": "mp3"
   },
   {
-    "name": "Radioparty.pl - Techno, Dance, Club, Hands Up, House, Trance",
-    "description": "Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "name": "Radioparty.pl",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
     "endpoint": "http://s1.radioparty.pl:8000/stream",
     "metaInt": 16384,
     "type": "mp3"
   },
   {
-    "name": "radio Cumbernauld - Lossless FLAC audiophile quality streaming",
+    "name": "Radio Cumbernauld",
+    "description": "Broadcasting local news and music from Cumbernauld Scotland",
+    "link": "https://www.radiocumbernauld.uk/",
     "endpoint": "http://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
     "metaInt": 16384,
     "type": "aac"

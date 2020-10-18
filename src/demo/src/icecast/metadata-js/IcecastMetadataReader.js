@@ -81,6 +81,7 @@ class IcecastMetadataReader {
     this._stats = new Stats();
     this._onStream = onStream;
     this._onMetadata = onMetadata;
+    this._decoder = new TextDecoder("utf-8");
 
     this._generator = this._generator();
     this._generator.next();
@@ -101,7 +102,7 @@ class IcecastMetadataReader {
     const metadata = {};
     // [{key: "StreamTitle", val: "The Stream Title"}, {key: "StreamUrl", val: "https://example.com"}]
     for (let match of metadataString.matchAll(
-      /(?<key>[ -~]+?)='(?<val>[ -~]*?)(;$|';|'$|$)/g
+      /(?<key>[^\0]+?)='(?<val>[^\0]*?)(;$|';|'$|$)/g
     )) {
       metadata[match["groups"]["key"]] = match["groups"]["val"];
     }
@@ -114,9 +115,9 @@ class IcecastMetadataReader {
    * @param {Uint8Array} metadataBytes Bytes containing Icecast metadata.
    * @returns {object} Parsed metadata key value pairs. (i.e. {StreamTitle: "A Title"})
    */
-  static parseMetadata(metadataBytes) {
+  parseMetadata(metadataBytes) {
     return IcecastMetadataReader.parseMetadataString(
-      String.fromCharCode(...metadataBytes)
+      this._decoder.decode(metadataBytes)
     );
   }
 
@@ -187,7 +188,7 @@ class IcecastMetadataReader {
     this._stats.addMetadataBytes = metadata.length;
 
     const metadataPayload = {
-      metadata: IcecastMetadataReader.parseMetadata(metadata),
+      metadata: this.parseMetadata(metadata),
       stats: this._stats.stats,
     };
     /**

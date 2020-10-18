@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import Player from "./icecast/Player";
-import StationSelector from "./icecast/StationSelector";
+import Player from "./Player/Player";
+import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
-import "./App.css";
 
 function App() {
-  const [station, setStation] = useState(stations[0]);
+  const [station, setStation] = useState();
 
   return (
-    <div className="App">
+    <div>
       <Player station={station}></Player>
       <StationSelector stations={stations} changeStation={setStation} />
     </div>

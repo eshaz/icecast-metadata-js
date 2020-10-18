@@ -1,0 +1,37 @@
+.player {
+    display: flex;
+    align-items: center;
+    position: sticky;
+    background: black;
+    top: 0;
+    width: 100%;
+}
+
+.metadata {
+    color: white;
+    font-size: calc(10px + 2vmin);
+    margin: 0;
+}
+
+.button {
+    background: none;
+	color: inherit;
+	border: none;
+    padding: 0;
+	cursor: pointer;
+    outline: inherit;
+}
+
+.link {
+    color: green;
+}
+
+.visitStation {
+    color: white;
+    font-size: calc(1px + 2vmin);
+}
+
+svg {
+    height: calc(40px + 2vmin);
+    padding: calc(2px + 2vmin);
+}
