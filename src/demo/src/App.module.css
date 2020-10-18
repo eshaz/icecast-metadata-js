@@ -1,0 +1,23 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: sticky;
+    background: black;
+    top: 0;
+    width: 100%;
+    margin-bottom: 5px;
+    box-shadow: 0 8px 10px 5px rgba(0, 0, 0, 20);
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: sticky;
+    background: black;
+    bottom: 0;
+    width: 100%;
+    margin-top: 5px;
+    box-shadow: 0 -5px 10px 5px rgba(0, 0, 0, 20);
+}

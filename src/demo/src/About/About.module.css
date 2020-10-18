@@ -1,0 +1,32 @@
+.about {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.link {
+    padding-top: calc(1px + 1vmin);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: calc(20px + 2vmin);
+    text-decoration: none;
+}
+
+.subLink {
+    font-size: calc(10px + 1vmin);
+}
+
+.description {
+    color: white;
+    padding-top: calc(1px + .5vmin);
+    font-size: calc(5px + 1vmin);
+    margin-bottom: 5px;
+}
+
+.disclaimer {
+    color: white;
+    font-size: calc(2px + 1vmin);
+    font-style: italic;
+}

@@ -33,17 +33,27 @@ class IcecastMetadataStream extends Writable {
 
     this._generator = new IcecastMetadataReader({
       icyMetaInt,
-      onStream: (value) => this._stream.push(value.stream),
+      onStream: (value) => this._handleStream(value),
       onMetadata: (value) => this._handleMetadata(value),
     });
   }
 
+  /**
+   * @returns Readable stream for stream data
+   */
   get stream() {
     return this._stream;
   }
 
+  /**
+   * @returns Readable stream for metadata
+   */
   get metadata() {
     return this._metadata;
+  }
+
+  _handleStream({ stream }) {
+    this._stream.push(stream);
   }
 
   _handleMetadata({ metadata, stats: { streamBytesRead } }) {

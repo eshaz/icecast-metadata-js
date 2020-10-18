@@ -16,8 +16,8 @@
 
 const cron = require("cron-parser");
 
-const { IcecastMetadataRecorder } = require("./IcecastMetadataRecorder");
-const { ArchiveRotator } = require("./ArchiveRotator");
+const IcecastMetadataRecorder = require("./IcecastMetadataRecorder");
+const ArchiveRotator = require("./ArchiveRotator");
 
 class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   constructor(params) {
@@ -26,9 +26,10 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
     this._cron = cron.parseExpression(params.archiveInterval, { utc: true });
   }
 
-  record() {
-    super.record();
+  async record() {
+    const recordPromise = super.record();
     this._setRollover();
+    return recordPromise;
   }
 
   stop() {
@@ -65,4 +66,4 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   }
 }
 
-module.exports = { IcecastMetadataArchiveRecorder };
+module.exports = IcecastMetadataArchiveRecorder;

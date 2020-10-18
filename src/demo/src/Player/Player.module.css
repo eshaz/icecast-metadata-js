@@ -1,0 +1,38 @@
+.player {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-bottom: calc(1px + .5vmin);
+}
+
+.metadata {
+    color: white;
+    font-size: calc(10px + 2vmin);
+    margin: 0;
+}
+
+.button {
+    background: none;
+	color: inherit;
+	border: none;
+    padding: 0;
+	cursor: pointer;
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.link {
+    text-decoration: none;
+}
+
+.visitStation {
+    color: white;
+    font-size: calc(1px + 2vmin);
+}
+
+svg {
+    height: calc(40px + 2vmin);
+    padding: calc(4px + 2vmin);
+    padding-left: calc(8px + 2vmin);
+}

@@ -15,15 +15,12 @@
 */
 
 const getArgs = require("./get-args");
-const {
-  IcecastMetadataArchiveRecorder,
-} = require("../Recorder/IcecastMetadataArchiveRecorder");
-const {
-  IcecastMetadataRecorder,
-} = require("../Recorder/IcecastMetadataRecorder");
+const IcecastMetadataArchiveRecorder = require("./Recorder/IcecastMetadataArchiveRecorder");
+const IcecastMetadataRecorder = require("./Recorder/IcecastMetadataRecorder");
 const path = require("path");
 
 const recorderInstances = new Map();
+let runningInstances = 0;
 
 const getIcecastMetadataArchiveRecorder = (params) =>
   new IcecastMetadataArchiveRecorder({
@@ -77,6 +74,13 @@ const signalHandler = (signal) => {
   process.exit(0);
 };
 
+const errorHandler = () => {
+  runningInstances--;
+  if (runningInstances === 0) {
+    process.exit(1);
+  }
+};
+
 const main = () => {
   const args = getArgs();
   const command = args._[0];
@@ -94,7 +98,13 @@ const main = () => {
   process.on("SIGTERM", signalHandler);
   process.on("SIGINT", signalHandler);
 
-  recorderInstances.forEach((recorder) => recorder.record());
+  recorderInstances.forEach((recorder) => {
+    runningInstances++;
+    recorder.record().catch((e) => {
+      console.error("Failed to record:", recorder.endpoint, e.message);
+      errorHandler();
+    });
+  });
 };
 
 main();
