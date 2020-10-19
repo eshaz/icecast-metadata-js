@@ -217,7 +217,7 @@ Metadata updates can be highly accurate because they are embedded inline with th
 `const metadataQueue = new IcecastMetadataQueue({icyBr, onMetadataUpdate})`
 
 * `metadataQueue.metadataQueue`
-  * Returns the contents of the metadata queue
+  * Gets the contents of the metadata queue
 * `metadataQueue.addMetadata(metadata: object, seconds: number)`
   * Takes in a `metadata` object and the number of seconds to delay the metadata update
   * Metadata time can be derived from the total number of stream bytes read since the latest buffer input. The buffer offset should be the total seconds of audio in the player buffer when the metadata was read.
@@ -268,12 +268,12 @@ A Writable stream that exposes stream and metadata via Readable streams.
 `const icecastStream = new IcecastMetadataStream({icyBr, icyMetaInt})`
 
 * `icecastStream.stream`
-  * Returns the Readable for `stream` data
+  * Gets the Readable for `stream` data
 * `icecastStream.metadata`
-  * Returns the Readable for `metadata`
+  * Gets the Readable for `metadata`
 
-*See documentation on NodeJS Readable Streams for additional methods.*
-https://nodejs.org/api/stream.html#stream_readable_streams
+*See documentation on NodeJS Writable Streams for additional methods.*
+https://nodejs.org/api/stream.html#stream_writable_streams
 
 ---
 
