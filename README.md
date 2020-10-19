@@ -34,79 +34,79 @@ Icecast Metadata JS is NodeJS and browser module that takes in an Icecast respon
 
 ## `IcecastMetadataReader`
 
-A generator that takes in raw icecast response data and splits it into stream data and metadata.
+A generator that takes in raw icecast response data and returnsx stream data and metadata.
 
 ### Usage
 
-To use `IcecastMetadataReader`, create a new instance with the `Icy-MetaInt` header from the Icecast response as well as the optional `onStream` and `onMetadata` callbacks.
+1. To use `IcecastMetadataReader`, create a new instance with the `Icy-MetaInt` header from the Icecast response as well as the optional `onStream` and `onMetadata` callbacks.
 
-*Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to enable metadata.*
+   *Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to    enable metadata.*
+   
+   <pre>
+   const headers = myHTTPResponse.headers;
+   
+   const onStream = (value) => {
+     // do something with the data in value.stream
+   };
+   const onMetadata = (value) => {
+     // do something with the data in value.metadata
+   };
+   
+   const icecastReader = new IcecastMetadataReader({
+     icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
+     onStream: onStream,
+     onMetadata: onMetadata,
+   });
+   </pre>
 
-```
-const headers = myHTTPResponse.headers;
-
-const onStream = (value) => {
-  // do something with the data in value.stream
-};
-const onMetadata = (value) => {
-  // do something with the data in value.metadata
-};
-
-const icecastReader = new IcecastMetadataReader({
-  icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
-  onStream: onStream,
-  onMetadata: onMetadata,
-});
-```
-
-To begin reading stream data and metadata, call the instance's `.next()` function with the raw response data as the parameter.
-
-The `.next()` function will return an object containing either:
-
-#### Stream
-
-```
-{ 
-  value: {
-    stream: Uint8Array, // stream bytes
-    stats: {
-      metadataBytesRead: number, // total metadata bytes read
-      streamBytesRead: number, // total stream bytes read
-      totalBytesRead: number, // total raw bytes read
-      currentStreamPosition: number, // relative position of stream bytes
+ 1. To begin reading stream data and metadata, call the instance's `.next()` function  with the raw response data as the parameter.
+ 
+    The `.next()` function will return an object containing either `stream` or `metadata`
+    
+    #### `stream`
+    <pre>
+    { 
+      value: {
+        stream: Uint8Array, // stream bytes
+        stats: {
+          metadataBytesRead: number, // total metadata bytes read
+          streamBytesRead: number, // total stream bytes read
+          totalBytesRead: number, // total raw bytes read
+          currentStreamPosition: number, // relative position of stream bytes
+        }
+      },
+      done: false
     }
-  },
-  done: false
-}
-```
-or an object containing:
-
-#### Metadata
-```
-{
-  value: {
-    metadata: {
-      StreamTitle: "The stream's title",
-      ... // key value pairs of metadata
-    },
-    stats: {
-      metadataBytesRead: number, // total metadata bytes read
-      streamBytesRead: number, // total stream bytes read
-      totalBytesRead: number, // total raw bytes read
-      currentStreamPosition: number, // relative position of stream bytes
+    </pre>
+    
+    #### `metadata`
+    <pre>
+    {
+      value: {
+        metadata: {
+          StreamTitle: "The stream's title",
+          ... // key value pairs of metadata
+        },
+        stats: {
+          metadataBytesRead: number, // total metadata bytes read
+          streamBytesRead: number, // total stream bytes read
+          totalBytesRead: number, // total raw bytes read
+          currentStreamPosition: number, // relative position of stream bytes
+        }
+      },
+      done: false
     }
-  },
-  done: false
-}
-```
+    </pre>
+    
+ 1. Continue to call `.next()` with no parameters until `.next()` returns:
+    <pre>
+    {
+      value: undefined,
+      done: false
+    }
+    </pre>
 
-Continue to call `.next()` with no parameters until `.next()` returns:
-```
-{
-  value: undefined,
-  done: false
-}
-```
+---
 
 The below example will read all of the stream and metadata from `responseData`.
 
@@ -135,25 +135,24 @@ When you have more response data to read, pass it into the `.next()` function an
 
 `const icecastReader = new IcecastMetadataReader({metaInt, onStream, onMetadata})`
 
-* `icecastReader.readAll()`
-  * Takes in `Uint8Array` of raw icecast response body
-  * Returns `void`
+* `icecastReader.readAll(data: Uint8Array)`
+  * Takes in a byte array of raw icecast response body
   * Reads all of the stream and metadata from the raw response data
   * `onStream` is called when stream is read
   * `onMetadata` is called when metadata is read
-* `icecastReader.next()`
+* `icecastReader.next(data: Uint8Array)`
   * Takes in `Uint8Array` of raw icecast response body
   * Returns object containing stream or metadata
     * `{value: {steam|metadata, stats}, done: false}`
-  * Continue to call with no parameter until `.next()` returns `undefined`
+  * Continue to call with __no__ parameter until `.next()` returns `undefined`
   * When `.next()` returns `undefined`, pass in more raw response data
   * `onStream` is called when stream is read
   * `onMetadata` is called when metadata is read
-* `icecastReader.parseMetadataBytes)`
-  * Takes in `Uint8Array` of Icecast metadata
+* `icecastReader.parseMetadataBytes(data: Uint8Array)`
+  * Takes in a byte array of Icecast metadata
   * Returns object with metadata parsed into key value pairs (see below)
-* `IcecastMetadataReader.parseMetadataString()`
-  * Takes in `string` of unparsed Icecast metadata
+* `IcecastMetadataReader.parseMetadataString(metadataString: string)`
+  * Takes in a string of unparsed Icecast metadata
   * Returns object with metadata parsed into key value pairs
     * `"StreamTitle='A Stream Title';"` -> `{StreamTitle: "A Stream Title"}` 
 
@@ -162,40 +161,6 @@ When you have more response data to read, pass it into the `.next()` function an
 ## `IcecastMetadataQueue`
 
 Schedules metadata updates based on audio time or bytes read.
-
-### Usage
-
-To use `IcecastMetadataQueue`, create a new instance with the `Icy-Br` header from the Icecast response representing the bitrate of your stream as well as the optional `onMetadataUpdate` callback.
-
-*Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to enable metadata.*
-
-```
-const headers = myHTTPResponse.headers;
-
-const onMetadataUpdate = (value) => {
-  // do something with the scheduled metadata
-};
-
-const metadataQueue = new IcecastMetadataQueue({
-  icyBr: parseInt(headers.get("Icy-Br")),
-  onMetadataUpdate: onMetadataUpdate,
-});
-```
-
-When metadata is discovered in an Icecast stream, add the metadata to the queue using `.addMetadata()`
-
-```
-let audio; // some audio player
-
-const icecastMetadataReader = new IcecastMetadataReader({
-  icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
-  onMetadata: (value) => metadataQueue.addMetadata(value, audio.timestampOffset - audio.currentTime)
-})
-```
-
-When the metadata is due to be updated, the metadata will be popped from the queue and `onMetadataUpdate()` will be called with the metadata.
-
----
 
 ### Accuracy
 
@@ -212,6 +177,39 @@ Metadata updates can be highly accurate because they are embedded inline with th
   * Ensure your Icecast stream source accurately updates metadata
   * Increase the frequency of metadata updates by reducing the size of `Icy-MetaInt`
 
+### Usage
+
+1. To use `IcecastMetadataQueue`, create a new instance with the `Icy-Br` header from the Icecast response representing the bitrate of your stream as well as the optional `onMetadataUpdate` callback.
+
+   *Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to    enable metadata.*
+  
+   <pre>
+   const headers = myHTTPResponse.headers;
+   
+   const onMetadataUpdate = (value) => {
+     // do something with the scheduled metadata
+   };
+   
+   const metadataQueue = new IcecastMetadataQueue({
+     icyBr: parseInt(headers.get("Icy-Br")),
+     onMetadataUpdate: onMetadataUpdate,
+   });
+   </pre>
+
+1. When metadata is discovered in an Icecast stream, add the metadata to the queue using `.addMetadata()`
+
+   <pre>
+   let audio; // some audio player
+   
+   const icecastMetadataReader = new IcecastMetadataReader({
+     icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
+     onMetadata: (value) => metadataQueue.addMetadata(value, audio.timestampOffset - audio.currentTime)
+   })
+   </pre>
+
+
+1. When the metadata is due to be updated, the metadata will be popped from the queue and `onMetadataUpdate()` will be called with the metadata.
+
 ---
 
 ### Methods
@@ -220,11 +218,11 @@ Metadata updates can be highly accurate because they are embedded inline with th
 
 * `metadataQueue.metadataQueue`
   * Returns the contents of the metadata queue
-* `metadataQueue.addMetadata(metadata, seconds)`
-  * Takes in `metadata` object and the `number` of seconds to delay the metadata update
+* `metadataQueue.addMetadata(metadata: object, seconds: number)`
+  * Takes in a `metadata` object and the number of seconds to delay the metadata update
   * Metadata time can be derived from the total number of stream bytes read since the latest buffer input. The buffer offset should be the total seconds of audio in the player buffer when the metadata was read.
-* `metadataQueue.getTimeByBytes()`
-  * Takes in `number` of bytes read and derives the seconds to delay the metadata update based on the bitrate and number of stream bytes read for the current raw response.
+* `metadataQueue.getTimeByBytes(numberOfBytes: number)`
+  * Takes in a number of bytes read and derives the seconds to delay the metadata update based on the bitrate and number of stream bytes read for the current raw response.
   * This can be used in place of an audio buffer offset; however, it is not as accurate as actually decoding the stream and getting the offset in seconds.
 * `metadataQueue.purgeMetadataQueue()`
   * Purges the metadata queue and clears any pending metadata updates.
@@ -234,38 +232,48 @@ Metadata updates can be highly accurate because they are embedded inline with th
 
 ## `IcecastMetadataStream`
 
-A Writable stream that exposes a Readable stream for stream data and a Readable stream for metadata.
+A Writable stream that exposes stream and metadata via Readable streams.
 
 ### Usage
 
-To use `IcecastMetadataStream`, create a new instance with the `Icy-Br` and `Icy-MetaInt` headers from the Icecast response.
+1. To use `IcecastMetadataStream`, create a new instance with the `Icy-Br` and `Icy-MetaInt` headers from the Icecast response.
 
-*Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to enable metadata.*
+   *Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to enable metadata.*
+   
+   <pre>
+   const headers = myHTTPResponse.headers;
+   
+   const icecastStream = new IcecastMetadataStream({
+     icyBr: parseInt(headers.get("Icy-Br")),
+     icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
+   });
+   </pre>
 
-```
-const headers = myHTTPResponse.headers;
+2. To read stream and metadata, you can `pipe` the stream and metadata Readable streams to a Writable stream.
+   <pre>
+   let someStreamWritable;
+   let someMetadataWritable;
+   
+   icecastStream.stream.pipe(someStreamWritable);
+   icecastStream.metadata.pipe(someMetadataWritable);
+   </pre>
 
-const icecastStream = new IcecastMetadataStream({
-  icyBr: parseInt(headers.get("Icy-Br")),
-  icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
-});
-```
+3. Then `pipe` the raw icecast response data into the instance of `IcecastMetadataStream`.
 
-To read stream and metadata, you can `pipe` the stream and metadata Readable streams to a Writable stream.
-```
-let someStreamWritable;
-let someMetadataWritable;
+   <pre>
+   myHTTPResponse.body.pipe(icecastStream);
+   </pre>
 
-icecastStream.stream.pipe(someStreamWritable);
-icecastStream.metadata.pipe(someMetadataWritable);
-```
+### Methods
+`const icecastStream = new IcecastMetadataStream({icyBr, icyMetaInt})`
 
-Then `pipe` the raw icecast response data into the instance of `IcecastMetadataStream`.
+* `icecastStream.stream`
+  * Returns the Readable for `stream` data
+* `icecastStream.metadata`
+  * Returns the Readable for `metadata`
 
-```
-myHTTPResponse.body.pipe(icecastStream);
-```
-
+*See documentation on NodeJS Readable Streams for additional methods.*
+https://nodejs.org/api/stream.html#stream_readable_streams
 
 ---
 
@@ -323,10 +331,10 @@ The Stream Recorder CLI has two commands `record` and `archive`.
   * Useful for playback in applications with track number limitations such as a CD which can contain 99 tracks, or foobar2000 which can only playback cue files with 999 tracks or less.
 * `--metadata-interval, -m [16000]`
   * Manually specify the metadata interval.
-  * <u>*Warning:* Only use when server does not not respond with valid `Icy-MetaInt` header</u>
+  * <u>*Warning:* Only use when server does not respond with valid `Icy-MetaInt` header</u>
 * `--bitrate, -b [320]`
   * Manually specify the bitrate.
-  * <u>*Warning:* Only use when server does not not respond with valid `Icy-Br` header</u>
+  * <u>*Warning:* Only use when server does not respond with valid `Icy-Br` header</u>
 
 `archive` options:
 
