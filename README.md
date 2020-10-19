@@ -79,7 +79,7 @@ The `.next()` function will return an object containing either:
   done: false
 }
 ```
-or and object containing:
+or an object containing:
 
 #### Metadata
 ```
