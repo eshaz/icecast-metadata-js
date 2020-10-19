@@ -30,7 +30,6 @@ Icecast Metadata JS is NodeJS and browser module that takes in an Icecast respon
 * [`IcecastMetadataStream`](#icecastmetadatastream)
   * Wraps IcecastMetadataReader using NodeJS streams
 
----
 
 ## `IcecastMetadataReader`
 
@@ -106,8 +105,6 @@ A generator that takes in raw icecast response data and returnsx stream data and
     }
     </pre>
 
----
-
 The below example will read all of the stream and metadata from `responseData`.
 
 <pre>
@@ -128,8 +125,6 @@ for (
 </pre>
 
 When you have more response data to read, pass it into the `.next()` function and repeat the steps above.
-
----
 
 ### Methods
 
@@ -155,8 +150,6 @@ When you have more response data to read, pass it into the `.next()` function an
   * Takes in a string of unparsed Icecast metadata
   * Returns object with metadata parsed into key value pairs
     * `"StreamTitle='A Stream Title';"` -> `{StreamTitle: "A Stream Title"}` 
-
----
 
 ## `IcecastMetadataQueue`
 
@@ -210,8 +203,6 @@ Metadata updates can be highly accurate because they are embedded inline with th
 
 1. When the metadata is due to be updated, the metadata will be popped from the queue and `onMetadataUpdate()` will be called with the metadata.
 
----
-
 ### Methods
 
 `const metadataQueue = new IcecastMetadataQueue({icyBr, onMetadataUpdate})`
@@ -226,9 +217,6 @@ Metadata updates can be highly accurate because they are embedded inline with th
   * This can be used in place of an audio buffer offset; however, it is not as accurate as actually decoding the stream and getting the offset in seconds.
 * `metadataQueue.purgeMetadataQueue()`
   * Purges the metadata queue and clears any pending metadata updates.
-
----
-
 
 ## `IcecastMetadataStream`
 
