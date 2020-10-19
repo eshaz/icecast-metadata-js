@@ -274,6 +274,7 @@ Stream Recorder is a NodeJS application for recording and archiving Icecast stre
 
 ### Run Locally
 
+* `cd src/stream-recorder`
 * `npm i`
 * `npm run build-recorder`
 * `node dist/recorder.js record -e https://example.com -o example.mp3`
