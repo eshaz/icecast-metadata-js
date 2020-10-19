@@ -28,7 +28,10 @@ const exclusive = (obj, a, b) => {
 };
 
 const assertType = (obj, a, type) => {
-  if (obj[a] && typeof obj[a] !== type) {
+  if (
+    (obj[a] && typeof obj[a] !== type) ||
+    (type === "number" && isNaN(obj[a]))
+  ) {
     throw new Error(`Argument ${a} must be of type ${type}. Found '${obj[a]}'`);
   }
 
@@ -70,6 +73,7 @@ const getArgs = () =>
         false
       );
 
+      // assert per stream options
       if (argv.streams) {
         assertArray(argv, "streams");
         // assert each item inside the stream object
@@ -85,9 +89,12 @@ const getArgs = () =>
           assertType(stream, "cue-rollover", "number");
           assertType(stream, "archive-interval", "string");
           assertType(stream, "archive-path", "string");
+          assertType(stream, "metadata-interval", "number");
+          assertType(stream, "bitrate", "number");
           assertCronString(stream, "archive-interval");
         });
       } else {
+        // if there is no streams array
         // required fields
         assertNotNull(argv, "output");
         assertNotNull(argv, "endpoint");
@@ -95,8 +102,11 @@ const getArgs = () =>
         assertType(argv, "output", "string");
         assertType(argv, "name", "string");
         assertType(argv, "endpoint", "string");
+        assertType(argv, "metadata-interval", "number");
+        assertType(argv, "bitrate", "number");
       }
 
+      // assert global options
       assertType(argv, "cue-rollover", "number");
       assertType(argv, "archive-interval", "string");
       assertType(argv, "archive-path", "string");
@@ -123,6 +133,9 @@ const getArgs = () =>
               "JSON Array containing a list of streams to record. \nRequired: {endpoint, output} \nOptional: {name, output-path, cue-rollover, date-entries, prepend-date}",
           },
         })
+        .epilog(
+          "For more information, see https://github.com/eshaz/icecast-metadata-js"
+        )
     )
     .command(
       "archive",
@@ -132,7 +145,7 @@ const getArgs = () =>
           .options({
             "archive-interval": {
               alias: "i",
-              describe: "cron expression that set the archive interval",
+              describe: "cron expression that sets the archive interval",
               type: "string",
               requiresArg: true,
             },
@@ -148,6 +161,7 @@ const getArgs = () =>
                 "JSON Array containing a list of streams to archive. \nRequired: {endpoint, output} \nOptional: {name, output-path, archive-interval, archive-path, cue-rollover, date-entries, prepend-date}",
             },
           })
+          .group(["archive-interval", "archive-path"], "Options:")
           .example([
             [
               "$0 archive --config config.json",
@@ -158,6 +172,9 @@ const getArgs = () =>
               "Records and archives the stream at minute 0 past every 6th hour",
             ],
           ])
+          .epilog(
+            "For more information, see https://github.com/eshaz/icecast-metadata-js"
+          )
     )
     .config("config", (configPath) => {
       return JSON.parse(fs.readFileSync(configPath, "utf-8"));
@@ -178,7 +195,7 @@ const getArgs = () =>
       name: {
         alias: "n",
         describe:
-          "Name of the stream. Overrides the value in the `icy-name` header",
+          "Name of the stream. Overrides the value in the `Icy-Name` header",
         type: "string",
         requiresArg: true,
       },
@@ -202,16 +219,47 @@ const getArgs = () =>
         type: "number",
         requiresArg: true,
       },
+      streams: {
+        type: "array",
+        describe:
+          "JSON Array containing a list of streams to archive. \nRequired: {endpoint, output} \nOptional: {Varies with command}",
+      },
       "output-path": {
         describe:
           "Output path to prepend to file output (only useful for for JSON config)",
         type: "string",
         requiresArg: true,
       },
+      "metadata-interval": {
+        alias: "m",
+        describe:
+          "Manually specify the metadata interval. Only use when server does not not respond with `Icy-MetaInt`",
+        type: "number",
+        default: 0,
+        requiresArg: true,
+      },
+      bitrate: {
+        alias: "b",
+        describe:
+          "Manually specify the stream bitrate. Only use when server does not not respond with `Icy-Br`",
+        type: "number",
+        default: 0,
+        requiresArg: true,
+      },
       "--version": {
         hidden: true,
       },
     })
+    .group(["endpoint", "output"], "Options:")
+    .group(
+      ["name", "cue-rollover", "date-entries", "prepend-date"],
+      "Cue Options:"
+    )
+    .group(["config", "streams", "output-path"], "JSON Options:")
+    .group(["metadata-interval", "bitrate"], "Advanced Options:")
+    .epilog(
+      "For more information, see https://github.com/eshaz/icecast-metadata-js"
+    )
     .wrap(argv.terminalWidth()).argv;
 
 module.exports = getArgs;

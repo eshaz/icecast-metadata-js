@@ -40,9 +40,13 @@ class IcecastMetadataRecorder {
     prependDate,
     dateEntries,
     cueRollover,
+    metadataInterval,
+    bitrate,
   }) {
     this._fileName = output;
     this._endpoint = endpoint;
+    this._metadataInterval = metadataInterval;
+    this._bitrate = bitrate;
 
     this._cueWriterParams = {
       name,
@@ -66,8 +70,8 @@ class IcecastMetadataRecorder {
 
   _getIcecast() {
     const icecastParams = {
-      icyMetaInt: parseInt(this._icyHeaders["metaint"]),
-      icyBr: parseInt(this._icyHeaders["br"]),
+      icyMetaInt: this._metadataInterval || parseInt(this._icyHeaders["metaint"]),
+      icyBr: this._bitrate || parseInt(this._icyHeaders["br"]),
     };
 
     if (!icecastParams.icyMetaInt) {

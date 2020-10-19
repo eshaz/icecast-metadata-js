@@ -68,6 +68,12 @@ The Stream Recorder CLI has two commands `record` and `archive`.
 * `--cue-rollover, -r [999]`
   * Creates a new cue file after every nth cue entry
   * Useful for playback in applications with track number limitations such as a CD which can contain 99 tracks, or foobar2000 which can only playback cue files with 999 tracks or less.
+* `--metadata-interval, -m [16000]`
+  * Manually specify the metadata interval.
+  * <u>*Warning:* Only use when server does not not respond with valid `Icy-MetaInt` header</u>
+* `--bitrate, -b [320]`
+  * Manually specify the bitrate.
+  * <u>*Warning:* Only use when server does not not respond with valid `Icy-Br` header</u>
 
 `archive` options:
 
@@ -297,6 +303,6 @@ If you want to serve your stream and website on a different origin, you will nee
 Access-Control-Allow-Origin: 'https://your-website-origin.example.com'
 Access-Control-Allow-Methods: 'GET, HEAD, OPTIONS'
 Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
-Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url';
+Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url, Icy-Sr, Icy-Vbr, Icy-Pub';
 ```
 
