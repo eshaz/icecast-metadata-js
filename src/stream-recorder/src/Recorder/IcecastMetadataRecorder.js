@@ -70,7 +70,8 @@ class IcecastMetadataRecorder {
 
   _getIcecast() {
     const icecastParams = {
-      icyMetaInt: this._metadataInterval || parseInt(this._icyHeaders["metaint"]),
+      icyMetaInt:
+        this._metadataInterval || parseInt(this._icyHeaders["metaint"]),
       icyBr: this._bitrate || parseInt(this._icyHeaders["br"]),
     };
 
