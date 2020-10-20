@@ -29,8 +29,8 @@ const exclusive = (obj, a, b) => {
 
 const assertType = (obj, a, type) => {
   if (
-    (obj[a] && typeof obj[a] !== type) ||
-    (type === "number" && isNaN(obj[a]))
+    obj[a] !== undefined &&
+    (typeof obj[a] !== type || (type === "number" && isNaN(obj[a])))
   ) {
     throw new Error(`Argument ${a} must be of type ${type}. Found '${obj[a]}'`);
   }
