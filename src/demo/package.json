@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "cra-append-sw": "^2.7.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3"
@@ -12,11 +13,13 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "gh-pages": "^3.1.0",
-    "prettier": "^2.1.2"
+    "prettier": "^2.1.2",
+    "serve": "^11.3.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts start && cra-append-sw --mode dev ./src/icecast-sw.js",
+    "build": "react-scripts build && cra-append-sw ./src/icecast-sw.js",
+    "serve": "serve build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write '**/*.js' --write '**/*.json' --write '**/*.jsx'",
@@ -26,7 +29,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "homepage": "http://eshaz.github.io/icecast-metadata-js",
+  "homepage": "https://eshaz.github.io/",
   "browserslist": {
     "production": [
       ">0.2%",

@@ -98,6 +98,11 @@ export default class MetadataPlayer {
   }
 
   play(endpoint, metaInt) {
+    this._audioElement.src = endpoint;
+    this._audioElement.play();
+  }
+
+  _play(endpoint, metaInt) {
     if (this._playing) {
       this.stop();
     }
