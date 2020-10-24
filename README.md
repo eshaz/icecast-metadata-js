@@ -62,7 +62,7 @@ A generator that takes in raw icecast response data and returnsx stream data and
    });
    </pre>
 
- 1. To begin reading stream data and metadata, pass in the raw response into the instance's `.iterator()` or `.asyncIterator()`. Iterate over this iterator using a `for ... of` or `for await ... of` loop.
+ 1. To begin reading stream data and metadata, pass in the raw response into the instance's `.iterator()` or `.asyncIterator()`. Iterate over this iterator using a `for ...of` or `for await...of` loop.
 
     <pre>
     const responseData = response.body;
@@ -130,12 +130,12 @@ A generator that takes in raw icecast response data and returnsx stream data and
 
 * `icecastReader.iterator(data: Uint8Array)`
   * Takes in a byte array of raw icecast response body
-  * Returns an Iterator that can be used in a `for ... of` loop to read stream or metadata
+  * Returns an Iterator that can be used in a `for ...of` loop to read stream or metadata
   * `onStream` is called when stream is read
   * `onMetadata` is called when metadata is read
 * `icecastReader.asyncIterator(data: Uint8Array)`
   * Takes in a byte array of raw icecast response body
-  * Returns an AsyncIterator that can be used in a `for await ... of` loop to read stream or metadata
+  * Returns an AsyncIterator that can be used in a `for await...of` loop to read stream or metadata
   * Iteration will pause until the `onStream` and `onMetadata` resolve.
   * `onStream` is called and awaited when stream is read
   * `onMetadata` is called and awaited when metadata is read
