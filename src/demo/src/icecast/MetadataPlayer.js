@@ -1,5 +1,5 @@
-import IcecastMetadataReader from "./metadata-js/IcecastMetadataReader";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
+import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -9,7 +9,6 @@ export default class MetadataPlayer {
     this._audioElement = new Audio();
     this._onMetadataUpdate = onMetadataUpdate;
 
-    this._icecast = null;
     this._playing = false;
   }
 
@@ -70,18 +69,7 @@ export default class MetadataPlayer {
     });
   }
 
-  async _onStream({ stream, stats }) {
-    await this._appendSourceBuffer(stream);
-  }
-
-  _onMetadata(value) {
-    this._icecastMetadataQueue.addMetadata(
-      value,
-      this._sourceBuffer.timestampOffset - this._audioElement.currentTime
-    );
-  }
-
-  play(endpoint, metaInt) {
+  play(endpoint, icyMetaInt) {
     if (this._playing) {
       this.stop();
     }
@@ -107,22 +95,19 @@ export default class MetadataPlayer {
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
-        this._icecast = new IcecastMetadataReader({
-          icyMetaInt: parseInt(res.headers.get("Icy-MetaInt")) || metaInt,
-          onStream: this._onStream.bind(this),
-          onMetadata: this._onMetadata.bind(this),
+        const icecast = new IcecastReadableStream(res, {
+          icyMetaInt,
+          onStream: ({ stream }) => this._appendSourceBuffer(stream),
+          onMetadata: (value) => {
+            this._icecastMetadataQueue.addMetadata(
+              value,
+              this._sourceBuffer.timestampOffset -
+                this._audioElement.currentTime
+            );
+          },
         });
 
-        const reader = res.body.getReader();
-        const readerIterator = {
-          [Symbol.asyncIterator]: () => ({
-            next: () => reader.read(),
-          }),
-        };
-
-        for await (const chunk of readerIterator) {
-          for await (let i of this._icecast.getAsyncIterator(chunk)) {
-          }
+        for await (const stream of icecast.asyncIterator()) {
         }
       })
       .catch((e) => {
