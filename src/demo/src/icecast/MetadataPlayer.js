@@ -64,7 +64,6 @@ export default class MetadataPlayer {
       headers: {
         "Icy-MetaData": "1",
       },
-      mode: "cors",
       signal: this._controller.signal,
     });
   }
@@ -107,7 +106,7 @@ export default class MetadataPlayer {
           },
         });
 
-        for await (const stream of icecast.asyncIterator()) {
+        for await (const stream of icecast.asyncIterator) {
         }
       })
       .catch((e) => {
