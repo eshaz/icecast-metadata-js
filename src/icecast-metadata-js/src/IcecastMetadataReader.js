@@ -150,7 +150,7 @@ class IcecastMetadataReader {
    * @returns {IterableIterator} Iterator that operates over a raw icecast response.
    * @yields {object} Object containing stream or metadata.
    */
-  *getIterator(chunk) {
+  *iterator(chunk) {
     for (
       let i = this._generator.next(chunk);
       i.value;
@@ -166,7 +166,7 @@ class IcecastMetadataReader {
    * @returns {IterableIterator} Iterator that operates over a raw icecast response.
    * @yields {object} Object containing stream or metadata.
    */
-  async *getAsyncIterator(chunk) {
+  async *asyncIterator(chunk) {
     for (
       let i = this._generator.next(chunk);
       i.value;

@@ -19,7 +19,7 @@ export default class IcecastReadableStream extends ReadableStream {
         });
 
         for await (const chunk of readerIterator) {
-          for await (let i of icecast.getAsyncIterator(chunk)) {
+          for await (let i of icecast.asyncIterator(chunk)) {
           }
         }
 

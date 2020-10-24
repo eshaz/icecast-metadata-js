@@ -12,7 +12,7 @@ const getBuffArray = (buffer, increment) => {
 };
 
 const readChunk = (reader, chunk, stream = [], metadata = []) => {
-  for (const i of reader.getIterator(chunk)) {
+  for (const i of reader.iterator(chunk)) {
     if (i.metadata) {
       metadata.push(i);
     } else {

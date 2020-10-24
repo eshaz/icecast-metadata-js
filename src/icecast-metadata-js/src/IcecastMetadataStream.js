@@ -64,7 +64,8 @@ class IcecastMetadataStream extends Writable {
   }
 
   _write(chunk, enc, next) {
-    for (let i of this._generator.getIterator(chunk)) {}
+    for (let i of this._generator.iterator(chunk)) {
+    }
     next();
   }
 
