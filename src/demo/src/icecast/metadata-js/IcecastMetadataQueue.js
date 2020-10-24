@@ -52,16 +52,14 @@ export default class IcecastMetadataQueue {
    * @param {object} metadata Metadata object returned from IcecastMetadataReader
    * @param {number} bufferOffset Total buffered audio in seconds
    */
-  addMetadata({ metadata, stats }, bufferOffset) {
+  addMetadata({ metadata }, bufferOffset) {
     /**
      * Metadata time is derived from the total number of stream bytes read
      * since the latest buffer input. The buffer offset should be the total
      * seconds of audio in the player buffer when the metadata was read.
      */
-    const time =
-      bufferOffset + this.getTimeByBytes(stats.currentStreamPosition);
 
-    this._enqueueMetadata(metadata, time);
+    this._enqueueMetadata(metadata, bufferOffset);
   }
 
   /**

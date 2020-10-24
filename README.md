@@ -7,13 +7,16 @@ Icecast Metadata JS is an evolving Javascript based tool set for parsing, record
 ### npm package coming soon!
 
 ## Modules:
- * [Icecast Metadata JS](#icecast-metadata-js)
+ * [**Icecast Metadata JS**](#icecast-metadata-js)
    * NodeJS and Browser based module for reading audio and metadata from an Icecast response body
    * This module actively used here to display realtime metadata updates: https://dsmrad.io
- * [Stream Recorder](#stream-recorder)
+ * [**Stream Recorder**](#stream-recorder)
    * NodeJS based application for recording / archiving Icecast audio and metadata
- * [Demo](#demo)
+ * [**Demo**](#demo)
    * React application that demonstrates how to use the MediaSource Extensions API with `icecast-metadata-js`
+
+## Troubleshooting
+  * [**Cross-Origin Resource Sharing (CORS)**](#cors)
 
 ---
 
@@ -28,8 +31,9 @@ Icecast Metadata JS is NodeJS and browser module that takes in an Icecast respon
 * [`IcecastMetadataQueue`](#icecastmetadataqueue)
   * Queues metadata and schedules metadata updates
 * [`IcecastMetadataStream`](#icecastmetadatastream)
-  * Wraps IcecastMetadataReader using NodeJS streams
-
+  * NodeJS streams wrapper for IcecastMetadataReader
+* [`IcecastReadableStream`](#icecastreadablestream)
+  * Browser ReadableStream wrapper for IcecastMetadataReader
 
 ## `IcecastMetadataReader`
 
@@ -58,9 +62,22 @@ A generator that takes in raw icecast response data and returnsx stream data and
    });
    </pre>
 
- 1. To begin reading stream data and metadata, call the instance's `.next()` function  with the raw response data as the parameter.
+ 1. To begin reading stream data and metadata, pass in the raw response into the instance's `.iterator()` or `.asyncIterator()`. Iterate over this iterator using a `for ...of` or `for await...of` loop.
+
+    <pre>
+    const responseData = response.body;
+    
+    for (const i of icecastReader.iterator(responseData)) {
+      if (i.stream) {
+        // do something with stream data
+      }
+      if (i.metadata) {
+        // do something with metadata
+      }
+    }
+    </pre>
  
-    The `.next()` function will return an object containing either `stream` or `metadata`
+    Each iteration will return an object containing either `stream` or `metadata`
     
     #### `stream`
     <pre>
@@ -68,10 +85,13 @@ A generator that takes in raw icecast response data and returnsx stream data and
       value: {
         stream: Uint8Array, // stream bytes
         stats: {
-          metadataBytesRead: number, // total metadata bytes read
+          totalBytesRead: number, // total bytes read
           streamBytesRead: number, // total stream bytes read
-          totalBytesRead: number, // total raw bytes read
-          currentStreamPosition: number, // relative position of stream bytes
+          metadataLengthBytesRead: number, // total metadata length bytes read
+          metadataBytesRead: number, // total metadata bytes read
+          currentBytesRemaining: number, // bytes remaining in the current iteration
+          currentStreamBytesRemaining: number, // stream bytes remaining
+          currentMetadataBytesRemaining: number, // metadata bytes remaining
         }
       },
       done: false
@@ -87,62 +107,38 @@ A generator that takes in raw icecast response data and returnsx stream data and
           ... // key value pairs of metadata
         },
         stats: {
-          metadataBytesRead: number, // total metadata bytes read
+          totalBytesRead: number, // total bytes read
           streamBytesRead: number, // total stream bytes read
-          totalBytesRead: number, // total raw bytes read
-          currentStreamPosition: number, // relative position of stream bytes
+          metadataLengthBytesRead: number, // total metadata length bytes read
+          metadataBytesRead: number, // total metadata bytes read
+          currentBytesRemaining: number, // bytes remaining in the current iteration
+          currentStreamBytesRemaining: number, // stream bytes remaining
+          currentMetadataBytesRemaining: number, // metadata bytes remaining
         }
       },
       done: false
     }
     </pre>
-    
- 1. Continue to call `.next()` with no parameters until `.next()` returns:
-    <pre>
-    {
-      value: undefined,
-      done: false
-    }
-    </pre>
 
-The below example will read all of the stream and metadata from `responseData`.
+1. The iteration will complete once all of the response data is parsed. When more raw data is available, repeat the steps above to continue parsing the data.
 
-<pre>
-const responseData = response.body;
-
-for (
-  let iterator = icecastReader.next(responseData);
-  iterator.value;
-  iterator = icecastReader.next()
-) {
-  if (value.stream) {
-    // do something with stream data
-  }
-  if (value.metadata) {
-    // do something with metadata
-  }
-}
-</pre>
-
-When you have more response data to read, pass it into the `.next()` function and repeat the steps above.
+**Note: Stream data is always returned immediately when it is discovered in the raw response. Metadata is stored within the IcecastMetadataReader until a full chunk of metadata can be parsed and returned. The IcecastMetadataReader also internally tracks the metadata interval to properly return metadata. If you are reading a continuous stream of raw response data, be sure to use the same instance of the IcecastMetadataReader.**
 
 ### Methods
 
 `const icecastReader = new IcecastMetadataReader({metaInt, onStream, onMetadata})`
 
-* `icecastReader.readAll(data: Uint8Array)`
+* `icecastReader.iterator(data: Uint8Array)`
   * Takes in a byte array of raw icecast response body
-  * Reads all of the stream and metadata from the raw response data
+  * Returns an Iterator that can be used in a `for ...of` loop to read stream or metadata
   * `onStream` is called when stream is read
   * `onMetadata` is called when metadata is read
-* `icecastReader.next(data: Uint8Array)`
-  * Takes in `Uint8Array` of raw icecast response body
-  * Returns object containing stream or metadata
-    * `{value: {steam|metadata, stats}, done: false}`
-  * Continue to call with __no__ parameter until `.next()` returns `undefined`
-  * When `.next()` returns `undefined`, pass in more raw response data
-  * `onStream` is called when stream is read
-  * `onMetadata` is called when metadata is read
+* `icecastReader.asyncIterator(data: Uint8Array)`
+  * Takes in a byte array of raw icecast response body
+  * Returns an AsyncIterator that can be used in a `for await...of` loop to read stream or metadata
+  * Iteration will pause until the `onStream` and `onMetadata` resolve.
+  * `onStream` is called and awaited when stream is read
+  * `onMetadata` is called and awaited when metadata is read
 * `icecastReader.parseMetadataBytes(data: Uint8Array)`
   * Takes in a byte array of Icecast metadata
   * Returns object with metadata parsed into key value pairs (see below)
@@ -211,16 +207,16 @@ Metadata updates can be highly accurate because they are embedded inline with th
   * Gets the contents of the metadata queue
 * `metadataQueue.addMetadata(metadata: object, seconds: number)`
   * Takes in a `metadata` object and the number of seconds to delay the metadata update
-  * Metadata time can be derived from the total number of stream bytes read since the latest buffer input. The buffer offset should be the total seconds of audio in the player buffer when the metadata was read.
+  * The buffer offset should be the total seconds of audio in the player buffer when the metadata was read.
 * `metadataQueue.getTimeByBytes(numberOfBytes: number)`
-  * Takes in a number of bytes read and derives the seconds to delay the metadata update based on the bitrate and number of stream bytes read for the current raw response.
-  * This can be used in place of an audio buffer offset; however, it is not as accurate as actually decoding the stream and getting the offset in seconds.
+  * Takes in a number of stream bytes read and derives the seconds to delay the metadata update based on a constant audio bitrate.
+  * This only works for constant bitrate streams.
 * `metadataQueue.purgeMetadataQueue()`
   * Purges the metadata queue and clears any pending metadata updates.
 
 ## `IcecastMetadataStream`
 
-A Writable stream that exposes stream and metadata via Readable streams.
+A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable streams.
 
 ### Usage
 
@@ -262,6 +258,54 @@ A Writable stream that exposes stream and metadata via Readable streams.
 
 *See documentation on NodeJS Writable Streams for additional methods.*
 https://nodejs.org/api/stream.html#stream_writable_streams
+
+## `IcecastReadableStream`
+
+A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadableStream` can be used to easily extract stream and metadata from a `fetch` response.
+
+### Usage
+
+1. To use `IcecastReadableStream`, make your `fetch` request to the Icecast stream endpoint, and then create a new instance with the fetch `Response` and `options` for the internal `IcecastMetadataReader` instance.
+
+    Notes: 
+    * The GET request to the Icecast server must contain the `Icy-Metadata: 1` header to enable metadata.
+      * CORS must allow the `Icy-Metadata` header. Without this header, metadata is not returned in the Icecast response.
+    * An invalid CORS policy on the Icecast server may prevent the `Icy-MetaInt` header from being read. To work around this, manually determine the metadata interval and pass it into the `icyMetaInt` option
+    * See the [Troublshooting](#troublshooting) section for more information on CORS.
+   
+    <pre>
+    fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Icy-MetaData": "1",
+      }
+    })
+    .then(async (response) => {
+      const icecast = new IcecastReadableStream(
+        response,
+        {
+          icyMetaInt, // only use Icy-MetaInt is not in the response header
+          onStream: async (value) => // do something with the stream,
+          onMetadata: async (value) => // do something with the metadata
+        }
+      );
+      
+      for await (const stream of icecast.asyncIterator) {
+        // do something with the stream data
+      }
+    });
+    </pre>
+
+### Methods
+`const icecastReadable = new IcecastReadableStream(fetchResponse, {icyMetaInt, onStream, onMetadata})`
+
+* `icecastStream.asyncIterator`
+  * Getter that returns an asyncIterator that can used to read stream data
+  * `onStream` is called and awaited when stream data is discovered
+  * `onMetadata` is called and awaited when metadata is discovered
+
+*See documentation on ReadableStream for additional methods.*
+https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream
 
 ---
 
@@ -419,14 +463,24 @@ https://cconcolato.github.io/media-mime-support/#audio_codecs
 * `npm i`
 * `npm start` -> Runs a local server on http://localhost:3000
 
-## Adding your own Icecast stream
 
-### CORS
+---
 
-If you want to serve your stream and website on a different origin, you will need make sure your CORS configuration includes the below configuration to enable metadata and stream information.
+
+# Troubleshooting
+
+## CORS
+
+Cross-Origin Response Sharing is a client side security mechanism to prevent scripts from accessing other websites outside of the website the script originated from. Websites can opt-in to CORS by responding with various `Allow-Control` headers. Browsers will send an pre-flight `OPTIONS` request to the cross-origin resource when a script attempts to access a cross-origin resource. The actual request will be allowed only if the `OPTIONS` response contains the appropriate `Allow-Control` headers.
+
+Read more about CORS here: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+
+Icecast is dependent on being able to request and read headers (specifically the `Icy-*` headers). If you intend on serving your Icecast stream on a website that is not on the same origin as your Icecast server, you will need to add the below CORS headers.
+
+**Metadata will not work in a browser without: `Access-Control-Allow-Headers: Icy-Metadata`**
 
 ```
-Access-Control-Allow-Origin: 'https://your-website-origin.example.com'
+Access-Control-Allow-Origin: 'https://your-website.example.com'
 Access-Control-Allow-Methods: 'GET, HEAD, OPTIONS'
 Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
 Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url, Icy-Sr, Icy-Vbr, Icy-Pub';

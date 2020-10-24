@@ -11,15 +11,12 @@ const getBuffArray = (buffer, increment) => {
   return rawBuffs;
 };
 
-const readChunk = (reader, chunk) => {
-  let stream = [];
-  let metadata = [];
-
-  for (let i = reader.next(chunk); i.value; i = reader.next()) {
-    if (i.value.stream) {
-      stream.push(i.value);
-    } else if (i.value.metadata) {
-      metadata.push(i.value);
+const readChunk = (reader, chunk, stream = [], metadata = []) => {
+  for (const i of reader.iterator(chunk)) {
+    if (i.metadata) {
+      metadata.push(i);
+    } else {
+      stream.push(i);
     }
   }
 
@@ -36,17 +33,7 @@ const readChunks = (reader, data, chunkSize) => {
     currentBuffer !== bufferArray.length;
     currentBuffer++
   ) {
-    for (
-      let iterator = reader.next(bufferArray[currentBuffer]);
-      iterator.value; // returns data, and done, data get lost
-      iterator = reader.next()
-    ) {
-      if (iterator.value.metadata) {
-        metadata.push(iterator.value);
-      } else {
-        stream.push(iterator.value);
-      }
-    }
+    readChunk(reader, bufferArray[currentBuffer], stream, metadata);
   }
 
   return { stream, metadata };
@@ -83,11 +70,7 @@ describe("Icecast Metadata Reader", () => {
   });
 
   describe("Reading chunks", () => {
-    const expectMetadata = (
-      metadata,
-      firstStreamPosition,
-      secondStreamPosition
-    ) => {
+    const expectMetadata = (metadata, firstStats, secondStats) => {
       expect(metadata.length).toEqual(2);
       expect(metadata[0]).toEqual({
         metadata: {
@@ -95,10 +78,10 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: firstStreamPosition,
           metadataBytesRead: 112,
           streamBytesRead: 16000,
           totalBytesRead: 16113,
+          ...firstStats,
         },
       });
       expect(metadata[1]).toEqual({
@@ -108,10 +91,10 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: secondStreamPosition,
           metadataBytesRead: 256,
           streamBytesRead: 6224000,
           totalBytesRead: 6224645,
+          ...secondStats,
         },
       });
     };
@@ -123,7 +106,21 @@ describe("Icecast Metadata Reader", () => {
 
       const returnedAudio = concatAudio([returnedValues]);
 
-      expectMetadata(returnedValues.metadata, 1, 889);
+      expectMetadata(
+        returnedValues.metadata,
+        {
+          currentBytesRemaining: 15885,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 1,
+        },
+        {
+          currentBytesRemaining: 14965,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 389,
+        }
+      );
       expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
@@ -132,7 +129,21 @@ describe("Icecast Metadata Reader", () => {
       const returnedValues = readChunks(reader, raw256k, 16001);
       const returnedAudio = concatAudio([returnedValues]);
 
-      expectMetadata(returnedValues.metadata, 0, 111);
+      expectMetadata(
+        returnedValues.metadata,
+        {
+          currentBytesRemaining: 15889,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 1,
+        },
+        {
+          currentBytesRemaining: 15745,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 389,
+        }
+      );
       expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
@@ -141,7 +152,21 @@ describe("Icecast Metadata Reader", () => {
       const returnedValues = readChunks(reader, raw256k, 16000);
       const returnedAudio = concatAudio([returnedValues]);
 
-      expectMetadata(returnedValues.metadata, 0, 500);
+      expectMetadata(
+        returnedValues.metadata,
+        {
+          currentBytesRemaining: 15887,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 1,
+        },
+        {
+          currentBytesRemaining: 15355,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 389,
+        }
+      );
       expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
@@ -182,8 +207,11 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: 0,
+          currentBytesRemaining: 687,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
           metadataBytesRead: 112,
+          metadataLengthBytesRead: 1,
           streamBytesRead: 16000,
           totalBytesRead: 16113,
         },
@@ -210,8 +238,11 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: 0,
+          currentBytesRemaining: 0,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
           metadataBytesRead: 112,
+          metadataLengthBytesRead: 1,
           streamBytesRead: 16000,
           totalBytesRead: 16113,
         },
@@ -235,8 +266,11 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: 16000,
+          currentBytesRemaining: 6208397,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
           metadataBytesRead: 112,
+          metadataLengthBytesRead: 1,
           streamBytesRead: 16000,
           totalBytesRead: 16113,
         },
@@ -250,8 +284,11 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: 0,
+          currentBytesRemaining: 2158884,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
           metadataBytesRead: 256,
+          metadataLengthBytesRead: 389,
           streamBytesRead: 6224000,
           totalBytesRead: 6224645,
         },
@@ -306,8 +343,11 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: 0,
+          currentBytesRemaining: 103887,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
           metadataBytesRead: 112,
+          metadataLengthBytesRead: 1,
           streamBytesRead: 16000,
           totalBytesRead: 16113,
         },
@@ -332,8 +372,11 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
         },
         stats: {
-          currentStreamPosition: 757,
+          currentBytesRemaining: 343,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
           metadataBytesRead: 112,
+          metadataLengthBytesRead: 1,
           streamBytesRead: 16000,
           totalBytesRead: 16113,
         },
@@ -522,7 +565,8 @@ describe("Icecast Metadata Reader", () => {
         const metadataString =
           "StreamTitle='Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな';\0\0\0\0\0\0";
         const expectedMetadata = {
-          StreamTitle: "Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな",
+          StreamTitle:
+            "Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな",
         };
 
         const returnedMetadata = IcecastMetadataReader.parseMetadataString(

@@ -1,6 +1,5 @@
-import IcecastMetadataReader from "./metadata-js/IcecastMetadataReader";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
-import StreamBuffer from "./StreamBuffer";
+import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -10,20 +9,11 @@ export default class MetadataPlayer {
     this._audioElement = new Audio();
     this._onMetadataUpdate = onMetadataUpdate;
 
-    this._icecast = null;
-    this._streamBuffer = null;
     this._playing = false;
   }
 
   get playing() {
     return this._playing;
-  }
-
-  _onMetadata(value) {
-    this._icecastMetadataQueue.addMetadata(
-      value,
-      this._sourceBuffer.timestampOffset - this._audioElement.currentTime
-    );
   }
 
   async _createMediaSource(mimeType) {
@@ -51,24 +41,6 @@ export default class MetadataPlayer {
         .catch(() => {});
   }
 
-  async _readIcecastResponse(value) {
-    this._streamBuffer = new StreamBuffer(value.length);
-
-    for (let i = this._icecast.next(value); i.value; i = this._icecast.next()) {
-      if (i.value.stream) {
-        this._streamBuffer.append(i.value.stream);
-      } else {
-        const currentPosition = value.length - this._streamBuffer.length;
-        await this._appendSourceBuffer(this._streamBuffer.read);
-
-        this._streamBuffer = new StreamBuffer(currentPosition);
-        this._onMetadata(i.value);
-      }
-    }
-
-    return this._appendSourceBuffer(this._streamBuffer.read);
-  }
-
   async _appendSourceBuffer(chunk) {
     this._sourceBuffer.appendBuffer(chunk);
 
@@ -92,12 +64,11 @@ export default class MetadataPlayer {
       headers: {
         "Icy-MetaData": "1",
       },
-      mode: "cors",
       signal: this._controller.signal,
     });
   }
 
-  play(endpoint, metaInt) {
+  play(endpoint, icyMetaInt) {
     if (this._playing) {
       this.stop();
     }
@@ -123,19 +94,19 @@ export default class MetadataPlayer {
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
-        this._icecast = new IcecastMetadataReader({
-          icyMetaInt: parseInt(res.headers.get("Icy-MetaInt")) || metaInt,
+        const icecast = new IcecastReadableStream(res, {
+          icyMetaInt,
+          onStream: ({ stream }) => this._appendSourceBuffer(stream),
+          onMetadata: (value) => {
+            this._icecastMetadataQueue.addMetadata(
+              value,
+              this._sourceBuffer.timestampOffset -
+                this._audioElement.currentTime
+            );
+          },
         });
 
-        const reader = res.body.getReader();
-        const readerIterator = {
-          [Symbol.asyncIterator]: () => ({
-            next: () => reader.read(),
-          }),
-        };
-
-        for await (const chunk of readerIterator) {
-          await this._readIcecastResponse(chunk);
+        for await (const stream of icecast.asyncIterator) {
         }
       })
       .catch((e) => {

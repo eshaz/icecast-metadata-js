@@ -19,39 +19,58 @@ const { TextDecoder } = require("util");
 
 class Stats {
   constructor() {
-    this._metadataBytesRead = 0;
-    this._streamBytesRead = 0;
     this._totalBytesRead = 0;
-    this._currentStreamPosition = 0;
+    this._streamBytesRead = 0;
+    this._metadataLengthBytesRead = 0;
+    this._metadataBytesRead = 0;
+
+    this._currentBytesRemaining = 0;
+    this._currentStreamBytesRemaining = 0;
+    this._currentMetadataBytesRemaining = 0;
   }
 
   get stats() {
     return {
-      metadataBytesRead: this._metadataBytesRead,
-      streamBytesRead: this._streamBytesRead,
       totalBytesRead: this._totalBytesRead,
-      currentStreamPosition: this._currentStreamPosition,
+      streamBytesRead: this._streamBytesRead,
+      metadataLengthBytesRead: this._metadataLengthBytesRead,
+      metadataBytesRead: this._metadataBytesRead,
+      currentBytesRemaining: this._currentBytesRemaining,
+      currentStreamBytesRemaining: this._currentStreamBytesRemaining,
+      currentMetadataBytesRemaining: this._currentMetadataBytesRemaining,
     };
-  }
-
-  set addMetadataBytes(bytes) {
-    this._metadataBytesRead += bytes;
   }
 
   set addStreamBytes(bytes) {
     this._streamBytesRead += bytes;
-  }
-
-  set addBytes(bytes) {
     this._totalBytesRead += bytes;
+    this._currentStreamBytesRemaining -= bytes;
+    this._currentBytesRemaining -= bytes;
   }
 
-  set currentStreamPosition(bytes) {
-    this._currentStreamPosition = bytes;
+  set addMetadataLengthBytes(bytes) {
+    this._metadataLengthBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentBytesRemaining -= bytes;
   }
 
-  set addCurrentStreamPosition(bytes) {
-    this._currentStreamPosition += bytes;
+  set addMetadataBytes(bytes) {
+    this._metadataBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentMetadataBytesRemaining -= bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  set currentBytesRemaining(bytes) {
+    this._currentBytesRemaining = bytes;
+  }
+
+  set currentStreamBytesRemaining(bytes) {
+    this._currentStreamBytesRemaining = bytes;
+  }
+
+  set currentMetadataBytesRemaining(bytes) {
+    this._currentMetadataBytesRemaining = bytes;
   }
 }
 
@@ -80,9 +99,12 @@ class IcecastMetadataReader {
     this._currentPosition = 0;
     this._buffer = null;
     this._stats = new Stats();
+    this._decoder = new TextDecoder("utf-8");
+
     this._onStream = onStream;
     this._onMetadata = onMetadata;
-    this._decoder = new TextDecoder("utf-8");
+    this._onStreamPromise = Promise.resolve();
+    this._onMetadataPromise = Promise.resolve();
 
     this._generator = this._generator();
     this._generator.next();
@@ -99,6 +121,7 @@ class IcecastMetadataReader {
      * The string is a fixed length and any unused bytes at the end are 0x00.
      * i.e. "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
      */
+
     const metadata = {};
     // [{key: "StreamTitle", val: "The Stream Title"}, {key: "StreamUrl", val: "https://example.com"}]
     for (let match of metadataString.matchAll(
@@ -122,24 +145,37 @@ class IcecastMetadataReader {
   }
 
   /**
-   * @description Reads through an icecast response and emits stream and metadata events.
-   * @param {Uint8Array} chunk Bytes to split into stream and metadata
+   * @description Returns an iterator that yields stream or metadata.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
+   * @yields {object} Object containing stream or metadata.
    */
-  readAll(chunk) {
+  *iterator(chunk) {
     for (
       let i = this._generator.next(chunk);
       i.value;
       i = this._generator.next()
-    ) {}
+    ) {
+      yield i.value;
+    }
   }
 
   /**
-   * @description Generator next function.
-   * @param {Uint8Array} data Next chunk of data to read
-   * @returns {object} Object containing stream or metadata. Returns undefined when out of data to read.
+   * @description Returns an async iterator that yields stream or metadata and awaits the onStream and onMetadata callbacks.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
+   * @yields {object} Object containing stream or metadata.
    */
-  next(data) {
-    return this._generator.next(data);
+  async *asyncIterator(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {
+      await this._onStreamPromise;
+      await this._onMetadataPromise;
+      yield i.value;
+    }
   }
 
   *_generator() {
@@ -152,11 +188,11 @@ class IcecastMetadataReader {
 
   *_getStream() {
     this._remainingData = this._icyMetaInt;
+    this._stats.currentStreamBytesRemaining = this._icyMetaInt;
 
     do {
       const stream = yield* this._getNextValue();
       this._stats.addStreamBytes = stream.length;
-      this._stats.addCurrentStreamPosition = stream.length;
 
       const streamPayload = { stream, stats: this._stats.stats };
       /**
@@ -167,7 +203,7 @@ class IcecastMetadataReader {
        * @property {Uint8Array} stream Stream bytes.
        * @property {object} stats Statistics on bytes read.
        */
-      this._onStream(streamPayload);
+      this._onStreamPromise = this._onStream(streamPayload);
 
       yield streamPayload;
     } while (this._remainingData);
@@ -179,13 +215,17 @@ class IcecastMetadataReader {
     do {
       this._remainingData = (yield* this._getNextValue())[0] * 16;
     } while (this._remainingData === 1);
+
+    this._stats.addMetadataLengthBytes = 1;
   }
 
   *_getMetadata() {
-    let metadata = yield* this._getNextValue();
-    if (this._remainingData) metadata = yield* this._storeMetadata(metadata);
+    this._stats.currentMetadataBytesRemaining = this._remainingData;
 
+    let metadata = yield* this._getNextValue();
     this._stats.addMetadataBytes = metadata.length;
+
+    if (this._remainingData) metadata = yield* this._storeMetadata(metadata);
 
     const metadataPayload = {
       metadata: this.parseMetadata(metadata),
@@ -201,7 +241,7 @@ class IcecastMetadataReader {
      * @param {property} [metadata.StreamUrl] Url (usually album art) of the metadata update.
      * @property {object} stats Statistics on bytes read.
      */
-    this._onMetadata(metadataPayload);
+    this._onMetadataPromise = this._onMetadata(metadataPayload);
 
     yield metadataPayload;
   }
@@ -214,7 +254,10 @@ class IcecastMetadataReader {
     metadataBuffer.push(currentMetadata);
 
     do {
-      metadataBuffer.push(yield* this._getNextValue());
+      const metadata = yield* this._getNextValue();
+      metadataBuffer.push(metadata);
+
+      this._stats.addMetadataBytes = metadata.length;
     } while (this._remainingData);
 
     return metadataBuffer.pop();
@@ -224,7 +267,7 @@ class IcecastMetadataReader {
     while (!this._buffer || this._currentPosition === this._buffer.length) {
       this._buffer = yield; // if out of data, accept new data in the .next() call
       this._currentPosition = 0;
-      this._stats.currentStreamPosition = 0;
+      this._stats.currentBytesRemaining = this._buffer.length;
     }
     const value = this._buffer.subarray(
       this._currentPosition,
@@ -233,7 +276,6 @@ class IcecastMetadataReader {
 
     this._remainingData -= value.length;
     this._currentPosition += value.length;
-    this._stats.addBytes = value.length;
 
     return value;
   }
