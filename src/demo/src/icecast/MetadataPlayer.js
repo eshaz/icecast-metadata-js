@@ -1,6 +1,5 @@
 import IcecastMetadataReader from "./metadata-js/IcecastMetadataReader";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
-import StreamBuffer from "./StreamBuffer";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -11,7 +10,6 @@ export default class MetadataPlayer {
     this._onMetadataUpdate = onMetadataUpdate;
 
     this._icecast = null;
-    this._streamBuffer = null;
     this._playing = false;
   }
 
@@ -72,14 +70,11 @@ export default class MetadataPlayer {
     });
   }
 
-  _onStream({ stream, stats }) {
-    console.log(stats);
-    this._streamBuffer.append(stream);
+  async _onStream({ stream, stats }) {
+    await this._appendSourceBuffer(stream);
   }
 
-  async _onMetadata(value) {
-    await this._appendSourceBuffer(this._streamBuffer.read);
-    this._streamBuffer = new StreamBuffer(value.stats.currentBytesRemaining);
+  _onMetadata(value) {
     this._icecastMetadataQueue.addMetadata(
       value,
       this._sourceBuffer.timestampOffset - this._audioElement.currentTime
@@ -126,10 +121,8 @@ export default class MetadataPlayer {
         };
 
         for await (const chunk of readerIterator) {
-          this._streamBuffer = new StreamBuffer(chunk.length);
           for await (let i of this._icecast.getAsyncIterator(chunk)) {
           }
-          await this._appendSourceBuffer(this._streamBuffer.read);
         }
       })
       .catch((e) => {
