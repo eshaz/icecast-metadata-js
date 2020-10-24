@@ -19,13 +19,6 @@ export default class MetadataPlayer {
     return this._playing;
   }
 
-  _onMetadata(value) {
-    this._icecastMetadataQueue.addMetadata(
-      value,
-      this._sourceBuffer.timestampOffset - this._audioElement.currentTime
-    );
-  }
-
   async _createMediaSource(mimeType) {
     this._mediaSource = new MediaSource();
     this._audioElement.src = URL.createObjectURL(this._mediaSource);
@@ -49,24 +42,6 @@ export default class MetadataPlayer {
         .then(() => this._audioElement.removeAttribute("src"))
         .then(() => this._audioElement.load())
         .catch(() => {});
-  }
-
-  async _readIcecastResponse(value) {
-    this._streamBuffer = new StreamBuffer(value.length);
-
-    for (let i = this._icecast.next(value); i.value; i = this._icecast.next()) {
-      if (i.value.stream) {
-        this._streamBuffer.append(i.value.stream);
-      } else {
-        const currentPosition = value.length - this._streamBuffer.length;
-        await this._appendSourceBuffer(this._streamBuffer.read);
-
-        this._streamBuffer = new StreamBuffer(currentPosition);
-        this._onMetadata(i.value);
-      }
-    }
-
-    return this._appendSourceBuffer(this._streamBuffer.read);
   }
 
   async _appendSourceBuffer(chunk) {
@@ -97,6 +72,20 @@ export default class MetadataPlayer {
     });
   }
 
+  _onStream({ stream, stats }) {
+    console.log(stats);
+    this._streamBuffer.append(stream);
+  }
+
+  async _onMetadata(value) {
+    await this._appendSourceBuffer(this._streamBuffer.read);
+    this._streamBuffer = new StreamBuffer(value.stats.currentBytesRemaining);
+    this._icecastMetadataQueue.addMetadata(
+      value,
+      this._sourceBuffer.timestampOffset - this._audioElement.currentTime
+    );
+  }
+
   play(endpoint, metaInt) {
     if (this._playing) {
       this.stop();
@@ -125,6 +114,8 @@ export default class MetadataPlayer {
 
         this._icecast = new IcecastMetadataReader({
           icyMetaInt: parseInt(res.headers.get("Icy-MetaInt")) || metaInt,
+          onStream: this._onStream.bind(this),
+          onMetadata: this._onMetadata.bind(this),
         });
 
         const reader = res.body.getReader();
@@ -135,7 +126,10 @@ export default class MetadataPlayer {
         };
 
         for await (const chunk of readerIterator) {
-          await this._readIcecastResponse(chunk);
+          this._streamBuffer = new StreamBuffer(chunk.length);
+          for await (let i of this._icecast.getAsyncIterator(chunk)) {
+          }
+          await this._appendSourceBuffer(this._streamBuffer.read);
         }
       })
       .catch((e) => {
