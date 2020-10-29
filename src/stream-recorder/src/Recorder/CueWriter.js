@@ -46,6 +46,7 @@ class CueWriter extends Transform {
     this._fileNameNoExt = fileName.replace(FORMAT_MATCHER, "");
 
     this._cueFileWritable = null;
+    this._cueFilePromise = Promise.resolve();
     this._cueBuilder = null;
     this._cueRolloverCount = 0;
 
@@ -55,6 +56,10 @@ class CueWriter extends Transform {
 
   get fileNames() {
     return this._fileNames;
+  }
+
+  get cueFilePromise() {
+    return this._cueFilePromise;
   }
 
   set cueRolloverCount(cueRolloverCount) {
@@ -96,55 +101,72 @@ class CueWriter extends Transform {
       if (e.code !== "EEXIST") throw e;
     }
 
-    this._fileNames.push(fileName);
-    return fs.createWriteStream(fileName);
+    const file = fs.createWriteStream(fileName);
+
+    this._cueFilePromise = new Promise(
+      (resolve) => (this._cueResolve = resolve)
+    );
+    file.on("ready", () => {
+      this._fileNames.push(fileName);
+    });
+    file.on("close", () => {
+      this._cueResolve();
+    });
+
+    return file;
   }
 
-  _checkRollover(trackCount, time) {
+  async _checkRollover(trackCount, time) {
     if (trackCount + 1 === this._cueRollover) {
-      this.push(this._cueBuilder.addTrack({ title: "END" }, time), "ascii");
-      this._cueRolloverCount++;
+      await new Promise((resolve) => {
+        this.push(this._cueBuilder.addTrack({ title: "END" }, time), "ascii");
+        this._cueRolloverCount++;
 
-      this.unpipe(this._cueFileWritable);
-      this._cueFileWritable.end();
+        this._cueFileWritable.on("finish", () => {
+          this.unpipe(this._cueFileWritable);
+          this._newFile();
+          resolve();
+        });
 
-      this._newFile();
+        this._cueFileWritable.end();
+      });
     }
   }
 
   _transform(meta, encoding, callback) {
     const trackCount = this._cueBuilder.trackCount;
 
-    this._checkRollover(trackCount, meta.time);
+    this._checkRollover(trackCount, meta.time).then(() => {
+      /**
+       * When there is only one more cue entry remaining
+       * until the next rollover, insert an END track.
+       * There is no way to indicate the end of a cue file
+       * so this will have to do.
+       *
+       * Reasonable rollover thresholds should be based on your player's limitations.
+       * (i.e. Foobar2000 accepts up to 999 tracks in the cue file)
+       */
+      const timeStamp = new Date(
+        this._startDate.getTime() + meta.time * 1000
+      ).toISOString();
 
-    /**
-     * When there is only one more cue entry remaining
-     * until the next rollover, insert an END track.
-     * There is no way to indicate the end of a cue file
-     * so this will have to do.
-     *
-     * Reasonable rollover thresholds should be based on your player's limitations.
-     * (i.e. Foobar2000 accepts up to 999 tracks in the cue file)
-     */
+      const { StreamTitle, ...restOfMetadata } = meta.metadata;
 
-    const timeStamp = new Date(
-      this._startDate.getTime() + meta.time * 1000
-    ).toISOString();
+      const track = this._cueBuilder.addTrack(
+        {
+          title: this._prependDate
+            ? `${timeStamp} ${StreamTitle}`
+            : StreamTitle,
+          ...(this._dateEntries
+            ? { date: `${timeStamp.substring(0, 16)}Z` }
+            : {}),
+          ...restOfMetadata,
+        },
+        (trackCount || this._cueRolloverCount) && meta.time // force metadata for first track to show immediately
+      );
 
-    const { StreamTitle, ...restOfMetadata } = meta.metadata;
-
-    const track = this._cueBuilder.addTrack(
-      {
-        title: this._prependDate ? `${timeStamp} ${StreamTitle}` : StreamTitle,
-        ...(this._dateEntries
-          ? { date: `${timeStamp.substring(0, 16)}Z` }
-          : {}),
-        ...restOfMetadata,
-      },
-      (trackCount || this._cueRolloverCount) && meta.time // force metadata for first track to show immediately
-    );
-
-    callback(null, track);
+      callback(null, track);
+    });
   }
 }
 

@@ -56,11 +56,11 @@ class ArchiveRotator {
   }
 
   async rotate() {
-    try {
-      await fs.promises.mkdir(this._archivePath, { recursive: true });
-    } catch (e) {
-      if (e.code !== "EEXIST") throw e;
-    }
+    await fs.promises
+      .mkdir(this._archivePath, { recursive: true })
+      .catch((e) => {
+        if (e.code !== "EEXIST") throw e;
+      });
 
     return Promise.all(
       this._filesToArchive.map(async (fileName) =>
@@ -75,7 +75,9 @@ class ArchiveRotator {
   async _move(oldPath, newPath) {
     return fs.promises.rename(oldPath, newPath).catch((e) => {
       if (e.code !== "EXDEV") throw e;
-      fs.promises.copyFile(oldPath, newPath).then(fs.promises.unlink(oldPath));
+      return fs.promises
+        .copyFile(oldPath, newPath)
+        .then(fs.promises.unlink(oldPath));
     });
   }
 }

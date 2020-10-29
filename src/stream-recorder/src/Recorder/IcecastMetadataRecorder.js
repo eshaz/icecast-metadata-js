@@ -55,6 +55,12 @@ class IcecastMetadataRecorder {
       cueRollover,
       fileName: this._fileName,
     };
+
+    this._audioFilePromise = Promise.resolve();
+  }
+
+  set errorHandler(e) {
+    this._errorHandler = e;
   }
 
   get endpoint() {
@@ -117,16 +123,7 @@ class IcecastMetadataRecorder {
     this._controller = new AbortController();
     this._icyHeaders = {};
     this._fileNames = [];
-
     this._audioFileWritable = null;
-
-    this._stopResolve;
-    this._stopPromise = new Promise((resolve) => (this._stopResolve = resolve));
-
-    this._stopResolve;
-    this._recordPromise = new Promise(
-      (resolve) => (this._recordResolve = resolve)
-    );
   }
 
   get fileNames() {
@@ -138,13 +135,8 @@ class IcecastMetadataRecorder {
    */
   async record() {
     this._init();
-    this._audioFileWritable = this._openFile(this._fileName);
-    this._audioFileWritable.addListener("finish", () => {
-      this._recordResolve();
-      this._stopResolve();
-    });
 
-    return fetch(this._endpoint, {
+    this._recordPromise = fetch(this._endpoint, {
       method: "GET",
       headers: {
         "Icy-MetaData": "1",
@@ -154,6 +146,8 @@ class IcecastMetadataRecorder {
       signal: this._controller.signal,
     })
       .then((res) => {
+        this._audioFileWritable = this._openFile(this._fileName);
+
         this._getIcyHeaders(res.headers);
         this._getIcecast();
         this._getCueWriter();
@@ -167,24 +161,28 @@ class IcecastMetadataRecorder {
 
         res.body.pipe(this._icecast);
 
-        return this._recordPromise;
+        return this._audioFilePromise.then(
+          () => this._cueWriter?.cueFilePromise
+        );
       })
       .catch((e) => {
         this._closeFile(this._icecast);
         if (e.name !== "AbortError") {
-          throw e;
+          this._errorHandler(e);
         }
       });
+
+    return this._recordPromise;
   }
 
   /**
    * @description Stops recording the Icecast stream
    */
-  async stop() {
+  stop() {
     this._controller.abort();
     this._closeFile(this._icecast);
 
-    return this._stopPromise;
+    return this._recordPromise;
   }
 
   _openFile(fileName) {
@@ -194,8 +192,19 @@ class IcecastMetadataRecorder {
       if (e.code !== "EEXIST") throw e;
     }
 
-    this._fileNames.push(fileName);
-    return fs.createWriteStream(fileName);
+    const file = fs.createWriteStream(fileName);
+
+    this._audioFilePromise = new Promise(
+      (resolve) => (this._audioResolve = resolve)
+    );
+    file.on("ready", () => {
+      this._fileNames.push(fileName);
+    });
+    file.on("close", () => {
+      this._audioResolve();
+    });
+
+    return file;
   }
 
   _closeFile(file) {

@@ -81,6 +81,7 @@ const signalHandler = (signal) => {
 const errorHandler = () => {
   runningInstances--;
   if (runningInstances === 0) {
+    console.error("All streams have failed, exiting.");
     process.exit(1);
   }
 };
@@ -104,10 +105,11 @@ const main = () => {
 
   recorderInstances.forEach((recorder) => {
     runningInstances++;
-    recorder.record().catch((e) => {
+    recorder.errorHandler = (e) => {
       console.error("Failed to record:", recorder.endpoint, e.message);
       errorHandler();
-    });
+    };
+    recorder.record();
   });
 };
 
