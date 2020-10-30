@@ -29,6 +29,7 @@ export default class MetadataPlayer {
         "sourceopen",
         () => {
           this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
+          this._sourceBuffer.mode = 'sequence';
           resolve();
         },
         { once: true }
@@ -129,10 +130,14 @@ export default class MetadataPlayer {
             let frames = [];
             let offset = 0;
             while (offset < newBuffer.length) {
-              const frame = mp3parser.readFrame(newBufferView, offset);
-              if (!frame) break;
-              frames.push(frame);
-              offset = frame._section.nextFrameIndex;
+              try {
+                const frame = mp3parser.readFrame(newBufferView, offset, true);
+                if (!frame) break;
+                frames.push(frame);
+                offset = frame._section.nextFrameIndex;
+              } catch (e) {
+                break;
+              }
             }
 
             this._streamBuffer = newBuffer.subarray(offset);
@@ -141,7 +146,7 @@ export default class MetadataPlayer {
               ...ISOBMFF.getMdat(newBuffer.subarray(0, offset)),
             ]);
 
-            await this._appendSourceBuffer(appendBuffer);
+            appendBuffer.length && await this._appendSourceBuffer(appendBuffer);
           },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(
