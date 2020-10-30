@@ -1,5 +1,8 @@
+import mp3parser from "mp3-parser";
+import MetadataBuffer from "./metadata-js/MetadataBuffer";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
+import ISOBMFF from "./ISOBMFF";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -8,6 +11,7 @@ export default class MetadataPlayer {
     });
     this._audioElement = new Audio();
     this._onMetadataUpdate = onMetadataUpdate;
+    this._streamBuffer = new Uint8Array(0);
 
     this._playing = false;
   }
@@ -68,6 +72,32 @@ export default class MetadataPlayer {
     });
   }
 
+  async checkMediaSource(res) {
+    const mimeType = res.headers.get("content-type");
+
+    if (MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')) {
+      await this._createMediaSource('audio/mp4; codecs="mp3"');
+      return this._streamPromise;
+    } else {
+      throw new Error(
+        `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
+      );
+    }
+  }
+
+  download(bytes) {
+    const a = window.document.createElement("a");
+
+    a.href = window.URL.createObjectURL(
+      new Blob([bytes], { type: "application/octet-stream" })
+    );
+    a.download = "download.mp4";
+
+    // Append anchor to body.
+    document.body.appendChild(a);
+    a.click();
+  }
+
   play(endpoint, icyMetaInt) {
     if (this._playing) {
       this.stop();
@@ -76,27 +106,43 @@ export default class MetadataPlayer {
     this._playing = true;
     this._controller = new AbortController();
 
-    const streamPromise = this.fetchStream(endpoint);
+    this._streamPromise = this.fetchStream(endpoint);
 
-    Promise.race([this.fetchMimeType(endpoint), streamPromise])
-      .then(async (res) => {
-        const mimeType = res.headers.get("content-type");
-
-        if (MediaSource.isTypeSupported(mimeType)) {
-          await this._createMediaSource(mimeType);
-          return streamPromise;
-        } else {
-          throw new Error(
-            `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
-          );
-        }
-      })
+    Promise.race([this.fetchMimeType(endpoint), this._streamPromise])
+      .then(this.checkMediaSource.bind(this))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
+        await this._appendSourceBuffer(ISOBMFF.moov);
+
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
-          onStream: ({ stream }) => this._appendSourceBuffer(stream),
+          onStream: async ({ stream }) => {
+            const newBuffer = new Uint8Array(
+              this._streamBuffer.length + stream.length
+            );
+            newBuffer.set(this._streamBuffer);
+            newBuffer.set(stream, this._streamBuffer.length);
+
+            const newBufferView = new DataView(newBuffer.buffer);
+
+            let frames = [];
+            let offset = 0;
+            while (offset < newBuffer.length) {
+              const frame = mp3parser.readFrame(newBufferView, offset);
+              if (!frame) break;
+              frames.push(frame);
+              offset = frame._section.nextFrameIndex;
+            }
+
+            this._streamBuffer = newBuffer.subarray(offset);
+            const appendBuffer = new Uint8Array([
+              ...ISOBMFF.getMoof(frames),
+              ...ISOBMFF.getMdat(newBuffer.subarray(0, offset)),
+            ]);
+
+            await this._appendSourceBuffer(appendBuffer);
+          },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(
               value,
@@ -108,13 +154,13 @@ export default class MetadataPlayer {
 
         for await (const stream of icecast.asyncIterator) {
         }
-      })
-      .catch((e) => {
+      });
+    /*.catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });
+      });*/
   }
 
   stop() {

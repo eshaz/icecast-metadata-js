@@ -31,6 +31,9 @@ export default class IcecastReadableStream extends ReadableStream {
    */
   constructor(response, { icyMetaInt, onStream = noOp, onMetadata }) {
     const readerIterator = IcecastReadableStream.asyncIterator(response.body);
+    const setSize = (size) => {
+      this.size = size;
+    };
 
     super({
       async start(controller) {
@@ -45,6 +48,7 @@ export default class IcecastReadableStream extends ReadableStream {
         });
 
         for await (const chunk of readerIterator) {
+          setSize(chunk.length);
           for await (let i of icecast.asyncIterator(chunk)) {
           }
         }
@@ -60,6 +64,14 @@ export default class IcecastReadableStream extends ReadableStream {
    */
   get asyncIterator() {
     return IcecastReadableStream.asyncIterator(this);
+  }
+
+  set size(size) {
+    this._size = size;
+  }
+
+  get size() {
+    return this._size;
   }
 
   /**
