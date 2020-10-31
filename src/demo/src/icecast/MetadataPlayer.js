@@ -16,6 +16,8 @@ export default class MetadataPlayer {
     this._playing = false;
   }
 
+  static BUFFER_LENGTH = 5;
+
   get playing() {
     return this._playing;
   }
@@ -46,12 +48,37 @@ export default class MetadataPlayer {
         .catch(() => {});
   }
 
-  async _appendSourceBuffer(chunk) {
-    this._sourceBuffer.appendBuffer(chunk);
-
+  async _waitForSourceBuffer() {
     return new Promise((resolve) => {
       this._sourceBuffer.addEventListener("updateend", resolve, { once: true });
     });
+  }
+
+  async _appendSourceBuffer(chunk) {
+    this._sourceBuffer.appendBuffer(chunk);
+    await this._waitForSourceBuffer();
+
+    let start, end;
+    if (this._sourceBuffer.buffered.length) {
+      start = this._sourceBuffer.buffered.start(0);
+      end = this._sourceBuffer.buffered.end(0);
+    }
+
+    console.log(
+      this._audioElement.currentTime,
+      this._sourceBuffer.timestampOffset,
+      start,
+      end
+    );
+
+    if (this._audioElement.currentTime - MetadataPlayer.BUFFER_LENGTH > 0) {
+      this._sourceBuffer.remove(
+        0,
+        this._sourceBuffer.timestampOffset - MetadataPlayer.BUFFER_LENGTH
+      );
+
+      await this._waitForSourceBuffer();
+    }
   }
 
   async fetchMimeType(endpoint) {
@@ -144,13 +171,16 @@ export default class MetadataPlayer {
 
             if (frames.length) {
               const appendBuffer = new Uint8Array([
+                ...ISOBMFF.header,
                 ...ISOBMFF.wrap(
                   frames.map((frame) => frame._section.byteLength),
                   newBuffer.subarray(0, offset)
                 ),
               ]);
 
-              //this.download(appendBuffer);
+              //this.download(newBuffer.subarray(0, offset));
+
+              // await new Promise(() => {})
 
               await this._appendSourceBuffer(appendBuffer);
             }
