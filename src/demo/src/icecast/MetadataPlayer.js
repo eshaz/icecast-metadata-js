@@ -2,7 +2,7 @@ import mp3parser from "mp3-parser";
 import MetadataBuffer from "./metadata-js/MetadataBuffer";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
-import ISOBMFF from "./ISOBMFF";
+import ISOBMFF from "../isobmff/ISOBMFF";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -29,7 +29,7 @@ export default class MetadataPlayer {
         "sourceopen",
         () => {
           this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
-          this._sourceBuffer.mode = 'sequence';
+          this._sourceBuffer.mode = "sequence";
           resolve();
         },
         { once: true }
@@ -114,7 +114,7 @@ export default class MetadataPlayer {
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
-        await this._appendSourceBuffer(ISOBMFF.moov);
+        await this._appendSourceBuffer(ISOBMFF.header);
 
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
@@ -141,12 +141,19 @@ export default class MetadataPlayer {
             }
 
             this._streamBuffer = newBuffer.subarray(offset);
-            const appendBuffer = new Uint8Array([
-              ...ISOBMFF.getMoof(frames),
-              ...ISOBMFF.getMdat(newBuffer.subarray(0, offset)),
-            ]);
 
-            appendBuffer.length && await this._appendSourceBuffer(appendBuffer);
+            if (frames.length) {
+              const appendBuffer = new Uint8Array([
+                ...ISOBMFF.wrap(
+                  frames.map((frame) => frame._section.byteLength),
+                  newBuffer.subarray(0, offset)
+                ),
+              ]);
+
+              //this.download(appendBuffer);
+
+              await this._appendSourceBuffer(appendBuffer);
+            }
           },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(

@@ -1,49 +1,12 @@
+import Box from "./Box";
+
 export default class ISOBMFF {
-  static trun = Uint8Array.from([0x74, 0x72, 0x75, 0x6e]);
-  static traf = Uint8Array.from([0x74, 0x72, 0x61, 0x66]);
-  static moof = Uint8Array.from([0x6d, 0x6f, 0x6f, 0x66]);
-  static mfhd = Uint8Array.from([0x6d, 0x66, 0x68, 0x64]);
-  static moov = Uint8Array.from([
-    0x00,
-    0x00,
-    0x00,
-    0x20,
-    0x66,
-    0x74,
-    0x79,
-    0x70,
-    0x69,
-    0x73,
-    0x6f,
-    0x6d,
-    0x00,
-    0x00,
-    0x02,
-    0x00,
-    0x69,
-    0x73,
-    0x6f,
-    0x6d,
-    0x69,
-    0x73,
-    0x6f,
-    0x32,
-    0x69,
-    0x73,
-    0x6f,
-    0x36,
-    0x6d,
-    0x70,
-    0x34,
-    0x31,
-    0x00,
-    0x00,
-    0x02,
-    0x9f,
-    0x6d,
-    0x6f,
-    0x6f,
-    0x76,
+  /* prettier-ignore */
+  static ftyp = [0x69,0x73,0x6F,0x6D,0x00,0x00,0x02,0x00,0x69,0x73,0x6F,0x6D,0x69,0x73,0x6F,0x32,0x69,0x73,0x6F,0x36,0x6D,0x70,0x34,0x31];
+  /* prettier-ignore */
+  static traf = [0x00,0x00,0x00,0x24,0x74,0x66,0x68,0x64,0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0xBF,0x00,0x00,0x04,0x80,0x00,0x00,0x02,0x72,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x14,0x74,0x66,0x64,0x74,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00];
+  static mfhd = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
+  static moov = [
     0x00,
     0x00,
     0x00,
@@ -707,20 +670,9 @@ export default class ISOBMFF {
     0x31,
     0x30,
     0x30,
-  ]);
+  ];
 
-  constructor() {
-    /* prettier-ignore */
-
-    /*
-        const moof = new boxParser.Box("moof");
-        const traf = moof.add("traf");
-        traf.add("tftd")
-        const trun = moof.add("trun");
-        trun.set("flags", 0x01);
-*/
-
-    /*
+  /*
         ftyp file-type
           major_brand / compatible_brand -> must be something user agent supports
         moov
@@ -738,7 +690,6 @@ export default class ISOBMFF {
             data-offset-present (must be set to true)
         mdat
         */
-  }
 
   static getUint32(number) {
     const lengthBytes = new Uint8Array(4);
@@ -746,51 +697,40 @@ export default class ISOBMFF {
     return lengthBytes;
   }
 
-  static getMoof(frames) {
-    /* prettier-ignore */
-    const mfhd = Uint8Array.from([0x00,0x00,0x00,0x10,...ISOBMFF.mfhd,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01]);
-    /* prettier-ignore */
-    const traf = Uint8Array.from([...ISOBMFF.traf,0x00,0x00,0x00,0x24,0x74,0x66,0x68,0x64,0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0xBF,0x00,0x00,0x04,0x80,0x00,0x00,0x02,0x72,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x14,0x74,0x66,0x64,0x74,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]);
-    /*
-     * moof length
-     * moof
-     * -- trun length
-     * -- trun
-     * -- # samples
-     * -- data offset
-     * -- samples
-     */
+  static get header() {
+    const ftyp = new Box("ftyp");
+    ftyp.appendBytes(ISOBMFF.ftyp);
 
-    const samples = frames.reduce(
-      (acc, { _section }) => [
-        ...acc,
-        ...ISOBMFF.getUint32(_section.byteLength),
-      ],
-      []
-    );
+    const moov = new Box("moov");
+    moov.appendBytes(ISOBMFF.moov);
 
-    const trunLength = 20 + frames.length * 4;
-    const trafLength = 4 + traf.length + trunLength;
-    const moofLength = 8 + mfhd.length + trafLength;
-    const dataOffset = ISOBMFF.getUint32(moofLength + 8);
+    return Uint8Array.from([...ftyp.contents, ...moov.contents]);
+  }
 
-    const trun = Uint8Array.from([
-      ...ISOBMFF.trun, // 4 bytes
-      ...[0x00, 0x00, 0x02, 0x01], // flags 4 bytes
-      ...ISOBMFF.getUint32(frames.length), // 4 bytes
-      ...dataOffset, // 4 bytes
-      ...samples,
-    ]);
+  static wrap(samples, data) {
+    const moof = new Box("moof");
+    const mfhd = new Box("mfhd");
+    mfhd.appendBytes(ISOBMFF.mfhd);
+    moof.addBox(mfhd);
 
-    return Uint8Array.from([
-      ...ISOBMFF.getUint32(moofLength),
-      ...ISOBMFF.moof,
-      ...mfhd,
-      ...ISOBMFF.getUint32(trafLength),
-      ...traf,
-      ...ISOBMFF.getUint32(trunLength),
-      ...trun,
-    ]);
+    const traf = new Box("traf");
+    traf.appendBytes(ISOBMFF.traf);
+
+    const sampleArray = samples.flatMap((sample) => [...Box.getUint32(sample)]);
+    const trun = new Box("trun");
+
+    moof.addBox(traf);
+    traf.addBox(trun);
+
+    trun.appendBytes([0x00, 0x00, 0x02, 0x01]); // flags
+    trun.appendBytes(ISOBMFF.getUint32(samples.length)); // number of samples
+    trun.appendBytes(sampleArray);
+    trun.insertBytes(Box.getUint32(moof.length + 12), 8); // data offset (moof length + mdat length + mdat)
+
+    const mdat = new Box("mdat");
+    mdat.appendBytes(data);
+
+    return Uint8Array.from([...moof.contents, ...mdat.contents]);
   }
 
   static getMdat(data) {
