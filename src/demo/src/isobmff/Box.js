@@ -1,13 +1,27 @@
+/**
+ * @description Generic Box for ISOBMFF
+ * @param {string} name Name of the box (i.e. 'moov', 'moof', 'traf')
+ * @param {object} params Object containing contents or boxes
+ * @param {Uint8Array} [params.contents] Array of bytes to insert into this box
+ * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
+ */
 export default class Box {
-  constructor(name) {
-    this._name = name;
-    this._contents = Uint8Array.from(Box.getName(name));
-    this._boxes = [];
+  constructor(name, { contents = [], boxes = [] } = {}) {
+    this._contents = Uint8Array.from([
+      ...Box.stringToU8intArray(name),
+      ...contents,
+    ]);
+    this._boxes = boxes;
   }
 
   static LENGTH_SIZE = 4;
 
-  static getName(name) {
+  /**
+   * @description Converts a string to a byte array
+   * @param {string} name String to convert
+   * @returns {Uint8Array}
+   */
+  static stringToU8intArray(name) {
     const array = [];
     for (const char of name) {
       array.push(char.charCodeAt(0));
@@ -15,12 +29,20 @@ export default class Box {
     return Uint8Array.from(array);
   }
 
+  /**
+   * @description Converts a JavaScript number to Uint32
+   * @param {number} number Number to convert
+   * @returns {Uint32}
+   */
   static getUint32(number) {
     const bytes = new Uint8Array(4);
     new DataView(bytes.buffer).setUint32(0, number, false);
     return bytes;
   }
 
+  /**
+   * @returns {number} Total length of this box and all contents
+   */
   get length() {
     return this._boxes.reduce(
       (acc, box) => acc + box.length,
@@ -28,6 +50,9 @@ export default class Box {
     );
   }
 
+  /**
+   * @returns {Uint8Array} Contents of this box
+   */
   get contents() {
     const contents = [
       ...this._contents,
@@ -40,6 +65,10 @@ export default class Box {
     ]);
   }
 
+  /**
+   * @description Adds a Box to this box
+   * @param {Box} box Box to add
+   */
   addBox(box) {
     if (box.constructor !== Box) {
       console.error("Only an object of type Box can be appended");
@@ -49,8 +78,13 @@ export default class Box {
     this._boxes.push(box);
   }
 
-  insertBytes(data, idx) {
-    const insertOffset = idx + 4;
+  /**
+   * @description Inserts bytes into the contents of this box
+   * @param {Uint8Array} data Bytes to insert
+   * @param {number} index Position to insert bytes
+   */
+  insertBytes(data, index) {
+    const insertOffset = index + 4;
     this._contents = Uint8Array.from([
       ...this._contents.subarray(0, insertOffset),
       ...data,
@@ -58,6 +92,10 @@ export default class Box {
     ]);
   }
 
+  /**
+   * @description Appends data to the end of the contents of this box
+   * @param {Uint8Array} data Bytes to append
+   */
   appendBytes(data) {
     this._contents = Uint8Array.from([...this._contents, ...data]);
   }

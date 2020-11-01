@@ -1,8 +1,7 @@
 import mp3parser from "mp3-parser";
-import MetadataBuffer from "./metadata-js/MetadataBuffer";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
-import ISOBMFF from "../isobmff/ISOBMFF";
+import FragmentedISOBMFFBuilder from "../isobmff/FragmentedISOBMFFBuilder";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -15,8 +14,6 @@ export default class MetadataPlayer {
 
     this._playing = false;
   }
-
-  static BUFFER_LENGTH = 5;
 
   get playing() {
     return this._playing;
@@ -58,24 +55,8 @@ export default class MetadataPlayer {
     this._sourceBuffer.appendBuffer(chunk);
     await this._waitForSourceBuffer();
 
-    let start, end;
-    if (this._sourceBuffer.buffered.length) {
-      start = this._sourceBuffer.buffered.start(0);
-      end = this._sourceBuffer.buffered.end(0);
-    }
-
-    console.log(
-      this._audioElement.currentTime,
-      this._sourceBuffer.timestampOffset,
-      start,
-      end
-    );
-
-    if (this._audioElement.currentTime - MetadataPlayer.BUFFER_LENGTH > 0) {
-      this._sourceBuffer.remove(
-        0,
-        this._sourceBuffer.timestampOffset - MetadataPlayer.BUFFER_LENGTH
-      );
+    if (this._audioElement.currentTime > 0) {
+      this._sourceBuffer.remove(0, this._audioElement.currentTime);
 
       await this._waitForSourceBuffer();
     }
@@ -103,14 +84,20 @@ export default class MetadataPlayer {
   async checkMediaSource(res) {
     const mimeType = res.headers.get("content-type");
 
-    if (MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')) {
+    if (MediaSource.isTypeSupported(mimeType)) {
+      await this._createMediaSource(mimeType);
+    } else if (
+      mimeType === "audio/mpeg" &&
+      MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
+    ) {
       await this._createMediaSource('audio/mp4; codecs="mp3"');
-      return this._streamPromise;
     } else {
       throw new Error(
         `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
       );
     }
+
+    return this._streamPromise;
   }
 
   download(bytes) {
@@ -137,11 +124,11 @@ export default class MetadataPlayer {
     this._streamPromise = this.fetchStream(endpoint);
 
     Promise.race([this.fetchMimeType(endpoint), this._streamPromise])
-      .then(this.checkMediaSource.bind(this))
+      .then((res) => this.checkMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
-        await this._appendSourceBuffer(ISOBMFF.header);
+        //await this._appendSourceBuffer(FragmentedISOBMFFBuilder.header);
 
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
@@ -171,19 +158,21 @@ export default class MetadataPlayer {
 
             if (frames.length) {
               const appendBuffer = new Uint8Array([
-                ...ISOBMFF.header,
-                ...ISOBMFF.wrap(
+                ...FragmentedISOBMFFBuilder.mp3MovieBox,
+                ...FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
                   frames.map((frame) => frame._section.byteLength),
                   newBuffer.subarray(0, offset)
                 ),
               ]);
 
-              //this.download(newBuffer.subarray(0, offset));
+              //this.download(appendBuffer);
 
-              // await new Promise(() => {})
+              //await new Promise(() => {})
 
               await this._appendSourceBuffer(appendBuffer);
             }
+
+            //await this._appendSourceBuffer(stream);
           },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(

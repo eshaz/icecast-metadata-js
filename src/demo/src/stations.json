@@ -3,7 +3,7 @@
     "name": "DSMRad.io ISICS All",
     "description": "Des Moines IA, Police Scanner",
     "link": "https://dsmrad.io",
-    "endpoint": "http://localhost:8000/stream"
+    "endpoint": "https://dsmrad.io/stream/isics-all"
   },
   {
     "name": "DSMRad.io SARA All",
