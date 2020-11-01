@@ -19,13 +19,12 @@ export default class FragmentedMPEG {
     newBuffer.set(this._partialFrame);
     newBuffer.set(mpegData, this._partialFrame.length);
 
-    let offset = 0,
-      frame = MP3Parser.readFrame(newBuffer, offset);
+    let { offset, frame } = MP3Parser.readFrame(newBuffer);
 
-    while (frame) {
+    while (frame && frame.isComplete) {
       this._frames.push(frame.data);
       offset += frame.data.length;
-      frame = MP3Parser.readFrame(newBuffer, offset);
+      frame = MP3Parser.readFrame(newBuffer, offset).frame;
     }
 
     this._partialFrame = newBuffer.subarray(offset);

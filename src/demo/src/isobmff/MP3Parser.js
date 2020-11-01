@@ -25,22 +25,34 @@ export default class MP3Parser {
   //
   // Read header of frame located at `offset` of the Uint8Array `buffer`. Returns null in the event
   //  that no frame header is found at `offset`
+
   static readFrame(buffer, offset = 0) {
-    // There should be more than 4 octets ahead for a header
-    if (offset + 4 > buffer.length) {
-      return null;
+    let frame = null;
+
+    while (!frame && offset + 4 < buffer.length) {
+      frame = Frame.getFrame(buffer.subarray(offset));
+      offset++;
     }
 
-    const frame = new Frame(buffer.subarray(offset));
+    offset--;
 
-    return frame.isComplete ? frame : null;
+    return {
+      offset,
+      frame,
+    };
   }
 }
 
 class Frame {
-  constructor(buffer) {
-    this._header = new Header(buffer);
-    this._data = buffer.subarray(0, this._header.frameByteLength);
+  static getFrame(buffer) {
+    const header = Header.getHeader(buffer);
+
+    return header ? new Frame(buffer, header) : null;
+  }
+
+  constructor(buffer, header) {
+    this._header = header;
+    this._data = buffer.subarray(0, header.frameByteLength);
   }
 
   get header() {
@@ -206,6 +218,11 @@ class Header {
       10: Header.v2l2Bitrates,
       11: Header.v2l1Bitrates,
     },
+    "00": {
+      "01": Header.v2l3Bitrates,
+      10: Header.v2l2Bitrates,
+      11: Header.v2l1Bitrates,
+    },
   };
 
   static samplingRateMap = {
@@ -227,7 +244,7 @@ class Header {
   };
 
   static sampleLengthMap = {
-    "01": Header.v2SampleLengths,
+    "00": Header.v2SampleLengths,
     10: Header.v2SampleLengths,
     11: Header.v1SampleLengths,
   };
@@ -246,16 +263,24 @@ class Header {
     return b.join("");
   }
 
-  constructor(buffer) {
-    this._header = this._buildHeader(buffer);
+  get values() {
+    return this._values;
   }
 
-  get header() {
-    return this._header;
+  set values(values) {
+    this._values = values;
   }
 
-  _buildHeader(buffer) {
+  static getHeader(buffer) {
+    const header = new Header();
+    header.values = Header._buildHeader(buffer);
+
+    return header.values ? header : null;
+  }
+
+  static _buildHeader(buffer) {
     // Header's first (out of four) octet: `11111111`: Frame sync (all bits must be set)
+
     const b1 = buffer[0];
     if (b1 !== 255) {
       return null;
@@ -339,17 +364,17 @@ class Header {
   //  Based on [magic formula](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
   get frameByteLength() {
     const sampleLength =
-      Header.sampleLengthMap[this.header.mpegAudioVersionBits][
-        this.header.layerDescriptionBits
+      Header.sampleLengthMap[this._values.mpegAudioVersionBits][
+        this._values.layerDescriptionBits
       ];
-    const paddingSize = this.header.framePadding
-      ? this.header.layerVersion === "11"
+    const paddingSize = this._values.framePadding
+      ? this._values.layerVersion === "11"
         ? 4
         : 1
       : 0;
-    const byteRate = (this.header.bitrate * 1000) / 8;
+    const byteRate = (this._values.bitrate * 1000) / 8;
     return Math.floor(
-      (sampleLength * byteRate) / this.header.samplingRate + paddingSize
+      (sampleLength * byteRate) / this._values.samplingRate + paddingSize
     );
   }
 }
