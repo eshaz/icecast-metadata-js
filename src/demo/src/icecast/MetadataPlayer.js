@@ -145,13 +145,13 @@ export default class MetadataPlayer {
 
         for await (const stream of icecast.asyncIterator) {
         }
-      })
-      .catch((e) => {
+      });
+    /*.catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });
+      });*/
   }
 
   stop() {

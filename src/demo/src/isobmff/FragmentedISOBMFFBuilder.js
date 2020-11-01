@@ -79,17 +79,16 @@ export default class FragmentedISOBMFFBuilder {
 
   /**
    * @description Wraps MPEG frames into a Movie Fragment
-   * @param {Array<number>} samples Array of the byte lengths of each MPEG frame
-   * @param {*} data MPEG frames to contain in this Movie Fragment
+   * @param {Array<Uint8Array>} frames MPEG frames to contain in this Movie Fragment
    * @returns {Uint8Array} Movie Fragment containing the MPEG frames
    */
-  static wrapMp3InMovieFragment(samples, data) {
+  static wrapMp3InMovieFragment(frames) {
     const trun = new Box("trun", {
       /* prettier-ignore */
       contents: [
         0x00,0x00,0x02,0x01, //flags
-        ...Box.getUint32(samples.length), // number of samples
-        ...samples.flatMap((sample) => [...Box.getUint32(sample)]), // samples lengths
+        ...Box.getUint32(frames.length), // number of samples
+        ...frames.flatMap((frame) => [...Box.getUint32(frame.length)]), // samples lengths
       ],
     });
 
@@ -103,7 +102,7 @@ export default class FragmentedISOBMFFBuilder {
               new Box("tfhd", {
                 /* prettier-ignore */
                 contents: [0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0xBF,0x00,0x00,0x04,0x80,
-                  ...Box.getUint32(samples[0]), // default sample size
+                  ...Box.getUint32(frames[0].length), // default sample size
                   0x02,0x00,0x00,0x00],
               }),
               trun,
@@ -112,7 +111,7 @@ export default class FragmentedISOBMFFBuilder {
         ],
       }),
       new Box("mdat", {
-        contents: data,
+        contents: frames.flatMap((frame) => [...frame]),
       }),
     ];
 
