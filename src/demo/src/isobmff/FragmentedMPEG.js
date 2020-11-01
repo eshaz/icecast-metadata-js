@@ -27,12 +27,12 @@ export default class FragmentedMPEG {
       offset = 0,
       frame;
 
-    while (offset + nextFrame + 32 <= newBuffer.length) {
-      frame = mp3parser.readFrame(newBufferView, offset);
-      if (frame && frame._section.byteLength <= newBuffer.length) {
+    while (offset + nextFrame + 4 <= newBuffer.length) {
+      frame = mp3parser.readFrame(newBufferView, offset, true);
+      if (frame) {
         nextFrame = frame._section.byteLength;
-        this._frames.push(newBuffer.subarray(offset, offset + nextFrame));
-        offset += nextFrame;
+        this._frames.push(newBuffer.subarray(offset, frame._section.nextFrameIndex));
+        offset = frame._section.nextFrameIndex;
       } else {
         break;
       }
