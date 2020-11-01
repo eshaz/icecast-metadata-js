@@ -1,4 +1,5 @@
-import mp3parser from "mp3-parser";
+// import mp3parser from "mp3-parser";
+import MP3Parser from "./MP3Parser";
 import FragmentedISOBMFFBuilder from "./FragmentedISOBMFFBuilder";
 
 export default class FragmentedMPEG {
@@ -18,24 +19,13 @@ export default class FragmentedMPEG {
     newBuffer.set(this._partialFrame);
     newBuffer.set(mpegData, this._partialFrame.length);
 
-    const newBufferView = new DataView(newBuffer.buffer);
+    let offset = 0,
+      frame = MP3Parser.readFrame(newBuffer, offset);
 
-    // loop through the buffer until the
-    // next index + current frame length is greater than buffer length
-
-    let nextFrame = 0,
-      offset = 0,
-      frame;
-
-    while (offset + nextFrame + 4 <= newBuffer.length) {
-      frame = mp3parser.readFrame(newBufferView, offset, true);
-      if (frame) {
-        nextFrame = frame._section.byteLength;
-        this._frames.push(newBuffer.subarray(offset, frame._section.nextFrameIndex));
-        offset = frame._section.nextFrameIndex;
-      } else {
-        break;
-      }
+    while (frame) {
+      this._frames.push(frame.data);
+      offset += frame.data.length;
+      frame = MP3Parser.readFrame(newBuffer, offset);
     }
 
     this._partialFrame = newBuffer.subarray(offset);
