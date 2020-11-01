@@ -21,18 +21,23 @@ SOFTWARE.
 */
 
 export default class MP3Parser {
-  // ### Read a Frame Header
-  //
-  // Read header of frame located at `offset` of the Uint8Array `buffer`. Returns null in the event
-  //  that no frame header is found at `offset`
-
-  static readFrame(buffer, offset = 0) {
+  /**
+   * @description Finds and returns an MPEG frame. Frame will be null if no frame was found in the data
+   * @param {Uint8Array} data MPEG data
+   * @param {number} offset Offset where frame should be
+   * @returns {object} Object containing the actual offset and frame.
+   */
+  static readFrame(data, offset = 0) {
     let frame = null;
 
-    while (!frame && offset + 4 < buffer.length) {
-      frame = Frame.getFrame(buffer.subarray(offset));
+    let loopCount = 0;
+    while (!frame && offset + 4 < data.length) {
+      frame = Frame.getFrame(data.subarray(offset));
+      loopCount++;
       offset++;
     }
+
+    if (!frame && loopCount > 0) console.log("gave up searching", loopCount);
 
     offset--;
 
@@ -165,21 +170,21 @@ class Header {
   };
   static v2l3Bitrates = Header.v2l2Bitrates;
 
-  static v1SamplingRates = {
+  static v1SampleRates = {
     "00": 44100,
     "01": 48000,
     10: 32000,
     11: "reserved",
   };
 
-  static v2SamplingRates = {
+  static v2SampleRates = {
     "00": 22050,
     "01": 24000,
     10: 16000,
     11: "reserved",
   };
 
-  static v25SamplingRates = {
+  static v25SampleRates = {
     "00": 11025,
     "01": 12000,
     10: 8000,
@@ -225,10 +230,10 @@ class Header {
     },
   };
 
-  static samplingRateMap = {
-    "00": Header.v25SamplingRates,
-    10: Header.v2SamplingRates,
-    11: Header.v1SamplingRates,
+  static sampleRateMap = {
+    "00": Header.v25SampleRates,
+    10: Header.v2SampleRates,
+    11: Header.v1SampleRates,
   };
 
   static v1SampleLengths = {
@@ -321,7 +326,7 @@ class Header {
     // Header's third (out of four) octet: `EEEEFFGH`
     //
     // * `EEEE....`: Bitrate index. 1111 is invalid, everything else is accepted
-    // * `....FF..`: Sampling rate, 00=44100, 01=48000, 10=32000, 11=reserved
+    // * `....FF..`: Sample rate, 00=44100, 01=48000, 10=32000, 11=reserved
     // * `......G.`: Padding bit, 0=frame not padded, 1=frame padded
     // * `.......H`: Private bit. This is informative
     let b3 = buffer[2];
@@ -333,10 +338,10 @@ class Header {
       return null;
     }
 
-    header.samplingRateBits = b3.substr(4, 2);
-    header.samplingRate =
-      Header.samplingRateMap[mpegVersion][header.samplingRateBits];
-    if (header.samplingRate === "reserved") {
+    header.sampleRateBits = b3.substr(4, 2);
+    header.sampleRate =
+      Header.sampleRateMap[mpegVersion][header.sampleRateBits];
+    if (header.sampleRate === "reserved") {
       return null;
     }
 
@@ -360,7 +365,7 @@ class Header {
     return header;
   }
 
-  // Get the number of bytes in a frame given its `bitrate`, `samplingRate` and `padding`.
+  // Get the number of bytes in a frame given its `bitrate`, `sampleRate` and `padding`.
   //  Based on [magic formula](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
   get frameByteLength() {
     const sampleLength =
@@ -374,7 +379,7 @@ class Header {
       : 0;
     const byteRate = (this._values.bitrate * 1000) / 8;
     return Math.floor(
-      (sampleLength * byteRate) / this._values.samplingRate + paddingSize
+      (sampleLength * byteRate) / this._values.sampleRate + paddingSize
     );
   }
 }

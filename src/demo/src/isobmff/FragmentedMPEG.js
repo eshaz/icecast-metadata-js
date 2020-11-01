@@ -8,8 +8,8 @@ export default class FragmentedMPEG {
     this._partialFrame = new Uint8Array(0);
   }
 
-  get header() {
-    return FragmentedISOBMFFBuilder.mp3MovieBox;
+  getHeader(sampleRate = 44100) {
+    return FragmentedISOBMFFBuilder.getMp3MovieBox({ sampleRate });
   }
 
   getMp4(mpegData) {
@@ -33,7 +33,7 @@ export default class FragmentedMPEG {
       const fragments = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
         this._frames
       );
-      console.log(this._partialFrame.length, this._frames.length);
+      //console.log(this._partialFrame.length, this._frames.length);
       this._frames = [];
       return fragments;
     }
