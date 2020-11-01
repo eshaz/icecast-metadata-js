@@ -1,11 +1,13 @@
-/**
- * @description Generic Box for ISOBMFF
- * @param {string} name Name of the box (i.e. 'moov', 'moof', 'traf')
- * @param {object} params Object containing contents or boxes
- * @param {Uint8Array} [params.contents] Array of bytes to insert into this box
- * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
- */
 export default class Box {
+  static LENGTH_SIZE = 4;
+
+  /**
+   * @description ISO/IEC 14496-12 Part 12 ISO Base Media File Format Box
+   * @param {string} name Name of the box (i.e. 'moov', 'moof', 'traf')
+   * @param {object} params Object containing contents or boxes
+   * @param {Uint8Array} [params.contents] Array of bytes to insert into this box
+   * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
+   */
   constructor(name, { contents = [], boxes = [] } = {}) {
     this._contents = Uint8Array.from([
       ...Box.stringToU8intArray(name),
@@ -13,8 +15,6 @@ export default class Box {
     ]);
     this._boxes = boxes;
   }
-
-  static LENGTH_SIZE = 4;
 
   /**
    * @description Converts a string to a byte array

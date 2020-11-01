@@ -10,7 +10,6 @@ export default class MetadataPlayer {
     });
     this._audioElement = new Audio();
     this._onMetadataUpdate = onMetadataUpdate;
-    this._streamBuffer = new Uint8Array(0);
 
     this._playing = false;
   }
@@ -127,8 +126,9 @@ export default class MetadataPlayer {
       .then((res) => this.checkMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
+        this._streamBuffer = new Uint8Array(0);
 
-        //await this._appendSourceBuffer(FragmentedISOBMFFBuilder.header);
+        await this._appendSourceBuffer(FragmentedISOBMFFBuilder.mp3MovieBox);
 
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
@@ -154,25 +154,18 @@ export default class MetadataPlayer {
               }
             }
 
-            this._streamBuffer = newBuffer.subarray(offset);
-
-            if (frames.length) {
-              const appendBuffer = new Uint8Array([
-                ...FragmentedISOBMFFBuilder.mp3MovieBox,
-                ...FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
-                  frames.map((frame) => frame._section.byteLength),
-                  newBuffer.subarray(0, offset)
-                ),
-              ]);
-
-              //this.download(appendBuffer);
-
-              //await new Promise(() => {})
+            if (frames.length > 1) {
+              this._streamBuffer = newBuffer.subarray(offset);
+              
+              const appendBuffer = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
+                frames.map((frame) => frame._section.byteLength),
+                newBuffer.subarray(0, offset)
+              );
 
               await this._appendSourceBuffer(appendBuffer);
+            } else {
+              this._streamBuffer = newBuffer;
             }
-
-            //await this._appendSourceBuffer(stream);
           },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(
@@ -185,13 +178,13 @@ export default class MetadataPlayer {
 
         for await (const stream of icecast.asyncIterator) {
         }
-      });
-    /*.catch((e) => {
+      })
+      .catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });*/
+      });
   }
 
   stop() {
