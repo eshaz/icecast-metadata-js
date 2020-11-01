@@ -1,7 +1,6 @@
-import mp3parser from "mp3-parser";
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
-import FragmentedISOBMFFBuilder from "../isobmff/FragmentedISOBMFFBuilder";
+import FragmentedMPEG from "../isobmff/FragmentedMPEG";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -126,46 +125,14 @@ export default class MetadataPlayer {
       .then((res) => this.checkMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
-        this._streamBuffer = new Uint8Array(0);
+        this._mp3ToMp4 = new FragmentedMPEG();
 
-        await this._appendSourceBuffer(FragmentedISOBMFFBuilder.mp3MovieBox);
+        await this._appendSourceBuffer(this._mp3ToMp4.header);
 
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
           onStream: async ({ stream }) => {
-            const newBuffer = new Uint8Array(
-              this._streamBuffer.length + stream.length
-            );
-            newBuffer.set(this._streamBuffer);
-            newBuffer.set(stream, this._streamBuffer.length);
-
-            const newBufferView = new DataView(newBuffer.buffer);
-
-            let frames = [];
-            let offset = 0;
-            while (offset < newBuffer.length) {
-              try {
-                const frame = mp3parser.readFrame(newBufferView, offset, true);
-                if (!frame) break;
-                frames.push(frame);
-                offset = frame._section.nextFrameIndex;
-              } catch (e) {
-                break;
-              }
-            }
-
-            if (frames.length > 1) {
-              this._streamBuffer = newBuffer.subarray(offset);
-              
-              const appendBuffer = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
-                frames.map((frame) => frame._section.byteLength),
-                newBuffer.subarray(0, offset)
-              );
-
-              await this._appendSourceBuffer(appendBuffer);
-            } else {
-              this._streamBuffer = newBuffer;
-            }
+            await this._appendSourceBuffer(this._mp3ToMp4.getMp4(stream));
           },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(
