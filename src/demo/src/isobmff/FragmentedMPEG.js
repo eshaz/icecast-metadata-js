@@ -19,28 +19,32 @@ export default class FragmentedMPEG {
     newBuffer.set(mpegData, this._partialFrame.length);
 
     const newBufferView = new DataView(newBuffer.buffer);
-    let offset = 0;
 
-    try {
-      for (
-        let frame = mp3parser.readFrame(newBufferView, offset, true);
-        frame;
-        frame = mp3parser.readFrame(newBufferView, offset, true)
-      ) {
-        const nextFrame = frame._section.nextFrameIndex;
-        this._frames.push(newBuffer.subarray(offset, nextFrame));
-        offset = nextFrame;
+    // loop through the buffer until the
+    // next index + current frame length is greater than buffer length
+
+    let nextFrame = 0,
+      offset = 0,
+      frame;
+
+    while (offset + nextFrame + 32 <= newBuffer.length) {
+      frame = mp3parser.readFrame(newBufferView, offset);
+      if (frame && frame._section.byteLength <= newBuffer.length) {
+        nextFrame = frame._section.byteLength;
+        this._frames.push(newBuffer.subarray(offset, offset + nextFrame));
+        offset += nextFrame;
+      } else {
+        break;
       }
-    } catch {}
+    }
 
     this._partialFrame = newBuffer.subarray(offset);
-
-    //console.log(this._partialFrame.length, this._frames.length)
 
     if (this._frames.length > 1) {
       const fragments = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
         this._frames
       );
+      console.log(this._partialFrame.length, this._frames.length);
       this._frames = [];
       return fragments;
     }
