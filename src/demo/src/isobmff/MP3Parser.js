@@ -37,7 +37,7 @@ export default class MP3Parser {
       offset++;
     }
 
-    if (!frame && loopCount > 0) console.log("gave up searching", loopCount);
+    if (loopCount > 0) console.log("searched", loopCount);
 
     offset--;
 
