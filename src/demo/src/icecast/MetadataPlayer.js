@@ -127,8 +127,6 @@ export default class MetadataPlayer {
         this._playPromise = this._audioElement.play();
         this._mp3ToMp4 = new FragmentedMPEG();
 
-        await this._appendSourceBuffer(this._mp3ToMp4.getHeader());
-
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
           onStream: async ({ stream }) => {

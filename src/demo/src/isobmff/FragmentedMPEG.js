@@ -6,14 +6,10 @@ export default class FragmentedMPEG {
     this._frames = [];
     this._totalLength = 0;
     this._partialFrame = [];
-    this._sampleRate = 0;
+    this._movieBoxSent = false;
 
     this._generator = this._generator();
     this._generator.next();
-  }
-
-  getHeader(sampleRate = 44100) {
-    return FragmentedISOBMFFBuilder.getMp3MovieBox({ sampleRate });
   }
 
   next(data) {
@@ -26,7 +22,7 @@ export default class FragmentedMPEG {
     let { frame, offset } = MP3Parser.readFrame(mpegData);
 
     while (frame?.isComplete) {
-      this._frames.push(frame.data);
+      this._frames.push(frame);
       this._totalLength += frame.data.length;
 
       offset += frame.header.frameByteLength;
@@ -43,16 +39,27 @@ export default class FragmentedMPEG {
   }
 
   *_sendReceiveData() {
-    let fragment, mpegData;
+    let payload, mpegData;
 
     if (this._frames.length > 1 && this._totalLength > 1022) {
-      fragment = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(this._frames);
+      payload = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
+        this._frames.map(({ data }) => data)
+      );
+
+      if (!this._movieBoxSent) {
+        this._movieBoxSent = true;
+        payload = Uint8Array.from([
+          ...FragmentedISOBMFFBuilder.getMp3MovieBox(),
+          ...payload,
+        ]);
+      }
+
       this._frames = [];
       this._totalLength = 0;
     }
 
     do {
-      mpegData = yield fragment;
+      mpegData = yield payload;
     } while (!mpegData);
 
     const newData = Uint8Array.from([...this._partialFrame, ...mpegData]);

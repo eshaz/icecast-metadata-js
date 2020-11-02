@@ -8,7 +8,7 @@ export default class FragmentedISOBMFFBuilder {
   /**
    * @returns {Uint8Array} Generic Filetype and Movie Box information for MP3
    */
-  static getMp3MovieBox({ sampleRate }) {
+  static getMp3MovieBox({ sampleRate = 44100 } = {}) {
     const boxes = [
       new Box("ftyp", {
         /* prettier-ignore */
