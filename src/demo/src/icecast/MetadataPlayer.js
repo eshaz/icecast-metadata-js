@@ -132,7 +132,13 @@ export default class MetadataPlayer {
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
           onStream: async ({ stream }) => {
-            await this._appendSourceBuffer(this._mp3ToMp4.getMp4(stream));
+            //console.log(this._mp3ToMp4.next(stream));
+
+            //await new Promise(() => {});
+
+            const { value } = this._mp3ToMp4.next(stream);
+
+            value && (await this._appendSourceBuffer(value));
           },
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(
@@ -145,13 +151,13 @@ export default class MetadataPlayer {
 
         for await (const stream of icecast.asyncIterator) {
         }
-      })
-      .catch((e) => {
+      });
+    /*.catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });
+      });*/
   }
 
   stop() {
