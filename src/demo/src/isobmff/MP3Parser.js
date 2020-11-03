@@ -21,40 +21,52 @@ SOFTWARE.
 */
 
 export default class MP3Parser {
+  constructor() {
+    this._headers = new Map();
+  }
+
+  _getHeader(buffer) {
+    if (buffer.length >= 4) {
+      const key = String.fromCharCode.apply(null, buffer.subarray(0, 4));
+
+      if (this._headers.has(key)) {
+        console.log("getting header from cache");
+        return this._headers.get(key);
+      } else {
+        const headerValues = Header._buildHeader(buffer);
+        if (headerValues) {
+          console.log(headerValues);
+
+          const header = new Header(headerValues);
+          this._headers.set(key, header);
+          return header;
+        }
+      }
+    }
+  }
+
   /**
    * @description Finds and returns an MPEG frame. Frame will be null if no frame was found in the data
    * @param {Uint8Array} data MPEG data
    * @param {number} offset Offset where frame should be
    * @returns {object} Object containing the actual offset and frame.
    */
-  static readFrame(data, offset = 0) {
-    let frame = null;
+  readFrame(data, offset = 0) {
+    let header = this._getHeader(data.subarray(offset));
 
-    let loopCount = 0;
-    while (!frame && offset + 4 < data.length) {
-      frame = Frame.getFrame(data.subarray(offset));
-      loopCount++;
+    while (!header && offset + 4 < data.length) {
       offset++;
+      header = this._getHeader(data.subarray(offset));
     }
-
-    if (loopCount > 0) console.log("searched", loopCount);
-
-    offset--;
 
     return {
       offset,
-      frame,
+      frame: header ? new Frame(data.subarray(offset), header) : null,
     };
   }
 }
 
 class Frame {
-  static getFrame(buffer) {
-    const header = Header.getHeader(buffer);
-
-    return header ? new Frame(buffer, header) : null;
-  }
-
   constructor(buffer, header) {
     this._header = header;
     this._data = buffer.subarray(0, header.frameByteLength);
@@ -268,19 +280,12 @@ class Header {
     return b.join("");
   }
 
+  constructor(headerValues) {
+    this._values = headerValues;
+  }
+
   get values() {
     return this._values;
-  }
-
-  set values(values) {
-    this._values = values;
-  }
-
-  static getHeader(buffer) {
-    const header = new Header();
-    header.values = Header._buildHeader(buffer);
-
-    return header.values ? header : null;
   }
 
   static _buildHeader(buffer) {
