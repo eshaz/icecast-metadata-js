@@ -4,9 +4,7 @@ import FragmentedISOBMFFBuilder from "./FragmentedISOBMFFBuilder";
 export default class FragmentedMPEG {
   constructor() {
     this._frames = [];
-    this._totalLength = 0;
-    this._partialFrame = [];
-    this._movieBoxSent = false;
+    this._mpegData = [];
 
     this._generator = this._generator();
     this._generator.next();
@@ -16,55 +14,62 @@ export default class FragmentedMPEG {
     return this._generator.next(data);
   }
 
-  *_readFrames() {
-    const mpegData = yield* this._sendReceiveData();
-
-    let { frame, offset } = MP3Parser.readFrame(mpegData);
+  _parseFrames() {
+    let { frame, offset } = MP3Parser.readFrame(this._mpegData);
 
     while (frame?.isComplete) {
-      this._frames.push(frame);
-      this._totalLength += frame.data.length;
+      this._frames.push(frame.data);
 
       offset += frame.header.frameByteLength;
-      frame = MP3Parser.readFrame(mpegData, offset).frame;
+      frame = MP3Parser.readFrame(this._mpegData, offset).frame;
     }
 
-    this._partialFrame = mpegData.subarray(offset);
+    this._mpegData = this._mpegData.subarray(offset);
+  }
+
+  _readOrStoreFrames() {
+    if (
+      this._frames.length > 1 &&
+      this._frames.reduce((acc, frame) => acc + frame.length, 0) > 1022
+    ) {
+      const frames = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
+        this._frames
+      );
+
+      this._frames = [];
+      return frames;
+    }
   }
 
   *_generator() {
+    let frames;
+    while (!frames) {
+      frames = yield* this._getFrames();
+    }
+
+    frames = Uint8Array.from([
+      ...FragmentedISOBMFFBuilder.getMp3MovieBox(),
+      ...frames,
+    ]);
+
     while (true) {
-      yield* this._readFrames();
+      frames = yield* this._getFrames(frames);
     }
   }
 
-  *_sendReceiveData() {
-    let payload, mpegData;
+  *_getFrames(frames) {
+    yield* this._sendReceiveData(frames);
+    frames = this._parseFrames();
+    return this._readOrStoreFrames();
+  }
 
-    if (this._frames.length > 1 && this._totalLength > 1022) {
-      payload = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
-        this._frames.map(({ data }) => data)
-      );
+  *_sendReceiveData(frames) {
+    let mpegData = yield frames;
 
-      if (!this._movieBoxSent) {
-        this._movieBoxSent = true;
-        payload = Uint8Array.from([
-          ...FragmentedISOBMFFBuilder.getMp3MovieBox(),
-          ...payload,
-        ]);
-      }
-
-      this._frames = [];
-      this._totalLength = 0;
+    while (!mpegData) {
+      mpegData = yield;
     }
 
-    do {
-      mpegData = yield payload;
-    } while (!mpegData);
-
-    const newData = Uint8Array.from([...this._partialFrame, ...mpegData]);
-    this._partialFrame = [];
-
-    return newData;
+    this._mpegData = Uint8Array.from([...this._mpegData, ...mpegData]);
   }
 }
