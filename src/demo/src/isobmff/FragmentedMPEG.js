@@ -1,4 +1,4 @@
-import MP3Parser from "./MP3Parser";
+import MPEGParser from "./mpeg/MPEGParser";
 import FragmentedISOBMFFBuilder from "./FragmentedISOBMFFBuilder";
 
 export default class FragmentedMPEG {
@@ -6,7 +6,7 @@ export default class FragmentedMPEG {
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor() {
-    this._mp3Parser = new MP3Parser();
+    this._mp3Parser = new MPEGParser();
     this._frames = [];
     this._mpegData = new Uint8Array(0);
 
