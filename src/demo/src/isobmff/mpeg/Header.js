@@ -4,24 +4,6 @@ This class is heavily inspired by https://github.com/biril/mp3-parser.
 
 // http://www.mp3-tech.org/programmer/frame_header.html
 
-/*
-Copyright (c) 2013-2016 Alex Lambiris
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of
-the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
 export default class Header {
   static bitrateMatrix = {
     // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
@@ -56,25 +38,49 @@ export default class Header {
     0b11000000: "Single channel (Mono)",
   };
 
+  static emphasis = {
+    0b00000000: "none",
+    0b00000001: "50/15 ms",
+    0b00000010: "reserved",
+    0b00000011: "CCIT J.17",
+  };
+
+  static layer12ModeExtension = {
+    0b00000000: "bands 4 to 31",
+    0b00010000: "bands 8 to 31",
+    0b00100000: "bands 12 to 31",
+    0b00110000: "bands 16 to 31",
+  };
+
+  static layer3ModeExtension = {
+    0b00000000: "Intensity stereo off, MS stereo off",
+    0b00010000: "Intensity stereo on, MS stereo off",
+    0b00100000: "Intensity stereo off, MS stereo on",
+    0b00110000: "Intensity stereo on, MS stereo on",
+  };
+
   static v1Layers = {
     0b00000000: { description: "reserved" },
     0b00000010: {
       description: "Layer III",
       bitrateIndex: Header.v1Layer3,
-      sampleLength: 1152,
       framePadding: 1,
+      modeExtensions: Header.layer3ModeExtension,
+      sampleLength: 1152,
     },
     0b00000100: {
       description: "Layer II",
       bitrateIndex: Header.v1Layer2,
-      sampleLength: 1152,
       framePadding: 1,
+      modeExtensions: Header.layer12ModeExtension,
+      sampleLength: 1152,
     },
     0b00000110: {
       description: "Layer I",
       bitrateIndex: Header.v1Layer1,
-      sampleLength: 384,
       framePadding: 4,
+      modeExtensions: Header.layer12ModeExtension,
+      sampleLength: 384,
     },
   };
 
@@ -83,20 +89,23 @@ export default class Header {
     0b00000010: {
       description: "Layer III",
       bitrateIndex: Header.v2Layer23,
-      sampleLength: 576,
       framePadding: 1,
+      modeExtensions: Header.layer3ModeExtension,
+      sampleLength: 576,
     },
     0b00000100: {
       description: "Layer II",
       bitrateIndex: Header.v2Layer23,
-      sampleLength: 1152,
       framePadding: 1,
+      modeExtensions: Header.layer12ModeExtension,
+      sampleLength: 1152,
     },
     0b00000110: {
       description: "Layer I",
       bitrateIndex: Header.v2Layer1,
-      sampleLength: 384,
       framePadding: 4,
+      modeExtensions: Header.layer12ModeExtension,
+      sampleLength: 384,
     },
   };
 
@@ -137,15 +146,23 @@ export default class Header {
     },
   };
 
-  constructor(headerValues) {
-    this._values = headerValues;
+  constructor(header) {
+    this._bitrate = header.bitrate;
+    this._channelMode = header.channelMode;
+    this._emphasis = header.emphasis;
+    this._framePadding = header.framePadding;
+    this._isCopyrighted = header.isCopyrighted;
+    this._isOriginal = header.isOriginal;
+    this._isPrivate = header.isPrivate;
+    this._isProtected = header.isProtected;
+    this._layer = header.layer;
+    this._modeExtension = header.modeExtension;
+    this._mpegVersion = header.mpegVersion;
+    this._sampleLength = header.sampleLength;
+    this._sampleRate = header.sampleRate;
   }
 
-  get values() {
-    return this._values;
-  }
-
-  static _buildHeader(buffer) {
+  static getHeader(buffer) {
     // Header's first (out of four) octet: `11111111`: Frame sync (all bits must be set)
     if (buffer[0] ^ 0b11111111) return null;
 
@@ -206,19 +223,28 @@ export default class Header {
     // * `.....L..`: Original
     // * `......MM`: Emphasis
     const channelModeBits = buffer[3] & 0b11000000;
-    header.channelMode = Header.channelModes[channelModeBits];
+    const modeExtensionBits = buffer[3] & 0b00110000;
+    const copyrightBits = buffer[3] & 0b00001000;
+    const originalBits = buffer[3] & 0b00000100;
+    const emphasisBits = buffer[3] & 0b00000011;
 
-    return header;
+    header.channelMode = Header.channelModes[channelModeBits];
+    header.modeExtension = layer.modeExtensions[modeExtensionBits];
+    header.isCopyrighted = !!(copyrightBits >> 3);
+    header.isOriginal = !!(originalBits >> 2);
+
+    header.emphasis = Header.emphasis[emphasisBits];
+    if (header.emphasis === "reserved") return null;
+
+    return new Header(header);
   }
 
   // Get the number of bytes in a frame given its `bitrate`, `sampleRate` and `padding`.
   //  Based on [magic formula](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
   get frameByteLength() {
-    const sampleLength = this._values.sampleLength;
-    const byteRate = (this._values.bitrate * 1000) / 8;
+    const byteRate = (this._bitrate * 1000) / 8;
     return Math.floor(
-      (sampleLength * byteRate) / this._values.sampleRate +
-        this._values.framePadding
+      (this._sampleLength * byteRate) / this._sampleRate + this._framePadding
     );
   }
 }

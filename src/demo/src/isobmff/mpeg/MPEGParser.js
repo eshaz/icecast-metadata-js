@@ -14,11 +14,10 @@ export default class MPEGParser {
         console.log("getting header from cache");
         return this._headers.get(key);
       } else {
-        const headerValues = Header._buildHeader(buffer);
-        if (headerValues) {
-          console.log(headerValues);
+        const header = Header.getHeader(buffer);
+        if (header) {
+          console.log(header);
 
-          const header = new Header(headerValues);
           this._headers.set(key, header);
           return header;
         }
