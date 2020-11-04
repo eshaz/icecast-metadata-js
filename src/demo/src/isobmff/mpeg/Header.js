@@ -1,7 +1,3 @@
-/*
-This class is heavily inspired by https://github.com/biril/mp3-parser.
-*/
-
 // http://www.mp3-tech.org/programmer/frame_header.html
 
 export default class Header {
@@ -88,7 +84,7 @@ export default class Header {
 
   static mpegVersions = {
     0b00000000: {
-      description: "MPEG Version 2.5 (unofficial)",
+      description: "MPEG Version 2.5 (later extension of MPEG 2)",
       layers: "v2",
       sampleRates: {
         0b00000000: 11025,
@@ -137,58 +133,37 @@ export default class Header {
     0b11000000: "Single channel (Mono)",
   };
 
-  constructor(header) {
-    this._bitrate = header.bitrate;
-    this._channelMode = header.channelMode;
-    this._emphasis = header.emphasis;
-    this._framePadding = header.framePadding;
-    this._isCopyrighted = header.isCopyrighted;
-    this._isOriginal = header.isOriginal;
-    this._isPrivate = header.isPrivate;
-    this._isProtected = header.isProtected;
-    this._layer = header.layer;
-    this._modeExtension = header.modeExtension;
-    this._mpegVersion = header.mpegVersion;
-    this._sampleLength = header.sampleLength;
-    this._sampleRate = header.sampleRate;
-  }
-
   static getHeader(buffer) {
-    // Must be at least four bytes. 
+    // Must be at least four bytes.
     if (buffer.length < 4) return null;
-    
-    // Header's first (out of four) octet: `11111111`: Frame sync (all bits must be set)
-    if (buffer[0] ^ 0b11111111) return null;
+
+    // Frame sync (all bits must be set): `11111111|111`:
+    if (buffer[0] !== 0xff || buffer[1] < 0xe0) return null;
 
     // Header's second (out of four) octet: `111xxxxx`
     //
-    // * `111.....`: Rest of frame sync (all bits must be set)
     // * `...BB...`: MPEG Audio version ID (11 -> MPEG Version 1 (ISO/IEC 11172-3))
     // * `.....CC.`: Layer description (01 -> Layer III)
-    // * `.......1`: Protection bit (1 = Not protected)
-    const frameSync = buffer[1] & 0b11100000;
+    // * `.......1`: Protection bit (0 - Protected by CRC (16bit CRC follows header), 1 = Not protected)
     const mpegVersionBits = buffer[1] & 0b00011000;
     const layerBits = buffer[1] & 0b00000110;
     const protectionBit = buffer[1] & 0b00000001;
 
-    // Require the three most significant bits to be `111` (>= 224)
-    if (frameSync !== 0b11100000) return null;
-
     const header = {};
 
+    // Mpeg version (1, 2, 2.5)
     const mpegVersion = Header.mpegVersions[mpegVersionBits];
-    header.mpegVersion = mpegVersion.description;
-    if (header.mpegVersion === "reserved") return null;
+    if (mpegVersion.description === "reserved") return null;
 
-    header.mpegVersion = mpegVersion.description;
-
+    // Layer (I, II, III)
+    if (Header.layers[layerBits].description === "reserved") return null;
     const layer = {
       ...Header.layers[layerBits],
       ...Header.layers[layerBits][mpegVersion.layers],
     };
-    header.layer = layer.description;
-    if (header.layer === "reserved") return null;
 
+    header.mpegVersion = mpegVersion.description;
+    header.layer = layer.description;
     header.sampleLength = layer.sampleLength;
     header.isProtected = !!protectionBit;
 
@@ -236,12 +211,27 @@ export default class Header {
     return new Header(header);
   }
 
-  // Get the number of bytes in a frame given its `bitrate`, `sampleRate` and `padding`.
-  //  Based on [magic formula](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
+  constructor(header) {
+    this._bitrate = header.bitrate;
+    this._channelMode = header.channelMode;
+    this._emphasis = header.emphasis;
+    this._framePadding = header.framePadding;
+    this._isCopyrighted = header.isCopyrighted;
+    this._isOriginal = header.isOriginal;
+    this._isPrivate = header.isPrivate;
+    this._isProtected = header.isProtected;
+    this._layer = header.layer;
+    this._modeExtension = header.modeExtension;
+    this._mpegVersion = header.mpegVersion;
+    this._sampleLength = header.sampleLength;
+    this._sampleRate = header.sampleRate;
+  }
+
+  // http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm
   get frameByteLength() {
-    const byteRate = (this._bitrate * 1000) / 8;
     return Math.floor(
-      (this._sampleLength * byteRate) / this._sampleRate + this._framePadding
+      (125 * this._bitrate * this._sampleLength) / this._sampleRate +
+        this._framePadding
     );
   }
 }
