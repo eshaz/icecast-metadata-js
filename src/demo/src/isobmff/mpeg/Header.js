@@ -22,98 +22,98 @@ SOFTWARE.
 
 export default class Header {
   static v1l1Bitrates = {
-    "0000": "free",
-    "0001": 32,
-    "0010": 64,
-    "0011": 96,
-    "0100": 128,
-    "0101": 160,
-    "0110": 192,
-    "0111": 224,
-    1000: 256,
-    1001: 288,
-    1010: 320,
-    1011: 352,
-    1100: 384,
-    1101: 416,
-    1110: 448,
-    1111: "bad",
+    0b00000000: "free",
+    0b00010000: 32,
+    0b00100000: 64,
+    0b00110000: 96,
+    0b01000000: 128,
+    0b01010000: 160,
+    0b01100000: 192,
+    0b01110000: 224,
+    0b10000000: 256,
+    0b10010000: 288,
+    0b10100000: 320,
+    0b10110000: 352,
+    0b11000000: 384,
+    0b11010000: 416,
+    0b11100000: 448,
+    0b11110000: "bad",
   };
 
   static v1l2Bitrates = {
-    "0000": "free",
-    "0001": 32,
-    "0010": 48,
-    "0011": 56,
-    "0100": 64,
-    "0101": 80,
-    "0110": 96,
-    "0111": 112,
-    1000: 128,
-    1001: 160,
-    1010: 192,
-    1011: 224,
-    1100: 256,
-    1101: 320,
-    1110: 384,
-    1111: "bad",
+    0b00000000: "free",
+    0b00010000: 32,
+    0b00100000: 48,
+    0b00110000: 56,
+    0b01000000: 64,
+    0b01010000: 80,
+    0b01100000: 96,
+    0b01110000: 112,
+    0b10000000: 128,
+    0b10010000: 160,
+    0b10100000: 192,
+    0b10110000: 224,
+    0b11000000: 256,
+    0b11010000: 320,
+    0b11100000: 384,
+    0b11110000: "bad",
   };
 
   static v1l3Bitrates = {
-    "0000": "free",
-    "0001": 32,
-    "0010": 40,
-    "0011": 48,
-    "0100": 56,
-    "0101": 64,
-    "0110": 80,
-    "0111": 96,
-    1000: 112,
-    1001: 128,
-    1010: 160,
-    1011: 192,
-    1100: 224,
-    1101: 256,
-    1110: 320,
-    1111: "bad",
+    0b00000000: "free",
+    0b00010000: 32,
+    0b00100000: 40,
+    0b00110000: 48,
+    0b01000000: 56,
+    0b01010000: 64,
+    0b01100000: 80,
+    0b01110000: 96,
+    0b10000000: 112,
+    0b10010000: 128,
+    0b10100000: 160,
+    0b10110000: 192,
+    0b11000000: 224,
+    0b11010000: 256,
+    0b11100000: 320,
+    0b11110000: "bad",
   };
 
   static v2l1Bitrates = {
-    "0000": "free",
-    "0001": 32,
-    "0010": 48,
-    "0011": 56,
-    "0100": 64,
-    "0101": 80,
-    "0110": 96,
-    "0111": 112,
-    1000: 128,
-    1001: 144,
-    1010: 160,
-    1011: 176,
-    1100: 192,
-    1101: 224,
-    1110: 256,
-    1111: "bad",
+    0b00000000: "free",
+    0b00010000: 32,
+    0b00100000: 48,
+    0b00110000: 56,
+    0b01000000: 64,
+    0b01010000: 80,
+    0b01100000: 96,
+    0b01110000: 112,
+    0b10000000: 128,
+    0b10010000: 144,
+    0b10100000: 160,
+    0b10110000: 176,
+    0b11000000: 192,
+    0b11010000: 224,
+    0b11100000: 256,
+    0b11110000: "bad",
   };
 
   static v2l2Bitrates = {
-    "0000": "free",
-    "0001": 8,
-    "0010": 16,
-    "0011": 24,
-    "0100": 32,
-    "0101": 40,
-    "0110": 48,
-    "0111": 56,
-    1000: 64,
-    1001: 80,
-    1010: 96,
-    1011: 112,
-    1100: 128,
-    1101: 144,
-    1110: 160,
-    1111: "bad",
+    0b00000000: "free",
+    0b00010000: 8,
+    0b00100000: 16,
+    0b00110000: 24,
+    0b01000000: 32,
+    0b01010000: 40,
+    0b01100000: 48,
+    0b01110000: 56,
+    0b10000000: 64,
+    0b10010000: 80,
+    0b10100000: 96,
+    0b10110000: 112,
+    0b11000000: 128,
+    0b11010000: 144,
+    0b11100000: 160,
+    0b11110000: "bad",
   };
   static v2l3Bitrates = Header.v2l2Bitrates;
 
@@ -128,39 +128,39 @@ export default class Header {
     0b00000000: { description: "reserved" },
     0b00000010: {
       description: "Layer III",
-      bitRates: Header.v1l3Bitrates,
+      bitrates: Header.v1l3Bitrates,
       sampleLength: 1152,
     },
     0b00000100: {
       description: "Layer II",
-      bitRates: Header.v1l2Bitrates,
+      bitrates: Header.v1l2Bitrates,
       sampleLength: 1152,
     },
     0b00000110: {
       description: "Layer I",
-      bitRates: Header.v1l1Bitrates,
+      bitrates: Header.v1l1Bitrates,
       sampleLength: 384,
     },
-  }
+  };
 
   static v2Layers = {
     0b00000000: { description: "reserved" },
     0b00000010: {
       description: "Layer III",
-      bitRates: Header.v2l3Bitrates,
+      bitrates: Header.v2l3Bitrates,
       sampleLength: 576,
     },
     0b00000100: {
       description: "Layer II",
-      bitRates: Header.v2l2Bitrates,
+      bitrates: Header.v2l2Bitrates,
       sampleLength: 1152,
     },
     0b00000110: {
       description: "Layer I",
-      bitRates: Header.v2l1Bitrates,
+      bitrates: Header.v2l1Bitrates,
       sampleLength: 384,
     },
-  }
+  };
 
   static mpegVersions = {
     0b00000000: {
@@ -252,6 +252,7 @@ export default class Header {
     if (header.mpegVersion === "reserved") {
       return null;
     }
+
     if (header.layer === "reserved") {
       return null;
     }
@@ -262,16 +263,12 @@ export default class Header {
     // * `....FF..`: Sample rate, 00=44100, 01=48000, 10=32000, 11=reserved
     // * `......G.`: Padding bit, 0=frame not padded, 1=frame padded
     // * `.......H`: Private bit. This is informative
-    let b3 = buffer[2];
-
-    const bitRateBits = buffer[2] & 0b11110000;
+    const bitrateBits = buffer[2] & 0b11110000;
     const sampleRateBits = buffer[2] & 0b00001100;
     const paddingBit = buffer[2] & 0b00000010;
     const privateBit = buffer[2] & 0b00000001;
 
-    b3 = Header.octetToBinRep(b3);
-    header.bitrateBits = b3.substr(0, 4);
-    header.bitrate = layer.bitRates[header.bitrateBits];
+    header.bitrate = layer.bitrates[bitrateBits];
     if (header.bitrate === "bad") {
       return null;
     }
