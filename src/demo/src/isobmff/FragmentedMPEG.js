@@ -6,7 +6,7 @@ export default class FragmentedMPEG {
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor() {
-    this._mp3Parser = new MPEGParser();
+    this._mpegParser = new MPEGParser();
     this._frames = [];
     this._mpegData = new Uint8Array(0);
 
@@ -59,12 +59,12 @@ export default class FragmentedMPEG {
   }
 
   _parseFrames() {
-    let { frame, offset } = this._mp3Parser.readFrame(this._mpegData);
+    let { frame, offset } = this._mpegParser.readFrame(this._mpegData);
 
     while (frame?.isComplete) {
       this._frames.push(frame.data);
 
-      const nextFrame = this._mp3Parser.readFrame(
+      const nextFrame = this._mpegParser.readFrame(
         this._mpegData,
         offset + frame.header.frameByteLength
       );

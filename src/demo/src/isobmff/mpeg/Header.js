@@ -145,42 +145,11 @@ export default class Header {
     11: "Single channel (Mono)",
   };
 
-  static mpegVersionDescription = {
-    "00": "MPEG Version 2.5 (unofficial)",
-    "01": "reserved",
-    10: "MPEG Version 2 (ISO/IEC 13818-3)",
-    11: "MPEG Version 1 (ISO/IEC 11172-3)",
-  };
-
-  static layerDescription = {
+  static layerMap = {
     "00": "reserved",
     "01": "Layer III",
     10: "Layer II",
     11: "Layer I",
-  };
-
-  static bitrateMap = {
-    11: {
-      "01": Header.v1l3Bitrates,
-      10: Header.v1l2Bitrates,
-      11: Header.v1l1Bitrates,
-    },
-    10: {
-      "01": Header.v2l3Bitrates,
-      10: Header.v2l2Bitrates,
-      11: Header.v2l1Bitrates,
-    },
-    "00": {
-      "01": Header.v2l3Bitrates,
-      10: Header.v2l2Bitrates,
-      11: Header.v2l1Bitrates,
-    },
-  };
-
-  static sampleRateMap = {
-    "00": Header.v25SampleRates,
-    10: Header.v2SampleRates,
-    11: Header.v1SampleRates,
   };
 
   static v1SampleLengths = {
@@ -195,10 +164,38 @@ export default class Header {
     11: 384,
   };
 
-  static sampleLengthMap = {
-    "00": Header.v2SampleLengths,
-    10: Header.v2SampleLengths,
-    11: Header.v1SampleLengths,
+  static mpegVersionMap = {
+    0b00000000: {
+      description: "MPEG Version 2.5 (unofficial)",
+      bitRates: {
+        "01": Header.v2l3Bitrates,
+        10: Header.v2l2Bitrates,
+        11: Header.v2l1Bitrates,
+      },
+      sampleRates: Header.v25SampleRates,
+      sampleLengths: Header.v2SampleLengths,
+    },
+    0b00001000: { description: "reserved" },
+    0b00010000: {
+      description: "MPEG Version 2 (ISO/IEC 13818-3)",
+      bitRates: {
+        "01": Header.v2l3Bitrates,
+        10: Header.v2l2Bitrates,
+        11: Header.v2l1Bitrates,
+      },
+      sampleRates: Header.v2SampleRates,
+      sampleLengths: Header.v2SampleLengths,
+    },
+    0b00011000: {
+      description: "MPEG Version 1 (ISO/IEC 11172-3)",
+      bitRates: {
+        "01": Header.v1l3Bitrates,
+        10: Header.v1l2Bitrates,
+        11: Header.v1l1Bitrates,
+      },
+      sampleRates: Header.v1SampleRates,
+      sampleLengths: Header.v1SampleLengths,
+    },
   };
 
   // Produce octet's binary representation as a string
@@ -225,9 +222,7 @@ export default class Header {
 
   static _buildHeader(buffer) {
     // Header's first (out of four) octet: `11111111`: Frame sync (all bits must be set)
-
-    const b1 = buffer[0];
-    if (b1 !== 255) {
+    if (buffer[0] ^ 0b11111111) {
       return null;
     }
 
@@ -239,24 +234,30 @@ export default class Header {
     // * `.......1`: Protection bit (1 = Not protected)
 
     // Require the three most significant bits to be `111` (>= 224)
+    const remainingFrameSync = buffer[1] & 0b11100000;
     const b2 = buffer[1];
-    if (b2 < 224) {
+
+    if (remainingFrameSync !== 0b11100000) {
       return null;
     }
 
-    const mpegVersion = Header.octetToBinRep(b2).substr(3, 2);
+    const mpegVersionBits = buffer[1] & 0b00011000;
+    const mpegVersion = Header.mpegVersionMap[mpegVersionBits];
+
+    const layerDescriptionBits = buffer[1] & 0b00000110;
+    const protectionBit = buffer[1] & 0b00000001;
+
+    //const mpegVersion = Header.octetToBinRep(b2).substr(3, 2);
     const layerVersion = Header.octetToBinRep(b2).substr(5, 2);
 
     //
     const header = {
-      mpegAudioVersionBits: mpegVersion,
-      mpegAudioVersion: Header.mpegVersionDescription[mpegVersion],
-      layerDescriptionBits: layerVersion,
-      layerDescription: Header.layerDescription[layerVersion],
+      mpegVersion: mpegVersion.description,
+      layerDescription: Header.layerMap[layerVersion],
       isProtected: b2 & 1, // Just check if last bit is set
     };
 
-    if (header.mpegAudioVersion === "reserved") {
+    if (header.mpegVersion === "reserved") {
       return null;
     }
     if (header.layerDescription === "reserved") {
@@ -272,18 +273,17 @@ export default class Header {
     let b3 = buffer[2];
     b3 = Header.octetToBinRep(b3);
     header.bitrateBits = b3.substr(0, 4);
-    header.bitrate =
-      Header.bitrateMap[mpegVersion][layerVersion][header.bitrateBits];
+    header.bitrate = mpegVersion.bitRates[layerVersion][header.bitrateBits];
     if (header.bitrate === "bad") {
       return null;
     }
 
     header.sampleRateBits = b3.substr(4, 2);
-    header.sampleRate =
-      Header.sampleRateMap[mpegVersion][header.sampleRateBits];
+    header.sampleRate = mpegVersion.sampleRates[header.sampleRateBits];
     if (header.sampleRate === "reserved") {
       return null;
     }
+    header.sampleLength = mpegVersion.sampleLengths[layerVersion];
 
     header.frameIsPaddedBit = b3.substr(6, 1);
     header.frameIsPadded = header.frameIsPaddedBit === "1";
@@ -308,10 +308,7 @@ export default class Header {
   // Get the number of bytes in a frame given its `bitrate`, `sampleRate` and `padding`.
   //  Based on [magic formula](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
   get frameByteLength() {
-    const sampleLength =
-      Header.sampleLengthMap[this._values.mpegAudioVersionBits][
-        this._values.layerDescriptionBits
-      ];
+    const sampleLength = this._values.sampleLength;
     const paddingSize = this._values.framePadding
       ? this._values.layerVersion === "11"
         ? 4
