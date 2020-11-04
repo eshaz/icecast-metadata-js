@@ -2,6 +2,8 @@
 This class is heavily inspired by https://github.com/biril/mp3-parser.
 */
 
+// http://www.mp3-tech.org/programmer/frame_header.html
+
 /*
 Copyright (c) 2013-2016 Alex Lambiris
 
@@ -21,125 +23,58 @@ SOFTWARE.
 */
 
 export default class Header {
-  static v1l1Bitrates = {
-    0b00000000: "free",
-    0b00010000: 32,
-    0b00100000: 64,
-    0b00110000: 96,
-    0b01000000: 128,
-    0b01010000: 160,
-    0b01100000: 192,
-    0b01110000: 224,
-    0b10000000: 256,
-    0b10010000: 288,
-    0b10100000: 320,
-    0b10110000: 352,
-    0b11000000: 384,
-    0b11010000: 416,
-    0b11100000: 448,
-    0b11110000: "bad",
+  static bitrateMatrix = {
+    // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
+    0b00000000: ["free", "free", "free", "free", "free"],
+    0b00010000: [32, 32, 32, 32, 8],
+    0b00100000: [64, 48, 40, 48, 16],
+    0b00110000: [96, 56, 48, 56, 24],
+    0b01000000: [128, 64, 56, 64, 32],
+    0b01010000: [160, 80, 64, 80, 40],
+    0b01100000: [192, 96, 80, 96, 48],
+    0b01110000: [224, 112, 96, 112, 56],
+    0b10000000: [256, 128, 112, 128, 64],
+    0b10010000: [288, 160, 128, 144, 80],
+    0b10100000: [320, 192, 160, 160, 96],
+    0b10110000: [352, 224, 192, 176, 112],
+    0b11000000: [384, 256, 224, 192, 128],
+    0b11010000: [416, 320, 256, 224, 144],
+    0b11100000: [448, 384, 320, 256, 160],
+    0b11110000: ["bad", "bad", "bad", "bad", "bad"],
   };
 
-  static v1l2Bitrates = {
-    0b00000000: "free",
-    0b00010000: 32,
-    0b00100000: 48,
-    0b00110000: 56,
-    0b01000000: 64,
-    0b01010000: 80,
-    0b01100000: 96,
-    0b01110000: 112,
-    0b10000000: 128,
-    0b10010000: 160,
-    0b10100000: 192,
-    0b10110000: 224,
-    0b11000000: 256,
-    0b11010000: 320,
-    0b11100000: 384,
-    0b11110000: "bad",
-  };
-
-  static v1l3Bitrates = {
-    0b00000000: "free",
-    0b00010000: 32,
-    0b00100000: 40,
-    0b00110000: 48,
-    0b01000000: 56,
-    0b01010000: 64,
-    0b01100000: 80,
-    0b01110000: 96,
-    0b10000000: 112,
-    0b10010000: 128,
-    0b10100000: 160,
-    0b10110000: 192,
-    0b11000000: 224,
-    0b11010000: 256,
-    0b11100000: 320,
-    0b11110000: "bad",
-  };
-
-  static v2l1Bitrates = {
-    0b00000000: "free",
-    0b00010000: 32,
-    0b00100000: 48,
-    0b00110000: 56,
-    0b01000000: 64,
-    0b01010000: 80,
-    0b01100000: 96,
-    0b01110000: 112,
-    0b10000000: 128,
-    0b10010000: 144,
-    0b10100000: 160,
-    0b10110000: 176,
-    0b11000000: 192,
-    0b11010000: 224,
-    0b11100000: 256,
-    0b11110000: "bad",
-  };
-
-  static v2l2Bitrates = {
-    0b00000000: "free",
-    0b00010000: 8,
-    0b00100000: 16,
-    0b00110000: 24,
-    0b01000000: 32,
-    0b01010000: 40,
-    0b01100000: 48,
-    0b01110000: 56,
-    0b10000000: 64,
-    0b10010000: 80,
-    0b10100000: 96,
-    0b10110000: 112,
-    0b11000000: 128,
-    0b11010000: 144,
-    0b11100000: 160,
-    0b11110000: "bad",
-  };
-  static v2l3Bitrates = Header.v2l2Bitrates;
+  static v1Layer1 = 0;
+  static v1Layer2 = 1;
+  static v1Layer3 = 2;
+  static v2Layer1 = 3;
+  static v2Layer23 = 4;
 
   static channelModes = {
-    "00": "Stereo",
-    "01": "Joint stereo (Stereo)",
-    10: "Dual channel (Stereo)",
-    11: "Single channel (Mono)",
+    0b00000000: "Stereo",
+    0b01000000: "Joint stereo (Stereo)",
+    0b10000000: "Dual channel (Stereo)",
+    0b11000000: "Single channel (Mono)",
   };
 
   static v1Layers = {
     0b00000000: { description: "reserved" },
     0b00000010: {
       description: "Layer III",
-      bitrates: Header.v1l3Bitrates,
+      bitrateIndex: Header.v1Layer3,
       sampleLength: 1152,
+      framePadding: 1,
     },
     0b00000100: {
       description: "Layer II",
-      bitrates: Header.v1l2Bitrates,
+      bitrateIndex: Header.v1Layer2,
       sampleLength: 1152,
+      framePadding: 1,
     },
     0b00000110: {
       description: "Layer I",
-      bitrates: Header.v1l1Bitrates,
+      bitrateIndex: Header.v1Layer1,
       sampleLength: 384,
+      framePadding: 4,
     },
   };
 
@@ -147,18 +82,21 @@ export default class Header {
     0b00000000: { description: "reserved" },
     0b00000010: {
       description: "Layer III",
-      bitrates: Header.v2l3Bitrates,
+      bitrateIndex: Header.v2Layer23,
       sampleLength: 576,
+      framePadding: 1,
     },
     0b00000100: {
       description: "Layer II",
-      bitrates: Header.v2l2Bitrates,
+      bitrateIndex: Header.v2Layer23,
       sampleLength: 1152,
+      framePadding: 1,
     },
     0b00000110: {
       description: "Layer I",
-      bitrates: Header.v2l1Bitrates,
+      bitrateIndex: Header.v2Layer1,
       sampleLength: 384,
+      framePadding: 4,
     },
   };
 
@@ -199,20 +137,6 @@ export default class Header {
     },
   };
 
-  // Produce octet's binary representation as a string
-  static octetToBinRep(octet) {
-    let b = [];
-    b[0] = (octet & 128) === 128 ? "1" : "0";
-    b[1] = (octet & 64) === 64 ? "1" : "0";
-    b[2] = (octet & 32) === 32 ? "1" : "0";
-    b[3] = (octet & 16) === 16 ? "1" : "0";
-    b[4] = (octet & 8) === 8 ? "1" : "0";
-    b[5] = (octet & 4) === 4 ? "1" : "0";
-    b[6] = (octet & 2) === 2 ? "1" : "0";
-    b[7] = (octet & 1) === 1 ? "1" : "0";
-    return b.join("");
-  }
-
   constructor(headerValues) {
     this._values = headerValues;
   }
@@ -239,23 +163,20 @@ export default class Header {
     // Require the three most significant bits to be `111` (>= 224)
     if (frameSync !== 0b11100000) return null;
 
+    const header = {};
+
     const mpegVersion = Header.mpegVersions[mpegVersionBits];
+    header.mpegVersion = mpegVersion.description;
+    if (header.mpegVersion === "reserved") return null;
+
+    header.mpegVersion = mpegVersion.description;
+
     const layer = mpegVersion.layers[layerBits];
+    header.layer = layer.description;
+    if (header.layer === "reserved") return null;
 
-    const header = {
-      mpegVersion: mpegVersion.description,
-      layer: layer.description,
-      sampleLength: layer.sampleLength,
-      isProtected: !!protectionBit, // Just check if last bit is set
-    };
-
-    if (header.mpegVersion === "reserved") {
-      return null;
-    }
-
-    if (header.layer === "reserved") {
-      return null;
-    }
+    header.sampleLength = layer.sampleLength;
+    header.isProtected = !!protectionBit;
 
     // Header's third (out of four) octet: `EEEEFFGH`
     //
@@ -268,17 +189,13 @@ export default class Header {
     const paddingBit = buffer[2] & 0b00000010;
     const privateBit = buffer[2] & 0b00000001;
 
-    header.bitrate = layer.bitrates[bitrateBits];
-    if (header.bitrate === "bad") {
-      return null;
-    }
+    header.bitrate = Header.bitrateMatrix[bitrateBits][layer.bitrateIndex];
+    if (header.bitrate === "bad") return null;
 
     header.sampleRate = mpegVersion.sampleRates[sampleRateBits];
-    if (header.sampleRate === "reserved") {
-      return null;
-    }
+    if (header.sampleRate === "reserved") return null;
 
-    header.framePadding = paddingBit >> 1;
+    header.framePadding = paddingBit >> 1 && layer.framePadding;
     header.isPrivate = !!privateBit;
 
     // Header's fourth (out of four) octet: `IIJJKLMM`
@@ -288,9 +205,8 @@ export default class Header {
     // * `....K...`: Copyright
     // * `.....L..`: Original
     // * `......MM`: Emphasis
-    const b4 = buffer[3];
-    header.channelModeBits = Header.octetToBinRep(b4).substr(0, 2);
-    header.channelMode = Header.channelModes[header.channelModeBits];
+    const channelModeBits = buffer[3] & 0b11000000;
+    header.channelMode = Header.channelModes[channelModeBits];
 
     return header;
   }
@@ -299,14 +215,10 @@ export default class Header {
   //  Based on [magic formula](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
   get frameByteLength() {
     const sampleLength = this._values.sampleLength;
-    const paddingSize = this._values.framePadding
-      ? this._values.layer === "Layer I"
-        ? 4
-        : 1
-      : 0;
     const byteRate = (this._values.bitrate * 1000) / 8;
     return Math.floor(
-      (sampleLength * byteRate) / this._values.sampleRate + paddingSize
+      (sampleLength * byteRate) / this._values.sampleRate +
+        this._values.framePadding
     );
   }
 }
