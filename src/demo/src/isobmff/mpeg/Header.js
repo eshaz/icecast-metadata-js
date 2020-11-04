@@ -31,88 +31,65 @@ export default class Header {
   static v2Layer1 = 3;
   static v2Layer23 = 4;
 
-  static channelModes = {
-    0b00000000: "Stereo",
-    0b01000000: "Joint stereo (Stereo)",
-    0b10000000: "Dual channel (Stereo)",
-    0b11000000: "Single channel (Mono)",
-  };
-
-  static emphasis = {
-    0b00000000: "none",
-    0b00000001: "50/15 ms",
-    0b00000010: "reserved",
-    0b00000011: "CCIT J.17",
-  };
-
-  static layer12ModeExtension = {
+  static layer12ModeExtensions = {
     0b00000000: "bands 4 to 31",
     0b00010000: "bands 8 to 31",
     0b00100000: "bands 12 to 31",
     0b00110000: "bands 16 to 31",
   };
 
-  static layer3ModeExtension = {
+  static layer3ModeExtensions = {
     0b00000000: "Intensity stereo off, MS stereo off",
     0b00010000: "Intensity stereo on, MS stereo off",
     0b00100000: "Intensity stereo off, MS stereo on",
     0b00110000: "Intensity stereo on, MS stereo on",
   };
 
-  static v1Layers = {
+  static layers = {
     0b00000000: { description: "reserved" },
     0b00000010: {
       description: "Layer III",
-      bitrateIndex: Header.v1Layer3,
       framePadding: 1,
-      modeExtensions: Header.layer3ModeExtension,
-      sampleLength: 1152,
+      modeExtensions: Header.layer3ModeExtensions,
+      v1: {
+        bitrateIndex: Header.v1Layer3,
+        sampleLength: 1152,
+      },
+      v2: {
+        bitrateIndex: Header.v2Layer23,
+        sampleLength: 576,
+      },
     },
     0b00000100: {
       description: "Layer II",
-      bitrateIndex: Header.v1Layer2,
       framePadding: 1,
-      modeExtensions: Header.layer12ModeExtension,
+      modeExtensions: Header.layer12ModeExtensions,
       sampleLength: 1152,
+      v1: {
+        bitrateIndex: Header.v1Layer2,
+      },
+      v2: {
+        bitrateIndex: Header.v2Layer23,
+      },
     },
     0b00000110: {
       description: "Layer I",
-      bitrateIndex: Header.v1Layer1,
       framePadding: 4,
-      modeExtensions: Header.layer12ModeExtension,
+      modeExtensions: Header.layer12ModeExtensions,
       sampleLength: 384,
-    },
-  };
-
-  static v2Layers = {
-    0b00000000: { description: "reserved" },
-    0b00000010: {
-      description: "Layer III",
-      bitrateIndex: Header.v2Layer23,
-      framePadding: 1,
-      modeExtensions: Header.layer3ModeExtension,
-      sampleLength: 576,
-    },
-    0b00000100: {
-      description: "Layer II",
-      bitrateIndex: Header.v2Layer23,
-      framePadding: 1,
-      modeExtensions: Header.layer12ModeExtension,
-      sampleLength: 1152,
-    },
-    0b00000110: {
-      description: "Layer I",
-      bitrateIndex: Header.v2Layer1,
-      framePadding: 4,
-      modeExtensions: Header.layer12ModeExtension,
-      sampleLength: 384,
+      v1: {
+        bitrateIndex: Header.v1Layer1,
+      },
+      v2: {
+        bitrateIndex: Header.v2Layer1,
+      },
     },
   };
 
   static mpegVersions = {
     0b00000000: {
       description: "MPEG Version 2.5 (unofficial)",
-      layers: Header.v2Layers,
+      layers: "v2",
       sampleRates: {
         0b00000000: 11025,
         0b00000100: 12000,
@@ -124,7 +101,7 @@ export default class Header {
     0b00001000: { description: "reserved" },
     0b00010000: {
       description: "MPEG Version 2 (ISO/IEC 13818-3)",
-      layers: Header.v2Layers,
+      layers: "v2",
       sampleRates: {
         0b00000000: 22050,
         0b00000100: 24000,
@@ -135,7 +112,7 @@ export default class Header {
     },
     0b00011000: {
       description: "MPEG Version 1 (ISO/IEC 11172-3)",
-      layers: Header.v1Layers,
+      layers: "v1",
       sampleRates: {
         0b00000000: 44100,
         0b00000100: 48000,
@@ -144,6 +121,20 @@ export default class Header {
       },
       sampleLengths: Header.v1SampleLengths,
     },
+  };
+
+  static emphasis = {
+    0b00000000: "none",
+    0b00000001: "50/15 ms",
+    0b00000010: "reserved",
+    0b00000011: "CCIT J.17",
+  };
+
+  static channelModes = {
+    0b00000000: "Stereo",
+    0b01000000: "Joint stereo (Stereo)",
+    0b10000000: "Dual channel (Stereo)",
+    0b11000000: "Single channel (Mono)",
   };
 
   constructor(header) {
@@ -163,6 +154,9 @@ export default class Header {
   }
 
   static getHeader(buffer) {
+    // Must be at least four bytes. 
+    if (buffer.length < 4) return null;
+    
     // Header's first (out of four) octet: `11111111`: Frame sync (all bits must be set)
     if (buffer[0] ^ 0b11111111) return null;
 
@@ -188,7 +182,10 @@ export default class Header {
 
     header.mpegVersion = mpegVersion.description;
 
-    const layer = mpegVersion.layers[layerBits];
+    const layer = {
+      ...Header.layers[layerBits],
+      ...Header.layers[layerBits][mpegVersion.layers],
+    };
     header.layer = layer.description;
     if (header.layer === "reserved") return null;
 
