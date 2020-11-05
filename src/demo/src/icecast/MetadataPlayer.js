@@ -82,11 +82,33 @@ export default class MetadataPlayer {
 
     if (MediaSource.isTypeSupported(mimeType)) {
       await this._createMediaSource(mimeType);
+      this._icecastCallbacks = {
+        onStream: ({ stream }) => this._appendSourceBuffer(stream),
+        onMetadata: (value) => {
+          this._icecastMetadataQueue.addMetadata(
+            value,
+            this._sourceBuffer.timestampOffset - this._audioElement.currentTime
+          );
+        },
+      };
     } else if (
       mimeType === "audio/mpeg" &&
       MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
     ) {
       await this._createMediaSource('audio/mp4; codecs="mp3"');
+      this._icecastCallbacks = {
+        onStream: async ({ stream }) => {
+          for await (const movieFragment of this._mp3ToMp4.iterator(stream)) {
+            await this._appendSourceBuffer(movieFragment);
+          }
+        },
+        onMetadata: (value) => {
+          this._icecastMetadataQueue.addMetadata(
+            value,
+            this._sourceBuffer.timestampOffset - this._audioElement.currentTime
+          );
+        },
+      };
     } else {
       throw new Error(
         `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
@@ -112,23 +134,12 @@ export default class MetadataPlayer {
         this._playPromise = this._audioElement.play();
         this._mp3ToMp4 = new FragmentedMPEG();
 
-        this._icecast = new IcecastReadableStream(res, {
+        const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
-          onStream: async ({ stream }) => {
-            const { value } = this._mp3ToMp4.next(stream);
-
-            value && (await this._appendSourceBuffer(value));
-          },
-          onMetadata: (value) => {
-            this._icecastMetadataQueue.addMetadata(
-              value,
-              this._sourceBuffer.timestampOffset -
-                this._audioElement.currentTime
-            );
-          },
+          ...this._icecastCallbacks,
         });
 
-        for await (const stream of this._icecast.asyncIterator) {
+        for await (const stream of icecast.asyncIterator) {
         }
       })
       .catch((e) => {

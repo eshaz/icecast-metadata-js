@@ -17,6 +17,9 @@
 import MPEGParser from "./mpeg/MPEGParser";
 import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
 
+/**
+ * @description Generator that takes in MP3 (MPEG) Data and yields Fragmented MP4 (ISOBMFF)
+ */
 export default class FragmentedMPEG {
   static MIN_FRAMES = 2;
   static MIN_FRAMES_LENGTH = 1022;
@@ -30,6 +33,12 @@ export default class FragmentedMPEG {
     this._generator.next();
   }
 
+  /**
+   * @private
+   * @description Appends two buffers
+   * @param {Uint8Array} buf1
+   * @param {Uint8Array} buf2
+   */
   static appendBuffers(buf1, buf2) {
     const buf = new Uint8Array(buf1.length + buf2.length);
     buf.set(buf1);
@@ -38,10 +47,27 @@ export default class FragmentedMPEG {
     return buf;
   }
 
-  next(data) {
-    return this._generator.next(data);
+  /**
+   * @description Returns an iterator for the passed in MPEG data.
+   * @param {Uint8Array} chunk Next chunk of MPEG data to read
+   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
+   * @yields {Uint8Array} Movie Fragments containing MPEG frames
+   */
+  *iterator(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {
+      yield i.value;
+    }
   }
 
+  /**
+   * @private
+   * @description Internal generator.
+   * @yields {Uint8Array} Movie Fragments containing MPEG frames
+   */
   *_generator() {
     let frames;
     // start parsing out frames
@@ -59,12 +85,22 @@ export default class FragmentedMPEG {
     }
   }
 
+  /**
+   * @private
+   * @description Reads MPEG frames, parses headers, and returns Movie Fragments
+   * @param {Uint8Array} data Mpeg Data
+   * @returns {Uint8Array} Movie Fragments containing MPEG frames
+   */
   *_processFrames(data) {
     yield* this._sendReceiveData(data);
     this._parseFrames();
     return this._getMovieFragment();
   }
 
+  /**
+   * @private
+   * @param {Uint8Array} frames
+   */
   *_sendReceiveData(frames) {
     let mpegData = yield frames;
 
@@ -75,6 +111,9 @@ export default class FragmentedMPEG {
     this._mpegData = FragmentedMPEG.appendBuffers(this._mpegData, mpegData);
   }
 
+  /**
+   * @private
+   */
   _parseFrames() {
     let currentFrame = this._mpegParser.readFrameStream(this._mpegData);
 
@@ -90,6 +129,9 @@ export default class FragmentedMPEG {
     this._mpegData = this._mpegData.subarray(currentFrame.offset);
   }
 
+  /**
+   * @private
+   */
   _getMovieFragment() {
     if (
       this._frames.length >= FragmentedMPEG.MIN_FRAMES &&

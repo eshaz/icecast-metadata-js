@@ -42,7 +42,7 @@ export default class MPEGParser {
   }
 
   /**
-   * @description Finds and returns an MPEG frame. Frame will be null if no valid frame was found at the offset.
+   * @description Finds and returns an MPEG frame in the context of a stream. Frame will be undefined if no valid frame was found at the offset.
    * @param {Uint8Array} data MPEG data that should contain an MPEG header, audio data, and then next MPEG header
    * @param {number} offset Offset where frame should be
    * @returns {object} Object containing the actual offset and frame.
