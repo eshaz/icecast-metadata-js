@@ -61,12 +61,10 @@ export default class MetadataPlayer {
   }
 
   async fetchMimeType(endpoint) {
-    const headResponse = await fetch(endpoint, {
+    return fetch(endpoint, {
       method: "HEAD",
       mode: "cors",
-    }).catch(() => {});
-
-    return headResponse ? headResponse : new Promise(() => {});
+    }).catch(() => new Promise(() => {}));
   }
 
   async fetchStream(endpoint) {
@@ -79,7 +77,7 @@ export default class MetadataPlayer {
     });
   }
 
-  async checkMediaSource(res) {
+  async getMediaSource(res) {
     const mimeType = res.headers.get("content-type");
 
     if (MediaSource.isTypeSupported(mimeType)) {
@@ -109,12 +107,12 @@ export default class MetadataPlayer {
     this._streamPromise = this.fetchStream(endpoint);
 
     Promise.race([this.fetchMimeType(endpoint), this._streamPromise])
-      .then((res) => this.checkMediaSource(res))
+      .then((res) => this.getMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
         this._mp3ToMp4 = new FragmentedMPEG();
 
-        const icecast = new IcecastReadableStream(res, {
+        this._icecast = new IcecastReadableStream(res, {
           icyMetaInt,
           onStream: async ({ stream }) => {
             const { value } = this._mp3ToMp4.next(stream);
@@ -130,7 +128,7 @@ export default class MetadataPlayer {
           },
         });
 
-        for await (const stream of icecast.asyncIterator) {
+        for await (const stream of this._icecast.asyncIterator) {
         }
       })
       .catch((e) => {
