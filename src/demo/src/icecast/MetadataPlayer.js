@@ -1,6 +1,6 @@
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
-import FragmentedMPEG from "../isobmff/FragmentedMPEG";
+import FragmentedMPEG from "../FragmentedMPEG/FragmentedMPEG";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
