@@ -137,6 +137,11 @@ export default class Header {
     },
   };
 
+  static protection = {
+    0b00000000: "16bit CRC",
+    0b00000001: "none"
+  }
+
   static emphasis = {
     0b00000000: "none",
     0b00000001: "50/15 ms",
@@ -183,7 +188,7 @@ export default class Header {
     header.mpegVersion = mpegVersion.description;
     header.layer = layer.description;
     header.sampleLength = layer.sampleLength;
-    header.isProtected = !!protectionBit;
+    header.protection = Header.protection[protectionBit];
 
     // Header's third (out of four) octet: `EEEEFFGH`
     //
@@ -243,10 +248,10 @@ export default class Header {
     this._isCopyrighted = header.isCopyrighted;
     this._isOriginal = header.isOriginal;
     this._isPrivate = header.isPrivate;
-    this._isProtected = header.isProtected;
     this._layer = header.layer;
     this._modeExtension = header.modeExtension;
     this._mpegVersion = header.mpegVersion;
+    this._protection = header.protection;
     this._sampleLength = header.sampleLength;
     this._sampleRate = header.sampleRate;
     this._frameByteLength = header.frameByteLength;
