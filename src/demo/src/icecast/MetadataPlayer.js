@@ -98,19 +98,6 @@ export default class MetadataPlayer {
     return this._streamPromise;
   }
 
-  download(bytes) {
-    const a = window.document.createElement("a");
-
-    a.href = window.URL.createObjectURL(
-      new Blob([bytes], { type: "application/octet-stream" })
-    );
-    a.download = "download.mp4";
-
-    // Append anchor to body.
-    document.body.appendChild(a);
-    a.click();
-  }
-
   play(endpoint, icyMetaInt) {
     if (this._playing) {
       this.stop();
@@ -130,10 +117,6 @@ export default class MetadataPlayer {
         const icecast = new IcecastReadableStream(res, {
           icyMetaInt,
           onStream: async ({ stream }) => {
-            //console.log(this._mp3ToMp4.next(stream));
-
-            //await new Promise(() => {});
-
             const { value } = this._mp3ToMp4.next(stream);
 
             value && (await this._appendSourceBuffer(value));
@@ -149,13 +132,13 @@ export default class MetadataPlayer {
 
         for await (const stream of icecast.asyncIterator) {
         }
-      });
-    /*.catch((e) => {
+      })
+      .catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });*/
+      });
   }
 
   stop() {
