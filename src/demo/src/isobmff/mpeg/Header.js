@@ -187,6 +187,12 @@ export default class Header {
     header.framePadding = paddingBit >> 1 && layer.framePadding;
     header.isPrivate = !!privateBit;
 
+    header.frameByteLength = Math.floor(
+      (125 * header.bitrate * header.sampleLength) / header.sampleRate +
+        header.framePadding
+    );
+    if (!header.frameByteLength) return null;
+
     // Header's fourth (out of four) octet: `IIJJKLMM`
     //
     // * `II......`: Channel mode
@@ -225,13 +231,10 @@ export default class Header {
     this._mpegVersion = header.mpegVersion;
     this._sampleLength = header.sampleLength;
     this._sampleRate = header.sampleRate;
+    this._frameByteLength = header.frameByteLength;
   }
 
-  // http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm
   get frameByteLength() {
-    return Math.floor(
-      (125 * this._bitrate * this._sampleLength) / this._sampleRate +
-        this._framePadding
-    );
+    return this._frameByteLength;
   }
 }

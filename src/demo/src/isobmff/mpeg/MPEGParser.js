@@ -11,7 +11,7 @@ export default class MPEGParser {
       const key = String.fromCharCode.apply(null, buffer.subarray(0, 4));
 
       if (this._headers.has(key)) {
-        console.log("getting header from cache");
+        //console.log("getting header from cache");
         return this._headers.get(key);
       } else {
         const header = Header.getHeader(buffer);
@@ -26,7 +26,7 @@ export default class MPEGParser {
   }
 
   /**
-   * @description Finds and returns an MPEG frame. Frame will be null if no frame was found in the data
+   * @description Finds and returns an MPEG frame. Frame will be null if no frame was found in the data.
    * @param {Uint8Array} data MPEG data
    * @param {number} offset Offset where frame should be
    * @returns {object} Object containing the actual offset and frame.
@@ -39,9 +39,28 @@ export default class MPEGParser {
       header = this._getHeader(data.subarray(offset));
     }
 
+    if (header && offset + header.frameByteLength + 4 <= data.length) {
+      const nextHeader = this._getHeader(
+        data.subarray(offset + header.frameByteLength)
+      );
+      if (nextHeader) {
+        return {
+          offset,
+          frame: new Frame(
+            header,
+            data.subarray(offset, offset + header.frameByteLength)
+          ),
+        };
+      } else {
+        console.log("no next header");
+        return {
+          offset: offset + header.frameByteLength + 4,
+        };
+      }
+    }
+
     return {
       offset,
-      frame: header ? new Frame(header, data.subarray(offset)) : null,
     };
   }
 }

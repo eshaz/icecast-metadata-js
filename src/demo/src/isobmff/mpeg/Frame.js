@@ -1,7 +1,7 @@
 export default class Frame {
-  constructor(header, buffer) {
+  constructor(header, data) {
     this._header = header;
-    this._data = buffer.subarray(0, header.frameByteLength);
+    this._data = data;
   }
 
   get header() {

@@ -59,20 +59,18 @@ export default class FragmentedMPEG {
   }
 
   _parseFrames() {
-    let { frame, offset } = this._mpegParser.readFrame(this._mpegData);
+    let currentFrame = this._mpegParser.readFrame(this._mpegData);
 
-    while (frame?.isComplete) {
-      this._frames.push(frame.data);
+    while (currentFrame.frame) {
+      this._frames.push(currentFrame.frame.data);
 
-      const nextFrame = this._mpegParser.readFrame(
+      currentFrame = this._mpegParser.readFrame(
         this._mpegData,
-        offset + frame.header.frameByteLength
+        currentFrame.offset + currentFrame.frame.header.frameByteLength
       );
-      frame = nextFrame.frame;
-      offset = nextFrame.offset;
     }
 
-    this._mpegData = this._mpegData.subarray(offset);
+    this._mpegData = this._mpegData.subarray(currentFrame.offset);
   }
 
   _readOrStoreFrames() {

@@ -14,7 +14,7 @@ const useMetadataPlayer = (station, onMetadataUpdate) => {
   const [metadataPlayer] = useState(
     new MetadataPlayer({
       onMetadataUpdate: (meta) => {
-        console.log(meta);
+        //console.log(meta);
         onMetadataUpdate(meta);
       },
     })
