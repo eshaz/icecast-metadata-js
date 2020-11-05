@@ -28,24 +28,25 @@ export default class FragmentedMPEG {
 
   *_generator() {
     let frames;
+    // start parsing out frames
     while (!frames) {
-      frames = yield* this._getFrames();
+      frames = yield* this._processFrames();
     }
-    // append the movie box for the first yield result
+    // yield the movie box along with a movie fragment containing frames
     frames = FragmentedMPEG.appendBuffers(
       FragmentedISOBMFFBuilder.getMp3MovieBox(),
       frames
     );
-
+    // yield movie fragments containing frames
     while (true) {
-      frames = yield* this._getFrames(frames);
+      frames = yield* this._processFrames(frames);
     }
   }
 
-  *_getFrames(frames) {
-    yield* this._sendReceiveData(frames);
+  *_processFrames(data) {
+    yield* this._sendReceiveData(data);
     this._parseFrames();
-    return this._readOrStoreFrames();
+    return this._getMovieFragment();
   }
 
   *_sendReceiveData(frames) {
@@ -59,12 +60,12 @@ export default class FragmentedMPEG {
   }
 
   _parseFrames() {
-    let currentFrame = this._mpegParser.readFrame(this._mpegData);
+    let currentFrame = this._mpegParser.readFrameStream(this._mpegData);
 
     while (currentFrame.frame) {
       this._frames.push(currentFrame.frame.data);
 
-      currentFrame = this._mpegParser.readFrame(
+      currentFrame = this._mpegParser.readFrameStream(
         this._mpegData,
         currentFrame.offset + currentFrame.frame.header.frameByteLength
       );
@@ -73,18 +74,18 @@ export default class FragmentedMPEG {
     this._mpegData = this._mpegData.subarray(currentFrame.offset);
   }
 
-  _readOrStoreFrames() {
+  _getMovieFragment() {
     if (
       this._frames.length >= FragmentedMPEG.MIN_FRAMES &&
       this._frames.reduce((acc, frame) => acc + frame.length, 0) >=
         FragmentedMPEG.MIN_FRAMES_LENGTH
     ) {
-      const frames = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
+      const movieFragment = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
         this._frames
       );
 
       this._frames = [];
-      return frames;
+      return movieFragment;
     }
   }
 }

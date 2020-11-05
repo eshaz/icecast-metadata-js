@@ -1,6 +1,8 @@
 // http://www.mp3-tech.org/programmer/frame_header.html
 
 export default class Header {
+  static headerByteLength = 4;
+
   static bitrateMatrix = {
     // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
     0b00000000: ["free", "free", "free", "free", "free"],
@@ -128,8 +130,8 @@ export default class Header {
 
   static channelModes = {
     0b00000000: "Stereo",
-    0b01000000: "Joint stereo (Stereo)",
-    0b10000000: "Dual channel (Stereo)",
+    0b01000000: "Joint stereo",
+    0b10000000: "Dual channel",
     0b11000000: "Single channel (Mono)",
   };
 
@@ -142,8 +144,8 @@ export default class Header {
 
     // Header's second (out of four) octet: `111xxxxx`
     //
-    // * `...BB...`: MPEG Audio version ID (11 -> MPEG Version 1 (ISO/IEC 11172-3))
-    // * `.....CC.`: Layer description (01 -> Layer III)
+    // * `...BB...`: MPEG Audio version ID
+    // * `.....CC.`: Layer description
     // * `.......1`: Protection bit (0 - Protected by CRC (16bit CRC follows header), 1 = Not protected)
     const mpegVersionBits = buffer[1] & 0b00011000;
     const layerBits = buffer[1] & 0b00000110;
@@ -170,9 +172,9 @@ export default class Header {
     // Header's third (out of four) octet: `EEEEFFGH`
     //
     // * `EEEE....`: Bitrate index. 1111 is invalid, everything else is accepted
-    // * `....FF..`: Sample rate, 00=44100, 01=48000, 10=32000, 11=reserved
+    // * `....FF..`: Sample rate
     // * `......G.`: Padding bit, 0=frame not padded, 1=frame padded
-    // * `.......H`: Private bit. This is informative
+    // * `.......H`: Private bit.
     const bitrateBits = buffer[2] & 0b11110000;
     const sampleRateBits = buffer[2] & 0b00001100;
     const paddingBit = buffer[2] & 0b00000010;

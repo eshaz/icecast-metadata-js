@@ -11,8 +11,4 @@ export default class Frame {
   get data() {
     return this._data;
   }
-
-  get isComplete() {
-    return !(this._header.frameByteLength - this._data.length);
-  }
 }

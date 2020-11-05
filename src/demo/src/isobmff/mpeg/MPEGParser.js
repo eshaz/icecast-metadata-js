@@ -3,62 +3,58 @@ import Frame from "./Frame";
 
 export default class MPEGParser {
   constructor() {
-    this._headers = new Map();
+    this._headerCache = new Map();
   }
 
+  /**
+   * @private
+   * @description Caches valid headers so parsing only happens once
+   * @param {data} buffer Header data
+   */
   _getHeader(buffer) {
-    if (buffer.length >= 4) {
-      const key = String.fromCharCode.apply(null, buffer.subarray(0, 4));
+    const key = String.fromCharCode(...buffer.subarray(0, 4));
 
-      if (this._headers.has(key)) {
-        //console.log("getting header from cache");
-        return this._headers.get(key);
-      } else {
-        const header = Header.getHeader(buffer);
-        if (header) {
-          console.log(header);
-
-          this._headers.set(key, header);
-          return header;
-        }
+    if (this._headerCache.has(key)) {
+      return this._headerCache.get(key);
+    } else {
+      const header = Header.getHeader(buffer);
+      if (header) {
+        this._headerCache.set(key, header);
+        return header;
       }
     }
   }
 
   /**
-   * @description Finds and returns an MPEG frame. Frame will be null if no frame was found in the data.
-   * @param {Uint8Array} data MPEG data
+   * @description Finds and returns an MPEG frame. Frame will be null if no valid frame was found at the offset.
+   * @param {Uint8Array} data MPEG data that should contain an MPEG header, audio data, and then next MPEG header
    * @param {number} offset Offset where frame should be
    * @returns {object} Object containing the actual offset and frame.
    */
-  readFrame(data, offset = 0) {
+  readFrameStream(data, offset = 0) {
+    // try to get the header at the given offset
     let header = this._getHeader(data.subarray(offset));
 
-    while (!header && offset + 4 < data.length) {
+    // find a header in the data
+    while (!header && offset + Header.headerByteLength < data.length) {
       offset++;
       header = this._getHeader(data.subarray(offset));
     }
 
-    if (header && offset + header.frameByteLength + 4 <= data.length) {
-      const nextHeader = this._getHeader(
-        data.subarray(offset + header.frameByteLength)
-      );
-      if (nextHeader) {
-        return {
-          offset,
-          frame: new Frame(
-            header,
-            data.subarray(offset, offset + header.frameByteLength)
-          ),
-        };
-      } else {
-        console.log("no next header");
-        return {
-          offset: offset + header.frameByteLength + 4,
-        };
+    if (header) {
+      // check if there is a valid header immediately after this frame
+      const nextHeaderOffset = offset + header.frameByteLength;
+      if (nextHeaderOffset + Header.headerByteLength <= data.length) {
+        return this._getHeader(data.subarray(nextHeaderOffset))
+          ? {
+              offset,
+              frame: new Frame(header, data.subarray(offset, nextHeaderOffset)),
+            }
+          : { offset: nextHeaderOffset + Header.headerByteLength };
       }
     }
 
+    // there is a header, but there is not enough data to determine the next header
     return {
       offset,
     };
