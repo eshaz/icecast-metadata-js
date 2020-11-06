@@ -139,8 +139,8 @@ export default class Header {
 
   static protection = {
     0b00000000: "16bit CRC",
-    0b00000001: "none"
-  }
+    0b00000001: "none",
+  };
 
   static emphasis = {
     0b00000000: "none",
@@ -150,10 +150,10 @@ export default class Header {
   };
 
   static channelModes = {
-    0b00000000: "Stereo",
-    0b01000000: "Joint stereo",
-    0b10000000: "Dual channel",
-    0b11000000: "Single channel (Mono)",
+    0b00000000: { channels: 2, description: "Stereo" },
+    0b01000000: { channels: 2, description: "Joint stereo" },
+    0b10000000: { channels: 2, description: "Dual channel" },
+    0b11000000: { channels: 1, description: "Single channel (Mono)" },
   };
 
   static getHeader(buffer) {
@@ -229,7 +229,8 @@ export default class Header {
     const originalBits = buffer[3] & 0b00000100;
     const emphasisBits = buffer[3] & 0b00000011;
 
-    header.channelMode = Header.channelModes[channelModeBits];
+    header.channelMode = Header.channelModes[channelModeBits].description;
+    header.channels = Header.channelModes[channelModeBits].channels;
     header.modeExtension = layer.modeExtensions[modeExtensionBits];
     header.isCopyrighted = !!(copyrightBits >> 3);
     header.isOriginal = !!(originalBits >> 2);
@@ -243,6 +244,7 @@ export default class Header {
   constructor(header) {
     this._bitrate = header.bitrate;
     this._channelMode = header.channelMode;
+    this._channels = header.channels;
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
     this._isCopyrighted = header.isCopyrighted;
@@ -257,7 +259,19 @@ export default class Header {
     this._frameByteLength = header.frameByteLength;
   }
 
+  get channels() {
+    return this._channels;
+  }
+
   get frameByteLength() {
     return this._frameByteLength;
+  }
+
+  get sampleRate() {
+    return this._sampleRate;
+  }
+
+  get sampleLength() {
+    return this._sampleLength;
   }
 }

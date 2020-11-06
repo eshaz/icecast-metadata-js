@@ -70,31 +70,26 @@ export default class FragmentedMPEG {
    */
   *_generator() {
     let frames;
-    // start parsing out frames
+    // start parsing out frames, save the first header
     while (!frames) {
-      frames = yield* this._processFrames();
+      yield* this._sendReceiveData();
+      const parsedFrames = this._parseFrames();
+      this._firstHeader = parsedFrames.length && parsedFrames[0].header;
+      frames = this._getMovieFragment();
     }
+
     // yield the movie box along with a movie fragment containing frames
     frames = FragmentedMPEG.appendBuffers(
-      FragmentedISOBMFFBuilder.getMp3MovieBox(),
+      FragmentedISOBMFFBuilder.getMp3MovieBox(this._firstHeader),
       frames
     );
+
     // yield movie fragments containing frames
     while (true) {
-      frames = yield* this._processFrames(frames);
+      yield* this._sendReceiveData(frames);
+      this._parseFrames();
+      frames = this._getMovieFragment();
     }
-  }
-
-  /**
-   * @private
-   * @description Reads MPEG frames, parses headers, and returns Movie Fragments
-   * @param {Uint8Array} data Mpeg Data
-   * @returns {Uint8Array} Movie Fragments containing MPEG frames
-   */
-  *_processFrames(data) {
-    yield* this._sendReceiveData(data);
-    this._parseFrames();
-    return this._getMovieFragment();
   }
 
   /**
@@ -118,15 +113,16 @@ export default class FragmentedMPEG {
     let currentFrame = this._mpegParser.readFrameStream(this._mpegData);
 
     while (currentFrame.frame) {
-      this._frames.push(currentFrame.frame.data);
+      this._frames.push(currentFrame.frame);
 
       currentFrame = this._mpegParser.readFrameStream(
         this._mpegData,
         currentFrame.offset + currentFrame.frame.header.frameByteLength
       );
     }
-
     this._mpegData = this._mpegData.subarray(currentFrame.offset);
+
+    return this._frames;
   }
 
   /**
@@ -135,7 +131,7 @@ export default class FragmentedMPEG {
   _getMovieFragment() {
     if (
       this._frames.length >= FragmentedMPEG.MIN_FRAMES &&
-      this._frames.reduce((acc, frame) => acc + frame.length, 0) >=
+      this._frames.reduce((acc, frame) => acc + frame.data.length, 0) >=
         FragmentedMPEG.MIN_FRAMES_LENGTH
     ) {
       const movieFragment = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
