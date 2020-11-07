@@ -24,8 +24,6 @@ Q 	16 	CRC if protection absent is 0
 */
 
 export default class MPEG4Header {
-  static headerByteLength = 7;
-
   static mpegVersion = {
     0b00000000: "MPEG-4",
     0b00001000: "MPEG-2",
@@ -121,6 +119,7 @@ export default class MPEG4Header {
     if (header.layer === "bad") return null;
 
     header.protection = MPEG4Header.protection[protectionBit];
+    header.headerByteLength = protectionBit ? 7 : 9;
 
     // Byte (3 of 7)
     // * `EEFFFFGH`
@@ -165,7 +164,8 @@ export default class MPEG4Header {
       new DataView(
         Uint8Array.from([0x00, buffer[3], buffer[4], buffer[5]]).buffer
       ).getUint32() & 0x3ffe0;
-    header.frameByteLength = frameLengthBits >> 5;
+    header.dataByteLength = (frameLengthBits >> 5) - header.headerByteLength;
+    if (!header.dataByteLength) return null;
 
     // Byte (6,7 of 7)
     // * `...OOOOO|OOOOOO..`: Buffer fullness
@@ -177,6 +177,7 @@ export default class MPEG4Header {
     // Byte (7 of 7)
     // * `......PP` Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
     header.numberAccFrames = buffer[6] & 0b00000011;
+    header.sampleLength = 1024;
 
     return header;
   }
@@ -185,6 +186,8 @@ export default class MPEG4Header {
     this._bufferFullness = header.bufferFullness;
     this._channelMode = header.channelMode;
     this._channels = header.channels;
+    this._dataByteLength = header.dataByteLength;
+    this._headerByteLength = header.headerByteLength;
     this._isCopyrighted = header.isCopyrighted;
     this._isHome = header.isHome;
     this._isOriginal = header.isOriginal;
@@ -194,22 +197,32 @@ export default class MPEG4Header {
     this._objectType = header.objectType;
     this._protection = header.protection;
     this._sampleRate = header.sampleRate;
-    this._frameByteLength = header.frameByteLength;
+    this._sampleLength = header.sampleLength;
   }
 
   get channels() {
     return this._channels;
   }
 
-  get frameByteLength() {
-    return this._frameByteLength;
+  /**
+   * @returns Total byte of audio data (Does not include header)
+   */
+  get dataByteLength() {
+    return this._dataByteLength;
+  }
+
+  /**
+   * @returns Total bytes of header data
+   */
+  get headerByteLength() {
+    return this._headerByteLength;
   }
 
   get sampleRate() {
     return this._sampleRate;
   }
 
-  //get sampleLength() {
-  //  return this._sampleLength;
-  //}
+  get sampleLength() {
+    return this._sampleLength;
+  }
 }

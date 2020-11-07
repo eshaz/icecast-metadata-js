@@ -29,7 +29,7 @@ export default class FragmentedISOBMFFBuilder {
    * @param {Header} header MPEG header
    * @returns {Uint8Array} Generic Filetype and Movie Box information for MP3
    */
-  static getMp3MovieBox(header) {
+  static getMpegMovieBox(header) {
     const boxes = [
       new Box("ftyp", {
         /* prettier-ignore */
@@ -104,7 +104,7 @@ export default class FragmentedISOBMFFBuilder {
    * @param {Array<Frame>} frames MPEG frames to contain in this Movie Fragment
    * @returns {Uint8Array} Movie Fragment containing the MPEG frames
    */
-  static wrapMp3InMovieFragment(frames) {
+  static wrapMpegFrames(frames) {
     const trun = new Box("trun", {
       /* prettier-ignore */
       contents: [
@@ -125,7 +125,7 @@ export default class FragmentedISOBMFFBuilder {
                 /* prettier-ignore */
                 contents: [0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0xBF,
                   ...Box.getUint32(frames[0].header.sampleLength), // default sample duration
-                  ...Box.getUint32(frames[0].data.length), // default sample size
+                  ...Box.getUint32(frames[0].data.length), // default sample size (avg of all frames)
                   0x02,0x00,0x00,0x00],
               }),
               trun,

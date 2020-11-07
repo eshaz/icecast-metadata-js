@@ -14,7 +14,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-export default class Frame {
+export default class MPEG12Frame {
   constructor(header, data) {
     this._header = header;
     this._data = data;

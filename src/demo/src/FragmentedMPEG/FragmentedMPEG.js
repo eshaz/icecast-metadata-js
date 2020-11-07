@@ -75,12 +75,12 @@ export default class FragmentedMPEG {
       yield* this._sendReceiveData();
       const parsedFrames = this._parseFrames();
       this._firstHeader = parsedFrames.length && parsedFrames[0].header;
-      frames = this._getMovieFragment();
+      frames = this._getMpegMovieFragment();
     }
 
     // yield the movie box along with a movie fragment containing frames
     frames = FragmentedMPEG.appendBuffers(
-      FragmentedISOBMFFBuilder.getMp3MovieBox(this._firstHeader),
+      FragmentedISOBMFFBuilder.getMpegMovieBox(this._firstHeader),
       frames
     );
 
@@ -88,7 +88,7 @@ export default class FragmentedMPEG {
     while (true) {
       yield* this._sendReceiveData(frames);
       this._parseFrames();
-      frames = this._getMovieFragment();
+      frames = this._getMpegMovieFragment();
     }
   }
 
@@ -117,7 +117,7 @@ export default class FragmentedMPEG {
 
       currentFrame = this._mpegParser.readFrameStream(
         this._mpegData,
-        currentFrame.offset + currentFrame.frame.header.frameByteLength
+        currentFrame.offset + currentFrame.frame.header.dataByteLength
       );
     }
     this._mpegData = this._mpegData.subarray(currentFrame.offset);
@@ -128,13 +128,13 @@ export default class FragmentedMPEG {
   /**
    * @private
    */
-  _getMovieFragment() {
+  _getMpegMovieFragment() {
     if (
       this._frames.length >= FragmentedMPEG.MIN_FRAMES &&
       this._frames.reduce((acc, frame) => acc + frame.data.length, 0) >=
         FragmentedMPEG.MIN_FRAMES_LENGTH
     ) {
-      const movieFragment = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
+      const movieFragment = FragmentedISOBMFFBuilder.wrapMpegFrames(
         this._frames
       );
 

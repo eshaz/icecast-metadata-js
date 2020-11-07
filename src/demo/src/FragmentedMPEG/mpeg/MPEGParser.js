@@ -16,19 +16,21 @@
 
 import MPEG12Header from "./version12/MPEG12Header";
 import MPEG4Header from "./version4/MPEG4Header";
-import Frame from "./Frame";
+import MPEG12Frame from "./version12/MPEG12Frame";
+import MPEG4Frame from "./version4/MPEG4Frame";
 
 export default class MPEGParser {
   constructor(mpegVersion) {
-    this._getHeader =
-      mpegVersion === "audio/aac"
-        ? this._getMPEG4Header
-        : this._getMPEG12Header;
-    this._headerLength =
-      mpegVersion === "audio/aac"
-        ? MPEG4Header.headerByteLength
-        : MPEG12Header.headerByteLength;
-    this._headerCache = new Map();
+    if (mpegVersion === "audio/aac") {
+      this._frameClass = MPEG4Frame;
+      this._getHeader = this._getMPEG4Header;
+      this._headerLength = 9;
+    } else {
+      this._frameClass = MPEG12Frame;
+      this._getHeader = this._getMPEG12Header;
+      this._headerLength = 4;
+      this._headerCache = new Map();
+    }
   }
 
   /**
@@ -38,7 +40,6 @@ export default class MPEGParser {
    */
   _getMPEG4Header(buffer) {
     const header = MPEG4Header.getHeader(buffer);
-    console.log(header);
     return header;
   }
 
@@ -81,14 +82,17 @@ export default class MPEGParser {
 
     if (header) {
       // check if there is a valid header immediately after this frame
-      const nextHeaderOffset = offset + header.frameByteLength;
-      if (nextHeaderOffset + this._headerLength <= data.length) {
+      const nextHeaderOffset = offset + header.dataByteLength;
+      if (nextHeaderOffset + header.headerByteLength <= data.length) {
         return this._getHeader(data.subarray(nextHeaderOffset))
           ? {
               offset,
-              frame: new Frame(header, data.subarray(offset, nextHeaderOffset)),
+              frame: new this._frameClass(
+                header,
+                data.subarray(offset, nextHeaderOffset)
+              ),
             }
-          : { offset: nextHeaderOffset + this._headerLength };
+          : { offset: nextHeaderOffset + header.headerByteLength };
       }
     }
 

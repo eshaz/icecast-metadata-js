@@ -177,7 +177,7 @@ class Header {
       new DataView(
         Uint8Array.from(0x00, [buffer[3], buffer[4], buffer[5]]).buffer
       ).getUint32() & 0x3ffe0;
-    header.frameByteLength = frameLengthBits >> 5;
+    header.dataByteLength = frameLengthBits >> 5;
 
     // Byte (6,7 of 7)
     // * `...OOOOO|OOOOOO..`: Buffer fullness

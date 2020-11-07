@@ -17,8 +17,6 @@
 // http://www.mp3-tech.org/programmer/frame_header.html
 
 export default class MPEG12Header {
-  static headerByteLength = 4;
-
   static bitrateMatrix = {
     // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
     0b00000000: ["free", "free", "free", "free", "free"],
@@ -173,6 +171,7 @@ export default class MPEG12Header {
     const protectionBit = buffer[1] & 0b00000001;
 
     const header = {};
+    header.headerByteLength = 4;
 
     // Mpeg version (1, 2, 2.5)
     const mpegVersion = MPEG12Header.mpegVersions[mpegVersionBits];
@@ -211,11 +210,11 @@ export default class MPEG12Header {
     header.framePadding = paddingBit >> 1 && layer.framePadding;
     header.isPrivate = !!privateBit;
 
-    header.frameByteLength = Math.floor(
+    header.dataByteLength = Math.floor(
       (125 * header.bitrate * header.sampleLength) / header.sampleRate +
         header.framePadding
     );
-    if (!header.frameByteLength) return null;
+    if (!header.dataByteLength) return null;
 
     // Header's fourth (out of four) octet: `IIJJKLMM`
     //
@@ -246,8 +245,10 @@ export default class MPEG12Header {
     this._bitrate = header.bitrate;
     this._channelMode = header.channelMode;
     this._channels = header.channels;
+    this._dataByteLength = header.dataByteLength;
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
+    this._headerByteLength = header.headerByteLength;
     this._isCopyrighted = header.isCopyrighted;
     this._isOriginal = header.isOriginal;
     this._isPrivate = header.isPrivate;
@@ -257,15 +258,24 @@ export default class MPEG12Header {
     this._protection = header.protection;
     this._sampleLength = header.sampleLength;
     this._sampleRate = header.sampleRate;
-    this._frameByteLength = header.frameByteLength;
   }
 
   get channels() {
     return this._channels;
   }
 
-  get frameByteLength() {
-    return this._frameByteLength;
+  /**
+   * @returns Total byte of audio data (Does not include header)
+   */
+  get dataByteLength() {
+    return this._dataByteLength;
+  }
+
+  /**
+   * @returns Total bytes of header data
+   */
+  get headerByteLength() {
+    return this._headerByteLength;
   }
 
   get sampleRate() {
