@@ -24,8 +24,8 @@ export default class FragmentedMPEG {
   static MIN_FRAMES = 2;
   static MIN_FRAMES_LENGTH = 1022;
 
-  constructor() {
-    this._mpegParser = new MPEGParser();
+  constructor(mimeType) {
+    this._mpegParser = new MPEGParser(mimeType);
     this._frames = [];
     this._mpegData = new Uint8Array(0);
 

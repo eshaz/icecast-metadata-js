@@ -20,15 +20,34 @@ import Frame from "./Frame";
 
 export default class MPEGParser {
   constructor(mpegVersion) {
+    this._getHeader =
+      mpegVersion === "audio/aac"
+        ? this._getMPEG4Header
+        : this._getMPEG12Header;
+    this._headerLength =
+      mpegVersion === "audio/aac"
+        ? MPEG4Header.headerByteLength
+        : MPEG12Header.headerByteLength;
     this._headerCache = new Map();
   }
 
   /**
    * @private
-   * @description Caches valid headers so parsing only happens once
+   * @description Caches valid MPEG 1/2 so they are parsed only happens once
    * @param {data} buffer Header data
    */
-  _getHeader(buffer) {
+  _getMPEG4Header(buffer) {
+    const header = MPEG4Header.getHeader(buffer);
+    console.log(header);
+    return header;
+  }
+
+  /**
+   * @private
+   * @description Caches valid MPEG 1/2 so they are parsed only happens once
+   * @param {data} buffer Header data
+   */
+  _getMPEG12Header(buffer) {
     const key = String.fromCharCode(
       ...buffer.subarray(0, MPEG12Header.headerByteLength)
     );
@@ -55,7 +74,7 @@ export default class MPEGParser {
     let header = this._getHeader(data.subarray(offset));
 
     // find a header in the data
-    while (!header && offset + MPEG12Header.headerByteLength < data.length) {
+    while (!header && offset + this._headerLength < data.length) {
       offset++;
       header = this._getHeader(data.subarray(offset));
     }
@@ -63,13 +82,13 @@ export default class MPEGParser {
     if (header) {
       // check if there is a valid header immediately after this frame
       const nextHeaderOffset = offset + header.frameByteLength;
-      if (nextHeaderOffset + MPEG12Header.headerByteLength <= data.length) {
+      if (nextHeaderOffset + this._headerLength <= data.length) {
         return this._getHeader(data.subarray(nextHeaderOffset))
           ? {
               offset,
               frame: new Frame(header, data.subarray(offset, nextHeaderOffset)),
             }
-          : { offset: nextHeaderOffset + MPEG12Header.headerByteLength };
+          : { offset: nextHeaderOffset + this._headerLength };
       }
     }
 

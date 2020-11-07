@@ -69,7 +69,7 @@ export default class MPEG4Header {
     0b00111100: "frequency is written explictly",
   };
 
-  static channelConfiguration = {
+  static channelMode = {
     0b000000000: { channels: 0, description: "Defined in AOT Specifc Config" },
     0b001000000: { channels: 1, description: "front-center" },
     0b010000000: { channels: 2, description: "front-left, front-right" },
@@ -98,7 +98,7 @@ export default class MPEG4Header {
     },
   };
 
-  static buildHeader(buffer) {
+  static getHeader(buffer) {
     // Must be at least seven bytes.
     if (buffer.length < MPEG4Header.headerByteLength) return null;
 
@@ -127,12 +127,12 @@ export default class MPEG4Header {
     // * `EE......`: profile, the MPEG-4 Audio Object Type minus 1
     // * `..FFFF..`: MPEG-4 Sampling Frequency Index (15 is forbidden)
     // * `......G.`: private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
-    const profileBits = buffer[1] & 0b11000000;
-    const sampleRateBits = buffer[1] & 0b00111100;
+    const objectTypeBits = buffer[2] & 0b11000000;
+    const sampleRateBits = buffer[2] & 0b00111100;
 
-    header.profile = MPEG4Header.profile[profileBits];
-    header.sampleRateBits = MPEG4Header.sampleRates[sampleRateBits];
+    header.objectType = MPEG4Header.objectTypes[objectTypeBits];
 
+    header.sampleRate = MPEG4Header.sampleRates[sampleRateBits];
     if (header.sampleRate === "reserved") return null;
 
     // Byte (3,4 of 7)
@@ -163,14 +163,14 @@ export default class MPEG4Header {
     // * `.......MM|MMMMMMMM|MMM.....`: frame length, this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
     const frameLengthBits =
       new DataView(
-        Uint8Array.from(0x00, [buffer[3], buffer[4], buffer[5]]).buffer
+        Uint8Array.from([0x00, buffer[3], buffer[4], buffer[5]]).buffer
       ).getUint32() & 0x3ffe0;
     header.frameByteLength = frameLengthBits >> 5;
 
     // Byte (6,7 of 7)
     // * `...OOOOO|OOOOOO..`: Buffer fullness
     const bufferFullnessBits =
-      new DataView(Uint8Array.from(buffer[5], buffer[6]).buffer).getUint16() &
+      new DataView(Uint8Array.from([buffer[5], buffer[6]]).buffer).getUint16() &
       0x1ffc;
     header.bufferFullness = bufferFullnessBits >> 2;
 
@@ -191,7 +191,7 @@ export default class MPEG4Header {
     this._isPrivate = header.isPrivate;
     this._layer = header.layer;
     this._mpegVersion = header.mpegVersion;
-    this._profile = header.profile;
+    this._objectType = header.objectType;
     this._protection = header.protection;
     this._sampleRate = header.sampleRate;
     this._frameByteLength = header.frameByteLength;

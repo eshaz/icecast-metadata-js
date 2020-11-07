@@ -86,12 +86,13 @@ export default class MetadataPlayer {
 
       this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
     } else if (
-      mimeType === "audio/mpeg" &&
-      MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
+      true
+      //mimeType === "audio/mpeg" &&
+      //MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
     ) {
-      await this._createMediaSource('audio/mp4; codecs="mp3"');
+      await this._createMediaSource("audio/mp4");
 
-      this._mp3ToMp4 = new FragmentedMPEG();
+      this._mp3ToMp4 = new FragmentedMPEG(mimeType);
       this._onStream = async ({ stream }) => {
         for await (const movieFragment of this._mp3ToMp4.iterator(stream)) {
           await this._appendSourceBuffer(movieFragment);
@@ -134,13 +135,13 @@ export default class MetadataPlayer {
             this._isInitialMetadata = false;
           },
         }).startReading();
-      })
-      .catch((e) => {
+      });
+    /*.catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });
+      });*/
   }
 
   stop() {
