@@ -55,7 +55,6 @@ export default class MetadataPlayer {
 
     if (this._audioElement.currentTime > 0) {
       this._sourceBuffer.remove(0, this._audioElement.currentTime);
-
       await this._waitForSourceBuffer();
     }
   }
@@ -68,6 +67,8 @@ export default class MetadataPlayer {
   }
 
   async fetchStream(endpoint) {
+    this._controller = new AbortController();
+
     return fetch(endpoint, {
       method: "GET",
       headers: {
@@ -82,32 +83,19 @@ export default class MetadataPlayer {
 
     if (MediaSource.isTypeSupported(mimeType)) {
       await this._createMediaSource(mimeType);
-      this._icecastCallbacks = {
-        onStream: ({ stream }) => this._appendSourceBuffer(stream),
-        onMetadata: (value) => {
-          this._icecastMetadataQueue.addMetadata(
-            value,
-            this._sourceBuffer.timestampOffset - this._audioElement.currentTime
-          );
-        },
-      };
+
+      this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
     } else if (
       mimeType === "audio/mpeg" &&
       MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
     ) {
       await this._createMediaSource('audio/mp4; codecs="mp3"');
-      this._icecastCallbacks = {
-        onStream: async ({ stream }) => {
-          for await (const movieFragment of this._mp3ToMp4.iterator(stream)) {
-            await this._appendSourceBuffer(movieFragment);
-          }
-        },
-        onMetadata: (value) => {
-          this._icecastMetadataQueue.addMetadata(
-            value,
-            this._sourceBuffer.timestampOffset - this._audioElement.currentTime
-          );
-        },
+
+      this._mp3ToMp4 = new FragmentedMPEG();
+      this._onStream = async ({ stream }) => {
+        for await (const movieFragment of this._mp3ToMp4.iterator(stream)) {
+          await this._appendSourceBuffer(movieFragment);
+        }
       };
     } else {
       throw new Error(
@@ -119,28 +107,26 @@ export default class MetadataPlayer {
   }
 
   play(endpoint, icyMetaInt) {
-    if (this._playing) {
-      this.stop();
-    }
-
+    if (this._playing) this.stop();
     this._playing = true;
-    this._controller = new AbortController();
-
     this._streamPromise = this.fetchStream(endpoint);
 
     Promise.race([this.fetchMimeType(endpoint), this._streamPromise])
       .then((res) => this.getMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
-        this._mp3ToMp4 = new FragmentedMPEG();
 
-        const icecast = new IcecastReadableStream(res, {
+        await new IcecastReadableStream(res, {
           icyMetaInt,
-          ...this._icecastCallbacks,
-        });
-
-        for await (const stream of icecast.asyncIterator) {
-        }
+          onStream: this._onStream,
+          onMetadata: (value) => {
+            this._icecastMetadataQueue.addMetadata(
+              value,
+              this._sourceBuffer.timestampOffset -
+                this._audioElement.currentTime
+            );
+          },
+        }).startReading();
       })
       .catch((e) => {
         if (e.name !== "AbortError") {

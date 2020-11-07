@@ -45,8 +45,7 @@ export default class IcecastReadableStream extends ReadableStream {
         });
 
         for await (const chunk of readerIterator) {
-          for await (let i of icecast.asyncIterator(chunk)) {
-          }
+          await icecast.asyncReadAll(chunk);
         }
 
         controller.close();
@@ -58,8 +57,9 @@ export default class IcecastReadableStream extends ReadableStream {
    * @description Creates an async iterator from this ReadableStream.
    * @returns {Symbol.asyncIterator} Async Iterator for this ReadableStream.
    */
-  get asyncIterator() {
-    return IcecastReadableStream.asyncIterator(this);
+  async startReading() {
+    for await (const i of IcecastReadableStream.asyncIterator(this)) {
+    }
   }
 
   /**
