@@ -139,6 +139,15 @@ A generator that takes in raw icecast response data and returnsx stream data and
   * Iteration will pause until the `onStream` and `onMetadata` resolve.
   * `onStream` is called and awaited when stream is read
   * `onMetadata` is called and awaited when metadata is read
+* `icecastReader.readAll(data: Uint8Array)`
+  * Takes in a byte array of raw icecast response body and parses the data.
+  * `onStream` is called when stream is read
+  * `onMetadata` is called when metadata is read
+* `icecastReader.asyncReadAll(data: Uint8Array)`
+  * Takes in a byte array of raw icecast response body and parses the data.
+  * Iteration will pause until the `onStream` and `onMetadata` resolve.
+  * `onStream` is called and awaited when stream is read
+  * `onMetadata` is called and awaited when metadata is read
 * `icecastReader.parseMetadataBytes(data: Uint8Array)`
   * Takes in a byte array of Icecast metadata
   * Returns object with metadata parsed into key value pairs (see below)
@@ -290,17 +299,15 @@ A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadable
         }
       );
       
-      for await (const stream of icecast.asyncIterator) {
-        // do something with the stream data
-      }
+      await icecast.startReading();
     });
     </pre>
 
 ### Methods
 `const icecastReadable = new IcecastReadableStream(fetchResponse, {icyMetaInt, onStream, onMetadata})`
 
-* `icecastStream.asyncIterator`
-  * Getter that returns an asyncIterator that can used to read stream data
+* `icecastStream.startReading`
+  * Starts reading and parsing the response. Resolves once response had ended.
   * `onStream` is called and awaited when stream data is discovered
   * `onMetadata` is called and awaited when metadata is discovered
 
@@ -445,17 +452,20 @@ https://github.com/eshaz/icecast-metadata-js/tree/master/src/demo
 
 ### Browser compatibility
 
-The demo is based on the MediaSource Extentions (MSE) API. Some browsers do not support common audio formats with the MSE API. *(i.e. Firefox does not support audio/mpeg or audio/aac)*
+The demo is based on the MediaSource Extensions (MSE) API. Some browsers do not support common audio formats with the MSE API. *(i.e. Firefox does not support audio/aac)* If you find that your browser doesn't support an MSE codec that you would like to use for Icecast, please enter a GitHub issue.
 
 Checkout this link to see which codecs your browser supports.
 https://cconcolato.github.io/media-mime-support/#audio_codecs
 
 
-#### Supported Browsers:
- * Chrome
+#### Supported Browsers / Codecs:
+ * Chrome `audio/mpeg`, `audio/aac`
+ * Firefox *`audio/mpeg` is supported by wrapping the data in Fragmented ISOBMFF `audio/mp4; codecs="mp3"`*
+ * iOS / Safari *support unknown*
 
 #### Un-supported Browsers:
- * Firefox *MediaSource codecs `audio/mpeg` and `audio/aac` are not supported*
+ * Chrome `audio/opus`, `audio/ogg`
+ * Firefox *MediaSource codecs `audio/aac`, `audio/opus`, `audio/ogg` are not supported*
 
 ### Running Locally
 
