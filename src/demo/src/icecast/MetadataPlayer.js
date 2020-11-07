@@ -63,7 +63,7 @@ export default class MetadataPlayer {
     return fetch(endpoint, {
       method: "HEAD",
       mode: "cors",
-    }).catch(() => new Promise(() => {}));
+    });
   }
 
   async fetchStream(endpoint) {
@@ -111,7 +111,10 @@ export default class MetadataPlayer {
     this._playing = true;
     this._streamPromise = this.fetchStream(endpoint);
 
-    Promise.race([this.fetchMimeType(endpoint), this._streamPromise])
+    Promise.race([
+      this.fetchMimeType(endpoint).catch(() => this._streamPromise),
+      this._streamPromise,
+    ])
       .then((res) => this.getMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
