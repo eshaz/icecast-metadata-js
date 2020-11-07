@@ -161,6 +161,18 @@ class IcecastMetadataReader {
   }
 
   /**
+   * @description Reads all data in the passed in chunk and calls the onStream and onMetadata callbacks.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   */
+  readAll(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {}
+  }
+
+  /**
    * @description Returns an async iterator that yields stream or metadata and awaits the onStream and onMetadata callbacks.
    * @param {Uint8Array} chunk Next chunk of data to read
    * @returns {IterableIterator} Iterator that operates over a raw icecast response.
@@ -175,6 +187,21 @@ class IcecastMetadataReader {
       await this._onStreamPromise;
       await this._onMetadataPromise;
       yield i.value;
+    }
+  }
+
+  /**
+   * @description Reads all data in the chunk and awaits the onStream and onMetadata callbacks.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   */
+  async asyncReadAll(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {
+      await this._onStreamPromise;
+      await this._onMetadataPromise;
     }
   }
 

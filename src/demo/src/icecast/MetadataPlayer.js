@@ -1,5 +1,6 @@
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
+import FragmentedMPEG from "../FragmentedMPEG/FragmentedMPEG";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate }) {
@@ -25,6 +26,7 @@ export default class MetadataPlayer {
         "sourceopen",
         () => {
           this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
+          this._sourceBuffer.mode = "sequence";
           resolve();
         },
         { once: true }
@@ -41,24 +43,32 @@ export default class MetadataPlayer {
         .catch(() => {});
   }
 
-  async _appendSourceBuffer(chunk) {
-    this._sourceBuffer.appendBuffer(chunk);
-
+  async _waitForSourceBuffer() {
     return new Promise((resolve) => {
       this._sourceBuffer.addEventListener("updateend", resolve, { once: true });
     });
   }
 
+  async _appendSourceBuffer(chunk) {
+    this._sourceBuffer.appendBuffer(chunk);
+    await this._waitForSourceBuffer();
+
+    if (this._audioElement.currentTime > 0) {
+      this._sourceBuffer.remove(0, this._audioElement.currentTime);
+      await this._waitForSourceBuffer();
+    }
+  }
+
   async fetchMimeType(endpoint) {
-    const headResponse = await fetch(endpoint, {
+    return fetch(endpoint, {
       method: "HEAD",
       mode: "cors",
-    }).catch(() => {});
-
-    return headResponse ? headResponse : new Promise(() => {});
+    });
   }
 
   async fetchStream(endpoint) {
+    this._controller = new AbortController();
+
     return fetch(endpoint, {
       method: "GET",
       headers: {
@@ -68,35 +78,50 @@ export default class MetadataPlayer {
     });
   }
 
-  play(endpoint, icyMetaInt) {
-    if (this._playing) {
-      this.stop();
+  async getMediaSource(res) {
+    const mimeType = res.headers.get("content-type");
+
+    if (MediaSource.isTypeSupported(mimeType)) {
+      await this._createMediaSource(mimeType);
+
+      this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
+    } else if (
+      mimeType === "audio/mpeg" &&
+      MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
+    ) {
+      await this._createMediaSource('audio/mp4; codecs="mp3"');
+
+      this._mp3ToMp4 = new FragmentedMPEG();
+      this._onStream = async ({ stream }) => {
+        for await (const movieFragment of this._mp3ToMp4.iterator(stream)) {
+          await this._appendSourceBuffer(movieFragment);
+        }
+      };
+    } else {
+      throw new Error(
+        `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
+      );
     }
 
+    return this._streamPromise;
+  }
+
+  play(endpoint, icyMetaInt) {
+    if (this._playing) this.stop();
     this._playing = true;
-    this._controller = new AbortController();
+    this._streamPromise = this.fetchStream(endpoint);
 
-    const streamPromise = this.fetchStream(endpoint);
-
-    Promise.race([this.fetchMimeType(endpoint), streamPromise])
-      .then(async (res) => {
-        const mimeType = res.headers.get("content-type");
-
-        if (MediaSource.isTypeSupported(mimeType)) {
-          await this._createMediaSource(mimeType);
-          return streamPromise;
-        } else {
-          throw new Error(
-            `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
-          );
-        }
-      })
+    Promise.race([
+      this.fetchMimeType(endpoint).catch(() => this._streamPromise),
+      this._streamPromise,
+    ])
+      .then((res) => this.getMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
 
-        const icecast = new IcecastReadableStream(res, {
+        await new IcecastReadableStream(res, {
           icyMetaInt,
-          onStream: ({ stream }) => this._appendSourceBuffer(stream),
+          onStream: this._onStream,
           onMetadata: (value) => {
             this._icecastMetadataQueue.addMetadata(
               value,
@@ -104,10 +129,7 @@ export default class MetadataPlayer {
                 this._audioElement.currentTime
             );
           },
-        });
-
-        for await (const stream of icecast.asyncIterator) {
-        }
+        }).startReading();
       })
       .catch((e) => {
         if (e.name !== "AbortError") {
