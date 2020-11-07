@@ -118,16 +118,20 @@ export default class MetadataPlayer {
       .then((res) => this.getMediaSource(res))
       .then(async (res) => {
         this._playPromise = this._audioElement.play();
+        this._isInitialMetadata = true;
 
         await new IcecastReadableStream(res, {
           icyMetaInt,
           onStream: this._onStream,
           onMetadata: (value) => {
-            this._icecastMetadataQueue.addMetadata(
-              value,
-              this._sourceBuffer.timestampOffset -
-                this._audioElement.currentTime
-            );
+            this._isInitialMetadata
+              ? this._onMetadataUpdate(value.metadata)
+              : this._icecastMetadataQueue.addMetadata(
+                  value,
+                  this._sourceBuffer.timestampOffset -
+                    this._audioElement.currentTime
+                );
+            this._isInitialMetadata = false;
           },
         }).startReading();
       })
