@@ -14,11 +14,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import Header from "./Header";
+import MPEG12Header from "./version12/MPEG12Header";
+import MPEG4Header from "./version4/MPEG4Header";
 import Frame from "./Frame";
 
 export default class MPEGParser {
-  constructor() {
+  constructor(mpegVersion) {
     this._headerCache = new Map();
   }
 
@@ -28,12 +29,14 @@ export default class MPEGParser {
    * @param {data} buffer Header data
    */
   _getHeader(buffer) {
-    const key = String.fromCharCode(...buffer.subarray(0, 4));
+    const key = String.fromCharCode(
+      ...buffer.subarray(0, MPEG12Header.headerByteLength)
+    );
 
     if (this._headerCache.has(key)) {
       return this._headerCache.get(key);
     } else {
-      const header = Header.getHeader(buffer);
+      const header = MPEG12Header.getHeader(buffer);
       if (header) {
         this._headerCache.set(key, header);
         return header;
@@ -52,7 +55,7 @@ export default class MPEGParser {
     let header = this._getHeader(data.subarray(offset));
 
     // find a header in the data
-    while (!header && offset + Header.headerByteLength < data.length) {
+    while (!header && offset + MPEG12Header.headerByteLength < data.length) {
       offset++;
       header = this._getHeader(data.subarray(offset));
     }
@@ -60,13 +63,13 @@ export default class MPEGParser {
     if (header) {
       // check if there is a valid header immediately after this frame
       const nextHeaderOffset = offset + header.frameByteLength;
-      if (nextHeaderOffset + Header.headerByteLength <= data.length) {
+      if (nextHeaderOffset + MPEG12Header.headerByteLength <= data.length) {
         return this._getHeader(data.subarray(nextHeaderOffset))
           ? {
               offset,
               frame: new Frame(header, data.subarray(offset, nextHeaderOffset)),
             }
-          : { offset: nextHeaderOffset + Header.headerByteLength };
+          : { offset: nextHeaderOffset + MPEG12Header.headerByteLength };
       }
     }
 

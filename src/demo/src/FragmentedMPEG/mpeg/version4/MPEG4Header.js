@@ -3,7 +3,7 @@ https://wiki.multimedia.cx/index.php/ADTS
 
 AAAAAAAA AAAABCCD EEFFFFGH HHIJKLMM MMMMMMMM MMMOOOOO OOOOOOPP (QQQQQQQQ QQQQQQQQ)
 
-Header consists of 7 or 9 bytes (without or with CRC).
+MPEG4Header consists of 7 or 9 bytes (without or with CRC).
 Letter 	Length (bits) 	Description
 A 	12 	syncword 0xFFF, all bits must be 1
 B 	1 	MPEG Version: 0 for MPEG-4, 1 for MPEG-2
@@ -23,8 +23,8 @@ P 	2 	Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibili
 Q 	16 	CRC if protection absent is 0 
 */
 
-class Header {
-  constructor(header) {}
+export default class MPEG4Header {
+  static headerByteLength = 7;
 
   static mpegVersion = {
     0b00000000: "MPEG-4",
@@ -69,7 +69,7 @@ class Header {
     0b00111100: "frequency is written explictly",
   };
 
-  static channelMode = {
+  static channelConfiguration = {
     0b000000000: { channels: 0, description: "Defined in AOT Specifc Config" },
     0b001000000: { channels: 1, description: "front-center" },
     0b010000000: { channels: 2, description: "front-left, front-right" },
@@ -98,24 +98,9 @@ class Header {
     },
   };
 
-  static original = {
-    0b00000000: false,
-    0b00100000: true,
-  };
-
-  static private = {
-    0b00000000: false,
-    0b00010000: true,
-  };
-
-  static copyright = {
-    0b00000000: false,
-    0b00001000: true,
-  };
-
   static buildHeader(buffer) {
     // Must be at least seven bytes.
-    if (buffer.length < 7) return null;
+    if (buffer.length < MPEG4Header.headerByteLength) return null;
 
     // Frame sync (all bits must be set): `11111111|1111`:
     if (buffer[0] !== 0xff || buffer[1] < 0xf0) return null;
@@ -130,12 +115,12 @@ class Header {
     const protectionBit = buffer[1] & 0b00000001;
 
     const header = {};
-    header.mpegVersion = Header.mpegVersion[mpegVersionBits];
+    header.mpegVersion = MPEG4Header.mpegVersion[mpegVersionBits];
 
-    header.layer = Header.layer[layerBits];
+    header.layer = MPEG4Header.layer[layerBits];
     if (header.layer === "bad") return null;
 
-    header.protection = Header.protection[protectionBit];
+    header.protection = MPEG4Header.protection[protectionBit];
 
     // Byte (3 of 7)
     // * `EEFFFFGH`
@@ -145,17 +130,18 @@ class Header {
     const profileBits = buffer[1] & 0b11000000;
     const sampleRateBits = buffer[1] & 0b00111100;
 
-    header.profile = Header.profile[profileBits];
-    header.sampleRateBits = Header.sampleRates[sampleRateBits];
+    header.profile = MPEG4Header.profile[profileBits];
+    header.sampleRateBits = MPEG4Header.sampleRates[sampleRateBits];
 
     if (header.sampleRate === "reserved") return null;
 
     // Byte (3,4 of 7)
     // * `.......H|HH......`: MPEG-4 Channel Configuration (in the case of 0, the channel configuration is sent via an inband PCE)
-    const channelConfigurationBits =
+    const channelModeBits =
       new DataView(Uint8Array.from([buffer[2], buffer[3]]).buffer).getUint16() &
       0b111000000;
-    header.channelConfiguration = Header.channelMode[channelConfigurationBits];
+    header.channelMode = MPEG4Header.channelMode[channelModeBits].description;
+    header.channels = MPEG4Header.channelMode[channelModeBits].channels;
 
     // Byte (4 of 7)
     // * `HHIJKLMM`
@@ -164,12 +150,14 @@ class Header {
     // * `....K...`: private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
     // * `.....L..`: copyright id start, signals that this frame's copyright id bit is the first bit of the copyright id, set to 0 when encoding, ignore when decoding
     const originalBit = buffer[3] & 0b00100000;
-    const privateBit = buffer[3] & 0b00010000;
+    const homeBit = buffer[3] & 0b00001000;
+    const privateBit = buffer[3] & 0b00001000;
     const copyrightIdBit = buffer[3] & 0b00000100;
 
-    header.original = Header.original[originalBit];
-    header.private = Header.private[privateBit];
-    header.copyrightId = Header.copyrightId[copyrightIdBit];
+    header.isOriginal = !!(originalBit >> 5);
+    header.isHome = !!(homeBit >> 4);
+    header.isPrivate = !!(privateBit >> 3);
+    header.isCopyrighted = !!(copyrightIdBit >> 2);
 
     // Byte (4,5,6 of 7)
     // * `.......MM|MMMMMMMM|MMM.....`: frame length, this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
@@ -192,4 +180,36 @@ class Header {
 
     return header;
   }
+
+  constructor(header) {
+    this._bufferFullness = header.bufferFullness;
+    this._channelMode = header.channelMode;
+    this._channels = header.channels;
+    this._isCopyrighted = header.isCopyrighted;
+    this._isHome = header.isHome;
+    this._isOriginal = header.isOriginal;
+    this._isPrivate = header.isPrivate;
+    this._layer = header.layer;
+    this._mpegVersion = header.mpegVersion;
+    this._profile = header.profile;
+    this._protection = header.protection;
+    this._sampleRate = header.sampleRate;
+    this._frameByteLength = header.frameByteLength;
+  }
+
+  get channels() {
+    return this._channels;
+  }
+
+  get frameByteLength() {
+    return this._frameByteLength;
+  }
+
+  get sampleRate() {
+    return this._sampleRate;
+  }
+
+  //get sampleLength() {
+  //  return this._sampleLength;
+  //}
 }
