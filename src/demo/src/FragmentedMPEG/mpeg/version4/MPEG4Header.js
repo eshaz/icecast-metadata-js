@@ -154,7 +154,7 @@ export default class MPEG4Header {
       (profileBits << 5) +
       (sampleRateBits << 5) +
       (channelModeBits >> 3) +
-      0x800;
+      0x800; // add 1 to the profileBits
 
     // Byte (4 of 7)
     // * `HHIJKLMM`
