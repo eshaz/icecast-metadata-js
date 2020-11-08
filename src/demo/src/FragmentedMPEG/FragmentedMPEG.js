@@ -117,7 +117,7 @@ export default class FragmentedMPEG {
 
       currentFrame = this._mpegParser.readFrameStream(
         this._mpegData,
-        currentFrame.offset + currentFrame.frame.header.dataByteLength
+        currentFrame.offset + currentFrame.frame.length
       );
     }
     this._mpegData = this._mpegData.subarray(currentFrame.offset);

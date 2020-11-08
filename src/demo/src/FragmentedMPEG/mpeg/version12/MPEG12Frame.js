@@ -20,6 +20,10 @@ export default class MPEG12Frame {
     this._data = data;
   }
 
+  get length() {
+    return this._data.length;
+  }
+
   get header() {
     return this._header;
   }

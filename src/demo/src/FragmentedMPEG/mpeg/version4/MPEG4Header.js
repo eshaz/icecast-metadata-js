@@ -41,7 +41,7 @@ export default class MPEG4Header {
     0b00000001: "none",
   };
 
-  static objectTypes = {
+  static profile = {
     0b00000000: "AAC Main",
     0b01000000: "AAC LC (Low Complexity)",
     0b10000000: "AAC SSR (Scalable Sample Rate)",
@@ -126,10 +126,10 @@ export default class MPEG4Header {
     // * `EE......`: profile, the MPEG-4 Audio Object Type minus 1
     // * `..FFFF..`: MPEG-4 Sampling Frequency Index (15 is forbidden)
     // * `......G.`: private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
-    const objectTypeBits = buffer[2] & 0b11000000;
+    const profileBits = buffer[2] & 0b11000000;
     const sampleRateBits = buffer[2] & 0b00111100;
 
-    header.objectType = MPEG4Header.objectTypes[objectTypeBits];
+    header.profile = MPEG4Header.profile[profileBits];
 
     header.sampleRate = MPEG4Header.sampleRates[sampleRateBits];
     if (header.sampleRate === "reserved") return null;
@@ -164,7 +164,7 @@ export default class MPEG4Header {
       new DataView(
         Uint8Array.from([0x00, buffer[3], buffer[4], buffer[5]]).buffer
       ).getUint32() & 0x3ffe0;
-    header.dataByteLength = (frameLengthBits >> 5) - header.headerByteLength;
+    header.dataByteLength = frameLengthBits >> 5;
     if (!header.dataByteLength) return null;
 
     // Byte (6,7 of 7)
@@ -194,7 +194,7 @@ export default class MPEG4Header {
     this._isPrivate = header.isPrivate;
     this._layer = header.layer;
     this._mpegVersion = header.mpegVersion;
-    this._objectType = header.objectType;
+    this._profile = header.profile;
     this._protection = header.protection;
     this._sampleRate = header.sampleRate;
     this._sampleLength = header.sampleLength;
