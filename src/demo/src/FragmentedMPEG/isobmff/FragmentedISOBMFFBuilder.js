@@ -102,28 +102,29 @@ export default class FragmentedISOBMFFBuilder {
                                     /* prettier-ignore */
                                     contents: [0x00,0x00,0x00,0x00, // Version/Flags field (0), meaning tagged Elementary Stream Descriptor follows
                                       0x03, // TAG(3) = Object Descriptor ([2])
-                                      0x80,0x80,0x80,0x1b, // length of this Object Descriptor (which includes the next 2 tags)
+                                      0x80,0x80,0x80,0x22, // length of this Object Descriptor (which includes the next 2 tags)
                                       0x00,0x01, // ES_ID = 1
                                       0x00, // flags etc = 0
 
                                       0x04, // TAG(4) = ES Descriptor ([2]) embedded in above OD
-                                      0x80,0x80,0x80,0x0d, // length of this ESD
+                                      0x80,0x80,0x80,0x14, // length of this ESD
                                       /*
                                       0x40 - MPEG-4 Audio
                                       0x6b - MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
                                       0x69 - MPEG-2 Backward Compatible Audio (MPEG-2 Layers 1, 2, and 3)
                                       0x67 - MPEG-2 AAC LC
                                       */
-                                      0x6b, // MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
+                                      0x40, // MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
                                       0x15, // stream type(6bits)=5 audio, flags(2bits)=1
                                       0x00,0x00,0x00, // 24bit buffer size
-                                      0x00,0x00,0xfa,0x00, // max bitrate
+                                      0x00,0x00,0xf8,0xfa, // max bitrate
                                       0x00,0x00,0x00,0x00, // avg bitrate
 
                                       // mp4
-                                      //0x05, // TAG(5)
-                                      //0x80,0x80,0x80,0x02, // length
-                                      //0x12,0x10, // ASC
+                                      0x05, // TAG(5)
+                                      0x80,0x80,0x80,0x02, // length
+                                      ...header.audioSpecificConfig, // ASC 2 channel, 44.1
+                                      //0x56,0xe5,0x00, // unknown
 
                                       0x06, // TAG(6)
                                       0x80,0x80,0x80,0x01, // length
@@ -218,7 +219,8 @@ export default class FragmentedISOBMFFBuilder {
               new Box("tfhd", {
                 /* prettier-ignore */
                 contents: [0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,
-                  0x00,0x00,0x00,0x00,0x00,0x00,0x02,0xBF,
+                  0x00,0x00,0x00,0x00,
+                  0x00,0x00,0x02,0xc6, // base data offset length of moov box, mp3: 0x00,0x00,0x02,0xbf
                   ...Box.getUint32(frames[0].header.sampleLength), // default sample duration
                   ...Box.getUint32(frames[0].data.length), // default sample size (avg of all frames)
                   0x02,0x00,0x00,0x00],

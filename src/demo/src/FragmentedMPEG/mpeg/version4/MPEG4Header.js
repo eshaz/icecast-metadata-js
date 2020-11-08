@@ -193,7 +193,7 @@ export default class MPEG4Header {
     header.numberAccFrames = buffer[6] & 0b00000011;
     header.sampleLength = 1024;
 
-    return header;
+    return new MPEG4Header(header);
   }
 
   constructor(header) {
@@ -213,6 +213,12 @@ export default class MPEG4Header {
     this._protection = header.protection;
     this._sampleRate = header.sampleRate;
     this._sampleLength = header.sampleLength;
+  }
+
+  get audioSpecificConfig() {
+    const audioSpecificConfig = new Uint8Array(2);
+    new DataView(audioSpecificConfig.buffer).setUint16(0, this._audioSpecificConfig, false);
+    return audioSpecificConfig;
   }
 
   get channels() {
