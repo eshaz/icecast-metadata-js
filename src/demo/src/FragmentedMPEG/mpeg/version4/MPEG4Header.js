@@ -142,6 +142,20 @@ export default class MPEG4Header {
     header.channelMode = MPEG4Header.channelMode[channelModeBits].description;
     header.channels = MPEG4Header.channelMode[channelModeBits].channels;
 
+    // Audio Specific Configuration
+    // * `000EEFFF|F0HHH000`:
+    // * `000EE...|........`: Object Type (profileBit + 1)
+    // * `.....FFF|F.......`: Sample Rate
+    // * `........|.0HHH...`: Channel Configuration
+    // * `........|.....0..`: Frame Length (1024)
+    // * `........|......0.`: does not depend on core coder
+    // * `........|.......0`: Not Extension
+    header.audioSpecificConfig =
+      (profileBits << 5) +
+      (sampleRateBits << 5) +
+      (channelModeBits >> 3) +
+      0x800;
+
     // Byte (4 of 7)
     // * `HHIJKLMM`
     // * `..I.....`: originality, set to 0 when encoding, ignore when decoding
@@ -183,6 +197,7 @@ export default class MPEG4Header {
   }
 
   constructor(header) {
+    this._audioSpecificConfig = header.audioSpecificConfig;
     this._bufferFullness = header.bufferFullness;
     this._channelMode = header.channelMode;
     this._channels = header.channels;
