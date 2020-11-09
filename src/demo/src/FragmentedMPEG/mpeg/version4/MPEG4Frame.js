@@ -17,18 +17,28 @@
 export default class MPEG4Frame {
   constructor(header, data) {
     this._header = header;
-    this._data = data;
+    this._data = data.subarray(this._header.headerByteLength);
+    this._length = data.length;
   }
 
+  /**
+   * @returns Total length of frame (header + data)
+   */
   get length() {
-    return this._data.length;
+    return this._length;
   }
 
+  /**
+   * @returns {MPEG4Header} This frame's Instance of MPEG4 Header
+   */
   get header() {
     return this._header;
   }
 
+  /**
+   * @returns {Uint8Array} The frame data (does not include header)
+   */
   get data() {
-    return this._data.subarray(this._header.headerByteLength);
+    return this._data;
   }
 }

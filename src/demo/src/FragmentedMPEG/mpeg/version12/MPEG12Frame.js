@@ -20,14 +20,23 @@ export default class MPEG12Frame {
     this._data = data;
   }
 
+  /**
+   * @returns Total length of frame (header + data)
+   */
   get length() {
     return this._data.length;
   }
 
+  /**
+   * @returns {MPEG12Header} This frame's Instance of MPEG12 Header
+   */
   get header() {
     return this._header;
   }
 
+  /**
+   * @returns {MPEG12Header} {Uint8Array} The frame data (includes header)
+   */
   get data() {
     return this._data;
   }

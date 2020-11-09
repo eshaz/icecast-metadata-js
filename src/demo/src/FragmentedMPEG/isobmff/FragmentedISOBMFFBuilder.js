@@ -15,6 +15,7 @@
 */
 
 import Box from "./Box";
+import ElementaryStreamDescriptor from "./ElementaryStreamDescriptor";
 
 /**
  * @description Fragmented ISO Base Media File Format Builder is a class to
@@ -25,11 +26,15 @@ export default class FragmentedISOBMFFBuilder {
     return Uint8Array.from(boxes.flatMap((box) => [...box.contents]));
   }
 
+  constructor(mimeType) {
+    this._moovLength = mimeType === "audio/aac" ? 710 : 703;
+  }
+
   /**
    * @param {Header} header MPEG header
    * @returns {Uint8Array} Generic Filetype and Movie Box information for MP3
    */
-  static getMpegMovieBox(header) {
+  getMpegMovieBox(header) {
     const boxes = [
       new Box("ftyp", {
         /* prettier-ignore */
@@ -96,41 +101,7 @@ export default class FragmentedISOBMFFBuilder {
                                   0x00,0x00,
                                   ...Box.getUint32(header.sampleRate), // sample rate
                                   0x00,0x00],
-                                boxes: [
-                                  new Box("esds", {
-                                    // https://stackoverflow.com/questions/3987850/mp4-atom-how-to-discriminate-the-audio-codec-is-it-aac-or-mp3
-                                    /* prettier-ignore */
-                                    contents: [0x00,0x00,0x00,0x00, // Version/Flags field (0), meaning tagged Elementary Stream Descriptor follows
-                                      0x03, // TAG(3) = Object Descriptor ([2])
-                                      0x80,0x80,0x80,0x22, // length of this Object Descriptor (which includes the next 2 tags)
-                                      0x00,0x01, // ES_ID = 1
-                                      0x00, // flags etc = 0
-
-                                      0x04, // TAG(4) = ES Descriptor ([2]) embedded in above OD
-                                      0x80,0x80,0x80,0x14, // length of this ESD
-                                      /*
-                                      0x40 - MPEG-4 Audio
-                                      0x6b - MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
-                                      0x69 - MPEG-2 Backward Compatible Audio (MPEG-2 Layers 1, 2, and 3)
-                                      0x67 - MPEG-2 AAC LC
-                                      */
-                                      0x40, // MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
-                                      0x15, // stream type(6bits)=5 audio, flags(2bits)=1
-                                      0x00,0x00,0x00, // 24bit buffer size
-                                      0x00,0x00,0xf8,0xfa, // max bitrate
-                                      0x00,0x00,0x00,0x00, // avg bitrate
-
-                                      // mp4
-                                      0x05, // TAG(5)
-                                      0x80,0x80,0x80,0x02, // length
-                                      ...header.audioSpecificConfig, // ASC 2 channel, 44.1
-                                      //0x56,0xe5,0x00, // unknown
-
-                                      0x06, // TAG(6)
-                                      0x80,0x80,0x80,0x01, // length
-                                      0x02], // data
-                                  }),
-                                ],
+                                boxes: [new ElementaryStreamDescriptor(header)],
                               }),
                             ],
                           }),
@@ -189,7 +160,12 @@ export default class FragmentedISOBMFFBuilder {
       }),
     ];
 
-    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    const contents = FragmentedISOBMFFBuilder.getBoxContents(boxes);
+
+    this._moovLength = contents.length;
+    console.log(this._moovLength);
+
+    return contents;
   }
 
   /**
@@ -197,7 +173,7 @@ export default class FragmentedISOBMFFBuilder {
    * @param {Array<Frame>} frames MPEG frames to contain in this Movie Fragment
    * @returns {Uint8Array} Movie Fragment containing the MPEG frames
    */
-  static wrapMpegFrames(frames) {
+  wrapMpegFrames(frames) {
     const trun = new Box("trun", {
       /* prettier-ignore */
       contents: [
@@ -220,7 +196,7 @@ export default class FragmentedISOBMFFBuilder {
                 /* prettier-ignore */
                 contents: [0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,
                   0x00,0x00,0x00,0x00,
-                  0x00,0x00,0x02,0xc6, // base data offset length of moov box, mp3: 0x00,0x00,0x02,0xbf
+                  ...Box.getUint32(this._moovLength), // base data offset length of moov box, mp3: 0x00,0x00,0x02,0xbf
                   ...Box.getUint32(frames[0].header.sampleLength), // default sample duration
                   ...Box.getUint32(frames[0].data.length), // default sample size (avg of all frames)
                   0x02,0x00,0x00,0x00],

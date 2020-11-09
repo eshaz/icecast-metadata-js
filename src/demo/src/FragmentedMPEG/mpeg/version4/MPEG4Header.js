@@ -24,6 +24,8 @@ Q 	16 	CRC if protection absent is 0
 */
 
 export default class MPEG4Header {
+  static mimeType = "audio/aac";
+
   static mpegVersion = {
     0b00000000: "MPEG-4",
     0b00001000: "MPEG-2",
@@ -217,7 +219,11 @@ export default class MPEG4Header {
 
   get audioSpecificConfig() {
     const audioSpecificConfig = new Uint8Array(2);
-    new DataView(audioSpecificConfig.buffer).setUint16(0, this._audioSpecificConfig, false);
+    new DataView(audioSpecificConfig.buffer).setUint16(
+      0,
+      this._audioSpecificConfig,
+      false
+    );
     return audioSpecificConfig;
   }
 
@@ -237,6 +243,10 @@ export default class MPEG4Header {
    */
   get headerByteLength() {
     return this._headerByteLength;
+  }
+
+  get mimeType() {
+    return MPEG4Header.mimeType;
   }
 
   get sampleRate() {

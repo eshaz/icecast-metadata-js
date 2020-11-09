@@ -26,6 +26,7 @@ export default class FragmentedMPEG {
 
   constructor(mimeType) {
     this._mpegParser = new MPEGParser(mimeType);
+    this._fragmentedISOBMFFBuilder = new FragmentedISOBMFFBuilder(mimeType);
     this._frames = [];
     this._mpegData = new Uint8Array(0);
 
@@ -80,7 +81,7 @@ export default class FragmentedMPEG {
 
     // yield the movie box along with a movie fragment containing frames
     frames = FragmentedMPEG.appendBuffers(
-      FragmentedISOBMFFBuilder.getMpegMovieBox(this._firstHeader),
+      this._fragmentedISOBMFFBuilder.getMpegMovieBox(this._firstHeader),
       frames
     );
 
@@ -134,7 +135,7 @@ export default class FragmentedMPEG {
       this._frames.reduce((acc, frame) => acc + frame.data.length, 0) >=
         FragmentedMPEG.MIN_FRAMES_LENGTH
     ) {
-      const movieFragment = FragmentedISOBMFFBuilder.wrapMpegFrames(
+      const movieFragment = this._fragmentedISOBMFFBuilder.wrapMpegFrames(
         this._frames
       );
 

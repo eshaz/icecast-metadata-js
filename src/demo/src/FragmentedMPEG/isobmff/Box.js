@@ -21,14 +21,12 @@ export default class Box {
    * @description ISO/IEC 14496-12 Part 12 ISO Base Media File Format Box
    * @param {string} name Name of the box (i.e. 'moov', 'moof', 'traf')
    * @param {object} params Object containing contents or boxes
-   * @param {Uint8Array} [params.contents] Array of bytes to insert into this box
+   * @param {Array<Uint8>} [params.contents] Array of bytes to insert into this box
    * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
    */
   constructor(name, { contents = [], boxes = [] } = {}) {
-    this._contents = Uint8Array.from([
-      ...Box.stringToU8intArray(name),
-      ...contents,
-    ]);
+    this._name = Box.stringToByteArray(name);
+    this._contents = contents;
     this._boxes = boxes;
   }
 
@@ -37,12 +35,12 @@ export default class Box {
    * @param {string} name String to convert
    * @returns {Uint8Array}
    */
-  static stringToU8intArray(name) {
+  static stringToByteArray(name) {
     const array = [];
     for (const char of name) {
       array.push(char.charCodeAt(0));
     }
-    return Uint8Array.from(array);
+    return array;
   }
 
   /**
@@ -62,7 +60,7 @@ export default class Box {
   get length() {
     return this._boxes.reduce(
       (acc, box) => acc + box.length,
-      Box.LENGTH_SIZE + this._contents.length
+      Box.LENGTH_SIZE + 4 + this._contents.length
     );
   }
 
@@ -71,6 +69,7 @@ export default class Box {
    */
   get contents() {
     const contents = [
+      ...this._name,
       ...this._contents,
       ...this._boxes.flatMap((box) => [...box.contents]),
     ];
@@ -100,12 +99,11 @@ export default class Box {
    * @param {number} index Position to insert bytes
    */
   insertBytes(data, index) {
-    const insertOffset = index + 4;
-    this._contents = Uint8Array.from([
-      ...this._contents.subarray(0, insertOffset),
+    this._contents = [
+      ...this._contents.slice(0, index),
       ...data,
-      ...this._contents.subarray(insertOffset),
-    ]);
+      ...this._contents.slice(index),
+    ];
   }
 
   /**
@@ -113,6 +111,6 @@ export default class Box {
    * @param {Uint8Array} data Bytes to append
    */
   appendBytes(data) {
-    this._contents = Uint8Array.from([...this._contents, ...data]);
+    this._contents = [...this._contents, ...data];
   }
 }

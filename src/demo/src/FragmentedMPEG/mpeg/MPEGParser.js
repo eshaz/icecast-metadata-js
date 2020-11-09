@@ -20,8 +20,8 @@ import MPEG12Frame from "./version12/MPEG12Frame";
 import MPEG4Frame from "./version4/MPEG4Frame";
 
 export default class MPEGParser {
-  constructor(mpegVersion) {
-    if (mpegVersion === "audio/aac") {
+  constructor(mimeType) {
+    if (mimeType === "audio/aac") {
       this._frameClass = MPEG4Frame;
       this._getHeader = this._getMPEG4Header;
       this._headerLength = 9;
@@ -35,8 +35,10 @@ export default class MPEGParser {
 
   /**
    * @private
-   * @description Caches valid MPEG 1/2 so they are parsed only happens once
+   * @description Parses a MPEG 4 header from the passed in buffer.
    * @param {data} buffer Header data
+   * @returns {MPEG4Header} Instance of MPEG4Header
+   * @returns {null} If buffer does not contain a valid header
    */
   _getMPEG4Header(buffer) {
     const header = MPEG4Header.getHeader(buffer);
@@ -45,8 +47,10 @@ export default class MPEGParser {
 
   /**
    * @private
-   * @description Caches valid MPEG 1/2 so they are parsed only happens once
+   * @description Parses and caches valid MPEG 1/2 so they are parsed only happens once.
    * @param {data} buffer Header data
+   * @returns {MPEG12Header} Instance of MPEG12Header
+   * @returns {null} If buffer does not contain a valid header
    */
   _getMPEG12Header(buffer) {
     const key = String.fromCharCode(
@@ -68,7 +72,7 @@ export default class MPEGParser {
    * @description Finds and returns an MPEG frame in the context of a stream. Frame will be undefined if no valid frame was found at the offset.
    * @param {Uint8Array} data MPEG data that should contain an MPEG header, audio data, and then next MPEG header
    * @param {number} offset Offset where frame should be
-   * @returns {object} Object containing the actual offset and frame.
+   * @returns {object} Object containing the actual offset and frame. Frame is undefined if no valid MPEG header was found
    */
   readFrameStream(data, offset = 0) {
     // try to get the header at the given offset

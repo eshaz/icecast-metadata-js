@@ -17,6 +17,8 @@
 // http://www.mp3-tech.org/programmer/frame_header.html
 
 export default class MPEG12Header {
+  static mimeType = "audio/mpeg";
+
   static bitrateMatrix = {
     // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
     0b00000000: ["free", "free", "free", "free", "free"],
@@ -276,6 +278,10 @@ export default class MPEG12Header {
    */
   get headerByteLength() {
     return this._headerByteLength;
+  }
+
+  get mimeType() {
+    return MPEG12Header.mimeType;
   }
 
   get sampleRate() {
