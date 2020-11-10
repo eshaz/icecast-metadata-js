@@ -26,10 +26,6 @@ export default class FragmentedISOBMFFBuilder {
     return Uint8Array.from(boxes.flatMap((box) => [...box.contents]));
   }
 
-  constructor(mimeType) {
-    this._moovLength = mimeType === "audio/aac" ? 710 : 703;
-  }
-
   /**
    * @param {Header} header MPEG header
    * @returns {Uint8Array} Generic Filetype and Movie Box information for MP3
