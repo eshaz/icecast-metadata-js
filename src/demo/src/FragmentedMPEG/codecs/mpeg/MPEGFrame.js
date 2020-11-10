@@ -14,29 +14,28 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-export default class MPEG4Frame {
+export default class MPEGFrame {
   constructor(header, data) {
     this._header = header;
-    this._data = data.subarray(this._header.headerByteLength);
-    this._length = data.length;
+    this._data = data;
   }
 
   /**
    * @returns Total length of frame (header + data)
    */
   get length() {
-    return this._length;
+    return this._data.length;
   }
 
   /**
-   * @returns {MPEG4Header} This frame's Instance of MPEG4 Header
+   * @returns {MPEGHeader} This frame's Instance of MPEG Header
    */
   get header() {
     return this._header;
   }
 
   /**
-   * @returns {Uint8Array} The frame data (does not include header)
+   * @returns {MPEGHeader} {Uint8Array} The frame data (includes header)
    */
   get data() {
     return this._data;

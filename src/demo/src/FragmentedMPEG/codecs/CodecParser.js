@@ -14,20 +14,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEG12Header from "./version12/MPEG12Header";
-import MPEG4Header from "./version4/MPEG4Header";
-import MPEG12Frame from "./version12/MPEG12Frame";
-import MPEG4Frame from "./version4/MPEG4Frame";
+import MPEGHeader from "./mpeg/MPEGHeader";
+import MPEGFrame from "./mpeg/MPEGFrame";
 
-export default class MPEGParser {
+import AACHeader from "./aac/AACHeader";
+import AACFrame from "./aac/AACFrame";
+
+export default class CodecParser {
   constructor(mimeType) {
     if (mimeType === "audio/aac") {
-      this._frameClass = MPEG4Frame;
-      this._getHeader = this._getMPEG4Header;
+      this._frameClass = AACFrame;
+      this._getHeader = this._getAACHeader;
       this._headerLength = 9;
     } else {
-      this._frameClass = MPEG12Frame;
-      this._getHeader = this._getMPEG12Header;
+      this._frameClass = MPEGFrame;
+      this._getHeader = this._getMPEGHeader;
       this._headerLength = 4;
       this._headerCache = new Map();
     }
@@ -35,32 +36,32 @@ export default class MPEGParser {
 
   /**
    * @private
-   * @description Parses a MPEG 4 header from the passed in buffer.
+   * @description Parses an AAC header from the passed in buffer.
    * @param {data} buffer Header data
-   * @returns {MPEG4Header} Instance of MPEG4Header
+   * @returns {AACHeader} Instance of AACHeader
    * @returns {null} If buffer does not contain a valid header
    */
-  _getMPEG4Header(buffer) {
-    const header = MPEG4Header.getHeader(buffer);
+  _getAACHeader(buffer) {
+    const header = AACHeader.getHeader(buffer);
     return header;
   }
 
   /**
    * @private
-   * @description Parses and caches valid MPEG 1/2 so they are parsed only happens once.
+   * @description Parses and caches valid MPEG 1/2 headers so they are parsed only happens once.
    * @param {data} buffer Header data
-   * @returns {MPEG12Header} Instance of MPEG12Header
+   * @returns {MPEGHeader} Instance of MPEGHeader
    * @returns {null} If buffer does not contain a valid header
    */
-  _getMPEG12Header(buffer) {
+  _getMPEGHeader(buffer) {
     const key = String.fromCharCode(
-      ...buffer.subarray(0, MPEG12Header.headerByteLength)
+      ...buffer.subarray(0, MPEGHeader.headerByteLength)
     );
 
     if (this._headerCache.has(key)) {
       return this._headerCache.get(key);
     } else {
-      const header = MPEG12Header.getHeader(buffer);
+      const header = MPEGHeader.getHeader(buffer);
       if (header) {
         this._headerCache.set(key, header);
         return header;
@@ -69,10 +70,10 @@ export default class MPEGParser {
   }
 
   /**
-   * @description Finds and returns an MPEG frame in the context of a stream. Frame will be undefined if no valid frame was found at the offset.
-   * @param {Uint8Array} data MPEG data that should contain an MPEG header, audio data, and then next MPEG header
+   * @description Finds and returns a codec frame in the context of a stream. Frame will be undefined if no valid frame was found at the offset.
+   * @param {Uint8Array} data Codec data that should contain a header, audio data, and then next header
    * @param {number} offset Offset where frame should be
-   * @returns {object} Object containing the actual offset and frame. Frame is undefined if no valid MPEG header was found
+   * @returns {object} Object containing the actual offset and frame. Frame is undefined if no valid header was found
    */
   readFrameStream(data, offset = 0) {
     // try to get the header at the given offset

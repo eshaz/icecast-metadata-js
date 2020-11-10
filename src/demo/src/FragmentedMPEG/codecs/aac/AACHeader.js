@@ -3,7 +3,7 @@ https://wiki.multimedia.cx/index.php/ADTS
 
 AAAAAAAA AAAABCCD EEFFFFGH HHIJKLMM MMMMMMMM MMMOOOOO OOOOOOPP (QQQQQQQQ QQQQQQQQ)
 
-MPEG4Header consists of 7 or 9 bytes (without or with CRC).
+AACHeader consists of 7 or 9 bytes (without or with CRC).
 Letter 	Length (bits) 	Description
 A 	12 	syncword 0xFFF, all bits must be 1
 B 	1 	MPEG Version: 0 for MPEG-4, 1 for MPEG-2
@@ -23,7 +23,7 @@ P 	2 	Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibili
 Q 	16 	CRC if protection absent is 0 
 */
 
-export default class MPEG4Header {
+export default class AACHeader {
   static mimeType = "audio/aac";
 
   static mpegVersion = {
@@ -100,7 +100,7 @@ export default class MPEG4Header {
 
   static getHeader(buffer) {
     // Must be at least seven bytes.
-    if (buffer.length < MPEG4Header.headerByteLength) return null;
+    if (buffer.length < AACHeader.headerByteLength) return null;
 
     // Frame sync (all bits must be set): `11111111|1111`:
     if (buffer[0] !== 0xff || buffer[1] < 0xf0) return null;
@@ -115,12 +115,12 @@ export default class MPEG4Header {
     const protectionBit = buffer[1] & 0b00000001;
 
     const header = {};
-    header.mpegVersion = MPEG4Header.mpegVersion[mpegVersionBits];
+    header.mpegVersion = AACHeader.mpegVersion[mpegVersionBits];
 
-    header.layer = MPEG4Header.layer[layerBits];
+    header.layer = AACHeader.layer[layerBits];
     if (header.layer === "bad") return null;
 
-    header.protection = MPEG4Header.protection[protectionBit];
+    header.protection = AACHeader.protection[protectionBit];
     header.headerByteLength = protectionBit ? 7 : 9;
 
     // Byte (3 of 7)
@@ -131,9 +131,9 @@ export default class MPEG4Header {
     const profileBits = buffer[2] & 0b11000000;
     const sampleRateBits = buffer[2] & 0b00111100;
 
-    header.profile = MPEG4Header.profile[profileBits];
+    header.profile = AACHeader.profile[profileBits];
 
-    header.sampleRate = MPEG4Header.sampleRates[sampleRateBits];
+    header.sampleRate = AACHeader.sampleRates[sampleRateBits];
     if (header.sampleRate === "reserved") return null;
 
     // Byte (3,4 of 7)
@@ -141,8 +141,8 @@ export default class MPEG4Header {
     const channelModeBits =
       new DataView(Uint8Array.from([buffer[2], buffer[3]]).buffer).getUint16() &
       0b111000000;
-    header.channelMode = MPEG4Header.channelMode[channelModeBits].description;
-    header.channels = MPEG4Header.channelMode[channelModeBits].channels;
+    header.channelMode = AACHeader.channelMode[channelModeBits].description;
+    header.channels = AACHeader.channelMode[channelModeBits].channels;
 
     // Audio Specific Configuration
     // * `000EEFFF|F0HHH000`:
@@ -195,7 +195,7 @@ export default class MPEG4Header {
     header.numberAccFrames = buffer[6] & 0b00000011;
     header.sampleLength = 1024;
 
-    return new MPEG4Header(header);
+    return new AACHeader(header);
   }
 
   constructor(header) {
@@ -246,7 +246,7 @@ export default class MPEG4Header {
   }
 
   get mimeType() {
-    return MPEG4Header.mimeType;
+    return AACHeader.mimeType;
   }
 
   get sampleRate() {

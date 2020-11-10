@@ -14,28 +14,29 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-export default class MPEG12Frame {
+export default class AACFrame {
   constructor(header, data) {
     this._header = header;
-    this._data = data;
+    this._data = data.subarray(this._header.headerByteLength);
+    this._length = data.length;
   }
 
   /**
    * @returns Total length of frame (header + data)
    */
   get length() {
-    return this._data.length;
+    return this._length;
   }
 
   /**
-   * @returns {MPEG12Header} This frame's Instance of MPEG12 Header
+   * @returns {AACHeader} This frame's Instance of AAC Header
    */
   get header() {
     return this._header;
   }
 
   /**
-   * @returns {MPEG12Header} {Uint8Array} The frame data (includes header)
+   * @returns {Uint8Array} The frame data (does not include header)
    */
   get data() {
     return this._data;

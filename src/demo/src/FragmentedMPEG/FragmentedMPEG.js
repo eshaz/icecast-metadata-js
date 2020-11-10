@@ -14,7 +14,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEGParser from "./mpeg/MPEGParser";
+import CodecParser from "./codecs/CodecParser";
 import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
 
 /**
@@ -25,7 +25,7 @@ export default class FragmentedMPEG {
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor(mimeType) {
-    this._mpegParser = new MPEGParser(mimeType);
+    this._mpegParser = new CodecParser(mimeType);
     this._fragmentedISOBMFFBuilder = new FragmentedISOBMFFBuilder();
     this._frames = [];
     this._mpegData = new Uint8Array(0);
