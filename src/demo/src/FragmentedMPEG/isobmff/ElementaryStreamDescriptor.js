@@ -1,28 +1,18 @@
 import Box from "./Box";
+import ISOBMFFObject from "./ISOBMFFObject";
 
-class Tag {
+class Tag extends ISOBMFFObject {
   constructor(tagNumber, { contents = [], tags = [] } = {}) {
-    this._tagNumber = tagNumber;
-    this._tags = tags;
-    this._contents = contents;
-  }
-
-  get length() {
-    return this._tags.reduce(
-      (acc, tag) => acc + tag.length,
-      1 + this._contents.length
-    );
+    super(tagNumber, { contents, objects: tags });
+    this.lengthSize = 1;
   }
 
   get contents() {
-    const contents = [
-      ...this._contents,
-      ...this._tags.flatMap((tag) => [...tag.contents]),
-    ];
+    const contents = super.contents;
 
     /* prettier-ignore */
     return Uint8Array.from([
-      this._tagNumber,
+      this._name,
       0x80,0x80,0x80,
       contents.length,
       ...contents,
@@ -30,7 +20,7 @@ class Tag {
   }
 
   addTag(tag) {
-    this._tags.push(tag);
+    this._objects.push(tag);
   }
 }
 
@@ -89,7 +79,5 @@ export default class ElementaryStreamDescriptor extends Box {
         }),
       ],
     });
-
-    console.log(this);
   }
 }

@@ -159,7 +159,6 @@ export default class FragmentedISOBMFFBuilder {
     const contents = FragmentedISOBMFFBuilder.getBoxContents(boxes);
 
     this._moovLength = contents.length;
-    console.log(this._moovLength);
 
     return contents;
   }

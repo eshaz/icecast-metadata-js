@@ -13,10 +13,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
+import ISOBMFFObject from "./ISOBMFFObject";
 
-export default class Box {
-  static LENGTH_SIZE = 4;
-
+export default class Box extends ISOBMFFObject {
   /**
    * @description ISO/IEC 14496-12 Part 12 ISO Base Media File Format Box
    * @param {string} name Name of the box (i.e. 'moov', 'moof', 'traf')
@@ -25,9 +24,11 @@ export default class Box {
    * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
    */
   constructor(name, { contents = [], boxes = [] } = {}) {
-    this._name = Box.stringToByteArray(name);
-    this._contents = contents;
-    this._boxes = boxes;
+    super(name, {
+      contents: [...Box.stringToByteArray(name), ...contents],
+      objects: boxes,
+    });
+    this.lengthSize = 4;
   }
 
   /**
@@ -54,28 +55,10 @@ export default class Box {
     return bytes;
   }
 
-  /**
-   * @returns {number} Total length of this box and all contents
-   */
-  get length() {
-    return this._boxes.reduce(
-      (acc, box) => acc + box.length,
-      Box.LENGTH_SIZE + 4 + this._contents.length
-    );
-  }
-
-  /**
-   * @returns {Uint8Array} Contents of this box
-   */
   get contents() {
-    const contents = [
-      ...this._name,
-      ...this._contents,
-      ...this._boxes.flatMap((box) => [...box.contents]),
-    ];
-
+    const contents = super.contents;
     return Uint8Array.from([
-      ...Box.getUint32(Box.LENGTH_SIZE + contents.length),
+      ...Box.getUint32(this.lengthSize + contents.length),
       ...contents,
     ]);
   }
@@ -90,27 +73,6 @@ export default class Box {
       throw new Error("Not a box");
     }
 
-    this._boxes.push(box);
-  }
-
-  /**
-   * @description Inserts bytes into the contents of this box
-   * @param {Uint8Array} data Bytes to insert
-   * @param {number} index Position to insert bytes
-   */
-  insertBytes(data, index) {
-    this._contents = [
-      ...this._contents.slice(0, index),
-      ...data,
-      ...this._contents.slice(index),
-    ];
-  }
-
-  /**
-   * @description Appends data to the end of the contents of this box
-   * @param {Uint8Array} data Bytes to append
-   */
-  appendBytes(data) {
-    this._contents = [...this._contents, ...data];
+    this._objects.push(box);
   }
 }

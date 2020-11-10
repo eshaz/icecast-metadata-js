@@ -202,8 +202,7 @@ export default class MPEGHeader {
     const paddingBit = buffer[2] & 0b00000010;
     const privateBit = buffer[2] & 0b00000001;
 
-    header.bitrate =
-      MPEGHeader.bitrateMatrix[bitrateBits][layer.bitrateIndex];
+    header.bitrate = MPEGHeader.bitrateMatrix[bitrateBits][layer.bitrateIndex];
     if (header.bitrate === "bad") return null;
 
     header.sampleRate = mpegVersion.sampleRates[sampleRateBits];
