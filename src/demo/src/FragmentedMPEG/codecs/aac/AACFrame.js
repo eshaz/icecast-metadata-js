@@ -14,31 +14,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-export default class AACFrame {
+import CodecFrame from "../CodecFrame";
+
+export default class AACFrame extends CodecFrame {
   constructor(header, data) {
-    this._header = header;
-    this._data = data.subarray(this._header.headerByteLength);
-    this._length = data.length;
-  }
-
-  /**
-   * @returns Total length of frame (header + data)
-   */
-  get length() {
-    return this._length;
-  }
-
-  /**
-   * @returns {AACHeader} This frame's Instance of AAC Header
-   */
-  get header() {
-    return this._header;
-  }
-
-  /**
-   * @returns {Uint8Array} The frame data (does not include header)
-   */
-  get data() {
-    return this._data;
+    super(header, data.subarray(header.headerByteLength), data.length);
   }
 }

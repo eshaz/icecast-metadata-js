@@ -25,10 +25,10 @@ export default class FragmentedMPEG {
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor(mimeType) {
-    this._mpegParser = new CodecParser(mimeType);
+    this._codecParser = new CodecParser(mimeType);
     this._fragmentedISOBMFFBuilder = new FragmentedISOBMFFBuilder();
     this._frames = [];
-    this._mpegData = new Uint8Array(0);
+    this._codecData = new Uint8Array(0);
 
     this._generator = this._generator();
     this._generator.next();
@@ -97,30 +97,30 @@ export default class FragmentedMPEG {
    * @yields {Uint8Array} Fragmented MP4
    */
   *_sendReceiveData(fMP4) {
-    let mpegData = yield fMP4;
+    let codecData = yield fMP4;
 
-    while (!mpegData) {
-      mpegData = yield;
+    while (!codecData) {
+      codecData = yield;
     }
 
-    this._mpegData = FragmentedMPEG.appendBuffers(this._mpegData, mpegData);
+    this._codecData = FragmentedMPEG.appendBuffers(this._codecData, codecData);
   }
 
   /**
    * @private
    */
   _parseFrames() {
-    let currentFrame = this._mpegParser.readFrameStream(this._mpegData);
+    let currentFrame = this._codecParser.readFrameStream(this._codecData);
 
     while (currentFrame.frame) {
       this._frames.push(currentFrame.frame);
 
-      currentFrame = this._mpegParser.readFrameStream(
-        this._mpegData,
+      currentFrame = this._codecParser.readFrameStream(
+        this._codecData,
         currentFrame.offset + currentFrame.frame.length
       );
     }
-    this._mpegData = this._mpegData.subarray(currentFrame.offset);
+    this._codecData = this._codecData.subarray(currentFrame.offset);
 
     if (
       this._frames.length >= FragmentedMPEG.MIN_FRAMES &&

@@ -14,10 +14,31 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import CodecFrame from "../CodecFrame";
+export default class CodecFrame {
+  constructor(header, data, length) {
+    this._header = header;
+    this._data = data;
+    this._length = length;
+  }
 
-export default class MPEGFrame extends CodecFrame {
-  constructor(header, data) {
-    super(header, data, data.length);
+  /**
+   * @returns Total length of frame (header + data)
+   */
+  get length() {
+    return this._length;
+  }
+
+  /**
+   * @returns {MPEGHeader} This frame's header
+   */
+  get header() {
+    return this._header;
+  }
+
+  /**
+   * @returns {MPEGHeader} {Uint8Array} This frame's data
+   */
+  get data() {
+    return this._data;
   }
 }

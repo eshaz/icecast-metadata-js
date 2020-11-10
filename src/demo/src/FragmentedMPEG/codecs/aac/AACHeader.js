@@ -1,3 +1,19 @@
+/* Copyright 2020 Ethan Halsall
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>
+*/
+
 /*
 https://wiki.multimedia.cx/index.php/ADTS
 
@@ -23,9 +39,9 @@ P 	2 	Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibili
 Q 	16 	CRC if protection absent is 0 
 */
 
-export default class AACHeader {
-  static mimeType = "audio/aac";
+import CodecHeader from "../CodecHeader";
 
+export default class AACHeader extends CodecHeader {
   static mpegVersion = {
     0b00000000: "MPEG-4",
     0b00001000: "MPEG-2",
@@ -198,23 +214,16 @@ export default class AACHeader {
     return new AACHeader(header);
   }
 
+  /**
+   * @private
+   */
   constructor(header) {
+    super(header);
     this._audioSpecificConfig = header.audioSpecificConfig;
     this._bufferFullness = header.bufferFullness;
-    this._channelMode = header.channelMode;
-    this._channels = header.channels;
-    this._dataByteLength = header.dataByteLength;
-    this._headerByteLength = header.headerByteLength;
-    this._isCopyrighted = header.isCopyrighted;
     this._isHome = header.isHome;
-    this._isOriginal = header.isOriginal;
-    this._isPrivate = header.isPrivate;
-    this._layer = header.layer;
-    this._mpegVersion = header.mpegVersion;
     this._profile = header.profile;
-    this._protection = header.protection;
-    this._sampleRate = header.sampleRate;
-    this._sampleLength = header.sampleLength;
+    this._mimeType = "audio/aac";
   }
 
   get audioSpecificConfig() {
@@ -225,35 +234,5 @@ export default class AACHeader {
       false
     );
     return audioSpecificConfig;
-  }
-
-  get channels() {
-    return this._channels;
-  }
-
-  /**
-   * @returns Total byte of audio data (Does not include header)
-   */
-  get dataByteLength() {
-    return this._dataByteLength;
-  }
-
-  /**
-   * @returns Total bytes of header data
-   */
-  get headerByteLength() {
-    return this._headerByteLength;
-  }
-
-  get mimeType() {
-    return AACHeader.mimeType;
-  }
-
-  get sampleRate() {
-    return this._sampleRate;
-  }
-
-  get sampleLength() {
-    return this._sampleLength;
   }
 }

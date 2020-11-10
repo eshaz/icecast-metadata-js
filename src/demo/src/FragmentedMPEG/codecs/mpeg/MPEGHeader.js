@@ -14,11 +14,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+import CodecHeader from "../CodecHeader";
+
 // http://www.mp3-tech.org/programmer/frame_header.html
 
-export default class MPEGHeader {
-  static mimeType = "audio/mpeg";
-
+export default class MPEGHeader extends CodecHeader {
   static bitrateMatrix = {
     // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
     0b00000000: ["free", "free", "free", "free", "free"],
@@ -163,11 +163,11 @@ export default class MPEGHeader {
     // Frame sync (all bits must be set): `11111111|111`:
     if (buffer[0] !== 0xff || buffer[1] < 0xe0) return null;
 
-    // Header's second (out of four) octet: `111xxxxx`
-    //
+    // Byte (2 of 4)
+    // * `111BBCCD`
     // * `...BB...`: MPEG Audio version ID
     // * `.....CC.`: Layer description
-    // * `.......1`: Protection bit (0 - Protected by CRC (16bit CRC follows header), 1 = Not protected)
+    // * `.......D`: Protection bit (0 - Protected by CRC (16bit CRC follows header), 1 = Not protected)
     const mpegVersionBits = buffer[1] & 0b00011000;
     const layerBits = buffer[1] & 0b00000110;
     const protectionBit = buffer[1] & 0b00000001;
@@ -191,8 +191,8 @@ export default class MPEGHeader {
     header.sampleLength = layer.sampleLength;
     header.protection = MPEGHeader.protection[protectionBit];
 
-    // Header's third (out of four) octet: `EEEEFFGH`
-    //
+    // Byte (3 of 4)
+    // * `EEEEFFGH`
     // * `EEEE....`: Bitrate index. 1111 is invalid, everything else is accepted
     // * `....FF..`: Sample rate
     // * `......G.`: Padding bit, 0=frame not padded, 1=frame padded
@@ -217,8 +217,8 @@ export default class MPEGHeader {
     );
     if (!header.dataByteLength) return null;
 
-    // Header's fourth (out of four) octet: `IIJJKLMM`
-    //
+    // Byte (4 of 4)
+    // * `IIJJKLMM`
     // * `II......`: Channel mode
     // * `..JJ....`: Mode extension (only if joint stereo)
     // * `....K...`: Copyright
@@ -242,52 +242,15 @@ export default class MPEGHeader {
     return new MPEGHeader(header);
   }
 
+  /**
+   * @private
+   */
   constructor(header) {
+    super(header);
     this._bitrate = header.bitrate;
-    this._channelMode = header.channelMode;
-    this._channels = header.channels;
-    this._dataByteLength = header.dataByteLength;
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
-    this._headerByteLength = header.headerByteLength;
-    this._isCopyrighted = header.isCopyrighted;
-    this._isOriginal = header.isOriginal;
-    this._isPrivate = header.isPrivate;
-    this._layer = header.layer;
     this._modeExtension = header.modeExtension;
-    this._mpegVersion = header.mpegVersion;
-    this._protection = header.protection;
-    this._sampleLength = header.sampleLength;
-    this._sampleRate = header.sampleRate;
-  }
-
-  get channels() {
-    return this._channels;
-  }
-
-  /**
-   * @returns Total byte of audio data (Does not include header)
-   */
-  get dataByteLength() {
-    return this._dataByteLength;
-  }
-
-  /**
-   * @returns Total bytes of header data
-   */
-  get headerByteLength() {
-    return this._headerByteLength;
-  }
-
-  get mimeType() {
-    return MPEGHeader.mimeType;
-  }
-
-  get sampleRate() {
-    return this._sampleRate;
-  }
-
-  get sampleLength() {
-    return this._sampleLength;
+    this._mimeType = "audio/mpeg";
   }
 }
