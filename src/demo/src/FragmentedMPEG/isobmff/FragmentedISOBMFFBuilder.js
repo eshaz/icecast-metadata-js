@@ -15,7 +15,7 @@
 */
 
 import Box from "./Box";
-import ElementaryStreamDescriptor from "./ElementaryStreamDescriptor";
+import ESDescriptor from "./ESDescriptor";
 
 /**
  * @description Fragmented ISO Base Media File Format Builder is a class to
@@ -97,7 +97,7 @@ export default class FragmentedISOBMFFBuilder {
                                   0x00,0x00,
                                   ...Box.getUint32(header.sampleRate), // sample rate
                                   0x00,0x00],
-                                boxes: [new ElementaryStreamDescriptor(header)],
+                                boxes: [new ESDescriptor(header)],
                               }),
                             ],
                           }),

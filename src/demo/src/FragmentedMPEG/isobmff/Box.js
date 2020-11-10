@@ -24,11 +24,9 @@ export default class Box extends ISOBMFFObject {
    * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
    */
   constructor(name, { contents = [], boxes = [] } = {}) {
-    super(name, {
-      contents: [...Box.stringToByteArray(name), ...contents],
-      objects: boxes,
-    });
-    this.lengthSize = 4;
+    super(name, [...Box.stringToByteArray(name), ...contents], boxes);
+
+    this.LENGTH_SIZE = 4;
   }
 
   /**
@@ -55,10 +53,13 @@ export default class Box extends ISOBMFFObject {
     return bytes;
   }
 
+  /**
+   * @returns {Uint8Array} Contents of this box
+   */
   get contents() {
     const contents = super.contents;
     return Uint8Array.from([
-      ...Box.getUint32(this.lengthSize + contents.length),
+      ...Box.getUint32(this.LENGTH_SIZE + contents.length),
       ...contents,
     ]);
   }
@@ -73,6 +74,6 @@ export default class Box extends ISOBMFFObject {
       throw new Error("Not a box");
     }
 
-    this._objects.push(box);
+    this.addObject(box);
   }
 }

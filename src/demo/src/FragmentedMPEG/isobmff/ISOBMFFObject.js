@@ -16,31 +16,18 @@
 
 export default class ISOBMFFObject {
   /**
-   * @description ISO/IEC 14496-12 Part 12 ISO Base Media File Format Box
+   * @abstract
+   * @description ISO Base Media File Format Object structure Abstract Class
    * @param {any} name Name of the object
-   * @param {object} params Object containing contents or objects
-   * @param {Array<Uint8>} [params.contents] Array of bytes to insert into this box
-   * @param {Array<ISOBMFFObject>} [params.objects] Array of objects to insert into this object
+   * @param {Array<Uint8>} [contents] Array of bytes to insert into this box
+   * @param {Array<ISOBMFFObject>} [objects] Array of objects to insert into this object
    */
-  constructor(name, { contents, objects }) {
+  constructor(name, contents, objects) {
     this._name = name;
     this._contents = contents;
     this._objects = objects;
   }
 
-  /**
-   * @returns {number} Total length of this box and all contents
-   */
-  get length() {
-    return this._objects.reduce(
-      (acc, obj) => acc + obj.length,
-      this.lengthSize + this._contents.length
-    );
-  }
-
-  /**
-   * @returns {Uint8Array} Contents of this box
-   */
   get contents() {
     return [
       ...this._contents,
@@ -49,12 +36,22 @@ export default class ISOBMFFObject {
   }
 
   /**
-   * @description Inserts bytes into the contents of this box
+   * @returns {number} Total length of this object and all contents
+   */
+  get length() {
+    return this._objects.reduce(
+      (acc, obj) => acc + obj.length,
+      this.LENGTH_SIZE + this._contents.length
+    );
+  }
+
+  /**
+   * @description Inserts bytes into the contents of this object
    * @param {Uint8Array} data Bytes to insert
    * @param {number} index Position to insert bytes
    */
   insertBytes(data, index) {
-    index = index + this.lengthSize;
+    index = index + this.LENGTH_SIZE;
     this._contents = [
       ...this._contents.slice(0, index),
       ...data,
@@ -68,5 +65,9 @@ export default class ISOBMFFObject {
    */
   appendBytes(data) {
     this._contents = [...this._contents, ...data];
+  }
+
+  addObject(object) {
+    this._objects.push(object);
   }
 }

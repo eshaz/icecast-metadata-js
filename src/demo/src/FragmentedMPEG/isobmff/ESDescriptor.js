@@ -3,10 +3,13 @@ import ISOBMFFObject from "./ISOBMFFObject";
 
 class Tag extends ISOBMFFObject {
   constructor(tagNumber, { contents = [], tags = [] } = {}) {
-    super(tagNumber, { contents, objects: tags });
-    this.lengthSize = 1;
+    super(tagNumber, contents, tags);
+    this.LENGTH_SIZE = 1;
   }
 
+  /**
+   * @returns {Uint8Array} Contents of this stream descriptor tag
+   */
   get contents() {
     const contents = super.contents;
 
@@ -20,11 +23,11 @@ class Tag extends ISOBMFFObject {
   }
 
   addTag(tag) {
-    this._objects.push(tag);
+    this.addObject(tag);
   }
 }
 
-export default class ElementaryStreamDescriptor extends Box {
+export default class ESDescriptor extends Box {
   // https://stackoverflow.com/questions/3987850/mp4-atom-how-to-discriminate-the-audio-codec-is-it-aac-or-mp3
   /*
   0x40 - MPEG-4 Audio
@@ -41,10 +44,10 @@ export default class ElementaryStreamDescriptor extends Box {
     const streamDescriptorTag = new Tag(4, {
       /* prettier-ignore */
       contents: [
-        ElementaryStreamDescriptor.codecs[header.mimeType],
+        ESDescriptor.codecs[header.mimeType],
         0x15, // stream type(6bits)=5 audio, flags(2bits)=1
         0x00,0x00,0x00, // 24bit buffer size
-        0x00,0x00,0xf8,0xfa, // max bitrate
+        0x00,0x00,0x00,0x00, // max bitrate
         0x00,0x00,0x00,0x00, // avg bitrate
       ],
     });
@@ -71,7 +74,7 @@ export default class ElementaryStreamDescriptor extends Box {
             0x00, // flags etc = 0
           ],
           tags: [
-            ElementaryStreamDescriptor.getStreamDescriptorTag(header),
+            ESDescriptor.getStreamDescriptorTag(header),
             new Tag(6, {
               contents: [0x02],
             }),
