@@ -1,31 +1,5 @@
 import Box from "./Box";
-import ISOBMFFObject from "./ISOBMFFObject";
-
-class Tag extends ISOBMFFObject {
-  constructor(tagNumber, { contents = [], tags = [] } = {}) {
-    super(tagNumber, contents, tags);
-    this.LENGTH_SIZE = 1;
-  }
-
-  /**
-   * @returns {Uint8Array} Contents of this stream descriptor tag
-   */
-  get contents() {
-    const contents = super.contents;
-
-    /* prettier-ignore */
-    return Uint8Array.from([
-      this._name,
-      0x80,0x80,0x80,
-      contents.length,
-      ...contents,
-    ]);
-  }
-
-  addTag(tag) {
-    this.addObject(tag);
-  }
-}
+import ESTag from "./ESTag";
 
 export default class ESDescriptor extends Box {
   // https://stackoverflow.com/questions/3987850/mp4-atom-how-to-discriminate-the-audio-codec-is-it-aac-or-mp3
@@ -40,8 +14,12 @@ export default class ESDescriptor extends Box {
     "audio/mpeg": 0x6b,
   };
 
-  static getStreamDescriptorTag(header) {
-    const streamDescriptorTag = new Tag(4, {
+  constructor(header) {
+    super("esds", {
+      contents: [0x00, 0x00, 0x00, 0x00],
+    });
+
+    const descriptorTag = new ESTag(4, {
       /* prettier-ignore */
       contents: [
         ESDescriptor.codecs[header.mimeType],
@@ -53,34 +31,27 @@ export default class ESDescriptor extends Box {
     });
 
     if (header.audioSpecificConfig) {
-      streamDescriptorTag.addTag(
-        new Tag(5, {
+      descriptorTag.addTag(
+        new ESTag(5, {
           contents: [...header.audioSpecificConfig],
         })
       );
     }
 
-    return streamDescriptorTag;
-  }
-
-  constructor(header) {
-    super("esds", {
-      contents: [0x00, 0x00, 0x00, 0x00],
-      boxes: [
-        new Tag(3, {
-          contents: [
-            0x00,
-            0x01, // ES_ID = 1
-            0x00, // flags etc = 0
-          ],
-          tags: [
-            ESDescriptor.getStreamDescriptorTag(header),
-            new Tag(6, {
-              contents: [0x02],
-            }),
-          ],
-        }),
-      ],
-    });
+    this.addObject(
+      new ESTag(3, {
+        contents: [
+          0x00,
+          0x01, // ES_ID = 1
+          0x00, // flags etc = 0
+        ],
+        tags: [
+          descriptorTag,
+          new ESTag(6, {
+            contents: [0x02],
+          }),
+        ],
+      })
+    );
   }
 }
