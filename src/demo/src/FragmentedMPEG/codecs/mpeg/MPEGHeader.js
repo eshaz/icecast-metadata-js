@@ -110,7 +110,6 @@ export default class MPEGHeader extends CodecHeader {
         0b00001000: 8000,
         0b00001100: "reserved",
       },
-      sampleLengths: MPEGHeader.v2SampleLengths,
     },
     0b00001000: { description: "reserved" },
     0b00010000: {
@@ -122,7 +121,6 @@ export default class MPEGHeader extends CodecHeader {
         0b00001000: 16000,
         0b00001100: "reserved",
       },
-      sampleLengths: MPEGHeader.v2SampleLengths,
     },
     0b00011000: {
       description: "MPEG Version 1 (ISO/IEC 11172-3)",
@@ -133,7 +131,6 @@ export default class MPEGHeader extends CodecHeader {
         0b00001000: 32000,
         0b00001100: "reserved",
       },
-      sampleLengths: MPEGHeader.v1SampleLengths,
     },
   };
 
@@ -226,15 +223,15 @@ export default class MPEGHeader extends CodecHeader {
     // * `......MM`: Emphasis
     const channelModeBits = buffer[3] & 0b11000000;
     const modeExtensionBits = buffer[3] & 0b00110000;
-    const copyrightBits = buffer[3] & 0b00001000;
-    const originalBits = buffer[3] & 0b00000100;
+    const copyrightBit = buffer[3] & 0b00001000;
+    const originalBit = buffer[3] & 0b00000100;
     const emphasisBits = buffer[3] & 0b00000011;
 
     header.channelMode = MPEGHeader.channelModes[channelModeBits].description;
     header.channels = MPEGHeader.channelModes[channelModeBits].channels;
     header.modeExtension = layer.modeExtensions[modeExtensionBits];
-    header.isCopyrighted = !!(copyrightBits >> 3);
-    header.isOriginal = !!(originalBits >> 2);
+    header.isCopyrighted = !!(copyrightBit >> 3);
+    header.isOriginal = !!(originalBit >> 2);
 
     header.emphasis = MPEGHeader.emphasis[emphasisBits];
     if (header.emphasis === "reserved") return null;
@@ -251,6 +248,7 @@ export default class MPEGHeader extends CodecHeader {
     this._bitrate = header.bitrate;
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
+    this._isCopyrighted = header.isCopyrighted;
     this._modeExtension = header.modeExtension;
     this._mimeType = "audio/mpeg";
   }

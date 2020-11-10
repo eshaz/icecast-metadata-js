@@ -23,7 +23,6 @@ export default class CodecHeader {
     this._channels = header.channels;
     this._dataByteLength = header.dataByteLength;
     this._headerByteLength = header.headerByteLength;
-    this._isCopyrighted = header.isCopyrighted;
     this._isOriginal = header.isOriginal;
     this._isPrivate = header.isPrivate;
     this._layer = header.layer;

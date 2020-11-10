@@ -146,11 +146,14 @@ export default class AACHeader extends CodecHeader {
     // * `......G.`: private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
     const profileBits = buffer[2] & 0b11000000;
     const sampleRateBits = buffer[2] & 0b00111100;
+    const privateBit = buffer[2] & 0b00000010;
 
     header.profile = AACHeader.profile[profileBits];
 
     header.sampleRate = AACHeader.sampleRates[sampleRateBits];
     if (header.sampleRate === "reserved") return null;
+
+    header.isPrivate = !!(privateBit >> 1);
 
     // Byte (3,4 of 7)
     // * `.......H|HH......`: MPEG-4 Channel Configuration (in the case of 0, the channel configuration is sent via an inband PCE)
@@ -164,17 +167,17 @@ export default class AACHeader extends CodecHeader {
     // * `HHIJKLMM`
     // * `..I.....`: originality, set to 0 when encoding, ignore when decoding
     // * `...J....`: home, set to 0 when encoding, ignore when decoding
-    // * `....K...`: private bit, guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
+    // * `....K...`: copyrighted id bit, the next bit of a centrally registered copyright identifier, set to 0 when encoding, ignore when decoding
     // * `.....L..`: copyright id start, signals that this frame's copyright id bit is the first bit of the copyright id, set to 0 when encoding, ignore when decoding
     const originalBit = buffer[3] & 0b00100000;
     const homeBit = buffer[3] & 0b00001000;
-    const privateBit = buffer[3] & 0b00001000;
-    const copyrightIdBit = buffer[3] & 0b00000100;
+    const copyrightIdBit = buffer[3] & 0b00001000;
+    const copyrightIdStartBit = buffer[3] & 0b00000100;
 
     header.isOriginal = !!(originalBit >> 5);
     header.isHome = !!(homeBit >> 4);
-    header.isPrivate = !!(privateBit >> 3);
-    header.isCopyrighted = !!(copyrightIdBit >> 2);
+    header.copyrightId = !!(copyrightIdBit >> 3);
+    header.copyrightIdStart = !!(copyrightIdStartBit >> 2);
 
     // Byte (4,5,6 of 7)
     // * `.......MM|MMMMMMMM|MMM.....`: frame length, this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
@@ -197,19 +200,11 @@ export default class AACHeader extends CodecHeader {
     header.numberAccFrames = buffer[6] & 0b00000011;
     header.sampleLength = 1024;
 
-    // Audio Specific Configuration
-    // * `000EEFFF|F0HHH000`:
-    // * `000EE...|........`: Object Type (profileBit + 1)
-    // * `.....FFF|F.......`: Sample Rate
-    // * `........|.0HHH...`: Channel Configuration
-    // * `........|.....0..`: Frame Length (1024)
-    // * `........|......0.`: does not depend on core coder
-    // * `........|.......0`: Not Extension
-    header.audioSpecificConfig =
-      (profileBits << 5) |
-      (sampleRateBits << 5) |
-      (channelModeBits >> 3) |
-      0x800; // add 1 to the profileBits
+    header.bits = {
+      profileBits,
+      sampleRateBits,
+      channelModeBits,
+    };
 
     return new AACHeader(header);
   }
@@ -220,7 +215,9 @@ export default class AACHeader extends CodecHeader {
    */
   constructor(header) {
     super(header);
-    this._audioSpecificConfig = header.audioSpecificConfig;
+    this._bits = header.bits;
+    this._copyrightId = header.copyrightId;
+    this._copyrightIdStart = header.copyrightIdStart;
     this._bufferFullness = header.bufferFullness;
     this._isHome = header.isHome;
     this._profile = header.profile;
@@ -228,12 +225,22 @@ export default class AACHeader extends CodecHeader {
   }
 
   get audioSpecificConfig() {
-    const audioSpecificConfig = new Uint8Array(2);
-    new DataView(audioSpecificConfig.buffer).setUint16(
-      0,
-      this._audioSpecificConfig,
-      false
-    );
-    return audioSpecificConfig;
+    // Audio Specific Configuration
+    // * `000EEFFF|F0HHH000`:
+    // * `000EE...|........`: Object Type (profileBit + 1)
+    // * `.....FFF|F.......`: Sample Rate
+    // * `........|.0HHH...`: Channel Configuration
+    // * `........|.....0..`: Frame Length (1024)
+    // * `........|......0.`: does not depend on core coder
+    // * `........|.......0`: Not Extension
+    const audioSpecificConfig =
+      (this._bits.profileBits << 5) |
+      (this._bits.sampleRateBits << 5) |
+      (this._bits.channelModeBits >> 3) |
+      0x800; // add 1 to the profileBits
+
+    const bytes = new Uint8Array(2);
+    new DataView(bytes.buffer).setUint16(0, audioSpecificConfig, false);
+    return bytes;
   }
 }
