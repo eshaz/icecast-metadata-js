@@ -15,11 +15,11 @@
 */
 
 import Box from "./Box";
-import ESDescriptor from "./ESDescriptor";
+import ESTag from "./ESTag";
 
 /**
  * @description Fragmented ISO Base Media File Format Builder is a class to
- * wrap MPEG frames in a MP4 container for streaming MP3 compatibility in Firefox.
+ * wrap codec frames in a MP4 container for streaming MP3 / AAC compatibility in Firefox.
  */
 export default class FragmentedISOBMFFBuilder {
   static getBoxContents(boxes) {
@@ -27,10 +27,38 @@ export default class FragmentedISOBMFFBuilder {
   }
 
   /**
-   * @param {Header} header MPEG header
-   * @returns {Uint8Array} Generic Filetype and Movie Box information for MP3
+   * @description Codec mapping for `esds` box
+   * https://stackoverflow.com/questions/3987850/mp4-atom-how-to-discriminate-the-audio-codec-is-it-aac-or-mp3
+   * 0x40 - MPEG-4 Audio
+   * 0x6b - MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
+   * 0x69 - MPEG-2 Backward Compatible Audio (MPEG-2 Layers 1, 2, and 3)
+   * 0x67 - MPEG-2 AAC LC
    */
-  getMpegMovieBox(header) {
+  static esdsCodecs = {
+    "audio/aac": 0x40,
+    "audio/mpeg": 0x6b,
+  };
+
+  /**
+   * @param {Header} header Codec header
+   * @returns {Uint8Array} Filetype and Movie Box information for the codec
+   */
+  getMovieBox(header) {
+    const channels = header.channels;
+    const mimeType = header.mimeType;
+    const sampleRate = Box.getUint32(header.sampleRate);
+
+    const streamDescriptorTag = new ESTag(4, {
+      /* prettier-ignore */
+      contents: [
+        FragmentedISOBMFFBuilder.esdsCodecs[mimeType],
+        0x15, // stream type(6bits)=5 audio, flags(2bits)=1
+        0x00,0x00,0x00, // 24bit buffer size
+        0x00,0x00,0x00,0x00, // max bitrate
+        0x00,0x00,0x00,0x00, // avg bitrate
+      ],
+    });
+
     const boxes = [
       new Box("ftyp", {
         /* prettier-ignore */
@@ -67,7 +95,7 @@ export default class FragmentedISOBMFFBuilder {
                     /* prettier-ignore */
                     contents: [0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                       0x00,0x00,0x00,0x00,
-                      ...Box.getUint32(header.sampleRate), // sample rate
+                      ...sampleRate,
                       0x00,0x00,0x00,0x00,0x55,0xc4,0x00,0x00],
                   }),
                   new Box("hdlr", {
@@ -92,12 +120,31 @@ export default class FragmentedISOBMFFBuilder {
                               new Box("mp4a", {
                                 /* prettier-ignore */
                                 contents: [0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-                                  0x00,header.channels, // channel count
+                                  0x00,channels, // channel count
                                   0x00,0x10, // PCM bitrate (16bit)
                                   0x00,0x00,
-                                  ...Box.getUint32(header.sampleRate), // sample rate
+                                  ...sampleRate, // sample rate
                                   0x00,0x00],
-                                boxes: [new ESDescriptor(header)],
+                                boxes: [
+                                  new Box("esds", {
+                                    contents: [0x00, 0x00, 0x00, 0x00],
+                                    boxes: [
+                                      new ESTag(3, {
+                                        contents: [
+                                          0x00,
+                                          0x01, // ES_ID = 1
+                                          0x00, // flags etc = 0
+                                        ],
+                                        tags: [
+                                          streamDescriptorTag,
+                                          new ESTag(6, {
+                                            contents: [0x02],
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                ],
                               }),
                             ],
                           }),
@@ -156,6 +203,14 @@ export default class FragmentedISOBMFFBuilder {
       }),
     ];
 
+    if (mimeType === "audio/aac") {
+      streamDescriptorTag.addTag(
+        new ESTag(5, {
+          contents: [...header.audioSpecificConfig],
+        })
+      );
+    }
+
     const contents = FragmentedISOBMFFBuilder.getBoxContents(boxes);
 
     this._moovLength = contents.length;
@@ -164,11 +219,11 @@ export default class FragmentedISOBMFFBuilder {
   }
 
   /**
-   * @description Wraps MPEG frames into a Movie Fragment
-   * @param {Array<Frame>} frames MPEG frames to contain in this Movie Fragment
-   * @returns {Uint8Array} Movie Fragment containing the MPEG frames
+   * @description Wraps codec frames into a Movie Fragment
+   * @param {Array<Frame>} frames Frames to contain in this Movie Fragment
+   * @returns {Uint8Array} Movie Fragment containing the frames
    */
-  wrapMpegFrames(frames) {
+  wrapFrames(frames) {
     const trun = new Box("trun", {
       /* prettier-ignore */
       contents: [
@@ -191,9 +246,9 @@ export default class FragmentedISOBMFFBuilder {
                 /* prettier-ignore */
                 contents: [0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,
                   0x00,0x00,0x00,0x00,
-                  ...Box.getUint32(this._moovLength), // base data offset length of moov box, mp3: 0x00,0x00,0x02,0xbf
+                  ...Box.getUint32(this._moovLength), // base data offset (length of moov box)
                   ...Box.getUint32(frames[0].header.sampleLength), // default sample duration
-                  ...Box.getUint32(frames[0].data.length), // default sample size (avg of all frames)
+                  ...Box.getUint32(frames[0].data.length), // default sample size
                   0x02,0x00,0x00,0x00],
               }),
               new Box("tfdt", {

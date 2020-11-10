@@ -79,17 +79,15 @@ export default class FragmentedMPEG {
 
     // yield the movie box along with a movie fragment containing frames
     let fMP4 = FragmentedMPEG.appendBuffers(
-      this._fragmentedISOBMFFBuilder.getMpegMovieBox(frames[0].header),
-      this._fragmentedISOBMFFBuilder.wrapMpegFrames(frames)
+      this._fragmentedISOBMFFBuilder.getMovieBox(frames[0].header),
+      this._fragmentedISOBMFFBuilder.wrapFrames(frames)
     );
 
     // yield movie fragments containing frames
     while (true) {
       yield* this._sendReceiveData(fMP4);
       frames = this._parseFrames();
-      fMP4 = frames
-        ? this._fragmentedISOBMFFBuilder.wrapMpegFrames(frames)
-        : null;
+      fMP4 = frames ? this._fragmentedISOBMFFBuilder.wrapFrames(frames) : null;
     }
   }
 
