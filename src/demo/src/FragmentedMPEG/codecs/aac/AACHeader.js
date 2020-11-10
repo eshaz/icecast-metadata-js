@@ -197,7 +197,7 @@ export default class AACHeader extends CodecHeader {
 
     // Byte (7 of 7)
     // * `......PP` Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
-    header.numberAccFrames = buffer[6] & 0b00000011;
+    header.numberAACFrames = buffer[6] & 0b00000011;
     header.sampleLength = 1024;
 
     header.bits = {
@@ -220,8 +220,9 @@ export default class AACHeader extends CodecHeader {
     this._copyrightIdStart = header.copyrightIdStart;
     this._bufferFullness = header.bufferFullness;
     this._isHome = header.isHome;
-    this._profile = header.profile;
     this._mimeType = "audio/aac";
+    this._numberAACFrames = header.numberAACFrames;
+    this._profile = header.profile;
   }
 
   get audioSpecificConfig() {
