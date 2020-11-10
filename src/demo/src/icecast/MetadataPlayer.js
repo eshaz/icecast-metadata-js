@@ -135,13 +135,13 @@ export default class MetadataPlayer {
             this._isInitialMetadata = false;
           },
         }).startReading();
-      });
-    /*.catch((e) => {
+      })
+      .catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });*/
+      });
   }
 
   stop() {
