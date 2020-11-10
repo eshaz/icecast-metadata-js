@@ -160,20 +160,6 @@ export default class AACHeader extends CodecHeader {
     header.channelMode = AACHeader.channelMode[channelModeBits].description;
     header.channels = AACHeader.channelMode[channelModeBits].channels;
 
-    // Audio Specific Configuration
-    // * `000EEFFF|F0HHH000`:
-    // * `000EE...|........`: Object Type (profileBit + 1)
-    // * `.....FFF|F.......`: Sample Rate
-    // * `........|.0HHH...`: Channel Configuration
-    // * `........|.....0..`: Frame Length (1024)
-    // * `........|......0.`: does not depend on core coder
-    // * `........|.......0`: Not Extension
-    header.audioSpecificConfig =
-      (profileBits << 5) +
-      (sampleRateBits << 5) +
-      (channelModeBits >> 3) +
-      0x800; // add 1 to the profileBits
-
     // Byte (4 of 7)
     // * `HHIJKLMM`
     // * `..I.....`: originality, set to 0 when encoding, ignore when decoding
@@ -211,11 +197,26 @@ export default class AACHeader extends CodecHeader {
     header.numberAccFrames = buffer[6] & 0b00000011;
     header.sampleLength = 1024;
 
+    // Audio Specific Configuration
+    // * `000EEFFF|F0HHH000`:
+    // * `000EE...|........`: Object Type (profileBit + 1)
+    // * `.....FFF|F.......`: Sample Rate
+    // * `........|.0HHH...`: Channel Configuration
+    // * `........|.....0..`: Frame Length (1024)
+    // * `........|......0.`: does not depend on core coder
+    // * `........|.......0`: Not Extension
+    header.audioSpecificConfig =
+      (profileBits << 5) |
+      (sampleRateBits << 5) |
+      (channelModeBits >> 3) |
+      0x800; // add 1 to the profileBits
+
     return new AACHeader(header);
   }
 
   /**
    * @private
+   * Call AACHeader.getHeader(Array<Uint8>) to get instance
    */
   constructor(header) {
     super(header);

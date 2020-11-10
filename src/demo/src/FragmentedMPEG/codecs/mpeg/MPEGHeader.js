@@ -244,6 +244,7 @@ export default class MPEGHeader extends CodecHeader {
 
   /**
    * @private
+   * Call MPEGHeader.getHeader(Array<Uint8>) to get instance
    */
   constructor(header) {
     super(header);
