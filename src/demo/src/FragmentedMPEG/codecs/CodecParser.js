@@ -55,7 +55,7 @@ export default class CodecParser {
    */
   _getMPEGHeader(buffer) {
     const key = String.fromCharCode(
-      ...buffer.subarray(0, MPEGHeader.headerByteLength)
+      ...buffer.subarray(0, 4)
     );
 
     if (this._headerCache.has(key)) {

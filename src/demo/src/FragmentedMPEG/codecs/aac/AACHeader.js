@@ -116,7 +116,7 @@ export default class AACHeader extends CodecHeader {
 
   static getHeader(buffer) {
     // Must be at least seven bytes.
-    if (buffer.length < AACHeader.headerByteLength) return null;
+    if (buffer.length < 7) return null;
 
     // Frame sync (all bits must be set): `11111111|1111`:
     if (buffer[0] !== 0xff || buffer[1] < 0xf0) return null;
