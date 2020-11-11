@@ -54,9 +54,7 @@ export default class CodecParser {
    * @returns {null} If buffer does not contain a valid header
    */
   _getMPEGHeader(buffer) {
-    const key = String.fromCharCode(
-      ...buffer.subarray(0, 4)
-    );
+    const key = String.fromCharCode(...buffer.subarray(0, 4));
 
     if (this._headerCache.has(key)) {
       return this._headerCache.get(key);
