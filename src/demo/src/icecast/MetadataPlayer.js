@@ -86,14 +86,14 @@ export default class MetadataPlayer {
 
       this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
     } else if (
-      mimeType === "audio/mpeg" &&
-      MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
+      (mimeType === "audio/mpeg" || mimeType === "audio/aac") &&
+      MediaSource.isTypeSupported("audio/mp4")
     ) {
-      await this._createMediaSource('audio/mp4; codecs="mp3"');
+      await this._createMediaSource("audio/mp4");
 
-      this._mp3ToMp4 = new FragmentedMPEG();
+      this._fMP4Wrapper = new FragmentedMPEG(mimeType);
       this._onStream = async ({ stream }) => {
-        for await (const movieFragment of this._mp3ToMp4.iterator(stream)) {
+        for await (const movieFragment of this._fMP4Wrapper.iterator(stream)) {
           await this._appendSourceBuffer(movieFragment);
         }
       };

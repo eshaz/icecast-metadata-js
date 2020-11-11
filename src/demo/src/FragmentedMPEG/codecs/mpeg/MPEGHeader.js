@@ -14,11 +14,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+import CodecHeader from "../CodecHeader";
+
 // http://www.mp3-tech.org/programmer/frame_header.html
 
-export default class Header {
-  static headerByteLength = 4;
-
+export default class MPEGHeader extends CodecHeader {
   static bitrateMatrix = {
     // bits | V1,L1 | V1,L2 | V1,L3 | V2,L1 | V2, L2 & L3
     0b00000000: ["free", "free", "free", "free", "free"],
@@ -64,38 +64,38 @@ export default class Header {
     0b00000010: {
       description: "Layer III",
       framePadding: 1,
-      modeExtensions: Header.layer3ModeExtensions,
+      modeExtensions: MPEGHeader.layer3ModeExtensions,
       v1: {
-        bitrateIndex: Header.v1Layer3,
+        bitrateIndex: MPEGHeader.v1Layer3,
         sampleLength: 1152,
       },
       v2: {
-        bitrateIndex: Header.v2Layer23,
+        bitrateIndex: MPEGHeader.v2Layer23,
         sampleLength: 576,
       },
     },
     0b00000100: {
       description: "Layer II",
       framePadding: 1,
-      modeExtensions: Header.layer12ModeExtensions,
+      modeExtensions: MPEGHeader.layer12ModeExtensions,
       sampleLength: 1152,
       v1: {
-        bitrateIndex: Header.v1Layer2,
+        bitrateIndex: MPEGHeader.v1Layer2,
       },
       v2: {
-        bitrateIndex: Header.v2Layer23,
+        bitrateIndex: MPEGHeader.v2Layer23,
       },
     },
     0b00000110: {
       description: "Layer I",
       framePadding: 4,
-      modeExtensions: Header.layer12ModeExtensions,
+      modeExtensions: MPEGHeader.layer12ModeExtensions,
       sampleLength: 384,
       v1: {
-        bitrateIndex: Header.v1Layer1,
+        bitrateIndex: MPEGHeader.v1Layer1,
       },
       v2: {
-        bitrateIndex: Header.v2Layer1,
+        bitrateIndex: MPEGHeader.v2Layer1,
       },
     },
   };
@@ -110,7 +110,6 @@ export default class Header {
         0b00001000: 8000,
         0b00001100: "reserved",
       },
-      sampleLengths: Header.v2SampleLengths,
     },
     0b00001000: { description: "reserved" },
     0b00010000: {
@@ -122,7 +121,6 @@ export default class Header {
         0b00001000: 16000,
         0b00001100: "reserved",
       },
-      sampleLengths: Header.v2SampleLengths,
     },
     0b00011000: {
       description: "MPEG Version 1 (ISO/IEC 11172-3)",
@@ -133,7 +131,6 @@ export default class Header {
         0b00001000: 32000,
         0b00001100: "reserved",
       },
-      sampleLengths: Header.v1SampleLengths,
     },
   };
 
@@ -163,35 +160,36 @@ export default class Header {
     // Frame sync (all bits must be set): `11111111|111`:
     if (buffer[0] !== 0xff || buffer[1] < 0xe0) return null;
 
-    // Header's second (out of four) octet: `111xxxxx`
-    //
+    // Byte (2 of 4)
+    // * `111BBCCD`
     // * `...BB...`: MPEG Audio version ID
     // * `.....CC.`: Layer description
-    // * `.......1`: Protection bit (0 - Protected by CRC (16bit CRC follows header), 1 = Not protected)
+    // * `.......D`: Protection bit (0 - Protected by CRC (16bit CRC follows header), 1 = Not protected)
     const mpegVersionBits = buffer[1] & 0b00011000;
     const layerBits = buffer[1] & 0b00000110;
     const protectionBit = buffer[1] & 0b00000001;
 
     const header = {};
+    header.headerByteLength = 4;
 
     // Mpeg version (1, 2, 2.5)
-    const mpegVersion = Header.mpegVersions[mpegVersionBits];
+    const mpegVersion = MPEGHeader.mpegVersions[mpegVersionBits];
     if (mpegVersion.description === "reserved") return null;
 
     // Layer (I, II, III)
-    if (Header.layers[layerBits].description === "reserved") return null;
+    if (MPEGHeader.layers[layerBits].description === "reserved") return null;
     const layer = {
-      ...Header.layers[layerBits],
-      ...Header.layers[layerBits][mpegVersion.layers],
+      ...MPEGHeader.layers[layerBits],
+      ...MPEGHeader.layers[layerBits][mpegVersion.layers],
     };
 
     header.mpegVersion = mpegVersion.description;
     header.layer = layer.description;
     header.sampleLength = layer.sampleLength;
-    header.protection = Header.protection[protectionBit];
+    header.protection = MPEGHeader.protection[protectionBit];
 
-    // Header's third (out of four) octet: `EEEEFFGH`
-    //
+    // Byte (3 of 4)
+    // * `EEEEFFGH`
     // * `EEEE....`: Bitrate index. 1111 is invalid, everything else is accepted
     // * `....FF..`: Sample rate
     // * `......G.`: Padding bit, 0=frame not padded, 1=frame padded
@@ -201,7 +199,7 @@ export default class Header {
     const paddingBit = buffer[2] & 0b00000010;
     const privateBit = buffer[2] & 0b00000001;
 
-    header.bitrate = Header.bitrateMatrix[bitrateBits][layer.bitrateIndex];
+    header.bitrate = MPEGHeader.bitrateMatrix[bitrateBits][layer.bitrateIndex];
     if (header.bitrate === "bad") return null;
 
     header.sampleRate = mpegVersion.sampleRates[sampleRateBits];
@@ -210,14 +208,14 @@ export default class Header {
     header.framePadding = paddingBit >> 1 && layer.framePadding;
     header.isPrivate = !!privateBit;
 
-    header.frameByteLength = Math.floor(
+    header.dataByteLength = Math.floor(
       (125 * header.bitrate * header.sampleLength) / header.sampleRate +
         header.framePadding
     );
-    if (!header.frameByteLength) return null;
+    if (!header.dataByteLength) return null;
 
-    // Header's fourth (out of four) octet: `IIJJKLMM`
-    //
+    // Byte (4 of 4)
+    // * `IIJJKLMM`
     // * `II......`: Channel mode
     // * `..JJ....`: Mode extension (only if joint stereo)
     // * `....K...`: Copyright
@@ -225,53 +223,33 @@ export default class Header {
     // * `......MM`: Emphasis
     const channelModeBits = buffer[3] & 0b11000000;
     const modeExtensionBits = buffer[3] & 0b00110000;
-    const copyrightBits = buffer[3] & 0b00001000;
-    const originalBits = buffer[3] & 0b00000100;
+    const copyrightBit = buffer[3] & 0b00001000;
+    const originalBit = buffer[3] & 0b00000100;
     const emphasisBits = buffer[3] & 0b00000011;
 
-    header.channelMode = Header.channelModes[channelModeBits].description;
-    header.channels = Header.channelModes[channelModeBits].channels;
+    header.channelMode = MPEGHeader.channelModes[channelModeBits].description;
+    header.channels = MPEGHeader.channelModes[channelModeBits].channels;
     header.modeExtension = layer.modeExtensions[modeExtensionBits];
-    header.isCopyrighted = !!(copyrightBits >> 3);
-    header.isOriginal = !!(originalBits >> 2);
+    header.isCopyrighted = !!(copyrightBit >> 3);
+    header.isOriginal = !!(originalBit >> 2);
 
-    header.emphasis = Header.emphasis[emphasisBits];
+    header.emphasis = MPEGHeader.emphasis[emphasisBits];
     if (header.emphasis === "reserved") return null;
 
-    return new Header(header);
+    return new MPEGHeader(header);
   }
 
+  /**
+   * @private
+   * Call MPEGHeader.getHeader(Array<Uint8>) to get instance
+   */
   constructor(header) {
+    super(header);
     this._bitrate = header.bitrate;
-    this._channelMode = header.channelMode;
-    this._channels = header.channels;
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
     this._isCopyrighted = header.isCopyrighted;
-    this._isOriginal = header.isOriginal;
-    this._isPrivate = header.isPrivate;
-    this._layer = header.layer;
     this._modeExtension = header.modeExtension;
-    this._mpegVersion = header.mpegVersion;
-    this._protection = header.protection;
-    this._sampleLength = header.sampleLength;
-    this._sampleRate = header.sampleRate;
-    this._frameByteLength = header.frameByteLength;
-  }
-
-  get channels() {
-    return this._channels;
-  }
-
-  get frameByteLength() {
-    return this._frameByteLength;
-  }
-
-  get sampleRate() {
-    return this._sampleRate;
-  }
-
-  get sampleLength() {
-    return this._sampleLength;
+    this._mimeType = "audio/mpeg";
   }
 }

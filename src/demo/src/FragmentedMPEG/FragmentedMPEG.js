@@ -14,20 +14,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEGParser from "./mpeg/MPEGParser";
+import CodecParser from "./codecs/CodecParser";
 import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
 
 /**
- * @description Generator that takes in MP3 (MPEG) Data and yields Fragmented MP4 (ISOBMFF)
+ * @description Generator that takes in MPEG 1/2 or AAC Data and yields Fragmented MP4 (ISOBMFF)
  */
 export default class FragmentedMPEG {
   static MIN_FRAMES = 2;
   static MIN_FRAMES_LENGTH = 1022;
 
-  constructor() {
-    this._mpegParser = new MPEGParser();
+  constructor(mimeType) {
+    this._codecParser = new CodecParser(mimeType);
+    this._fragmentedISOBMFFBuilder = new FragmentedISOBMFFBuilder();
     this._frames = [];
-    this._mpegData = new Uint8Array(0);
+    this._codecData = new Uint8Array(0);
 
     this._generator = this._generator();
     this._generator.next();
@@ -70,76 +71,65 @@ export default class FragmentedMPEG {
    */
   *_generator() {
     let frames;
-    // start parsing out frames, save the first header
+    // start parsing out frames
     while (!frames) {
       yield* this._sendReceiveData();
-      const parsedFrames = this._parseFrames();
-      this._firstHeader = parsedFrames.length && parsedFrames[0].header;
-      frames = this._getMovieFragment();
+      frames = this._parseFrames();
     }
 
     // yield the movie box along with a movie fragment containing frames
-    frames = FragmentedMPEG.appendBuffers(
-      FragmentedISOBMFFBuilder.getMp3MovieBox(this._firstHeader),
-      frames
+    let fMP4 = FragmentedMPEG.appendBuffers(
+      this._fragmentedISOBMFFBuilder.getMovieBox(frames[0].header),
+      this._fragmentedISOBMFFBuilder.wrapFrames(frames)
     );
 
     // yield movie fragments containing frames
     while (true) {
-      yield* this._sendReceiveData(frames);
-      this._parseFrames();
-      frames = this._getMovieFragment();
+      yield* this._sendReceiveData(fMP4);
+      frames = this._parseFrames();
+      fMP4 = frames ? this._fragmentedISOBMFFBuilder.wrapFrames(frames) : null;
     }
   }
 
   /**
    * @private
-   * @param {Uint8Array} frames
+   * @param {Uint8Array} fMP4 Fragmented MP4 to send
+   * @yields {Uint8Array} Fragmented MP4
    */
-  *_sendReceiveData(frames) {
-    let mpegData = yield frames;
+  *_sendReceiveData(fMP4) {
+    let codecData = yield fMP4;
 
-    while (!mpegData) {
-      mpegData = yield;
+    while (!codecData) {
+      codecData = yield;
     }
 
-    this._mpegData = FragmentedMPEG.appendBuffers(this._mpegData, mpegData);
+    this._codecData = FragmentedMPEG.appendBuffers(this._codecData, codecData);
   }
 
   /**
    * @private
    */
   _parseFrames() {
-    let currentFrame = this._mpegParser.readFrameStream(this._mpegData);
+    let currentFrame = this._codecParser.readFrameStream(this._codecData);
 
     while (currentFrame.frame) {
       this._frames.push(currentFrame.frame);
 
-      currentFrame = this._mpegParser.readFrameStream(
-        this._mpegData,
-        currentFrame.offset + currentFrame.frame.header.frameByteLength
+      currentFrame = this._codecParser.readFrameStream(
+        this._codecData,
+        currentFrame.offset + currentFrame.frame.length
       );
     }
-    this._mpegData = this._mpegData.subarray(currentFrame.offset);
+    this._codecData = this._codecData.subarray(currentFrame.offset);
 
-    return this._frames;
-  }
-
-  /**
-   * @private
-   */
-  _getMovieFragment() {
     if (
       this._frames.length >= FragmentedMPEG.MIN_FRAMES &&
       this._frames.reduce((acc, frame) => acc + frame.data.length, 0) >=
         FragmentedMPEG.MIN_FRAMES_LENGTH
     ) {
-      const movieFragment = FragmentedISOBMFFBuilder.wrapMp3InMovieFragment(
-        this._frames
-      );
-
+      const frames = this._frames;
       this._frames = [];
-      return movieFragment;
+      return frames;
     }
   }
 }

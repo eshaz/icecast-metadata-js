@@ -14,17 +14,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-export default class Frame {
+import CodecFrame from "../CodecFrame";
+
+export default class MPEGFrame extends CodecFrame {
   constructor(header, data) {
-    this._header = header;
-    this._data = data;
-  }
-
-  get header() {
-    return this._header;
-  }
-
-  get data() {
-    return this._data;
+    super(header, data, data.length);
   }
 }

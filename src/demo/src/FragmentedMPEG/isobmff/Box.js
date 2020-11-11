@@ -13,23 +13,20 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
+import ISOBMFFObject from "./ISOBMFFObject";
 
-export default class Box {
-  static LENGTH_SIZE = 4;
-
+export default class Box extends ISOBMFFObject {
   /**
    * @description ISO/IEC 14496-12 Part 12 ISO Base Media File Format Box
    * @param {string} name Name of the box (i.e. 'moov', 'moof', 'traf')
    * @param {object} params Object containing contents or boxes
-   * @param {Uint8Array} [params.contents] Array of bytes to insert into this box
+   * @param {Array<Uint8>} [params.contents] Array of bytes to insert into this box
    * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
    */
   constructor(name, { contents = [], boxes = [] } = {}) {
-    this._contents = Uint8Array.from([
-      ...Box.stringToU8intArray(name),
-      ...contents,
-    ]);
-    this._boxes = boxes;
+    super(name, [...Box.stringToByteArray(name), ...contents], boxes);
+
+    this.LENGTH_SIZE = 4;
   }
 
   /**
@@ -37,12 +34,12 @@ export default class Box {
    * @param {string} name String to convert
    * @returns {Uint8Array}
    */
-  static stringToU8intArray(name) {
+  static stringToByteArray(name) {
     const array = [];
     for (const char of name) {
       array.push(char.charCodeAt(0));
     }
-    return Uint8Array.from(array);
+    return array;
   }
 
   /**
@@ -57,26 +54,12 @@ export default class Box {
   }
 
   /**
-   * @returns {number} Total length of this box and all contents
-   */
-  get length() {
-    return this._boxes.reduce(
-      (acc, box) => acc + box.length,
-      Box.LENGTH_SIZE + this._contents.length
-    );
-  }
-
-  /**
    * @returns {Uint8Array} Contents of this box
    */
   get contents() {
-    const contents = [
-      ...this._contents,
-      ...this._boxes.flatMap((box) => [...box.contents]),
-    ];
-
+    const contents = super.contents;
     return Uint8Array.from([
-      ...Box.getUint32(Box.LENGTH_SIZE + contents.length),
+      ...Box.getUint32(this.LENGTH_SIZE + contents.length),
       ...contents,
     ]);
   }
@@ -91,28 +74,6 @@ export default class Box {
       throw new Error("Not a box");
     }
 
-    this._boxes.push(box);
-  }
-
-  /**
-   * @description Inserts bytes into the contents of this box
-   * @param {Uint8Array} data Bytes to insert
-   * @param {number} index Position to insert bytes
-   */
-  insertBytes(data, index) {
-    const insertOffset = index + 4;
-    this._contents = Uint8Array.from([
-      ...this._contents.subarray(0, insertOffset),
-      ...data,
-      ...this._contents.subarray(insertOffset),
-    ]);
-  }
-
-  /**
-   * @description Appends data to the end of the contents of this box
-   * @param {Uint8Array} data Bytes to append
-   */
-  appendBytes(data) {
-    this._contents = Uint8Array.from([...this._contents, ...data]);
+    this.addObject(box);
   }
 }
