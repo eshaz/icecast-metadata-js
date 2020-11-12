@@ -96,7 +96,7 @@ export default class FragmentedISOBMFFBuilder {
               new Box("tkhd", {
                 /* prettier-ignore */
                 contents: [0x00, // version
-                  0x00,0x00,0x03, // flags
+                  0x00,0x00,0x03, // flags (0x01 - track enabled, 0x02 - track in movie, 0x04 - track in preview, 0x08 - track in poster)
                   0x00,0x00,0x00,0x00, // creation time
                   0x00,0x00,0x00,0x00, // modification time
                   0x00,0x00,0x00,0x01, // track id
@@ -237,28 +237,15 @@ export default class FragmentedISOBMFFBuilder {
             ],
           }),
           new Box("mvex", {
-            /* prettier-ignore */
-            contents: [0x00,0x00,0x00,0x20,0x74,0x72,0x65,0x78,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,
-              0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00],
-          }),
-          new Box("udta", {
             boxes: [
-              new Box("meta", {
+              new Box("trex", {
                 /* prettier-ignore */
-                contents: [0x00,0x00,0x00,0x00],
-                boxes: [
-                  new Box("hdlr", {
-                    /* prettier-ignore */
-                    contents: [0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x6d,0x64,0x69,0x72,0x61,0x70,0x70,0x6c,
-                      0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00],
-                  }),
-                  new Box("ilst", {
-                    /* prettier-ignore */
-                    contents: [0x00,0x00,0x00,0x25,0xa9,0x74,0x6f,0x6f,0x00,0x00,0x00,0x1d,0x64,0x61,0x74,0x61,
-                      0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x4c,0x61,0x76,0x66,0x35,0x38,0x2e,0x32,
-                      0x39,0x2e,0x31,0x30,0x30],
-                  }),
-                ],
+                contents: [0x00,0x00,0x00,0x00, // flags
+                  0x00,0x00,0x00,0x01, // track id
+                  0x00,0x00,0x00,0x01, // default_sample_description_index
+                  0x00,0x00,0x00,0x00, // default_sample_duration
+                  0x00,0x00,0x00,0x00, // default_sample_size;
+                  0x00,0x00,0x00,0x00], // default_sample_flags;
               }),
             ],
           }),
@@ -274,13 +261,7 @@ export default class FragmentedISOBMFFBuilder {
       );
     }
 
-    const contents = FragmentedISOBMFFBuilder.getBoxContents(boxes);
-
-    this._moovLength = contents.length;
-
-    console.log(boxes);
-
-    return contents;
+    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
   }
 
   /**
@@ -291,9 +272,16 @@ export default class FragmentedISOBMFFBuilder {
   wrapFrames(frames) {
     const trun = new Box("trun", {
       /* prettier-ignore */
-      contents: [
-        0x00,0x00,0x02,0x01, //flags
-        ...Box.getUint32(frames.length), // number of frames
+      contents: [0x00, // version
+        0x00,0x02,0x01, // flags
+        // * `ABCD|00000E0F`
+        // * `A...|........` sample‐composition‐time‐offsets‐present
+        // * `.B..|........` sample‐flags‐present
+        // * `..C.|........` sample‐size‐present
+        // * `...D|........` sample‐duration‐present
+        // * `....|.....E..` first‐sample‐flags‐present
+        // * `....|.......G` data-offset-present
+        ...Box.getUint32(frames.length), // number of samples
         ...frames.flatMap((frame) => [...Box.getUint32(frame.data.length)]), // samples lengths per frame
       ],
     });
@@ -303,23 +291,32 @@ export default class FragmentedISOBMFFBuilder {
         boxes: [
           new Box("mfhd", {
             /* prettier-ignore */
-            contents: [0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01],
+            contents: [0x00,0x00,0x00,0x00,
+              0x00,0x00,0x00,0x00], // sequence number
           }),
           new Box("traf", {
             boxes: [
               new Box("tfhd", {
                 /* prettier-ignore */
-                contents: [0x00,0x00,0x00,0x39,0x00,0x00,0x00,0x01,
-                  0x00,0x00,0x00,0x00,
-                  ...Box.getUint32(this._moovLength), // base data offset (length of moov box)
+                contents: [0x00, // version
+                  0x02,0x00,0x08, // flags
+                  // * `AB|00000000|00CDE0FG`
+                  // * `A.|........|........` default-base-is-moof
+                  // * `.B|........|........` duration-is-empty
+                  // * `..|........|..C.....` default-sample-flags-present
+                  // * `..|........|...D....` default-sample-size-present
+                  // * `..|........|....E...` default-sample-duration-present
+                  // * `..|........|......F.` sample-description-index-present
+                  // * `..|........|.......G` base-data-offset-present
+                  0x00,0x00,0x00,0x01, // track id
                   ...Box.getUint32(frames[0].header.sampleLength), // default sample duration
-                  ...Box.getUint32(frames[0].data.length), // default sample size
-                  0x02,0x00,0x00,0x00],
+                ],
               }),
               new Box("tfdt", {
                 /* prettier-ignore */
-                contents: [0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-                  0x00,0x00,0x00,0x00],
+                contents: [0x00, // version
+                  0x00,0x00,0x00, // flags
+                  0x00,0x00,0x00,0x00], // base media decode time
               }),
               trun,
             ],
