@@ -54,6 +54,17 @@ export default class Box extends ISOBMFFObject {
   }
 
   /**
+   * @description Converts a JavaScript number to Uint32
+   * @param {number} number Number to convert
+   * @returns {Uint32}
+   */
+  static getUint16(number) {
+    const bytes = new Uint8Array(2);
+    new DataView(bytes.buffer).setUint16(0, number, false);
+    return bytes;
+  }
+
+  /**
    * @returns {Uint8Array} Contents of this box
    */
   get contents() {
