@@ -62,16 +62,15 @@ export default class FragmentedISOBMFFBuilder {
     const boxes = [
       new Box("ftyp", {
         /* prettier-ignore */
-        contents: [0x69,0x73,0x6F,0x6D,0x00,0x00,0x02,0x00,
-          0x69,0x73,0x6F,0x6D,0x69,0x73,0x6F,0x32,
-          0x69,0x73,0x6F,0x36,0x6D,0x70,0x34,0x31],
+        contents: [...Box.stringToByteArray("iso5"), // major brand
+          0x00,0x00,0x02,0x00, // minor version
+          ...Box.stringToByteArray("iso6mp41")], // compatible brands
       }),
       new Box("moov", {
         boxes: [
           new Box("mvhd", {
             /* prettier-ignore */
-            contents: [
-              0x00, // version
+            contents: [0x00, // version
               0x00,0x00,0x00, // flags
               0x00,0x00,0x00,0x00, // creation time
               0x00,0x00,0x00,0x00, // modification time
@@ -135,8 +134,7 @@ export default class FragmentedISOBMFFBuilder {
                       0x00,0x00,0x00,0x00, // component manufacturer
                       0x00,0x00,0x00,0x00, // component flags
                       0x00,0x00,0x00,0x00, // component flags mask
-                      0x53,0x6f,0x75,0x6e,0x64,0x48,0x61,0x6e, //A (counted) string that specifies the name of the component
-                      0x64,0x6c,0x65,0x72,0x00],
+                      0x00], // String that specifies the name of the component, ended by a null character
                   }),
                   new Box("minf", {
                     boxes: [
