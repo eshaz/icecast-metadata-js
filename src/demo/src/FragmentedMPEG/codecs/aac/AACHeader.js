@@ -235,7 +235,7 @@ export default class AACHeader extends CodecHeader {
     // * `........|.....0..`: Frame Length (1024)
     // * `........|......0.`: does not depend on core coder
     // * `........|.......0`: Not Extension
-    let audioSpecificConfig =
+    const audioSpecificConfig =
       ((this._bits.profileBits + 0x40) << 5) |
       (this._bits.sampleRateBits << 5) |
       (this._bits.channelModeBits >> 3);
