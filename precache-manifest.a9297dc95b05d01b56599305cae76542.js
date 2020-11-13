@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "5545f4641250483e4a04e8959ec08480",
+    "revision": "a7beb79b86a842b71b44c000e70fe89e",
     "url": "/icecast-metadata-js/index.html"
   },
   {
-    "revision": "d72ca607420d04a949ff",
+    "revision": "dd864de1172cf2668b9a",
     "url": "/icecast-metadata-js/static/css/main.c82afa75.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/icecast-metadata-js/static/js/2.416e7ace.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "d72ca607420d04a949ff",
-    "url": "/icecast-metadata-js/static/js/main.bd180cac.chunk.js"
+    "revision": "dd864de1172cf2668b9a",
+    "url": "/icecast-metadata-js/static/js/main.d228c441.chunk.js"
   },
   {
     "revision": "028449cb7ceb94d3b7d2",
