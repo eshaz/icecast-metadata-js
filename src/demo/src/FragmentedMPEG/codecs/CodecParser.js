@@ -22,7 +22,7 @@ import AACFrame from "./aac/AACFrame";
 
 export default class CodecParser {
   constructor(mimeType) {
-    if (mimeType === "audio/aac") {
+    if (mimeType.match(/aac/)) {
       this._frameClass = AACFrame;
       this._getHeader = this._getAACHeader;
       this._headerLength = 9;

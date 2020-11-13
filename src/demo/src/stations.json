@@ -19,6 +19,20 @@
     "metaInt": 16384
   },
   {
+    "name": "Jazz4ever",
+    "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
+    "link": "http://jazz4ever.net/",
+    "endpoint": "https://streaming211.radionomy.com/Jazz4ever",
+    "metaInt": 16000
+  },
+  {
+    "name": "1RadioLounge",
+    "description": "24/7 h. relax music...chill, ambient...",
+    "link": "http://1radiolounge.playtheradio.com/",
+    "endpoint": "https://streaming211.radionomy.com/1RadioLounge_64.aac",
+    "metaInt": 16000
+  },
+  {
     "name": "90.9 Jazzy rádió - Jazzy Cool",
     "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
     "link": "https://jazzy.hu/",
@@ -64,7 +78,7 @@
     "name": "Radioparty.pl",
     "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
     "link": "https://radioparty.pl/kanalglowny.html",
-    "endpoint": "https://s1.radioparty.pl:8000/stream",
+    "endpoint": "https://s2.radioparty.pl:8000/stream",
     "metaInt": 16384
   },
   {
@@ -103,10 +117,24 @@
     "metaInt": 16384
   },
   {
+    "name": "Radioparty.pl - Energy 2000 aac+",
+    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
+    "link": "https://radioparty.pl/kanalenergy2000.html",
+    "endpoint": "https://s2.radioparty.pl:8040/energy2000",
+    "metaInt": 16384
+  },
+  {
     "name": "Dance Wave!",
     "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
     "link": "https://dancewave.online/",
     "endpoint": "https://dancewave.online/dance.mp3",
+    "metaInt": 16384
+  },
+  {
+    "name": "Dance Wave! aac+",
+    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
+    "link": "https://dancewave.online/",
+    "endpoint": "https://dancewave.online/dance.aac",
     "metaInt": 16384
   },
   {
@@ -128,6 +156,13 @@
     "description": "Good Vibes from Senegal West Africa! Sama Radio Dakar Senegal créée en Août 2013. Avec un groupe de jeunes ambitieux Sénégalais elle est aujourd hui la première chaîne indépendante et qui résume l ensemble du Paysage médiatique Sénégalais.",
     "link": "https://www.sunufm.com/samaradio/",
     "endpoint": "https://streamingv2.shoutcast.com/SamaRadio",
+    "metaInt": 16000
+  },
+  {
+    "name": "ABC Piano",
+    "description": "Only Piano Classical Music with Bach, Mozart, Beethoven, Rachmaninov, Debussy, Chopin, ...",
+    "link": "https://www.radionomy.com/en/radio/abc-Piano",
+    "endpoint": "https://streaming211.radionomy.com/ABC-Piano",
     "metaInt": 16000
   },
   {

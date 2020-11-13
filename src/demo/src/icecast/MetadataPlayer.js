@@ -86,7 +86,7 @@ export default class MetadataPlayer {
 
       this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
     } else if (
-      (mimeType === "audio/mpeg" || mimeType === "audio/aac") &&
+      (mimeType === "audio/mpeg" || mimeType.match(/aac/)) &&
       MediaSource.isTypeSupported("audio/mp4")
     ) {
       await this._createMediaSource("audio/mp4");
