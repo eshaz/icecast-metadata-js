@@ -34,7 +34,7 @@ J 	1 	home, set to 0 when encoding, ignore when decoding
 K 	1 	copyrighted id bit, the next bit of a centrally registered copyright identifier, set to 0 when encoding, ignore when decoding
 L 	1 	copyright id start, signals that this frame's copyright id bit is the first bit of the copyright id, set to 0 when encoding, ignore when decoding
 M 	13 	frame length, this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
-O 	11 	Buffer fullness
+O 	11 	Buffer fullness // 0x7FF for VBR
 P 	2 	Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
 Q 	16 	CRC if protection absent is 0 
 */
@@ -82,11 +82,11 @@ export default class AACHeader extends CodecHeader {
     0b00110000: "7350",
     0b00110100: "reserved",
     0b00111000: "reserved",
-    0b00111100: "frequency is written explictly",
+    0b00111100: "frequency is written explicitly",
   };
 
   static channelMode = {
-    0b000000000: { channels: 0, description: "Defined in AOT Specifc Config" },
+    0b000000000: { channels: 0, description: "Defined in AOT Specific Config" },
     0b001000000: { channels: 1, description: "front-center" },
     0b010000000: { channels: 2, description: "front-left, front-right" },
     0b011000000: {
@@ -193,7 +193,8 @@ export default class AACHeader extends CodecHeader {
     const bufferFullnessBits =
       new DataView(Uint8Array.from([buffer[5], buffer[6]]).buffer).getUint16() &
       0x1ffc;
-    header.bufferFullness = bufferFullnessBits >> 2;
+    header.bufferFullness =
+      bufferFullnessBits === 0x1ffc ? "VBR" : bufferFullnessBits >> 2;
 
     // Byte (7 of 7)
     // * `......PP` Number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
@@ -235,10 +236,9 @@ export default class AACHeader extends CodecHeader {
     // * `........|......0.`: does not depend on core coder
     // * `........|.......0`: Not Extension
     const audioSpecificConfig =
-      (this._bits.profileBits << 5) |
+      ((this._bits.profileBits + 0x40) << 5) |
       (this._bits.sampleRateBits << 5) |
-      (this._bits.channelModeBits >> 3) |
-      0x800; // add 1 to the profileBits
+      (this._bits.channelModeBits >> 3);
 
     const bytes = new Uint8Array(2);
     new DataView(bytes.buffer).setUint16(0, audioSpecificConfig, false);
