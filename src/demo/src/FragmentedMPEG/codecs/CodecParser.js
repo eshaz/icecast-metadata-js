@@ -20,17 +20,24 @@ import MPEGFrame from "./mpeg/MPEGFrame";
 import AACHeader from "./aac/AACHeader";
 import AACFrame from "./aac/AACFrame";
 
+import OGGPageHeader from "./ogg/OGGPageHeader";
+import OGGFrame from "./ogg/OGGFrame";
+
 export default class CodecParser {
   constructor(mimeType) {
     if (mimeType.match(/aac/)) {
       this._frameClass = AACFrame;
       this._getHeader = this._getAACHeader;
       this._headerLength = 9;
-    } else {
+    } else if (mimeType.match(/mpeg/)) {
       this._frameClass = MPEGFrame;
       this._getHeader = this._getMPEGHeader;
       this._headerLength = 4;
       this._headerCache = new Map();
+    } else {
+      this._frameClass = OGGFrame;
+      this._getHeader = OGGPageHeader.getHeader;
+      this._headerLength = 26;
     }
   }
 

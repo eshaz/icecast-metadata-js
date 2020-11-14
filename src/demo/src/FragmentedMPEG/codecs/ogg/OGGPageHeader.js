@@ -55,16 +55,18 @@ export default class OGGPageHeader extends CodecHeader {
 
   static getHeader(buffer) {
     // Must be at least 28 bytes.
-    if (buffer.length < 26) return null;
+    if (buffer.length < 28) return null;
+
+    let headerBytes = [];
+    for (let i = 0; i < 28; i++) {
+      headerBytes.push(buffer[i]);
+    }
+    const view = new DataView(Uint8Array.from(headerBytes).buffer);
 
     // Bytes (1-4 of 28)
     // Frame sync (must equal OggS): `AAAAAAAA|AAAAAAAA|AAAAAAAA|AAAAAAAA`:
-    if (
-      buffer[0] !== 0x4f ||
-      buffer[1] !== 0x67 ||
-      buffer[2] !== 0x67 ||
-      buffer[3] !== 0x53
-    ) {
+    if (view.getUint32(0) !== OGGPageHeader.OggS) {
+      console.log(view.getUint32(0), buffer);
       return null;
     }
 
@@ -93,32 +95,31 @@ export default class OGGPageHeader extends CodecHeader {
     // Byte (7-14 of 28)
     // * `FFFFFFFF|FFFFFFFF|FFFFFFFF|FFFFFFFF|FFFFFFFF|FFFFFFFF|FFFFFFFF|FFFFFFFF`
     // * Absolute Granule Position
-    const view = new DataView(buffer.buffer);
-    header.absoluteGranulePosition = view.getBigInt64(6, false);
+    header.absoluteGranulePosition = view.getBigInt64(6, true);
 
     // Byte (15-18 of 28)
     // * `GGGGGGGG|GGGGGGGG|GGGGGGGG|GGGGGGGG`
     // * Stream Serial Number
-    header.streamSerialNumber = view.getInt32(14, false);
+    header.streamSerialNumber = view.getInt32(14, true);
 
     // Byte (19-22 of 28)
     // * `HHHHHHHH|HHHHHHHH|HHHHHHHH|HHHHHHHH`
     // * Page Sequence Number
-    header.pageSequenceNumber = view.getInt32(18, false);
+    header.pageSequenceNumber = view.getInt32(18, true);
 
     // Byte (23-26 of 28)
     // * `IIIIIIII|IIIIIIII|IIIIIIII|IIIIIIII`
     // * Page Checksum
-    header.pageChecksum = view.getInt32(22, false);
+    header.pageChecksum = view.getInt32(22, true);
 
     // Byte (27 of 28)
     // * `JJJJJJJJ`: Number of page segments in the segment table
     header.numberPageSegments = buffer[26];
-    header.headerByteLength = buffer[26] + 26;
+    header.headerByteLength = buffer[26] + 27;
 
     if (header.headerByteLength > buffer.length) return null;
-    header.dataByteLength = 0;
 
+    header.dataByteLength = header.headerByteLength;
     for (let i = 0; i < header.numberPageSegments; i++) {
       header.dataByteLength += buffer[i + 27];
     }
@@ -139,5 +140,6 @@ export default class OGGPageHeader extends CodecHeader {
     this._numberPageSegments = header.numberPageSegments;
     this._pageSequenceNumber = header.pageSequenceNumber;
     this._pageChecksum = header.pageChecksum;
+    this._streamSerialNumber = header.streamSerialNumber;
   }
 }
