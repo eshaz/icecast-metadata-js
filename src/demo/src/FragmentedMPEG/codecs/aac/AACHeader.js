@@ -221,9 +221,14 @@ export default class AACHeader extends CodecHeader {
     this._copyrightIdStart = header.copyrightIdStart;
     this._bufferFullness = header.bufferFullness;
     this._isHome = header.isHome;
+    this._isOriginal = header.isOriginal;
+    this._isPrivate = header.isPrivate;
+    this._layer = header.layer;
     this._mimeType = "audio/aac";
+    this._mpegVersion = header.mpegVersion;
     this._numberAACFrames = header.numberAACFrames;
     this._profile = header.profile;
+    this._protection = header.protection;
   }
 
   get audioSpecificConfig() {

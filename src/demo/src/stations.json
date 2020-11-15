@@ -19,6 +19,13 @@
     "metaInt": 524288
   },
   {
+    "name": "Radio Paradise FLAC",
+    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
+    "link": "https://radioparadise.com/",
+    "endpoint": "https://stream.radioparadise.com/flacm",
+    "metaInt": 524288
+  },
+  {
     "name": "Radio Cumbernauld",
     "description": "Broadcasting local news and music from Cumbernauld Scotland",
     "link": "https://www.radiocumbernauld.uk/",

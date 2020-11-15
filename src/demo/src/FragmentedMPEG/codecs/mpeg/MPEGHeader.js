@@ -249,7 +249,12 @@ export default class MPEGHeader extends CodecHeader {
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
     this._isCopyrighted = header.isCopyrighted;
+    this._isOriginal = header.isOriginal;
+    this._isPrivate = header.isPrivate;
+    this._layer = header.layer;
     this._modeExtension = header.modeExtension;
     this._mimeType = "audio/mpeg";
+    this._mpegVersion = header.mpegVersion;
+    this._protection = header.protection;
   }
 }

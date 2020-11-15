@@ -21,7 +21,7 @@ import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
  * @description Generator that takes in MPEG 1/2 or AAC Data and yields Fragmented MP4 (ISOBMFF)
  */
 export default class FragmentedMPEG {
-  static MIN_FRAMES = 2;
+  static MIN_FRAMES = 8;
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor(mimeType) {

@@ -45,10 +45,10 @@ L   8   CRC-8 (polynomial = x^8 + x^2 + x^1 + x^0, initialized with 0) of everyt
         
 */
 
-import OGGPageHeader from "../ogg/OGGPageHeader";
+import CodecHeader from "../CodecHeader";
 import crc8 from "../../crc8";
 
-export default class FlacHeader extends OGGPageHeader {
+export default class FlacHeader extends CodecHeader {
   static blockingStrategy = {
     0b00000000: "Fixed",
     0b00000001: "Variable",
@@ -284,6 +284,7 @@ export default class FlacHeader extends OGGPageHeader {
     this._blockSize = header.blockSize;
     this._crc = header.crc;
     this._frameNumber = header.frameNumber;
+    this._mimeType = "audio/flac";
     this._sampleSize = header.sampleSize;
     this._sampleNumber = header.sampleNumber;
   }

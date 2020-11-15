@@ -86,19 +86,14 @@ export default class MetadataPlayer {
 
       this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
     } else if (
-      true
-      //(mimeType === "audio/mpeg" || mimeType === "audio/aac") &&
-      //MediaSource.isTypeSupported("audio/mp4")
+      mimeType.match(/aac|mpeg|ogg/) &&
+      MediaSource.isTypeSupported("audio/mp4")
     ) {
       await this._createMediaSource("audio/mp4");
 
-      const flac = await fetch("icecast-metadata-js/radioblues-flac")
-        .then((res) => res.body.getReader().read())
-        .then((data) => data.value);
-
-      this._fMP4Wrapper = new FragmentedMPEG("audio/ogg");
+      this._fMP4Wrapper = new FragmentedMPEG(mimeType);
       this._onStream = async ({ stream }) => {
-        for await (const movieFragment of this._fMP4Wrapper.iterator(flac)) {
+        for await (const movieFragment of this._fMP4Wrapper.iterator(stream)) {
           await this._appendSourceBuffer(movieFragment);
         }
       };
@@ -140,12 +135,12 @@ export default class MetadataPlayer {
           },
         }).startReading();
       })
-      /*.catch((e) => {
+      .catch((e) => {
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
         this._destroyMediaSource();
-      });*/
+      });
   }
 
   stop() {
