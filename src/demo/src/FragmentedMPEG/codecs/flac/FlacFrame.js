@@ -16,8 +16,10 @@
 
 import CodecFrame from "../CodecFrame";
 
-export default class OGGFrame extends CodecFrame {
-  constructor(header, data) {
-    super(header, data, data.length);
+export default class FlacFrame extends CodecFrame {
+  constructor(flacHeader, data, oggPage) {
+    const frameLength = oggPage.length + oggPage.dataByteLength;
+
+    super(flacHeader, data.subarray(oggPage.length, frameLength), frameLength);
   }
 }

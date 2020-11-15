@@ -12,6 +12,13 @@
     "endpoint": "https://dsmrad.io/stream/sara-all"
   },
   {
+    "name": "Radio BluesFlac",
+    "description": "Broadcasting in FLAC to give the listeners the authentic CD quality sound the artists want.",
+    "link": "https://bluesflac.com/",
+    "endpoint": "https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac",
+    "metaInt": 524288
+  },
+  {
     "name": "Radio Cumbernauld",
     "description": "Broadcasting local news and music from Cumbernauld Scotland",
     "link": "https://www.radiocumbernauld.uk/",

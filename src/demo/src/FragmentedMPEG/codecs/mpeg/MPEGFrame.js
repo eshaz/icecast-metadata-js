@@ -20,8 +20,8 @@ export default class MPEGFrame extends CodecFrame {
   constructor(header, data) {
     super(
       header,
-      data.subarray(0, header.dataByteLength),
-      header.dataByteLength
+      header && data.subarray(0, header.dataByteLength),
+      header && header.dataByteLength
     );
   }
 }

@@ -20,8 +20,8 @@ export default class AACFrame extends CodecFrame {
   constructor(header, data) {
     super(
       header,
-      data.subarray(header.length, header.dataByteLength),
-      header.dataByteLength
+      header && data.subarray(header.length, header.dataByteLength),
+      header && header.dataByteLength
     );
   }
 }

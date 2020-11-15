@@ -21,8 +21,10 @@ import AACHeader from "./aac/AACHeader";
 import AACFrame from "./aac/AACFrame";
 
 import OGGPageHeader from "./ogg/OGGPageHeader";
-import OGGFrame from "./ogg/OGGFrame";
+import OGGFrame from "./flac/FlacFrame";
+
 import FlacHeader from "./flac/FlacHeader";
+import FlacFrame from "./flac/FlacFrame";
 
 export default class CodecParser {
   constructor(mimeType) {
@@ -35,7 +37,7 @@ export default class CodecParser {
       this._headerCache = new Map();
     } else {
       this._getFrame = this._getFLACFrame;
-      this._maxHeaderLength = 26;
+      this._maxHeaderLength = 309; // flac 26, ogg 283
     }
   }
 
@@ -47,8 +49,20 @@ export default class CodecParser {
    * @returns {null} If buffer does not contain a valid header
    */
   _getFLACFrame(buffer) {
-    const header = FlacHeader.getHeader(buffer);
-    return header;
+    const oggPage = OGGPageHeader.getHeader(buffer);
+
+    if (oggPage) {
+      return new FlacFrame(
+        FlacHeader.getHeader(buffer.subarray(oggPage.length)),
+        buffer,
+        oggPage
+      );
+    }
+
+    return {
+      length: 0,
+      data: [],
+    };
   }
 
   /**
@@ -59,9 +73,7 @@ export default class CodecParser {
    * @returns {null} If buffer does not contain a valid header
    */
   _getAACFrame(buffer) {
-    const header = AACHeader.getHeader(buffer);
-
-    return header ? new AACFrame(header, buffer) : null;
+    return new AACFrame(AACHeader.getHeader(buffer), buffer);
   }
 
   /**
@@ -78,10 +90,8 @@ export default class CodecParser {
       return new MPEGFrame(this._headerCache.get(key), buffer);
     } else {
       const header = MPEGHeader.getHeader(buffer);
-      if (header) {
-        this._headerCache.set(key, header);
-        return new MPEGFrame(header, buffer);
-      }
+      this._headerCache.set(key, header);
+      return new MPEGFrame(header, buffer);
     }
   }
 
@@ -96,21 +106,21 @@ export default class CodecParser {
     let frame = this._getFrame(data.subarray(offset));
 
     // find a header in the data
-    while (!frame && offset + this._maxHeaderLength < data.length) {
-      offset++;
+    while (!frame.header && offset + this._maxHeaderLength < data.length) {
+      offset += 1 + frame.length;
       frame = this._getFrame(data.subarray(offset));
     }
 
-    if (frame) {
+    if (frame.header) {
       // check if there is a valid frame immediately after this frame
       const nextFrame = offset + frame.length;
       if (nextFrame + this._maxHeaderLength <= data.length) {
-        return this._getFrame(data.subarray(nextFrame))
+        return this._getFrame(data.subarray(nextFrame)).header
           ? {
               offset,
               frame,
             }
-          : { offset: nextFrame + frame.header.length };
+          : { offset: nextFrame + frame.header.length }; // current header is invalid since there is no next header
       }
     }
 

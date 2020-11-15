@@ -66,7 +66,6 @@ export default class OGGPageHeader extends CodecHeader {
     // Bytes (1-4 of 28)
     // Frame sync (must equal OggS): `AAAAAAAA|AAAAAAAA|AAAAAAAA|AAAAAAAA`:
     if (view.getUint32(0) !== OGGPageHeader.OggS) {
-      console.log(view.getUint32(0), buffer);
       return null;
     }
 
@@ -115,11 +114,11 @@ export default class OGGPageHeader extends CodecHeader {
     // Byte (27 of 28)
     // * `JJJJJJJJ`: Number of page segments in the segment table
     header.numberPageSegments = buffer[26];
-    header.length = buffer[26] + 27;
+    header.length = header.numberPageSegments + 27;
 
     if (header.length > buffer.length) return null;
 
-    header.dataByteLength = header.length;
+    header.dataByteLength = 0;
     for (let i = 0; i < header.numberPageSegments; i++) {
       header.dataByteLength += buffer[i + 27];
     }
