@@ -45,10 +45,10 @@ L   8   CRC-8 (polynomial = x^8 + x^2 + x^1 + x^0, initialized with 0) of everyt
         
 */
 
-import CodecHeader from "../CodecHeader";
+import OGGPageHeader from "../ogg/OGGPageHeader";
 import crc8 from "../../crc8";
 
-export default class FlacHeader extends CodecHeader {
+export default class FlacHeader extends OGGPageHeader {
   static blockingStrategy = {
     0b00000000: "Fixed",
     0b00000001: "Variable",
@@ -165,7 +165,7 @@ export default class FlacHeader extends CodecHeader {
     }
 
     const header = {};
-    header.headerByteLength = 5;
+    header.length = 5;
 
     // Byte (2 of 6)
     // * `......B.`: Reserved 0 - mandatory, 1 - reserved
@@ -217,7 +217,7 @@ export default class FlacHeader extends CodecHeader {
     }
 
     let index = 4 + decodedUtf8.next;
-    header.headerByteLength += decodedUtf8.next;
+    header.length += decodedUtf8.next;
 
     // Byte (...)
     // * `JJJJJJJJ|(JJJJJJJJ)`: Blocksize (8/16bit custom value)
@@ -226,13 +226,13 @@ export default class FlacHeader extends CodecHeader {
         // 8 bit
         if (buffer.length === index) return null; // out of data
         header.blockSize = buffer[index] - 1;
-        header.headerByteLength += 1;
+        header.length += 1;
         index += 1;
       } else if (blockSizeBits === 0b01110000) {
         // 16 bit
         if (buffer.length === index + 1) return null; // out of data
         header.blockSize = (buffer[index] << 8) + buffer[index + 1] - 1;
-        header.headerByteLength += 2;
+        header.length += 2;
         index += 2;
       }
     }
@@ -244,19 +244,19 @@ export default class FlacHeader extends CodecHeader {
         // 8 bit
         if (buffer.length === index) return null; // out of data
         header.sampleRate = buffer[index];
-        header.headerByteLength += 1;
+        header.length += 1;
         index += 1;
       } else if (sampleRateBits === 0b00001101) {
         // 16 bit
         if (buffer.length === index + 1) return null; // out of data
         header.sampleRate = (buffer[index] << 8) + buffer[index + 1];
-        header.headerByteLength += 2;
+        header.length += 2;
         index += 2;
       } else if (sampleRateBits === 0b00001110) {
         // 16 bit
         if (buffer.length === index + 1) return null; // out of data
         header.sampleRate = ((buffer[index] << 8) + buffer[index + 1]) * 10;
-        header.headerByteLength += 2;
+        header.length += 2;
         index += 2;
       }
     }
@@ -266,7 +266,7 @@ export default class FlacHeader extends CodecHeader {
     if (buffer.length === index) return null; // out of data
 
     header.crc = buffer[index];
-    if (header.crc !== crc8(buffer.subarray(0, header.headerByteLength - 1))) {
+    if (header.crc !== crc8(buffer.subarray(0, header.length - 1))) {
       console.error("flac crc failure");
       return null;
     }

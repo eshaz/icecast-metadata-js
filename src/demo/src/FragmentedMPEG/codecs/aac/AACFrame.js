@@ -18,6 +18,10 @@ import CodecFrame from "../CodecFrame";
 
 export default class AACFrame extends CodecFrame {
   constructor(header, data) {
-    super(header, data.subarray(header.headerByteLength), data.length);
+    super(
+      header,
+      data.subarray(header.length, header.dataByteLength),
+      header.dataByteLength
+    );
   }
 }

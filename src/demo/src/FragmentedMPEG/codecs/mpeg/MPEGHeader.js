@@ -170,7 +170,7 @@ export default class MPEGHeader extends CodecHeader {
     const protectionBit = buffer[1] & 0b00000001;
 
     const header = {};
-    header.headerByteLength = 4;
+    header.length = 4;
 
     // Mpeg version (1, 2, 2.5)
     const mpegVersion = MPEGHeader.mpegVersions[mpegVersionBits];

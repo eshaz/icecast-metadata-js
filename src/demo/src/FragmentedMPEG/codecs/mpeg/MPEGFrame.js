@@ -18,6 +18,10 @@ import CodecFrame from "../CodecFrame";
 
 export default class MPEGFrame extends CodecFrame {
   constructor(header, data) {
-    super(header, data, data.length);
+    super(
+      header,
+      data.subarray(0, header.dataByteLength),
+      header.dataByteLength
+    );
   }
 }

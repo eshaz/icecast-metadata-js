@@ -22,7 +22,7 @@ export default class CodecHeader {
     this._channelMode = header.channelMode;
     this._channels = header.channels;
     this._dataByteLength = header.dataByteLength;
-    this._headerByteLength = header.headerByteLength;
+    this._length = header.length;
     this._isOriginal = header.isOriginal;
     this._isPrivate = header.isPrivate;
     this._layer = header.layer;
@@ -40,8 +40,8 @@ export default class CodecHeader {
     return this._dataByteLength;
   }
 
-  get headerByteLength() {
-    return this._headerByteLength;
+  get length() {
+    return this._length;
   }
 
   get mimeType() {

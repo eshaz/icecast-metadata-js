@@ -115,11 +115,11 @@ export default class OGGPageHeader extends CodecHeader {
     // Byte (27 of 28)
     // * `JJJJJJJJ`: Number of page segments in the segment table
     header.numberPageSegments = buffer[26];
-    header.headerByteLength = buffer[26] + 27;
+    header.length = buffer[26] + 27;
 
-    if (header.headerByteLength > buffer.length) return null;
+    if (header.length > buffer.length) return null;
 
-    header.dataByteLength = header.headerByteLength;
+    header.dataByteLength = header.length;
     for (let i = 0; i < header.numberPageSegments; i++) {
       header.dataByteLength += buffer[i + 27];
     }

@@ -22,22 +22,20 @@ import AACFrame from "./aac/AACFrame";
 
 import OGGPageHeader from "./ogg/OGGPageHeader";
 import OGGFrame from "./ogg/OGGFrame";
+import FlacHeader from "./flac/FlacHeader";
 
 export default class CodecParser {
   constructor(mimeType) {
     if (mimeType.match(/aac/)) {
-      this._frameClass = AACFrame;
-      this._getHeader = this._getAACHeader;
-      this._headerLength = 9;
+      this._getFrame = this._getAACFrame;
+      this._maxHeaderLength = 9;
     } else if (mimeType.match(/mpeg/)) {
-      this._frameClass = MPEGFrame;
-      this._getHeader = this._getMPEGHeader;
-      this._headerLength = 4;
+      this._getFrame = this._getMPEGFrame;
+      this._maxHeaderLength = 4;
       this._headerCache = new Map();
     } else {
-      this._frameClass = OGGFrame;
-      this._getHeader = OGGPageHeader.getHeader;
-      this._headerLength = 26;
+      this._getFrame = this._getFLACFrame;
+      this._maxHeaderLength = 26;
     }
   }
 
@@ -48,9 +46,22 @@ export default class CodecParser {
    * @returns {AACHeader} Instance of AACHeader
    * @returns {null} If buffer does not contain a valid header
    */
-  _getAACHeader(buffer) {
-    const header = AACHeader.getHeader(buffer);
+  _getFLACFrame(buffer) {
+    const header = FlacHeader.getHeader(buffer);
     return header;
+  }
+
+  /**
+   * @private
+   * @description Parses an AAC header from the passed in buffer.
+   * @param {data} buffer Header data
+   * @returns {AACHeader} Instance of AACHeader
+   * @returns {null} If buffer does not contain a valid header
+   */
+  _getAACFrame(buffer) {
+    const header = AACHeader.getHeader(buffer);
+
+    return header ? new AACFrame(header, buffer) : null;
   }
 
   /**
@@ -60,16 +71,16 @@ export default class CodecParser {
    * @returns {MPEGHeader} Instance of MPEGHeader
    * @returns {null} If buffer does not contain a valid header
    */
-  _getMPEGHeader(buffer) {
+  _getMPEGFrame(buffer) {
     const key = String.fromCharCode(...buffer.subarray(0, 4));
 
     if (this._headerCache.has(key)) {
-      return this._headerCache.get(key);
+      return new MPEGFrame(this._headerCache.get(key), buffer);
     } else {
       const header = MPEGHeader.getHeader(buffer);
       if (header) {
         this._headerCache.set(key, header);
-        return header;
+        return new MPEGFrame(header, buffer);
       }
     }
   }
@@ -82,27 +93,24 @@ export default class CodecParser {
    */
   readFrameStream(data, offset = 0) {
     // try to get the header at the given offset
-    let header = this._getHeader(data.subarray(offset));
+    let frame = this._getFrame(data.subarray(offset));
 
     // find a header in the data
-    while (!header && offset + this._headerLength < data.length) {
+    while (!frame && offset + this._maxHeaderLength < data.length) {
       offset++;
-      header = this._getHeader(data.subarray(offset));
+      frame = this._getFrame(data.subarray(offset));
     }
 
-    if (header) {
-      // check if there is a valid header immediately after this frame
-      const nextHeaderOffset = offset + header.dataByteLength;
-      if (nextHeaderOffset + header.headerByteLength <= data.length) {
-        return this._getHeader(data.subarray(nextHeaderOffset))
+    if (frame) {
+      // check if there is a valid frame immediately after this frame
+      const nextFrame = offset + frame.length;
+      if (nextFrame + this._maxHeaderLength <= data.length) {
+        return this._getFrame(data.subarray(nextFrame))
           ? {
               offset,
-              frame: new this._frameClass(
-                header,
-                data.subarray(offset, nextHeaderOffset)
-              ),
+              frame,
             }
-          : { offset: nextHeaderOffset + header.headerByteLength };
+          : { offset: nextFrame + frame.header.length };
       }
     }
 

@@ -137,7 +137,7 @@ export default class AACHeader extends CodecHeader {
     if (header.layer === "bad") return null;
 
     header.protection = AACHeader.protection[protectionBit];
-    header.headerByteLength = protectionBit ? 7 : 9;
+    header.length = protectionBit ? 7 : 9;
 
     // Byte (3 of 7)
     // * `EEFFFFGH`
