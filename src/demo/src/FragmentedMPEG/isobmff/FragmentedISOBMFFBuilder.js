@@ -224,14 +224,6 @@ export default class FragmentedISOBMFFBuilder {
                   }),
                   new Box("minf", {
                     boxes: [
-                      new Box("smhd", {
-                        /* prettier-ignore */
-                        contents: [0x00, // version
-                          0x00,0x00,0x00, // flags
-                          0x00,0x00, // balance
-                          0x00,0x00 // reserved
-                        ],
-                      }),
                       new Box("stbl", {
                         boxes: [
                           new Box("stsd", {
