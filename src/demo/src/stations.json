@@ -12,11 +12,11 @@
     "endpoint": "https://dsmrad.io/stream/sara-all"
   },
   {
-    "name": "Radio BluesFlac",
-    "description": "Broadcasting in FLAC to give the listeners the authentic CD quality sound the artists want.",
-    "link": "https://bluesflac.com/",
-    "endpoint": "https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac",
-    "metaInt": 524288
+    "name": "Radio Cumbernauld",
+    "description": "Broadcasting local news and music from Cumbernauld Scotland",
+    "link": "https://www.radiocumbernauld.uk/",
+    "endpoint": "https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
+    "metaInt": 16384
   },
   {
     "name": "Radio Paradise FLAC",
@@ -26,11 +26,11 @@
     "metaInt": 524288
   },
   {
-    "name": "Radio Cumbernauld",
-    "description": "Broadcasting local news and music from Cumbernauld Scotland",
-    "link": "https://www.radiocumbernauld.uk/",
-    "endpoint": "https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
-    "metaInt": 16384
+    "name": "1RadioLounge",
+    "description": "24/7 h. relax music...chill, ambient...",
+    "link": "http://1radiolounge.playtheradio.com/",
+    "endpoint": "https://streaming211.radionomy.com/1RadioLounge_64.aac",
+    "metaInt": 16000
   },
   {
     "name": "Jazz4ever",
@@ -40,11 +40,11 @@
     "metaInt": 16000
   },
   {
-    "name": "1RadioLounge",
-    "description": "24/7 h. relax music...chill, ambient...",
-    "link": "http://1radiolounge.playtheradio.com/",
-    "endpoint": "https://streaming211.radionomy.com/1RadioLounge_64.aac",
-    "metaInt": 16000
+    "name": "Radio BluesFlac",
+    "description": "Broadcasting in FLAC to give the listeners the authentic CD quality sound the artists want.",
+    "link": "https://bluesflac.com/",
+    "endpoint": "https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac",
+    "metaInt": 524288
   },
   {
     "name": "90.9 Jazzy rádió - Jazzy Cool",
