@@ -19,13 +19,6 @@
     "metaInt": 16384
   },
   {
-    "name": "Radio Paradise FLAC",
-    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
-    "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/flacm",
-    "metaInt": 524288
-  },
-  {
     "name": "1RadioLounge",
     "description": "24/7 h. relax music...chill, ambient...",
     "link": "http://1radiolounge.playtheradio.com/",
@@ -72,6 +65,34 @@
     "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
     "link": "https://jazzy.hu/",
     "endpoint": "https://s04.diazol.hu:9500/live.mp3",
+    "metaInt": 16000
+  },
+  {
+    "name": "Radio Paradise Main (FLAC)",
+    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
+    "link": "https://radioparadise.com/",
+    "endpoint": "https://stream.radioparadise.com/flacm",
+    "metaInt": 524288
+  },
+  {
+    "name": "Radio Paradise Mellow (FLAC)",
+    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
+    "link": "https://radioparadise.com/",
+    "endpoint": "https://stream.radioparadise.com/mellow-flacm",
+    "metaInt": 524288
+  },
+  {
+    "name": "Radio Paradise Rock (FLAC)",
+    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
+    "link": "https://radioparadise.com/",
+    "endpoint": "https://stream.radioparadise.com/rock-flacm",
+    "metaInt": 524288
+  },
+  {
+    "name": "Radio Paradise World/Etc (AAC 320)",
+    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
+    "link": "https://radioparadise.com/",
+    "endpoint": "https://stream.radioparadise.com/world-etc-320",
     "metaInt": 16000
   },
   {
