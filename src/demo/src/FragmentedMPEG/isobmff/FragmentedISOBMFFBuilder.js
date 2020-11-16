@@ -23,7 +23,9 @@ import ESTag from "./ESTag";
  */
 export default class FragmentedISOBMFFBuilder {
   static getBoxContents(boxes) {
-    return Uint8Array.from(boxes.flatMap((box) => [...box.contents]));
+    return Uint8Array.from(
+      boxes.reduce((acc, box) => acc.concat(box.contents), [])
+    );
   }
 
   /**
@@ -283,6 +285,25 @@ export default class FragmentedISOBMFFBuilder {
     return FragmentedISOBMFFBuilder.getBoxContents(boxes);
   }
 
+  static getMediaDataBox(frames) {
+    let offset = 8;
+    const framesLength =
+      frames.reduce((acc, { data }) => acc + data.length, 0) + offset;
+
+    const frameData = new Uint8Array(framesLength);
+    frameData.set([
+      ...Box.getUint32(framesLength),
+      ...Box.stringToByteArray("mdat"),
+    ]);
+
+    for (const { data } of frames) {
+      frameData.set(data, offset);
+      offset += data.length;
+    }
+
+    return frameData;
+  }
+
   /**
    * @description Wraps codec frames into a Movie Fragment
    * @param {Array<Frame>} frames Frames to contain in this Movie Fragment
@@ -301,7 +322,7 @@ export default class FragmentedISOBMFFBuilder {
         // * `....|.....E..` first‐sample‐flags‐present
         // * `....|.......G` data-offset-present
         ...Box.getUint32(frames.length), // number of samples
-        ...frames.flatMap((frame) => [...Box.getUint32(frame.data.length)]), // samples lengths per frame
+        ...frames.flatMap(({data}) => [...Box.getUint32(data.length)]), // samples lengths per frame
       ],
     });
 
@@ -342,13 +363,17 @@ export default class FragmentedISOBMFFBuilder {
           }),
         ],
       }),
-      new Box("mdat", {
-        contents: frames.flatMap((frame) => [...frame.data]),
-      }),
     ];
 
     trun.insertBytes(Box.getUint32(boxes[0].length + 12), 8); // data offset (moof length + mdat length + mdat)
 
-    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    const moof = FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    const mdat = FragmentedISOBMFFBuilder.getMediaDataBox(frames);
+
+    const fragment = new Uint8Array(moof.length + mdat.length);
+    fragment.set(moof);
+    fragment.set(mdat, moof.length);
+
+    return fragment;
   }
 }

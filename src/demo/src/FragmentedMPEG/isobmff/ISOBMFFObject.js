@@ -29,10 +29,9 @@ export default class ISOBMFFObject {
   }
 
   get contents() {
-    return [
-      ...this._contents,
-      ...this._objects.flatMap((obj) => [...obj.contents]),
-    ];
+    return this._contents.concat(
+      this._objects.flatMap((obj) => [...obj.contents])
+    );
   }
 
   /**
@@ -47,7 +46,7 @@ export default class ISOBMFFObject {
 
   /**
    * @description Inserts bytes into the contents of this object
-   * @param {Uint8Array} data Bytes to insert
+   * @param {Array<Uint>} data Bytes to insert
    * @param {number} index Position to insert bytes
    */
   insertBytes(data, index) {
@@ -61,10 +60,10 @@ export default class ISOBMFFObject {
 
   /**
    * @description Appends data to the end of the contents of this box
-   * @param {Uint8Array} data Bytes to append
+   * @param {Array<Uint>} data Bytes to append
    */
   appendBytes(data) {
-    this._contents = [...this._contents, ...data];
+    this._contents = this._contents.concat(data);
   }
 
   addObject(object) {

@@ -13,12 +13,11 @@ export default class ESTag extends ISOBMFFObject {
     const contents = super.contents;
 
     /* prettier-ignore */
-    return Uint8Array.from([
+    return [
       this._name,
       0x80,0x80,0x80,
       contents.length,
-      ...contents,
-    ]);
+    ].concat(contents);
   }
 
   addTag(tag) {
