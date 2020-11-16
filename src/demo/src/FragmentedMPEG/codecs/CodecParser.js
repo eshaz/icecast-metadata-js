@@ -19,7 +19,6 @@ import AACFrame from "./aac/AACFrame";
 import FlacFrame from "./flac/FlacFrame";
 
 import OGGPageHeader from "./ogg/OGGPageHeader";
-import OGGFrame from "./flac/FlacFrame";
 
 export default class CodecParser {
   constructor(mimeType) {

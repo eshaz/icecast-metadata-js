@@ -232,23 +232,6 @@ export default class FragmentedISOBMFFBuilder {
                           0x00,0x00 // reserved
                         ],
                       }),
-                      new Box("dinf", {
-                        boxes: [
-                          new Box("dinf", {
-                            /* prettier-ignore */
-                            contents: [0x00, // version
-                              0x00,0x00,0x00, // flags
-                              0x00,0x00,0x00,0x01 // number entries
-                            ],
-                            boxes: [
-                              new Box("url ", {
-                                /* prettier-ignore */
-                                contents: [0x00,0x00,0x00,0x01],
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
                       new Box("stbl", {
                         boxes: [
                           new Box("stsd", {
