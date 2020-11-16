@@ -31,9 +31,8 @@ export default class CodecParser {
       this._maxHeaderLength = 4;
     } else {
       this._getFrame = this._getFLACFrame;
+      this._oggPosition = new WeakMap();
       this._maxHeaderLength = 309; // flac 26, ogg 283
-      this._prevPosition = 0n;
-      this._oggPacketSamples = 0;
     }
   }
 
@@ -50,15 +49,13 @@ export default class CodecParser {
     if (oggPage) {
       const flacFrame = new FlacFrame(buffer, oggPage);
 
-      if (oggPage.absoluteGranulePosition > this._prevPosition) {
-        this._oggPacketSamples = Number(
-          oggPage.absoluteGranulePosition - this._prevPosition
-        );
-        this._prevPosition = oggPage.absoluteGranulePosition;
-      }
+      this._oggPosition.set(flacFrame, oggPage.absoluteGranulePosition);
+      const prevPosition = this._oggPosition.get(this.frame);
 
-      if (this.frame?.header) {
-        this.frame.header.sampleLength = this._oggPacketSamples;
+      if (prevPosition && oggPage.absoluteGranulePosition > prevPosition) {
+        this.frame.header.sampleLength = Number(
+          oggPage.absoluteGranulePosition - prevPosition
+        );
       }
 
       return flacFrame;
@@ -105,12 +102,10 @@ export default class CodecParser {
     // find a header in the data
     while (!this.frame.header && offset + this._maxHeaderLength < data.length) {
       offset += this.frame.length || 1;
-      //console.log("searching", this._currentFrame.length);
       this.frame = this._getFrame(data.subarray(offset));
     }
 
     if (this.frame.header) {
-      //console.log("found a header", offset, frame);
       // check if there is a valid frame immediately after this frame
       const nextFrame = offset + this.frame.length;
       if (nextFrame + this._maxHeaderLength <= data.length) {
@@ -120,24 +115,9 @@ export default class CodecParser {
               frame: this.frame,
             }
           : { offset: nextFrame + this.frame.header.length }; // current header is invalid since there is no next header
-        /*
-        if (!result.frame) {
-          console.log(
-            "no next frame",
-            this._getFrame(data.subarray(nextFrame))
-          );
-        } else {
-          console.log(
-            "returning frame",
-            offset,
-            this._currentFrame.header.sampleLength
-          );
-        }
-        return result;*/
       }
     }
 
-    //console.log("out of data", offset);
     // there is a header, but there is not enough data to determine the next header
     return {
       offset,
