@@ -30,7 +30,7 @@ export default class ISOBMFFObject {
 
   get contents() {
     return this._contents.concat(
-      this._objects.flatMap((obj) => [...obj.contents])
+      this._objects.reduce((acc, obj) => acc.concat(obj.contents), [])
     );
   }
 
@@ -51,11 +51,10 @@ export default class ISOBMFFObject {
    */
   insertBytes(data, index) {
     index = index + this.LENGTH_SIZE;
-    this._contents = [
-      ...this._contents.slice(0, index),
-      ...data,
-      ...this._contents.slice(index),
-    ];
+    this._contents = this._contents
+      .slice(0, index)
+      .concat(data)
+      .concat(this._contents.slice(index));
   }
 
   /**

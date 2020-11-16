@@ -45,7 +45,7 @@ export default class Box extends ISOBMFFObject {
    */
   static getUint32(number) {
     const bytes = new Uint8Array(4);
-    new DataView(bytes.buffer).setUint32(0, number, false);
+    new DataView(bytes.buffer).setUint32(0, number);
     return bytes;
   }
 
@@ -56,12 +56,12 @@ export default class Box extends ISOBMFFObject {
    */
   static getUint16(number) {
     const bytes = new Uint8Array(2);
-    new DataView(bytes.buffer).setUint16(0, number, false);
+    new DataView(bytes.buffer).setUint16(0, number);
     return bytes;
   }
 
   /**
-   * @returns {Uint8Array} Contents of this box
+   * @returns {Array<Uint8>} Contents of this box
    */
   get contents() {
     const contents = super.contents;

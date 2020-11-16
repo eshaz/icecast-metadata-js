@@ -365,7 +365,7 @@ export default class FragmentedISOBMFFBuilder {
       }),
     ];
 
-    trun.insertBytes(Box.getUint32(boxes[0].length + 12), 8); // data offset (moof length + mdat length + mdat)
+    trun.insertBytes([...Box.getUint32(boxes[0].length + 12)], 8); // data offset (moof length + mdat length + mdat)
 
     const moof = FragmentedISOBMFFBuilder.getBoxContents(boxes);
     const mdat = FragmentedISOBMFFBuilder.getMediaDataBox(frames);
