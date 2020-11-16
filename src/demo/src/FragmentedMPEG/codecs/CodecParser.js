@@ -14,23 +14,24 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEGHeader from "./mpeg/MPEGHeader";
 import MPEGFrame from "./mpeg/MPEGFrame";
-
-import AACHeader from "./aac/AACHeader";
 import AACFrame from "./aac/AACFrame";
+import FlacFrame from "./flac/FlacFrame";
+
+import OGGPageHeader from "./ogg/OGGPageHeader";
 
 export default class CodecParser {
   constructor(mimeType) {
     if (mimeType.match(/aac/)) {
-      this._frameClass = AACFrame;
-      this._getHeader = this._getAACHeader;
-      this._headerLength = 9;
+      this._getFrame = this._getAACFrame;
+      this._maxHeaderLength = 9;
+    } else if (mimeType.match(/mpeg/)) {
+      this._getFrame = this._getMPEGFrame;
+      this._maxHeaderLength = 4;
     } else {
-      this._frameClass = MPEGFrame;
-      this._getHeader = this._getMPEGHeader;
-      this._headerLength = 4;
-      this._headerCache = new Map();
+      this._getFrame = this._getFLACFrame;
+      this._oggPosition = new WeakMap();
+      this._maxHeaderLength = 309; // flac 26, ogg 283
     }
   }
 
@@ -41,9 +42,39 @@ export default class CodecParser {
    * @returns {AACHeader} Instance of AACHeader
    * @returns {null} If buffer does not contain a valid header
    */
-  _getAACHeader(buffer) {
-    const header = AACHeader.getHeader(buffer);
-    return header;
+  _getFLACFrame(buffer) {
+    const oggPage = OGGPageHeader.getHeader(buffer);
+
+    if (oggPage) {
+      const flacFrame = new FlacFrame(buffer, oggPage);
+
+      this._oggPosition.set(flacFrame, oggPage.absoluteGranulePosition);
+      const prevPosition = this._oggPosition.get(this.frame);
+
+      if (prevPosition && oggPage.absoluteGranulePosition > prevPosition) {
+        this.frame.header.sampleLength = Number(
+          oggPage.absoluteGranulePosition - prevPosition
+        );
+      }
+
+      return flacFrame;
+    }
+
+    return {
+      length: 0,
+      data: [],
+    };
+  }
+
+  /**
+   * @private
+   * @description Parses an AAC header from the passed in buffer.
+   * @param {data} buffer Header data
+   * @returns {AACHeader} Instance of AACHeader
+   * @returns {null} If buffer does not contain a valid header
+   */
+  _getAACFrame(buffer) {
+    return new AACFrame(buffer);
   }
 
   /**
@@ -53,18 +84,8 @@ export default class CodecParser {
    * @returns {MPEGHeader} Instance of MPEGHeader
    * @returns {null} If buffer does not contain a valid header
    */
-  _getMPEGHeader(buffer) {
-    const key = String.fromCharCode(...buffer.subarray(0, 4));
-
-    if (this._headerCache.has(key)) {
-      return this._headerCache.get(key);
-    } else {
-      const header = MPEGHeader.getHeader(buffer);
-      if (header) {
-        this._headerCache.set(key, header);
-        return header;
-      }
-    }
+  _getMPEGFrame(buffer) {
+    return new MPEGFrame(buffer);
   }
 
   /**
@@ -75,27 +96,24 @@ export default class CodecParser {
    */
   readFrameStream(data, offset = 0) {
     // try to get the header at the given offset
-    let header = this._getHeader(data.subarray(offset));
+    this.frame = this._getFrame(data.subarray(offset));
 
     // find a header in the data
-    while (!header && offset + this._headerLength < data.length) {
-      offset++;
-      header = this._getHeader(data.subarray(offset));
+    while (!this.frame.header && offset + this._maxHeaderLength < data.length) {
+      offset += this.frame.length || 1;
+      this.frame = this._getFrame(data.subarray(offset));
     }
 
-    if (header) {
-      // check if there is a valid header immediately after this frame
-      const nextHeaderOffset = offset + header.dataByteLength;
-      if (nextHeaderOffset + header.headerByteLength <= data.length) {
-        return this._getHeader(data.subarray(nextHeaderOffset))
+    if (this.frame.header) {
+      // check if there is a valid frame immediately after this frame
+      const nextFrame = offset + this.frame.length;
+      if (nextFrame + this._maxHeaderLength <= data.length) {
+        return this._getFrame(data.subarray(nextFrame)).header
           ? {
               offset,
-              frame: new this._frameClass(
-                header,
-                data.subarray(offset, nextHeaderOffset)
-              ),
+              frame: this.frame,
             }
-          : { offset: nextHeaderOffset + header.headerByteLength };
+          : { offset: nextFrame + this.frame.header.length }; // current header is invalid since there is no next header
       }
     }
 

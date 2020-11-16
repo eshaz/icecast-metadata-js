@@ -19,11 +19,11 @@
     "metaInt": 16384
   },
   {
-    "name": "Jazz4ever",
-    "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
-    "link": "http://jazz4ever.net/",
-    "endpoint": "https://streaming211.radionomy.com/Jazz4ever",
-    "metaInt": 16000
+    "name": "Radio Paradise FLAC",
+    "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
+    "link": "https://radioparadise.com/",
+    "endpoint": "https://stream.radioparadise.com/flacm",
+    "metaInt": 524288
   },
   {
     "name": "1RadioLounge",
@@ -31,6 +31,20 @@
     "link": "http://1radiolounge.playtheradio.com/",
     "endpoint": "https://streaming211.radionomy.com/1RadioLounge_64.aac",
     "metaInt": 16000
+  },
+  {
+    "name": "Jazz4ever",
+    "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
+    "link": "http://jazz4ever.net/",
+    "endpoint": "https://streaming211.radionomy.com/Jazz4ever",
+    "metaInt": 16000
+  },
+  {
+    "name": "Radio BluesFlac",
+    "description": "Broadcasting in FLAC to give the listeners the authentic CD quality sound the artists want.",
+    "link": "https://bluesflac.com/",
+    "endpoint": "https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac",
+    "metaInt": 524288
   },
   {
     "name": "90.9 Jazzy rádió - Jazzy Cool",

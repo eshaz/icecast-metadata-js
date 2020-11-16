@@ -17,8 +17,8 @@
 export default class CodecFrame {
   constructor(header, data, length) {
     this._header = header;
-    this._data = data;
-    this._length = length;
+    this._data = data || [];
+    this._length = length || 0;
   }
 
   /**

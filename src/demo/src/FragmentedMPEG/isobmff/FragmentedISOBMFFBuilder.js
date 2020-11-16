@@ -23,7 +23,9 @@ import ESTag from "./ESTag";
  */
 export default class FragmentedISOBMFFBuilder {
   static getBoxContents(boxes) {
-    return Uint8Array.from(boxes.flatMap((box) => [...box.contents]));
+    return Uint8Array.from(
+      boxes.reduce((acc, box) => acc.concat(box.contents), [])
+    );
   }
 
   /**
@@ -34,30 +36,116 @@ export default class FragmentedISOBMFFBuilder {
    * 0x69 - MPEG-2 Backward Compatible Audio (MPEG-2 Layers 1, 2, and 3)
    * 0x67 - MPEG-2 AAC LC
    */
-  static esdsCodecs = {
+  static mp4aEsdsCodecs = {
     "audio/aac": 0x40,
     "audio/mpeg": 0x6b,
   };
 
-  /**
-   * @param {Header} header Codec header
-   * @returns {Uint8Array} Filetype and Movie Box information for the codec
-   */
-  getMovieBox(header) {
-    const channels = header.channels;
-    const mimeType = header.mimeType;
-    const sampleRate = Box.getUint32(header.sampleRate);
+  getFlaC(header) {
+    // https://github.com/xiph/flac/blob/master/doc/isoflac.txt
+    return new Box("fLaC", {
+      /* prettier-ignore */
+      contents: [
+        0x00,0x00,0x00,0x00,0x00,0x00, // reserved
+        0x00,0x01, // data reference index
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // reserved
+        0x00,header.channels, // channel count
+        0x00,header.sampleSize, // PCM bitrate (16bit)
+        0x00,0x00, // predefined
+        0x00,0x00, // reserved
+        ...Box.getUint16(header.sampleRate),0x00,0x00, // 44100
+        // sample rate 48000.000000 16.16 fixed-point
+        /*
+        When the bitstream's native sample rate is greater
+        than the maximum expressible value of 65535 Hz,
+        the samplerate field shall hold the greatest
+        expressible regular division of that rate. I.e.
+        the samplerate field shall hold 48000.0 for
+        native sample rates of 96 and 192 kHz. In the
+        case of unusual sample rates which do not have
+        an expressible regular division, the maximum value
+        of 65535.0 Hz should be used.
+        */
+      ],
+      boxes: [
+        new Box("dfLa", {
+          /* prettier-ignore */
+          contents: [0x00, // version
+            0x00,0x00,0x00, // flags
+            0x80,0x00, // reserved
+            // * `A........` Last metadata block flag
+            // * `.BBBBBBBB` BlockType
+            0x00,0x22,0x10, // Length
+            0x00,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0A,0xC4,0x42,0xF0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+          ],
+        }),
+      ],
+    });
+  }
 
+  getMp4a(header) {
     const streamDescriptorTag = new ESTag(4, {
       /* prettier-ignore */
       contents: [
-        FragmentedISOBMFFBuilder.esdsCodecs[mimeType],
+        FragmentedISOBMFFBuilder.mp4aEsdsCodecs[header.mimeType],
         0x15, // stream type(6bits)=5 audio, flags(2bits)=1
         0x00,0x00,0x00, // 24bit buffer size
         0x00,0x00,0x00,0x00, // max bitrate
         0x00,0x00,0x00,0x00, // avg bitrate
       ],
     });
+
+    if (header.mimeType === "audio/aac") {
+      streamDescriptorTag.addTag(
+        new ESTag(5, {
+          contents: [...header.audioSpecificConfig],
+        })
+      );
+    }
+
+    return new Box("mp4a", {
+      /* prettier-ignore */
+      contents: [0x00,0x00,0x00,0x00,0x00,0x00, // reserved
+        0x00,0x01, // data reference index
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // reserved
+        0x00,header.channels, // channel count
+        0x00,0x10, // PCM bitrate (16bit)
+        0x00,0x00, // Compression ID
+        0x00,0x00, // Packet size
+        ...Box.getUint16(header.sampleRate),0x00,0x00], // sample rate unsigned floating point
+      boxes: [
+        new Box("esds", {
+          contents: [0x00, 0x00, 0x00, 0x00],
+          boxes: [
+            new ESTag(3, {
+              contents: [
+                0x00,
+                0x01, // ES_ID = 1
+                0x00, // flags etc = 0
+              ],
+              tags: [
+                streamDescriptorTag,
+                new ESTag(6, {
+                  contents: [0x02],
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+  }
+
+  /**
+   * @param {Header} header Codec header
+   * @returns {Uint8Array} Filetype and Movie Box information for the codec
+   */
+  getMovieBox(header) {
+    const sampleRate = Box.getUint32(header.sampleRate);
+    const codecBox =
+      header.mimeType === "audio/flac"
+        ? this.getFlaC(header)
+        : this.getMp4a(header);
 
     const boxes = [
       new Box("ftyp", {
@@ -138,31 +226,6 @@ export default class FragmentedISOBMFFBuilder {
                   }),
                   new Box("minf", {
                     boxes: [
-                      new Box("smhd", {
-                        /* prettier-ignore */
-                        contents: [0x00, // version
-                          0x00,0x00,0x00, // flags
-                          0x00,0x00, // balance
-                          0x00,0x00 // reserved
-                        ],
-                      }),
-                      new Box("dinf", {
-                        boxes: [
-                          new Box("dinf", {
-                            /* prettier-ignore */
-                            contents: [0x00, // version
-                              0x00,0x00,0x00, // flags
-                              0x00,0x00,0x00,0x01 // number entries
-                            ],
-                            boxes: [
-                              new Box("url ", {
-                                /* prettier-ignore */
-                                contents: [0x00,0x00,0x00,0x01],
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
                       new Box("stbl", {
                         boxes: [
                           new Box("stsd", {
@@ -171,39 +234,7 @@ export default class FragmentedISOBMFFBuilder {
                             contents: [0x00, // version
                               0x00,0x00,0x00, // flags
                               0x00,0x00,0x00,0x01], // entry count
-                            boxes: [
-                              new Box("mp4a", {
-                                /* prettier-ignore */
-                                contents: [0x00,0x00,0x00,0x00,0x00,0x00, // reserved
-                                  0x00,0x01, // data reference index
-                                  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // reserved
-                                  0x00,channels, // channel count
-                                  0x00,0x10, // PCM bitrate (16bit)
-                                  0x00,0x00, // Compression ID
-                                  0x00,0x00, // Packet size
-                                  ...Box.getUint16(header.sampleRate),0x00,0x00], // sample rate unsigned floating point
-                                boxes: [
-                                  new Box("esds", {
-                                    contents: [0x00, 0x00, 0x00, 0x00],
-                                    boxes: [
-                                      new ESTag(3, {
-                                        contents: [
-                                          0x00,
-                                          0x01, // ES_ID = 1
-                                          0x00, // flags etc = 0
-                                        ],
-                                        tags: [
-                                          streamDescriptorTag,
-                                          new ESTag(6, {
-                                            contents: [0x02],
-                                          }),
-                                        ],
-                                      }),
-                                    ],
-                                  }),
-                                ],
-                              }),
-                            ],
+                            boxes: [codecBox],
                           }),
                           new Box("stts", {
                             // Time-to-sample atom
@@ -251,15 +282,26 @@ export default class FragmentedISOBMFFBuilder {
       }),
     ];
 
-    if (mimeType === "audio/aac") {
-      streamDescriptorTag.addTag(
-        new ESTag(5, {
-          contents: [...header.audioSpecificConfig],
-        })
-      );
+    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
+  }
+
+  static getMediaDataBox(frames) {
+    let offset = 8;
+    const framesLength =
+      frames.reduce((acc, { data }) => acc + data.length, 0) + offset;
+
+    const frameData = new Uint8Array(framesLength);
+    frameData.set([
+      ...Box.getUint32(framesLength),
+      ...Box.stringToByteArray("mdat"),
+    ]);
+
+    for (const { data } of frames) {
+      frameData.set(data, offset);
+      offset += data.length;
     }
 
-    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    return frameData;
   }
 
   /**
@@ -280,7 +322,7 @@ export default class FragmentedISOBMFFBuilder {
         // * `....|.....E..` first‐sample‐flags‐present
         // * `....|.......G` data-offset-present
         ...Box.getUint32(frames.length), // number of samples
-        ...frames.flatMap((frame) => [...Box.getUint32(frame.data.length)]), // samples lengths per frame
+        ...frames.flatMap(({data}) => [...Box.getUint32(data.length)]), // samples lengths per frame
       ],
     });
 
@@ -321,13 +363,17 @@ export default class FragmentedISOBMFFBuilder {
           }),
         ],
       }),
-      new Box("mdat", {
-        contents: frames.flatMap((frame) => [...frame.data]),
-      }),
     ];
 
-    trun.insertBytes(Box.getUint32(boxes[0].length + 12), 8); // data offset (moof length + mdat length + mdat)
+    trun.insertBytes([...Box.getUint32(boxes[0].length + 12)], 8); // data offset (moof length + mdat length + mdat)
 
-    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    const moof = FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    const mdat = FragmentedISOBMFFBuilder.getMediaDataBox(frames);
+
+    const fragment = new Uint8Array(moof.length + mdat.length);
+    fragment.set(moof);
+    fragment.set(mdat, moof.length);
+
+    return fragment;
   }
 }

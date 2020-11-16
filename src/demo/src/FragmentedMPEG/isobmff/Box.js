@@ -24,7 +24,7 @@ export default class Box extends ISOBMFFObject {
    * @param {Array<Box>} [params.boxes] Array of boxes to insert into this box
    */
   constructor(name, { contents = [], boxes = [] } = {}) {
-    super(name, [...Box.stringToByteArray(name), ...contents], boxes);
+    super(name, [...Box.stringToByteArray(name)].concat(contents), boxes);
 
     this.LENGTH_SIZE = 4;
   }
@@ -35,11 +35,7 @@ export default class Box extends ISOBMFFObject {
    * @returns {Uint8Array}
    */
   static stringToByteArray(name) {
-    const array = [];
-    for (const char of name) {
-      array.push(char.charCodeAt(0));
-    }
-    return array;
+    return [...name].map((char) => char.charCodeAt(0));
   }
 
   /**
@@ -49,7 +45,7 @@ export default class Box extends ISOBMFFObject {
    */
   static getUint32(number) {
     const bytes = new Uint8Array(4);
-    new DataView(bytes.buffer).setUint32(0, number, false);
+    new DataView(bytes.buffer).setUint32(0, number);
     return bytes;
   }
 
@@ -60,19 +56,19 @@ export default class Box extends ISOBMFFObject {
    */
   static getUint16(number) {
     const bytes = new Uint8Array(2);
-    new DataView(bytes.buffer).setUint16(0, number, false);
+    new DataView(bytes.buffer).setUint16(0, number);
     return bytes;
   }
 
   /**
-   * @returns {Uint8Array} Contents of this box
+   * @returns {Array<Uint8>} Contents of this box
    */
   get contents() {
     const contents = super.contents;
-    return Uint8Array.from([
-      ...Box.getUint32(this.LENGTH_SIZE + contents.length),
-      ...contents,
-    ]);
+
+    return [...Box.getUint32(this.LENGTH_SIZE + contents.length)].concat(
+      contents
+    );
   }
 
   /**

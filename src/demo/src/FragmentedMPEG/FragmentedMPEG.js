@@ -21,7 +21,7 @@ import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
  * @description Generator that takes in MPEG 1/2 or AAC Data and yields Fragmented MP4 (ISOBMFF)
  */
 export default class FragmentedMPEG {
-  static MIN_FRAMES = 2;
+  static MIN_FRAMES = 8;
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor(mimeType) {
@@ -32,6 +32,19 @@ export default class FragmentedMPEG {
 
     this._generator = this._generator();
     this._generator.next();
+  }
+
+  static getMimeType(mimeType) {
+    switch (mimeType) {
+      case /mpeg/.test(mimeType) && mimeType:
+        return 'audio/mp4;codecs="mp3"';
+      case /aac/.test(mimeType) && mimeType:
+        return 'audio/mp4;codecs="mp4a.40.2"';
+      case /ogg/.test(mimeType) && mimeType:
+        return 'audio/mp4;codecs="flac"';
+      default:
+        return "audio/mp4";
+    }
   }
 
   /**

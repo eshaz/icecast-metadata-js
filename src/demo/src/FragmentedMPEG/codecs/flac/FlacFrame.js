@@ -15,16 +15,17 @@
 */
 
 import CodecFrame from "../CodecFrame";
-import AACHeader from "./AACHeader";
+import FlacHeader from "./FlacHeader";
 
-export default class AACFrame extends CodecFrame {
-  constructor(data) {
-    const header = AACHeader.getHeader(data);
+export default class FlacFrame extends CodecFrame {
+  constructor(data, oggPage) {
+    const header = FlacHeader.getHeader(data.subarray(oggPage.length));
+    const frameLength = oggPage.length + oggPage.dataByteLength;
 
     super(
       header,
-      header && data.subarray(header.length, header.dataByteLength),
-      header && header.dataByteLength
+      header && data.subarray(oggPage.length, frameLength),
+      frameLength
     );
   }
 }

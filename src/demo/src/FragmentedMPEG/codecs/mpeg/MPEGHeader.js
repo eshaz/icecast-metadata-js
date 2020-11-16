@@ -170,7 +170,7 @@ export default class MPEGHeader extends CodecHeader {
     const protectionBit = buffer[1] & 0b00000001;
 
     const header = {};
-    header.headerByteLength = 4;
+    header.length = 4;
 
     // Mpeg version (1, 2, 2.5)
     const mpegVersion = MPEGHeader.mpegVersions[mpegVersionBits];
@@ -249,7 +249,12 @@ export default class MPEGHeader extends CodecHeader {
     this._emphasis = header.emphasis;
     this._framePadding = header.framePadding;
     this._isCopyrighted = header.isCopyrighted;
+    this._isOriginal = header.isOriginal;
+    this._isPrivate = header.isPrivate;
+    this._layer = header.layer;
     this._modeExtension = header.modeExtension;
     this._mimeType = "audio/mpeg";
+    this._mpegVersion = header.mpegVersion;
+    this._protection = header.protection;
   }
 }

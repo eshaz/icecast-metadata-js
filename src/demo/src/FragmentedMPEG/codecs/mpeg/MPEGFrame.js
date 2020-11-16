@@ -15,9 +15,24 @@
 */
 
 import CodecFrame from "../CodecFrame";
+import MPEGHeader from "./MPEGHeader";
+
+const headerCache = new Map();
 
 export default class MPEGFrame extends CodecFrame {
-  constructor(header, data) {
-    super(header, data, data.length);
+  constructor(data) {
+    const key = String.fromCharCode(...data.subarray(0, 4));
+    let header = headerCache.get(key);
+
+    if (!header) {
+      header = MPEGHeader.getHeader(data);
+      if (header) headerCache.set(key, header);
+    }
+
+    super(
+      header,
+      header && data.subarray(0, header.dataByteLength),
+      header && header.dataByteLength
+    );
   }
 }
