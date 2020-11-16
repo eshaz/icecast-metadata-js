@@ -14,17 +14,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEGHeader from "./mpeg/MPEGHeader";
 import MPEGFrame from "./mpeg/MPEGFrame";
-
-import AACHeader from "./aac/AACHeader";
 import AACFrame from "./aac/AACFrame";
+import FlacFrame from "./flac/FlacFrame";
 
 import OGGPageHeader from "./ogg/OGGPageHeader";
 import OGGFrame from "./flac/FlacFrame";
-
-import FlacHeader from "./flac/FlacHeader";
-import FlacFrame from "./flac/FlacFrame";
 
 export default class CodecParser {
   constructor(mimeType) {
@@ -34,12 +29,11 @@ export default class CodecParser {
     } else if (mimeType.match(/mpeg/)) {
       this._getFrame = this._getMPEGFrame;
       this._maxHeaderLength = 4;
-      this._headerCache = new Map();
     } else {
       this._getFrame = this._getFLACFrame;
       this._maxHeaderLength = 309; // flac 26, ogg 283
-      this._previousPosition = 0n;
-      this._oggPacketSamples = 0n;
+      this._prevPosition = 0n;
+      this._oggPacketSamples = 0;
     }
   }
 
@@ -54,20 +48,17 @@ export default class CodecParser {
     const oggPage = OGGPageHeader.getHeader(buffer);
 
     if (oggPage) {
-      const flacFrame = new FlacFrame(
-        FlacHeader.getHeader(buffer.subarray(oggPage.length)),
-        buffer,
-        oggPage
-      );
+      const flacFrame = new FlacFrame(buffer, oggPage);
 
-      if (oggPage._absoluteGranulePosition > this._previousPosition) {
-        this._oggPacketSamples =
-          oggPage._absoluteGranulePosition - this._previousPosition;
-        this._previousPosition = oggPage._absoluteGranulePosition;
+      if (oggPage.absoluteGranulePosition > this._prevPosition) {
+        this._oggPacketSamples = Number(
+          oggPage.absoluteGranulePosition - this._prevPosition
+        );
+        this._prevPosition = oggPage.absoluteGranulePosition;
       }
 
       if (this.frame?.header) {
-        this.frame.header.sampleLength = Number(this._oggPacketSamples);
+        this.frame.header.sampleLength = this._oggPacketSamples;
       }
 
       return flacFrame;
@@ -87,7 +78,7 @@ export default class CodecParser {
    * @returns {null} If buffer does not contain a valid header
    */
   _getAACFrame(buffer) {
-    return new AACFrame(AACHeader.getHeader(buffer), buffer);
+    return new AACFrame(buffer);
   }
 
   /**
@@ -98,15 +89,7 @@ export default class CodecParser {
    * @returns {null} If buffer does not contain a valid header
    */
   _getMPEGFrame(buffer) {
-    const key = String.fromCharCode(...buffer.subarray(0, 4));
-
-    if (this._headerCache.has(key)) {
-      return new MPEGFrame(this._headerCache.get(key), buffer);
-    } else {
-      const header = MPEGHeader.getHeader(buffer);
-      this._headerCache.set(key, header);
-      return new MPEGFrame(header, buffer);
-    }
+    return new MPEGFrame(buffer);
   }
 
   /**
@@ -122,10 +105,12 @@ export default class CodecParser {
     // find a header in the data
     while (!this.frame.header && offset + this._maxHeaderLength < data.length) {
       offset += this.frame.length || 1;
+      //console.log("searching", this._currentFrame.length);
       this.frame = this._getFrame(data.subarray(offset));
     }
 
     if (this.frame.header) {
+      //console.log("found a header", offset, frame);
       // check if there is a valid frame immediately after this frame
       const nextFrame = offset + this.frame.length;
       if (nextFrame + this._maxHeaderLength <= data.length) {
@@ -135,9 +120,24 @@ export default class CodecParser {
               frame: this.frame,
             }
           : { offset: nextFrame + this.frame.header.length }; // current header is invalid since there is no next header
+        /*
+        if (!result.frame) {
+          console.log(
+            "no next frame",
+            this._getFrame(data.subarray(nextFrame))
+          );
+        } else {
+          console.log(
+            "returning frame",
+            offset,
+            this._currentFrame.header.sampleLength
+          );
+        }
+        return result;*/
       }
     }
 
+    //console.log("out of data", offset);
     // there is a header, but there is not enough data to determine the next header
     return {
       offset,

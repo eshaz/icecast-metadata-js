@@ -141,4 +141,8 @@ export default class OGGPageHeader extends CodecHeader {
     this._pageChecksum = header.pageChecksum;
     this._streamSerialNumber = header.streamSerialNumber;
   }
+
+  get absoluteGranulePosition() {
+    return this._absoluteGranulePosition;
+  }
 }
