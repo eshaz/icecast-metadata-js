@@ -14,112 +14,105 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEGFrame from "./mpeg/MPEGFrame";
-import AACFrame from "./aac/AACFrame";
-import FlacFrame from "./flac/FlacFrame";
+import FlacHeader from "./flac/FlacHeader";
 
-import OGGPageHeader from "./ogg/OGGPageHeader";
-
+/**
+ * @abstract
+ * @description Abstract class containing methods for parsing codec frames
+ */
 export default class CodecParser {
-  constructor(mimeType) {
-    if (mimeType.match(/aac/)) {
-      this._getFrame = this._getAACFrame;
-      this._maxHeaderLength = 9;
-    } else if (mimeType.match(/mpeg/)) {
-      this._getFrame = this._getMPEGFrame;
-      this._maxHeaderLength = 4;
-    } else {
-      this._getFrame = this._getFLACFrame;
-      this._oggPosition = new WeakMap();
-      this._maxHeaderLength = 309; // flac 26, ogg 283
+  syncFrame(CodecFrame, data, remainingData = 0) {
+    let frame = new CodecFrame(data.subarray(remainingData));
+
+    while (
+      !frame.header &&
+      remainingData + this._maxHeaderLength < data.length
+    ) {
+      remainingData += frame.length || 1;
+      frame = new CodecFrame(data.subarray(remainingData));
     }
+
+    return { frame, remainingData };
   }
 
   /**
-   * @private
-   * @description Parses an AAC header from the passed in buffer.
-   * @param {data} buffer Header data
-   * @returns {AACHeader} Instance of AACHeader
-   * @returns {null} If buffer does not contain a valid header
+   * @description Searches for CodecFrames within bytes containing a sequence of known codec frames.
+   * @param {Uint8Array} data Codec data that should contain a sequence of known length frames.
+   * @returns {object} Object containing the actual offset and frame. Frame is undefined if no valid header was found
    */
-  _getFLACFrame(buffer) {
-    const oggPage = OGGPageHeader.getHeader(buffer);
+  fixedLengthFrame(CodecFrame, data) {
+    // initial sync
+    let { frame, remainingData } = this.syncFrame(CodecFrame, data);
+    let frames = [];
 
-    if (oggPage) {
-      const flacFrame = new FlacFrame(buffer, oggPage);
+    // find a header in the data
+    while (
+      frame.header &&
+      frame.length + remainingData + this._maxHeaderLength < data.length
+    ) {
+      // check if there is a valid frame immediately after this frame
+      const nextFrame = new CodecFrame(
+        data.subarray(frame.length + remainingData)
+      );
 
-      this._oggPosition.set(flacFrame, oggPage.absoluteGranulePosition);
-      const prevPosition = this._oggPosition.get(this.frame);
-
-      if (prevPosition && oggPage.absoluteGranulePosition > prevPosition) {
-        this.frame.header.sampleLength = Number(
-          oggPage.absoluteGranulePosition - prevPosition
-        );
+      if (nextFrame.header) {
+        // there is a next frame, so the current frame is valid
+        frames.push(frame);
+        remainingData += frame.length;
+        frame = nextFrame;
+      } else {
+        // frame is invalid and must re-sync
+        remainingData++;
+        const syncResult = this.syncFrame(CodecFrame, data, remainingData);
+        remainingData += syncResult.remainingData;
+        frame = syncResult.frame;
       }
-
-      return flacFrame;
     }
 
     return {
-      length: 0,
-      data: [],
+      frames,
+      remainingData,
     };
   }
 
-  /**
-   * @private
-   * @description Parses an AAC header from the passed in buffer.
-   * @param {data} buffer Header data
-   * @returns {AACHeader} Instance of AACHeader
-   * @returns {null} If buffer does not contain a valid header
-   */
-  _getAACFrame(buffer) {
-    return new AACFrame(buffer);
-  }
+  variableLengthFrame(CodecFrame, data, isComplete) {
+    let frameLocations = [];
+    let frames = [];
+    let nextFrame = null;
+    let remainingData = 0;
 
-  /**
-   * @private
-   * @description Parses and caches valid MPEG 1/2 headers so they are parsed only happens once.
-   * @param {data} buffer Header data
-   * @returns {MPEGHeader} Instance of MPEGHeader
-   * @returns {null} If buffer does not contain a valid header
-   */
-  _getMPEGFrame(buffer) {
-    return new MPEGFrame(buffer);
-  }
+    for (let readPosition = 0; readPosition <= data.length; readPosition++) {
+      const header = FlacHeader.getHeader(data.subarray(readPosition));
 
-  /**
-   * @description Finds and returns a codec frame in the context of a stream. Frame will be undefined if no valid frame was found at the offset.
-   * @param {Uint8Array} data Codec data that should contain a header, audio data, and then next header
-   * @param {number} offset Offset where frame should be
-   * @returns {object} Object containing the actual offset and frame. Frame is undefined if no valid header was found
-   */
-  readFrameStream(data, offset = 0) {
-    // try to get the header at the given offset
-    this.frame = this._getFrame(data.subarray(offset));
+      if (header) {
+        if (nextFrame === null) {
+          nextFrame = header.nextFrame;
+          frameLocations.push(readPosition);
 
-    // find a header in the data
-    while (!this.frame.header && offset + this._maxHeaderLength < data.length) {
-      offset += this.frame.length || 1;
-      this.frame = this._getFrame(data.subarray(offset));
-    }
+          readPosition += header.length;
+        } else if (header.currentFrame === nextFrame) {
+          frameLocations.push(readPosition);
 
-    if (this.frame.header) {
-      // check if there is a valid frame immediately after this frame
-      const nextFrame = offset + this.frame.length;
-      if (nextFrame + this._maxHeaderLength <= data.length) {
-        return this._getFrame(data.subarray(nextFrame)).header
-          ? {
-              offset,
-              frame: this.frame,
-            }
-          : { offset: nextFrame + this.frame.header.length }; // current header is invalid since there is no next header
+          nextFrame = header.nextFrame;
+          readPosition += header.length;
+        }
       }
     }
 
-    // there is a header, but there is not enough data to determine the next header
+    // if there is a complete set of frames, assume the last frame is valid
+    const lengthOffset = isComplete ? 0 : 1;
+
+    for (let i = 0; i < frameLocations.length - lengthOffset; i++) {
+      frames.push(
+        new CodecFrame(data.subarray(frameLocations[i], frameLocations[i + 1]))
+      );
+
+      remainingData = frameLocations[i];
+    }
+
     return {
-      offset,
+      frames,
+      remainingData,
     };
   }
 }

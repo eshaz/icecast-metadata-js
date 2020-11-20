@@ -71,21 +71,21 @@
     "name": "Radio Paradise Main (FLAC)",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/flacm",
+    "endpoint": "http://23.227.160.206/flacm",
     "metaInt": 524288
   },
   {
     "name": "Radio Paradise Mellow (FLAC)",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/mellow-flacm",
+    "endpoint": "http://23.29.126.124/mellow-flacm",
     "metaInt": 524288
   },
   {
     "name": "Radio Paradise Rock (FLAC)",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/rock-flacm",
+    "endpoint": "http://23.29.126.124/rock-flacm",
     "metaInt": 524288
   },
   {

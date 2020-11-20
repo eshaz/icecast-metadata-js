@@ -126,20 +126,20 @@ export default class FlacHeader extends CodecHeader {
   static decodeUTF8Int(data) {
     if (data[0] < 0x80) return { value: data[0], next: 1 };
 
-    // invalid
-    if (data === 0xff) return null;
+    if (data === 0xff) return null; // invalid
 
     let next = 2,
       mask = 0xe0,
       value;
 
     // determine length of utf-8 character
-    while ((data[0] & mask) !== ((mask << 1) & 0xff)) {
+    while ((data[0] & mask) !== ((mask << 1) & 0xff) && next < 7) {
       next++;
       mask |= mask >> 1;
     }
 
     if (data.length < next) return null; // not enough data
+    if (next === 7) return null; // invalid
 
     const offset = (next - 1) * 6;
 
@@ -165,7 +165,7 @@ export default class FlacHeader extends CodecHeader {
     }
 
     const header = {};
-    header.length = 5;
+    header.length = 2;
 
     // Byte (2 of 6)
     // * `......B.`: Reserved 0 - mandatory, 1 - reserved
@@ -178,6 +178,7 @@ export default class FlacHeader extends CodecHeader {
     // Byte (3 of 6)
     // * `DDDD....`: Block size in inter-channel samples
     // * `....EEEE`: Sample rate
+    header.length++;
     const blockSizeBits = buffer[2] & 0b11110000;
     const sampleRateBits = buffer[2] & 0b00001111;
 
@@ -191,6 +192,7 @@ export default class FlacHeader extends CodecHeader {
     // * `FFFF....`: Channel assignment
     // * `....GGG.`: Sample size in bits
     // * `.......H`: Reserved 0 - mandatory, 1 - reserved
+    header.length++;
     if (buffer[3] & 0b00000001) return null;
     const channelAssignmentBits = buffer[3] & 0b11110000;
     const sampleSizeBits = buffer[3] & 0b00001110;
@@ -207,6 +209,7 @@ export default class FlacHeader extends CodecHeader {
 
     // Byte (5...)
     // * `IIIIIIII|...`: VBR block size ? sample number : frame number
+    header.length++;
     const decodedUtf8 = FlacHeader.decodeUTF8Int(buffer.subarray(4));
     if (!decodedUtf8) return null;
 
@@ -264,7 +267,6 @@ export default class FlacHeader extends CodecHeader {
 
     header.crc = buffer[header.length - 1];
     if (header.crc !== crc8(buffer.subarray(0, header.length - 1))) {
-      console.error("flac crc failure");
       return null;
     }
 
@@ -284,5 +286,29 @@ export default class FlacHeader extends CodecHeader {
     this._mimeType = "audio/flac";
     this._sampleSize = header.sampleSize;
     this._sampleNumber = header.sampleNumber;
+    this._sampleLength = header.blockSize;
+  }
+
+  get blockSize() {
+    return this._blockSize;
+  }
+
+  get frameNumber() {
+    return this._frameNumber;
+  }
+
+  get sampleSize() {
+    return this._sampleSize;
+  }
+
+  /**
+   * @description Interface for variable length frame
+   */
+  get currentFrame() {
+    return this._frameNumber;
+  }
+
+  get nextFrame() {
+    return this._frameNumber + 1;
   }
 }

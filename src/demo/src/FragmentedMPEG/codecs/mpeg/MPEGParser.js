@@ -14,40 +14,16 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-export default class CodecHeader {
-  /**
-   * @private
-   */
-  constructor(header) {
-    this._channelMode = header.channelMode;
-    this._channels = header.channels;
-    this._dataByteLength = header.dataByteLength;
-    this._length = header.length;
-    this._sampleRate = header.sampleRate;
-    this._sampleLength = header.sampleLength;
+import CodecParser from "../CodecParser";
+import MPEGFrame from "./MPEGFrame";
+
+export default class MPEGParser extends CodecParser {
+  constructor() {
+    super();
+    this._maxHeaderLength = 4;
   }
 
-  get channels() {
-    return this._channels;
-  }
-
-  get dataByteLength() {
-    return this._dataByteLength;
-  }
-
-  get length() {
-    return this._length;
-  }
-
-  get mimeType() {
-    return this._mimeType;
-  }
-
-  get sampleRate() {
-    return this._sampleRate;
-  }
-
-  get sampleLength() {
-    return this._sampleLength;
+  parseFrames(data) {
+    return this.fixedLengthFrame(MPEGFrame, data);
   }
 }

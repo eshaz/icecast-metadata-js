@@ -53,8 +53,7 @@ export default class FragmentedISOBMFFBuilder {
         0x00,header.sampleSize, // PCM bitrate (16bit)
         0x00,0x00, // predefined
         0x00,0x00, // reserved
-        ...Box.getUint16(header.sampleRate),0x00,0x00, // 44100
-        // sample rate 48000.000000 16.16 fixed-point
+        ...Box.getUint16(header.sampleRate),0x00,0x00, // sample rate 16.16 fixed-point
         /*
         When the bitstream's native sample rate is greater
         than the maximum expressible value of 65535 Hz,
@@ -72,11 +71,17 @@ export default class FragmentedISOBMFFBuilder {
           /* prettier-ignore */
           contents: [0x00, // version
             0x00,0x00,0x00, // flags
-            0x80,0x00, // reserved
             // * `A........` Last metadata block flag
             // * `.BBBBBBBB` BlockType
-            0x00,0x22,0x10, // Length
-            0x00,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0A,0xC4,0x42,0xF0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+            0x80, // last metadata block, stream info
+            0x00,0x00,0x22, // Length
+            ...Box.getUint16(header.blockSize), // maximum block size
+            ...Box.getUint16(header.blockSize), // minimum block size
+            0x00,0x00,0x00, // maximum frame size
+            0x00,0x00,0x00, // minimum frame size
+            ...Box.getUint32((header.sampleRate << 12) | (header.channels << 8) | ((header.sampleSize - 1) << 4)), // 20bits sample rate, 3bits channels, 5bits samplesize - 1
+            0x00,0x00,0x00,0x00, // total samples
+            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 // md5 of stream
           ],
         }),
       ],

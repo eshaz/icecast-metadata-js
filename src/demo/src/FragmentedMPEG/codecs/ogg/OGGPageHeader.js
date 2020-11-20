@@ -48,9 +48,7 @@ L   n   Segment table (n=page_segments+26).
         
 */
 
-import CodecHeader from "../CodecHeader";
-
-export default class OGGPageHeader extends CodecHeader {
+export default class OGGPageHeader {
   static OggS = 0x4f676753;
 
   static getHeader(buffer) {
@@ -131,11 +129,12 @@ export default class OGGPageHeader extends CodecHeader {
    * Call OGGPageHeader.getHeader(Array<Uint8>) to get instance
    */
   constructor(header) {
-    super(header);
     this._absoluteGranulePosition = header.absoluteGranulePosition;
+    this._dataByteLength = header.dataByteLength;
     this._isContinuedPacket = header.isContinuedPacket;
     this._isFirstPage = header.isFirstPage;
     this._isLastPage = header.isLastPage;
+    this._length = header.length;
     this._numberPageSegments = header.numberPageSegments;
     this._pageSequenceNumber = header.pageSequenceNumber;
     this._pageChecksum = header.pageChecksum;
@@ -144,5 +143,13 @@ export default class OGGPageHeader extends CodecHeader {
 
   get absoluteGranulePosition() {
     return this._absoluteGranulePosition;
+  }
+
+  get dataByteLength() {
+    return this._dataByteLength;
+  }
+
+  get length() {
+    return this._length;
   }
 }
