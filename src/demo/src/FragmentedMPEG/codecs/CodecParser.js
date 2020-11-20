@@ -14,67 +14,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import MPEGFrame from "./mpeg/MPEGFrame";
-import AACFrame from "./aac/AACFrame";
-import FlacFrame from "./flac/FlacFrame";
-
-import OGGPage from "./ogg/OGGPage";
 import FlacHeader from "./flac/FlacHeader";
 
+/**
+ * @abstract
+ * @description Abstract class containing methods for parsing codec frames
+ */
 export default class CodecParser {
-  constructor(mimeType) {
-    if (mimeType.match(/aac/)) {
-      this.parseFrames = this._getAACFrame;
-      this._maxHeaderLength = 9;
-    } else if (mimeType.match(/mpeg/)) {
-      this.parseFrames = this._getMPEGFrame;
-      this._maxHeaderLength = 4;
-    } else {
-      this.parseFrames = this._getFLACFrame;
-      this._oggPosition = new WeakMap();
-      this._maxHeaderLength = 309; // flac 26, ogg 283
-    }
-  }
-
-  /**
-   * @private
-   * @description Parses an AAC header from the passed in buffer.
-   * @param {data} buffer Header data
-   * @returns {AACHeader} Instance of AACHeader
-   * @returns {null} If buffer does not contain a valid header
-   */
-  _getFLACFrame(buffer) {
-    const oggPages = this.fixedLengthFrame(OGGPage, buffer);
-
-    const flacFrames = oggPages.frames.flatMap(
-      (frame) => this.variableLengthFrame(FlacFrame, frame.data, 0, true).frames
-    );
-
-    return { frames: flacFrames, remainingData: oggPages.remainingData };
-  }
-
-  /**
-   * @private
-   * @description Parses an AAC header from the passed in buffer.
-   * @param {data} buffer Header data
-   * @returns {AACHeader} Instance of AACHeader
-   * @returns {null} If buffer does not contain a valid header
-   */
-  _getAACFrame(buffer) {
-    return this.fixedLengthFrame(AACFrame, buffer);
-  }
-
-  /**
-   * @private
-   * @description Parses and caches valid MPEG 1/2 headers so they are parsed only happens once.
-   * @param {data} buffer Header data
-   * @returns {MPEGHeader} Instance of MPEGHeader
-   * @returns {null} If buffer does not contain a valid header
-   */
-  _getMPEGFrame(buffer) {
-    return this.fixedLengthFrame(MPEGFrame, buffer);
-  }
-
   syncFrame(CodecFrame, data, remainingData = 0) {
     let frame = new CodecFrame(data.subarray(remainingData));
 

@@ -14,7 +14,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import CodecParser from "./codecs/CodecParser";
+import MPEGParser from "./codecs/mpeg/MPEGParser";
+import AACParser from "./codecs/aac/AACParser";
+import OGGParser from "./codecs/ogg/OGGParser";
+
 import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
 
 /**
@@ -25,7 +28,17 @@ export default class FragmentedMPEG {
   static MIN_FRAMES_LENGTH = 1022;
 
   constructor(mimeType) {
-    this._codecParser = new CodecParser(mimeType);
+    if (mimeType.match(/aac/)) {
+      this._codecParser = new AACParser();
+      this._mimeType = 'audio/mp4;codecs="mp3"';
+    } else if (mimeType.match(/mpeg/)) {
+      this._codecParser = new MPEGParser();
+      this._mimeType = 'audio/mp4;codecs="mp4a.40.2"';
+    } else if (mimeType.match(/ogg/)) {
+      this._codecParser = new OGGParser();
+      this._mimeType = 'audio/mp4;codecs="flac"';
+    }
+
     this._fragmentedISOBMFFBuilder = new FragmentedISOBMFFBuilder();
     this._frames = [];
     this._codecData = new Uint8Array(0);
@@ -34,17 +47,8 @@ export default class FragmentedMPEG {
     this._generator.next();
   }
 
-  static getMimeType(mimeType) {
-    switch (mimeType) {
-      case /mpeg/.test(mimeType) && mimeType:
-        return 'audio/mp4;codecs="mp3"';
-      case /aac/.test(mimeType) && mimeType:
-        return 'audio/mp4;codecs="mp4a.40.2"';
-      case /ogg/.test(mimeType) && mimeType:
-        return 'audio/mp4;codecs="flac"';
-      default:
-        return "audio/mp4";
-    }
+  get mimeType() {
+    return this._mimeType;
   }
 
   /**
