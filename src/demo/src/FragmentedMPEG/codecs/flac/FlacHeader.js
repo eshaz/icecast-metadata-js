@@ -300,4 +300,15 @@ export default class FlacHeader extends CodecHeader {
   get sampleSize() {
     return this._sampleSize;
   }
+
+  /**
+   * @description Interface for variable length frame
+   */
+  get currentFrame() {
+    return this._frameNumber;
+  }
+
+  get nextFrame() {
+    return this._frameNumber + 1;
+  }
 }

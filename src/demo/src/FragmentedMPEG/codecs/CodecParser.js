@@ -75,22 +75,26 @@ export default class CodecParser {
     };
   }
 
-  variableLengthFrame(CodecFrame, data, remainingData = 0, isComplete) {
+  variableLengthFrame(CodecFrame, data, isComplete) {
     let frameLocations = [];
     let frames = [];
-    let frameNumber;
+    let nextFrame = null;
+    let remainingData = 0;
 
     for (let readPosition = 0; readPosition <= data.length; readPosition++) {
-      const flacHeader = FlacHeader.getHeader(data.subarray(readPosition));
+      const header = FlacHeader.getHeader(data.subarray(readPosition));
 
-      if (flacHeader) {
-        if (!frameNumber) frameNumber = flacHeader.frameNumber - 1;
-
-        if (flacHeader.frameNumber === frameNumber + 1) {
+      if (header) {
+        if (nextFrame === null) {
+          nextFrame = header.nextFrame;
           frameLocations.push(readPosition);
 
-          frameNumber = flacHeader.frameNumber;
-          readPosition += flacHeader.length;
+          readPosition += header.length;
+        } else if (header.currentFrame === nextFrame) {
+          frameLocations.push(readPosition);
+
+          nextFrame = header.nextFrame;
+          readPosition += header.length;
         }
       }
     }
