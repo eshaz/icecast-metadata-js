@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/icecast-metadata-js/precache-manifest.a270bb608f061faa7f12782c2ee06a38.js"
+  "/icecast-metadata-js/precache-manifest.82a01698bb9177220ea7bd5aee429466.js"
 );
 
 self.addEventListener('message', (event) => {
