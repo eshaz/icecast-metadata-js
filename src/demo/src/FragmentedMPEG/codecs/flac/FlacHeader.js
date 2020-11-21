@@ -159,8 +159,9 @@ export default class FlacHeader extends CodecHeader {
     if (buffer.length < 6) return null;
 
     // Bytes (1-2 of 6)
-    // Frame sync: `11111111|111111..|`:
-    if (buffer[0] !== 0xff || buffer[1] > 0xfc) {
+    // * `11111111|111110..`: Frame sync
+    // * `........|......0.`: Reserved 0 - mandatory, 1 - reserved
+    if (buffer[0] !== 0xff || !(buffer[1] === 0xf8 || buffer[1] === 0xf9)) {
       return null;
     }
 
@@ -168,9 +169,7 @@ export default class FlacHeader extends CodecHeader {
     header.length = 2;
 
     // Byte (2 of 6)
-    // * `......B.`: Reserved 0 - mandatory, 1 - reserved
     // * `.......C`: Blocking strategy, 0 - fixed, 1 - variable
-    if (buffer[1] & 0b00000010) return null;
     const blockingStrategyBits = buffer[1] & 0b00000001;
 
     header.blockingStrategy = FlacHeader.blockingStrategy[blockingStrategyBits];

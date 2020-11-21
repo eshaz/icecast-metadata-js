@@ -82,19 +82,24 @@ export default class CodecParser {
     let remainingData = 0;
 
     for (let readPosition = 0; readPosition <= data.length; readPosition++) {
-      const header = FlacHeader.getHeader(data.subarray(readPosition));
+      if (
+        data[readPosition] === 0xff &&
+        (data[readPosition + 1] === 0xf8 || data[readPosition + 1] === 0xf9)
+      ) {
+        const header = FlacHeader.getHeader(data.subarray(readPosition));
 
-      if (header) {
-        if (nextFrame === null) {
-          nextFrame = header.nextFrame;
-          frameLocations.push(readPosition);
+        if (header) {
+          if (nextFrame === null) {
+            nextFrame = header.nextFrame;
+            frameLocations.push(readPosition);
 
-          readPosition += header.length;
-        } else if (header.currentFrame === nextFrame) {
-          frameLocations.push(readPosition);
+            readPosition += header.length;
+          } else if (header.currentFrame === nextFrame) {
+            frameLocations.push(readPosition);
 
-          nextFrame = header.nextFrame;
-          readPosition += header.length;
+            nextFrame = header.nextFrame;
+            readPosition += header.length;
+          }
         }
       }
     }
