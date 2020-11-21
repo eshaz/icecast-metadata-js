@@ -71,21 +71,21 @@
     "name": "Radio Paradise Main (FLAC)",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "http://23.227.160.206/flacm",
+    "endpoint": "https://stream.radioparadise.com/flacm",
     "metaInt": 524288
   },
   {
     "name": "Radio Paradise Mellow (FLAC)",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "http://23.29.126.124/mellow-flacm",
+    "endpoint": "https://stream.radioparadise.com/mellow-flacm",
     "metaInt": 524288
   },
   {
     "name": "Radio Paradise Rock (FLAC)",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "http://23.29.126.124/rock-flacm",
+    "endpoint": "https://stream.radioparadise.com/rock-flacm",
     "metaInt": 524288
   },
   {
@@ -246,13 +246,6 @@
     "name": "Andean Music",
     "description": "Folklore Andean Acoustic Electronic Underground",
     "endpoint": "https://streamingv2.shoutcast.com/andeanmusic?icy=http",
-    "metaInt": 16000
-  },
-  {
-    "name": "Jazz Cafe",
-    "description": "Jazz Cafe offers an uplifting brew of fresh and golden smooth jazz with a bit of RnB flavoring.",
-    "link": "https://wsradio.net",
-    "endpoint": "http://radio.wanderingsheep.net:8059/jazzcafe320",
     "metaInt": 16000
   }
 ]

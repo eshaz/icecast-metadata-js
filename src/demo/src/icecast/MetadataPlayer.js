@@ -74,7 +74,6 @@ export default class MetadataPlayer {
       headers: {
         "Icy-MetaData": "1",
       },
-      referrerPolicy: "unsafe-url",
       signal: this._controller.signal,
     });
   }
