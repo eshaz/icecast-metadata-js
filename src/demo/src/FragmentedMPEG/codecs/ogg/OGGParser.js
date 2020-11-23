@@ -25,6 +25,10 @@ export default class OGGParser extends CodecParser {
     this._codec = null;
   }
 
+  get codec() {
+    return this._codec || "flac,opus";
+  }
+
   setCodec(oggPage) {
     // FLAC
     if (
@@ -34,7 +38,7 @@ export default class OGGParser extends CodecParser {
       oggPage.data[3] === 0x41 &&
       oggPage.data[4] === 0x43
     ) {
-      this._codec = "audio/flac";
+      this._codec = "flac";
       this._frameClass = FlacFrame;
       this._maxHeaderLength = 309;
     }

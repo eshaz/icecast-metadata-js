@@ -23,6 +23,10 @@ export default class AACParser extends CodecParser {
     this._maxHeaderLength = 9;
   }
 
+  get codec() {
+    return "mp4a.40.2";
+  }
+
   parseFrames(data) {
     return this.fixedLengthFrame(AACFrame, data);
   }

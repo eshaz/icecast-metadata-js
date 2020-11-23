@@ -14,32 +14,80 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import Box from "./Box";
-import ESTag from "./ESTag";
+import Box from "./isobmff-object/Box";
+import ESTag from "./isobmff-object/ESTag";
 
 /**
  * @description Fragmented ISO Base Media File Format Builder is a class to
  * wrap codec frames in a MP4 container for streaming MP3 / AAC compatibility in Firefox.
  */
-export default class FragmentedISOBMFFBuilder {
+export default class ISOBMFFBuilder {
+  constructor(mimeType) {
+    this._mimeType = mimeType;
+  }
+
   static getBoxContents(boxes) {
     return Uint8Array.from(
       boxes.reduce((acc, box) => acc.concat(box.contents), [])
     );
   }
 
-  /**
-   * @description Codec mapping for `esds` box
-   * https://stackoverflow.com/questions/3987850/mp4-atom-how-to-discriminate-the-audio-codec-is-it-aac-or-mp3
-   * 0x40 - MPEG-4 Audio
-   * 0x6b - MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
-   * 0x69 - MPEG-2 Backward Compatible Audio (MPEG-2 Layers 1, 2, and 3)
-   * 0x67 - MPEG-2 AAC LC
-   */
-  static mp4aEsdsCodecs = {
-    "audio/aac": 0x40,
-    "audio/mpeg": 0x6b,
-  };
+  getCodecBox(header) {
+    /**
+     * @description Codec mapping for `esds` box
+     * https://stackoverflow.com/questions/3987850/mp4-atom-how-to-discriminate-the-audio-codec-is-it-aac-or-mp3
+     * https://web.archive.org/web/20180312163039/http://mp4ra.org/object.html
+     * 0x40 - MPEG-4 Audio
+     * 0x6b - MPEG-1 Audio (MPEG-1 Layers 1, 2, and 3)
+     * 0x69 - MPEG-2 Backward Compatible Audio (MPEG-2 Layers 1, 2, and 3)
+     * 0x67 - MPEG-2 AAC LC
+     */
+    switch (this._mimeType) {
+      case 'audio/mp4;codecs="mp3"':
+        return this.getMp4a(header, 0x6b);
+      case 'audio/mp4;codecs="mp4a.40.2"':
+        return this.getMp4a(header, 0x40);
+      case 'audio/mp4;codecs="opus"':
+        return this.getOpus(header);
+      case 'audio/mp4;codecs="flac"':
+        return this.getFlaC(header);
+    }
+  }
+
+  getOpus(header) {
+    // https://opus-codec.org/docs/opus_in_isobmff.html
+    return new Box("Opus", {
+      /* prettier-ignore */
+      contents: [
+        0x00,0x00,0x00,0x00,0x00,0x00, // reserved
+        0x00,0x01, // data reference index
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // reserved
+        0x00,0x00,0x00,0x00, // reserved
+        0x00,header.channels, // channel count
+        0x00,header.sampleSize, // PCM bitrate (16bit)
+        0x00,0x00, // predefined
+        0x00,0x00, // reserved
+        ...Box.getUint16(header.sampleRate),0x00,0x00, // sample rate 16.16 fixed-point
+      ],
+      boxes: [
+        new Box("dOps", {
+          /* prettier-ignore */
+          contents: [0x00, // version
+            header.channels, // output channel count
+            0x00,0x00, // pre skip
+            ...Box.getUint32(header.sampleRate),// input sample rate
+            0x00,0x00, // output gain
+            // channel mapping family int(8)
+            // if (ChannelMappingFamily != 0) {
+            //   stream count int(8)
+            //   coupled count int(8)
+            //   channel mapping int(8 * OutputChannelCount) ChannelMapping
+            // }
+          ],
+        }),
+      ],
+    });
+  }
 
   getFlaC(header) {
     // https://github.com/xiph/flac/blob/master/doc/isoflac.txt
@@ -88,11 +136,11 @@ export default class FragmentedISOBMFFBuilder {
     });
   }
 
-  getMp4a(header) {
+  getMp4a(header, esdsCodec) {
     const streamDescriptorTag = new ESTag(4, {
       /* prettier-ignore */
       contents: [
-        FragmentedISOBMFFBuilder.mp4aEsdsCodecs[header.mimeType],
+        esdsCodec,
         0x15, // stream type(6bits)=5 audio, flags(2bits)=1
         0x00,0x00,0x00, // 24bit buffer size
         0x00,0x00,0x00,0x00, // max bitrate
@@ -100,7 +148,8 @@ export default class FragmentedISOBMFFBuilder {
       ],
     });
 
-    if (header.mimeType === "audio/aac") {
+    // mp4a.40.2
+    if (esdsCodec === 0x40) {
       streamDescriptorTag.addTag(
         new ESTag(5, {
           contents: [...header.audioSpecificConfig],
@@ -147,10 +196,6 @@ export default class FragmentedISOBMFFBuilder {
    */
   getMovieBox(header) {
     const sampleRate = Box.getUint32(header.sampleRate);
-    const codecBox =
-      header.mimeType === "audio/flac"
-        ? this.getFlaC(header)
-        : this.getMp4a(header);
 
     const boxes = [
       new Box("ftyp", {
@@ -227,7 +272,7 @@ export default class FragmentedISOBMFFBuilder {
                       0x00,0x00,0x00,0x00, // component manufacturer
                       0x00,0x00,0x00,0x00, // component flags
                       0x00,0x00,0x00,0x00, // component flags mask
-                      0x00], // String that specifies the name of the component, ended by a null character
+                      0x00], // String that specifies the name of the component, terminated by a null character
                   }),
                   new Box("minf", {
                     boxes: [
@@ -239,7 +284,7 @@ export default class FragmentedISOBMFFBuilder {
                             contents: [0x00, // version
                               0x00,0x00,0x00, // flags
                               0x00,0x00,0x00,0x01], // entry count
-                            boxes: [codecBox],
+                            boxes: [this.getCodecBox(header)],
                           }),
                           new Box("stts", {
                             // Time-to-sample atom
@@ -287,7 +332,7 @@ export default class FragmentedISOBMFFBuilder {
       }),
     ];
 
-    return FragmentedISOBMFFBuilder.getBoxContents(boxes);
+    return ISOBMFFBuilder.getBoxContents(boxes);
   }
 
   static getMediaDataBox(frames) {
@@ -372,8 +417,8 @@ export default class FragmentedISOBMFFBuilder {
 
     trun.insertBytes([...Box.getUint32(boxes[0].length + 12)], 8); // data offset (moof length + mdat length + mdat)
 
-    const moof = FragmentedISOBMFFBuilder.getBoxContents(boxes);
-    const mdat = FragmentedISOBMFFBuilder.getMediaDataBox(frames);
+    const moof = ISOBMFFBuilder.getBoxContents(boxes);
+    const mdat = ISOBMFFBuilder.getMediaDataBox(frames);
 
     const fragment = new Uint8Array(moof.length + mdat.length);
     fragment.set(moof);

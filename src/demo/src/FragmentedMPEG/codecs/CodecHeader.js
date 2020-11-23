@@ -39,10 +39,6 @@ export default class CodecHeader {
     return this._length;
   }
 
-  get mimeType() {
-    return this._mimeType;
-  }
-
   get sampleRate() {
     return this._sampleRate;
   }

@@ -34,13 +34,13 @@ export default class MetadataPlayer {
     });
   }
 
-  _destroyMediaSource() {
+  async _destroyMediaSource() {
     this._mediaSource = null;
     this._playPromise &&
-      this._playPromise
+      (await this._playPromise
         .then(() => this._audioElement.removeAttribute("src"))
         .then(() => this._audioElement.load())
-        .catch(() => {});
+        .catch(() => {}));
   }
 
   async _waitForSourceBuffer() {
@@ -49,7 +49,9 @@ export default class MetadataPlayer {
     });
   }
 
-  async _appendSourceBuffer(chunk) {
+  async _appendSourceBuffer(chunk, mimeType) {
+    if (!this._mediaSource) await this._createMediaSource(mimeType);
+
     this._sourceBuffer.appendBuffer(chunk);
     await this._waitForSourceBuffer();
 
@@ -57,13 +59,6 @@ export default class MetadataPlayer {
       this._sourceBuffer.remove(0, this._audioElement.currentTime);
       await this._waitForSourceBuffer();
     }
-  }
-
-  async fetchMimeType(endpoint) {
-    return fetch(endpoint, {
-      method: "HEAD",
-      mode: "cors",
-    });
   }
 
   async fetchStream(endpoint) {
@@ -78,20 +73,20 @@ export default class MetadataPlayer {
     });
   }
 
-  async getMediaSource(res) {
-    const mimeType = res.headers.get("content-type");
+  getMediaSource({headers}) {
+    const mimeType = headers.get("content-type");
     this._fMP4Wrapper = new FragmentedMPEG(mimeType);
 
     if (MediaSource.isTypeSupported(mimeType)) {
-      await this._createMediaSource(mimeType);
-
-      this._onStream = ({ stream }) => this._appendSourceBuffer(stream);
+      this._onStream = ({ stream }) =>
+        this._appendSourceBuffer(stream, mimeType);
     } else if (MediaSource.isTypeSupported(this._fMP4Wrapper.mimeType)) {
-      await this._createMediaSource(this._fMP4Wrapper.mimeType);
-
       this._onStream = async ({ stream }) => {
         for await (const movieFragment of this._fMP4Wrapper.iterator(stream)) {
-          await this._appendSourceBuffer(movieFragment);
+          await this._appendSourceBuffer(
+            movieFragment,
+            this._fMP4Wrapper.mimeType
+          );
         }
       };
     } else {
@@ -99,21 +94,15 @@ export default class MetadataPlayer {
         `Your browser does not support MediaSource ${mimeType}. Try using Google Chrome.`
       );
     }
-
-    return this._streamPromise;
   }
 
   play(endpoint, icyMetaInt) {
     if (this._playing) this.stop();
     this._playing = true;
-    this._streamPromise = this.fetchStream(endpoint);
 
-    Promise.race([
-      this.fetchMimeType(endpoint).catch(() => this._streamPromise),
-      this._streamPromise,
-    ])
-      .then((res) => this.getMediaSource(res))
+    this.fetchStream(endpoint)
       .then(async (res) => {
+        this.getMediaSource(res);
         this._playPromise = this._audioElement.play();
         this._isInitialMetadata = true;
 
@@ -132,17 +121,17 @@ export default class MetadataPlayer {
           },
         }).startReading();
       })
-      .catch((e) => {
+      .catch(async (e) => {
+        await this._destroyMediaSource();
+        this._icecastMetadataQueue.purgeMetadataQueue();
         if (e.name !== "AbortError") {
           this._onMetadataUpdate(`Error Connecting: ${e.message}`);
         }
-        this._destroyMediaSource();
       });
   }
 
   stop() {
     this._playing = false;
     this._controller.abort();
-    this._icecastMetadataQueue.purgeMetadataQueue();
   }
 }
