@@ -3,11 +3,11 @@ import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
 import FragmentedMPEG from "../FragmentedMPEG/FragmentedMPEG";
 
 export default class MetadataPlayer {
-  constructor({ onMetadataUpdate }) {
+  constructor({ onMetadataUpdate, audioElement }) {
     this._icecastMetadataQueue = new IcecastMetadataQueue({
       onMetadataUpdate: (meta) => onMetadataUpdate(meta),
     });
-    this._audioElement = new Audio();
+    this._audioElement = audioElement;
     this._onMetadataUpdate = onMetadataUpdate;
 
     this._playing = false;
@@ -73,7 +73,7 @@ export default class MetadataPlayer {
     });
   }
 
-  getMediaSource({headers}) {
+  getMediaSource({ headers }) {
     const mimeType = headers.get("content-type");
     this._fMP4Wrapper = new FragmentedMPEG(mimeType);
 
