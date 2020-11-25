@@ -23,6 +23,10 @@ export default class MPEGParser extends CodecParser {
     this._maxHeaderLength = 4;
   }
 
+  get codec() {
+    return "mp3";
+  }
+
   parseFrames(data) {
     return this.fixedLengthFrame(MPEGFrame, data);
   }

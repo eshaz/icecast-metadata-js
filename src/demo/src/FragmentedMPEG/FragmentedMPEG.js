@@ -18,10 +18,10 @@ import MPEGParser from "./codecs/mpeg/MPEGParser";
 import AACParser from "./codecs/aac/AACParser";
 import OGGParser from "./codecs/ogg/OGGParser";
 
-import FragmentedISOBMFFBuilder from "./isobmff/FragmentedISOBMFFBuilder";
+import ISOBMFFBuilder from "./isobmff/ISOBMFFBuilder";
 
 /**
- * @description Generator that takes in MPEG 1/2 or AAC Data and yields Fragmented MP4 (ISOBMFF)
+ * @description Generator that takes in MPEG 1/2, AAC, or Ogg FLAC and yields Fragmented MP4 (ISOBMFF)
  */
 export default class FragmentedMPEG {
   static MIN_FRAMES = 4;
@@ -30,16 +30,12 @@ export default class FragmentedMPEG {
   constructor(mimeType) {
     if (mimeType.match(/aac/)) {
       this._codecParser = new AACParser();
-      this._mimeType = 'audio/mp4;codecs="mp3"';
     } else if (mimeType.match(/mpeg/)) {
       this._codecParser = new MPEGParser();
-      this._mimeType = 'audio/mp4;codecs="mp4a.40.2"';
     } else if (mimeType.match(/ogg/)) {
       this._codecParser = new OGGParser();
-      this._mimeType = 'audio/mp4;codecs="flac"';
     }
 
-    this._fragmentedISOBMFFBuilder = new FragmentedISOBMFFBuilder();
     this._frames = [];
     this._codecData = new Uint8Array(0);
 
@@ -48,7 +44,7 @@ export default class FragmentedMPEG {
   }
 
   get mimeType() {
-    return this._mimeType;
+    return `audio/mp4;codecs="${this._codecParser.codec}"`;
   }
 
   /**
@@ -66,10 +62,10 @@ export default class FragmentedMPEG {
   }
 
   /**
-   * @description Returns an iterator for the passed in MPEG data.
-   * @param {Uint8Array} chunk Next chunk of MPEG data to read
-   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
-   * @yields {Uint8Array} Movie Fragments containing MPEG frames
+   * @description Returns an iterator for the passed in codec data.
+   * @param {Uint8Array} chunk Next chunk of codec data to read
+   * @returns {IterableIterator} Iterator that operates over the codec data.
+   * @yields {Uint8Array} Movie Fragments containing codec frames
    */
   *iterator(chunk) {
     for (
@@ -84,7 +80,7 @@ export default class FragmentedMPEG {
   /**
    * @private
    * @description Internal generator.
-   * @yields {Uint8Array} Movie Fragments containing MPEG frames
+   * @yields {Uint8Array} Movie Fragments containing codec frames
    */
   *_generator() {
     let frames;
@@ -94,17 +90,19 @@ export default class FragmentedMPEG {
       frames = this._parseFrames();
     }
 
+    this._ISOBMFFBuilder = new ISOBMFFBuilder(this.mimeType);
+
     // yield the movie box along with a movie fragment containing frames
     let fMP4 = FragmentedMPEG.appendBuffers(
-      this._fragmentedISOBMFFBuilder.getMovieBox(frames[0].header),
-      this._fragmentedISOBMFFBuilder.wrapFrames(frames)
+      this._ISOBMFFBuilder.getMovieBox(frames[0].header),
+      this._ISOBMFFBuilder.wrapFrames(frames)
     );
 
     // yield movie fragments containing frames
     while (true) {
       yield* this._sendReceiveData(fMP4);
       frames = this._parseFrames();
-      fMP4 = frames ? this._fragmentedISOBMFFBuilder.wrapFrames(frames) : null;
+      fMP4 = frames ? this._ISOBMFFBuilder.wrapFrames(frames) : null;
     }
   }
 

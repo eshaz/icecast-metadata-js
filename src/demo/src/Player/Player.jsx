@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useEffect, useState } from "react";
+import AudioSpectrum from "react-audio-spectrum";
 import MetadataPlayer from "../icecast/MetadataPlayer";
 import { ReactComponent as Play } from "./play.svg";
 import { ReactComponent as Pause } from "./pause.svg";
@@ -10,13 +11,14 @@ const SELECT_OR_PLAY = "Select a station or press play";
 const LOADING = "Loading...";
 const VISIT_STATION = "Visit this station at ";
 
-const useMetadataPlayer = (station, onMetadataUpdate) => {
+const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
   const [metadataPlayer] = useState(
     new MetadataPlayer({
       onMetadataUpdate: (meta) => {
         console.log(meta);
         onMetadataUpdate(meta);
       },
+      audioElement,
     })
   );
 
@@ -40,16 +42,47 @@ const useMetadataPlayer = (station, onMetadataUpdate) => {
 };
 
 export default ({ station }) => {
+  const audioElement = new Audio();
+  const [[audioHeight, audioWidth], setSpectrumSize] = useState([0, 0]);
+  const [meters, setMeters] = useState(0);
   const [metadata, setMetadata] = useState(SELECT_STATION);
-  const [isPlaying, toggle] = useMetadataPlayer(station, setMetadata);
+  const [isPlaying, toggle] = useMetadataPlayer(
+    station,
+    setMetadata,
+    audioElement
+  );
+
+  useLayoutEffect(() => {
+    const updateSize = () => {
+      const player = document.getElementById("player");
+      setMeters(Math.floor(player.clientWidth / 32));
+      setSpectrumSize([player.clientHeight + 6, player.clientWidth]);
+    };
+    window.addEventListener("resize", updateSize);
+    updateSize();
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   return (
-    <div className={styles.player}>
-      <button
-        disabled={!Boolean(station)}
-        className={styles.button}
-        onClick={toggle}
-      >
+    <div id={"player"} className={styles.player}>
+      <div className={styles.spectrum}>
+        <AudioSpectrum
+          height={audioHeight}
+          width={audioWidth}
+          audioEle={audioElement}
+          capColor={"red"}
+          capHeight={1}
+          meterWidth={2}
+          meterCount={(meters + 1) * 32}
+          meterColor={[
+            { stop: 0, color: "#f00" },
+            { stop: 0.3, color: "#0CD7FD" },
+            { stop: 1, color: "red" },
+          ]}
+          gap={1}
+        />
+      </div>
+      <button disabled={!station} className={styles.button} onClick={toggle}>
         {isPlaying ? <Pause /> : <Play />}
       </button>
       <div>

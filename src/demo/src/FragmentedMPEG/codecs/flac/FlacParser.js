@@ -23,6 +23,10 @@ export default class FlacParser extends CodecParser {
     this._maxHeaderLength = 26;
   }
 
+  get codec() {
+    return "flac";
+  }
+
   parseFrames(data) {
     return this.variableLengthFrame(FlacFrame, data);
   }
