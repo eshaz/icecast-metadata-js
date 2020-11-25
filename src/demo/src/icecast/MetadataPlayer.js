@@ -55,6 +55,14 @@ export default class MetadataPlayer {
     this._sourceBuffer.appendBuffer(chunk);
     await this._waitForSourceBuffer();
 
+    // buffer 2 seconds to remove flac skips
+    if (
+      this._sourceBuffer.buffered.length &&
+      this._sourceBuffer.buffered.end(0) > 2
+    ) {
+      this._playPromise = this._audioElement.play();
+    }
+
     if (this._audioElement.currentTime > 0) {
       this._sourceBuffer.remove(0, this._audioElement.currentTime);
       await this._waitForSourceBuffer();
@@ -103,7 +111,6 @@ export default class MetadataPlayer {
     this.fetchStream(endpoint)
       .then(async (res) => {
         this.getMediaSource(res);
-        this._playPromise = this._audioElement.play();
         this._isInitialMetadata = true;
 
         await new IcecastReadableStream(res, {
