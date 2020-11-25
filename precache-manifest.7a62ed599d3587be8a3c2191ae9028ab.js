@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "9d82397edf076c46f42fd6c8dd536385",
+    "revision": "7586ca0beae67288efebf617200d3b49",
     "url": "/icecast-metadata-js/index.html"
   },
   {
