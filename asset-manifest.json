@@ -1,24 +1,24 @@
 {
   "files": {
-    "main.css": "/icecast-metadata-js/static/css/main.c82afa75.chunk.css",
-    "main.js": "/icecast-metadata-js/static/js/main.ffb9ea95.chunk.js",
-    "main.js.map": "/icecast-metadata-js/static/js/main.ffb9ea95.chunk.js.map",
+    "main.css": "/icecast-metadata-js/static/css/main.c9b2cca1.chunk.css",
+    "main.js": "/icecast-metadata-js/static/js/main.78c93763.chunk.js",
+    "main.js.map": "/icecast-metadata-js/static/js/main.78c93763.chunk.js.map",
     "runtime-main.js": "/icecast-metadata-js/static/js/runtime-main.e917606f.js",
     "runtime-main.js.map": "/icecast-metadata-js/static/js/runtime-main.e917606f.js.map",
-    "static/js/2.3248de57.chunk.js": "/icecast-metadata-js/static/js/2.3248de57.chunk.js",
-    "static/js/2.3248de57.chunk.js.map": "/icecast-metadata-js/static/js/2.3248de57.chunk.js.map",
+    "static/js/2.15c0e7eb.chunk.js": "/icecast-metadata-js/static/js/2.15c0e7eb.chunk.js",
+    "static/js/2.15c0e7eb.chunk.js.map": "/icecast-metadata-js/static/js/2.15c0e7eb.chunk.js.map",
     "index.html": "/icecast-metadata-js/index.html",
-    "precache-manifest.efdc998139eb8ccaebb2f5f8c972569f.js": "/icecast-metadata-js/precache-manifest.efdc998139eb8ccaebb2f5f8c972569f.js",
+    "precache-manifest.d93ec2842698a00d6753f1a7fa7519a4.js": "/icecast-metadata-js/precache-manifest.d93ec2842698a00d6753f1a7fa7519a4.js",
     "service-worker.js": "/icecast-metadata-js/service-worker.js",
-    "static/css/main.c82afa75.chunk.css.map": "/icecast-metadata-js/static/css/main.c82afa75.chunk.css.map",
-    "static/js/2.3248de57.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.3248de57.chunk.js.LICENSE.txt",
+    "static/css/main.c9b2cca1.chunk.css.map": "/icecast-metadata-js/static/css/main.c9b2cca1.chunk.css.map",
+    "static/js/2.15c0e7eb.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.15c0e7eb.chunk.js.LICENSE.txt",
     "static/media/pause.b0b65543.svg": "/icecast-metadata-js/static/media/pause.b0b65543.svg",
     "static/media/play.0187bd2f.svg": "/icecast-metadata-js/static/media/play.0187bd2f.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.e917606f.js",
-    "static/js/2.3248de57.chunk.js",
-    "static/css/main.c82afa75.chunk.css",
-    "static/js/main.ffb9ea95.chunk.js"
+    "static/js/2.15c0e7eb.chunk.js",
+    "static/css/main.c9b2cca1.chunk.css",
+    "static/js/main.78c93763.chunk.js"
   ]
 }
