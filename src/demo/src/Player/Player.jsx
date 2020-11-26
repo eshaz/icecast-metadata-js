@@ -10,8 +10,10 @@ const SELECT_STATION = "Select a station";
 const SELECT_OR_PLAY = "Select a station or press play";
 const LOADING = "Loading...";
 const VISIT_STATION = "Visit this station at ";
+const ICECAST_METADATA_JS_DEMO = "Icecast Metadata JS Demo";
 
 const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
+  const [isPlaying, setIsPlaying] = useState(false);
   const [metadataPlayer] = useState(
     new MetadataPlayer({
       onMetadataUpdate: (meta) => {
@@ -24,33 +26,54 @@ const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
 
   const play = useCallback(() => {
     onMetadataUpdate(LOADING);
+    setIsPlaying(true);
     metadataPlayer.play(station.endpoint, station.metaInt);
   }, [onMetadataUpdate, metadataPlayer, station]);
 
   const stop = useCallback(() => {
     onMetadataUpdate(SELECT_OR_PLAY);
+    setIsPlaying(false);
     metadataPlayer.stop();
   }, [onMetadataUpdate, metadataPlayer]);
 
   useEffect(() => {
-    station && play();
-  }, [station, play]);
+    audioElement.addEventListener("pause", stop);
+    return () => audioElement.removeEventListener("pause", stop);
+  }, []);
 
-  const toggle = () => (metadataPlayer.playing ? stop() : play());
+  useEffect(() => {
+    if (station) {
+      if (isPlaying) {
+        stop();
+        play();
+      } else {
+        play();
+      }
+    }
+  }, [station]);
 
-  return [metadataPlayer.playing, toggle];
+  const toggle = () => (isPlaying ? stop() : play());
+
+  return [isPlaying, toggle];
 };
 
 export default ({ station }) => {
-  const audioElement = new Audio();
+  const [audioElement] = useState(new Audio());
   const [[audioHeight, audioWidth], setSpectrumSize] = useState([0, 0]);
   const [meters, setMeters] = useState(0);
   const [metadata, setMetadata] = useState(SELECT_STATION);
+
   const [isPlaying, toggle] = useMetadataPlayer(
     station,
     setMetadata,
     audioElement
   );
+
+  useEffect(() => {
+    document.title = metadata.StreamTitle
+      ? `${metadata.StreamTitle} | ${ICECAST_METADATA_JS_DEMO}`
+      : ICECAST_METADATA_JS_DEMO;
+  }, [metadata]);
 
   useLayoutEffect(() => {
     const updateSize = () => {

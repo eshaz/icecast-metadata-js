@@ -9,12 +9,6 @@ export default class MetadataPlayer {
     });
     this._audioElement = audioElement;
     this._onMetadataUpdate = onMetadataUpdate;
-
-    this._playing = false;
-  }
-
-  get playing() {
-    return this._playing;
   }
 
   async _createMediaSource(mimeType) {
@@ -57,6 +51,7 @@ export default class MetadataPlayer {
 
     // buffer 2 seconds to remove flac skips
     if (
+      this._playing &&
       this._sourceBuffer.buffered.length &&
       this._sourceBuffer.buffered.end(0) > 2
     ) {
@@ -105,7 +100,6 @@ export default class MetadataPlayer {
   }
 
   play(endpoint, icyMetaInt) {
-    if (this._playing) this.stop();
     this._playing = true;
 
     this.fetchStream(endpoint)
