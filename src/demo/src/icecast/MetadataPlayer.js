@@ -1,6 +1,6 @@
 import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
 import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
-import FragmentedMPEG from "../FragmentedMPEG/FragmentedMPEG";
+import ISOBMFFAudioWrapper from "isobmff-audio";
 
 export default class MetadataPlayer {
   constructor({ onMetadataUpdate, audioElement }) {
@@ -78,7 +78,7 @@ export default class MetadataPlayer {
 
   getMediaSource({ headers }) {
     const mimeType = headers.get("content-type");
-    this._fMP4Wrapper = new FragmentedMPEG(mimeType);
+    this._fMP4Wrapper = new ISOBMFFAudioWrapper(mimeType);
 
     if (MediaSource.isTypeSupported(mimeType)) {
       this._onStream = ({ stream }) =>
