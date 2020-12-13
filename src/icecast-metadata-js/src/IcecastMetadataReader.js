@@ -1,21 +1,22 @@
 /* Copyright 2020 Ethan Halsall
+    This file is part of icecast-metadata-js.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    icecast-metadata-js free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
+    icecast-metadata-js distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received a copy of the GNU Lesser General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
 const MetadataBuffer = require("./MetadataBuffer");
-const { TextDecoder } = require("util");
+const Decoder = require("util").TextDecoder || TextDecoder;
 
 class Stats {
   constructor() {
@@ -99,7 +100,7 @@ class IcecastMetadataReader {
     this._currentPosition = 0;
     this._buffer = null;
     this._stats = new Stats();
-    this._decoder = new TextDecoder("utf-8");
+    this._decoder = new Decoder("utf-8");
 
     this._onStream = onStream;
     this._onMetadata = onMetadata;

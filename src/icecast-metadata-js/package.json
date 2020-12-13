@@ -1,29 +1,40 @@
 {
   "name": "icecast-metadata-js",
-  "version": "0.0.0",
-  "description": "Client Side Icecast Metadata Reader",
+  "version": "0.0.2",
+  "description": "Library for Browser and NodeJS that reads, parses, and synchronizes icy metadata",
+  "keywords": [
+    "icecast",
+    "shoutcast",
+    "icy-metadata",
+    "streaming audio"
+  ],
+  "type": "module",
+  "main": "./index.cjs",
+  "exports": {
+    "import": "./index.mjs",
+    "require": "./index.cjs"
+  },
+  "browser": "./browser.js",
   "scripts": {
     "test": "jest",
-    "format": "prettier --write '**/*.js' --write '**/*.json'",
-    "build-parser": "webpack --config webpack.config.js"
+    "format": "prettier --write '**/*.*js*'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eshaz/icecast-metadata-js.git"
   },
-  "author": "Ethan Halsall",
-  "license": "GPL-3.0",
+  "author": {
+    "name": "Ethan Halsall",
+    "email": "ethanhalsall@pm.me"
+  },
+  "license": "LGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/eshaz/icecast-metadata-js/issues"
   },
   "homepage": "https://github.com/eshaz/icecast-metadata-js#readme",
   "devDependencies": {
     "@types/jest": "^26.0.7",
-    "exports-loader": "^1.1.0",
-    "jest": "^26.1.0",
-    "prettier": "^2.0.2",
-    "terser-webpack-plugin": "^3.0.7",
-    "webpack": "^4.44.0",
-    "webpack-cli": "^3.3.12"
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1"
   }
 }
