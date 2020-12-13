@@ -1,5 +1,5 @@
-import IcecastMetadataQueue from "./metadata-js/IcecastMetadataQueue";
-import IcecastReadableStream from "./metadata-js/IcecastReadableStream";
+import { IcecastMetadataQueue } from "icecast-metadata-js";
+import { IcecastReadableStream } from "icecast-metadata-js";
 import ISOBMFFAudioWrapper from "isobmff-audio";
 
 export default class MetadataPlayer {
