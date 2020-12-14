@@ -98,7 +98,7 @@ class IcecastMetadataReader {
     this._icyMetaInt = icyMetaInt;
     this._remainingData = 0;
     this._currentPosition = 0;
-    this._buffer = null;
+    this._buffer = new Uint8Array(0);
     this._stats = new Stats();
     this._decoder = new Decoder("utf-8");
 
@@ -207,6 +207,8 @@ class IcecastMetadataReader {
   }
 
   *_generator() {
+    yield* this._detectMetadataInterval();
+
     do {
       yield* this._getStream();
       yield* this._getMetadataLength();
@@ -289,6 +291,42 @@ class IcecastMetadataReader {
     } while (this._remainingData);
 
     return metadataBuffer.pop();
+  }
+
+  *_detectMetadataInterval() {
+    let offset = 0;
+    const search = [..."StreamTitle="].map((char) => char.charCodeAt(0));
+
+    console.log("searching")
+    while (!this._icyMetaInt) {
+      let buffer;
+      // read data
+      while (!buffer) {
+        buffer = yield;
+      }
+
+      console.log("received", buffer.length, offset);
+
+      // append received data
+      const temp = new Uint8Array(this._buffer.length + buffer.length);
+      temp.set(this._buffer, 0);
+      temp.set(buffer, this._buffer.length);
+      this._buffer = temp;
+
+      // search for metadata int
+      initial: for (; offset < this._buffer.length - search.length; offset++) {
+        const sub = this._buffer.subarray(offset, offset + search.length);
+        for (let j = 0; j < search.length; j++) {
+          if (sub[j] !== search[j]) {
+            continue initial;
+          }
+        }
+        // found metadata
+        this._icyMetaInt = offset - 1;
+        console.log(this._icyMetaInt);
+        break;
+      }
+    }
   }
 
   *_getNextValue() {
