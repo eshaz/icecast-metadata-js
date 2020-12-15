@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const MetadataBuffer = require("./MetadataBuffer");
+const AppendableBuffer = require("./AppendableBuffer");
 const Decoder = require("util").TextDecoder || TextDecoder;
 
 class Stats {
@@ -77,21 +77,8 @@ class Stats {
 
 const noOp = () => {};
 const METADATA_DETECTION_TIME = 3000;
-const METADATA_SEARCH = [
-  null,
-  83,
-  116,
-  114,
-  101,
-  97,
-  109,
-  84,
-  105,
-  116,
-  108,
-  101,
-  61,
-]; // StreamTitle=
+// prettier-ignore
+const METADATA_SEARCH = [null,83,116,114,101,97,109,84,105,116,108,101,61]; // StreamTitle=
 
 /**
  * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
@@ -303,19 +290,19 @@ class IcecastMetadataReader {
 
   *_storeMetadata(currentMetadata) {
     // Store any partial metadata updates until a full metadata chunk can be parsed.
-    const metadataBuffer = new MetadataBuffer(
+    const metadataBuffer = new AppendableBuffer(
       this._remainingData + currentMetadata.length
     );
-    metadataBuffer.push(currentMetadata);
+    metadataBuffer.append(currentMetadata);
 
     do {
       const metadata = yield* this._getNextValue();
-      metadataBuffer.push(metadata);
+      metadataBuffer.append(metadata);
 
       this._stats.addMetadataBytes = metadata.length;
     } while (this._remainingData);
 
-    return metadataBuffer.pop();
+    return metadataBuffer.buffer;
   }
 
   *_detectMetadataInterval() {
@@ -328,17 +315,14 @@ class IcecastMetadataReader {
 
     do {
       let data;
-
       // read data
       while (!data) {
         data = yield;
       }
 
-      // append received data
-      const buf = new Uint8Array(this._buffer.length + data.length);
-      buf.set(this._buffer);
-      buf.set(data, this._buffer.length);
-      this._buffer = buf;
+      this._buffer = new AppendableBuffer(this._buffer.length + data.length)
+        .append(this._buffer)
+        .append(data).buffer;
 
       detectMetadata: for (
         let metaInt = this._buffer.length - data.length;
@@ -359,6 +343,7 @@ class IcecastMetadataReader {
       }
     } while (startTime + METADATA_DETECTION_TIME > Date.now());
 
+    // timed-out searching for metadata
     console.warn(
       "icecast-metadata-js",
       "\n  ICY Metadata not detected after searching " +
