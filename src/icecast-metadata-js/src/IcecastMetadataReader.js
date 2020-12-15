@@ -78,6 +78,7 @@ class Stats {
 const noOp = () => {};
 const METADATA_DETECTION_TIME = 3000;
 const METADATA_SEARCH_STRING = [
+  null,
   83,
   116,
   114,
@@ -222,24 +223,27 @@ class IcecastMetadataReader {
   }
 
   *_generator() {
-    if (!this._icyMetaInt) yield* this._detectMetadataInterval();
+    this._icyMetaInt =
+      this._icyMetaInt > 0
+        ? this._icyMetaInt
+        : yield* this._detectMetadataInterval();
 
     if (this._icyMetaInt) {
       do {
-        yield* this._getStream();
+        yield* this._getStream(this._icyMetaInt);
         yield* this._getMetadataLength();
-        this._remainingData && (yield* this._getMetadata());
+        if (this._remainingData) yield* this._getMetadata();
       } while (true);
     } else {
       do {
-        yield* this._getStream();
+        yield* this._getStream(this._buffer.length);
       } while (true);
     }
   }
 
-  *_getStream() {
-    this._remainingData = this._icyMetaInt || this._buffer.length;
-    this._stats.currentStreamBytesRemaining = this._remainingData;
+  *_getStream(remainingData) {
+    this._remainingData = remainingData;
+    this._stats.currentStreamBytesRemaining = remainingData;
 
     do {
       const stream = yield* this._getNextValue();
@@ -320,11 +324,10 @@ class IcecastMetadataReader {
       "\n  Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata." +
         "\n  See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
     );
-
-    let offset = 0;
+    let metadataInterval = 0;
     const searchStart = Date.now();
 
-    detect: while (!this._icyMetaInt) {
+    do {
       let buffer;
 
       // read data
@@ -333,48 +336,49 @@ class IcecastMetadataReader {
       }
 
       // append received data
-      const temp = new Uint8Array(this._buffer.length + buffer.length);
-      temp.set(this._buffer, 0);
-      temp.set(buffer, this._buffer.length);
-      this._buffer = temp;
+      const buf = new Uint8Array(this._buffer.length + buffer.length);
+      buf.set(this._buffer);
+      buf.set(buffer, this._buffer.length);
+      this._buffer = buf;
 
       searchForMetadata: while (
-        offset <
+        metadataInterval <
         this._buffer.length - METADATA_SEARCH_STRING.length
       ) {
-        for (let i = 0; i < METADATA_SEARCH_STRING.length; i++) {
-          if (this._buffer[i + offset] !== METADATA_SEARCH_STRING[i]) {
-            offset++;
+        for (let i = 1; i < METADATA_SEARCH_STRING.length; i++) {
+          if (
+            this._buffer[i + metadataInterval] !== METADATA_SEARCH_STRING[i]
+          ) {
+            metadataInterval++;
             continue searchForMetadata;
           }
         }
 
         // found metadata
-        this._icyMetaInt = offset - 1;
         console.warn(
           "icecast-metadata-js",
-          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${this._icyMetaInt}.`
+          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${
+            metadataInterval
+          }.`
         );
-        break detect;
+        return metadataInterval;
       }
+    } while (searchStart + METADATA_DETECTION_TIME > Date.now());
 
-      if (searchStart + METADATA_DETECTION_TIME < Date.now()) {
-        console.warn(
-          "icecast-metadata-js",
-          `\n  ICY Metadata not detected after searching ${
-            this._buffer.length
-          } bytes for ${
-            (Date.now() - searchStart) / 1000
-          } seconds. Continuing without metadata updates.`
-        );
-        this._icyMetaInt = 0;
-        break detect;
-      }
-    }
+    console.warn(
+      "icecast-metadata-js",
+      "\n  ICY Metadata not detected after searching " +
+        this._buffer.length +
+        " bytes for " +
+        (Date.now() - searchStart) / 1000 +
+        " seconds." +
+        "\n  Assuming stream does not contain ICY metadata. Audio errors will occur if there is ICY metadata."
+    );
+    return 0;
   }
 
   *_getNextValue() {
-    while (!this._buffer || this._currentPosition === this._buffer.length) {
+    while (this._currentPosition === this._buffer.length) {
       this._buffer = yield; // if out of data, accept new data in the .next() call
       this._currentPosition = 0;
       this._stats.currentBytesRemaining = this._buffer.length;
