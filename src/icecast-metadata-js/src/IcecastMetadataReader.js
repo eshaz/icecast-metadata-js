@@ -76,6 +76,21 @@ class Stats {
 }
 
 const noOp = () => {};
+const METADATA_DETECTION_TIME = 3000;
+const METADATA_SEARCH_STRING = [
+  83,
+  116,
+  114,
+  101,
+  97,
+  109,
+  84,
+  105,
+  116,
+  108,
+  101,
+  61,
+]; // StreamTitle=
 
 /**
  * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
@@ -207,18 +222,24 @@ class IcecastMetadataReader {
   }
 
   *_generator() {
-    yield* this._detectMetadataInterval();
+    if (!this._icyMetaInt) yield* this._detectMetadataInterval();
 
-    do {
-      yield* this._getStream();
-      yield* this._getMetadataLength();
-      this._remainingData && (yield* this._getMetadata());
-    } while (true);
+    if (this._icyMetaInt) {
+      do {
+        yield* this._getStream();
+        yield* this._getMetadataLength();
+        this._remainingData && (yield* this._getMetadata());
+      } while (true);
+    } else {
+      do {
+        yield* this._getStream();
+      } while (true);
+    }
   }
 
   *_getStream() {
-    this._remainingData = this._icyMetaInt;
-    this._stats.currentStreamBytesRemaining = this._icyMetaInt;
+    this._remainingData = this._icyMetaInt || this._buffer.length;
+    this._stats.currentStreamBytesRemaining = this._remainingData;
 
     do {
       const stream = yield* this._getNextValue();
@@ -294,18 +315,22 @@ class IcecastMetadataReader {
   }
 
   *_detectMetadataInterval() {
-    let offset = 0;
-    const search = [..."StreamTitle="].map((char) => char.charCodeAt(0));
+    console.warn(
+      "icecast-metadata-js",
+      "\n  Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata." +
+        "\n  See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
+    );
 
-    console.log("searching")
-    while (!this._icyMetaInt) {
+    let offset = 0;
+    const searchStart = Date.now();
+
+    detect: while (!this._icyMetaInt) {
       let buffer;
+
       // read data
       while (!buffer) {
         buffer = yield;
       }
-
-      console.log("received", buffer.length, offset);
 
       // append received data
       const temp = new Uint8Array(this._buffer.length + buffer.length);
@@ -313,18 +338,37 @@ class IcecastMetadataReader {
       temp.set(buffer, this._buffer.length);
       this._buffer = temp;
 
-      // search for metadata int
-      initial: for (; offset < this._buffer.length - search.length; offset++) {
-        const sub = this._buffer.subarray(offset, offset + search.length);
-        for (let j = 0; j < search.length; j++) {
-          if (sub[j] !== search[j]) {
-            continue initial;
+      searchForMetadata: while (
+        offset <
+        this._buffer.length - METADATA_SEARCH_STRING.length
+      ) {
+        for (let i = 0; i < METADATA_SEARCH_STRING.length; i++) {
+          if (this._buffer[i + offset] !== METADATA_SEARCH_STRING[i]) {
+            offset++;
+            continue searchForMetadata;
           }
         }
+
         // found metadata
         this._icyMetaInt = offset - 1;
-        console.log(this._icyMetaInt);
-        break;
+        console.warn(
+          "icecast-metadata-js",
+          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${this._icyMetaInt}.`
+        );
+        break detect;
+      }
+
+      if (searchStart + METADATA_DETECTION_TIME < Date.now()) {
+        console.warn(
+          "icecast-metadata-js",
+          `\n  ICY Metadata not detected after searching ${
+            this._buffer.length
+          } bytes for ${
+            (Date.now() - searchStart) / 1000
+          } seconds. Continuing without metadata updates.`
+        );
+        this._icyMetaInt = 0;
+        break detect;
       }
     }
   }
