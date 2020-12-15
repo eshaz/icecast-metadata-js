@@ -210,22 +210,21 @@ class IcecastMetadataReader {
   }
 
   *_generator() {
-    this._icyMetaInt =
-      this._icyMetaInt > 0
-        ? this._icyMetaInt
-        : yield* this._detectMetadataInterval();
+    if (!(this._icyMetaInt > 0)) {
+      this._icyMetaInt = yield* this._detectMetadataInterval();
 
-    if (this._icyMetaInt) {
-      do {
-        yield* this._getStream(this._icyMetaInt);
-        yield* this._getMetadataLength();
-        if (this._remainingData) yield* this._getMetadata();
-      } while (true);
-    } else {
-      do {
-        yield* this._getStream(this._buffer.length);
-      } while (true);
+      if (!this._icyMetaInt) {
+        do {
+          yield* this._getStream(this._buffer.length);
+        } while (true);
+      }
     }
+
+    do {
+      yield* this._getStream(this._icyMetaInt);
+      yield* this._getMetadataLength();
+      if (this._remainingData) yield* this._getMetadata();
+    } while (true);
   }
 
   *_getStream(remainingData) {
