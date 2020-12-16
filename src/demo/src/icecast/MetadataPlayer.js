@@ -108,6 +108,7 @@ export default class MetadataPlayer {
         this._isInitialMetadata = true;
 
         await new IcecastReadableStream(res, {
+          icyDetectionTimeout: 6000,
           onStream: this._onStream,
           onMetadata: (value) => {
             this._isInitialMetadata

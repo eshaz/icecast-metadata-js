@@ -94,14 +94,20 @@ const noOp = () => {};
  * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
  */
 class IcecastMetadataReader {
-  constructor({ icyMetaInt, onStream = noOp, onMetadata = noOp }) {
-    this._icyMetaInt = icyMetaInt;
+  constructor({
+    icyMetaInt,
+    icyDetectionTimeout = 2000,
+    onStream = noOp,
+    onMetadata = noOp,
+  }) {
     this._remainingData = 0;
     this._currentPosition = 0;
     this._buffer = new Uint8Array(0);
     this._stats = new Stats();
     this._decoder = new Decoder("utf-8");
 
+    this._icyMetaInt = icyMetaInt;
+    this._icyDetectionTimeout = icyDetectionTimeout;
     this._onStream = onStream;
     this._onMetadata = onMetadata;
     this._onStreamPromise = Promise.resolve();
@@ -222,6 +228,7 @@ class IcecastMetadataReader {
 
   *_hasIcyMetadata() {
     if (this._icyMetaInt > 0) return true;
+    if (!this._icyDetectionTimeout) return false;
 
     console.warn(
       "icecast-metadata-js",
@@ -231,10 +238,9 @@ class IcecastMetadataReader {
 
     // prettier-ignore
     const METADATA_SEARCH = [null,83,116,114,101,97,109,84,105,116,108,101,61]; // StreamTitle=
-    const METADATA_DETECTION_TIME = 6000; // Timeout for detecting metadata
     const startTime = Date.now();
 
-    do {
+    while (startTime + this._icyDetectionTimeout > Date.now()) {
       let data;
       // read data
       while (!data) {
@@ -264,7 +270,7 @@ class IcecastMetadataReader {
         this._icyMetaInt = metaInt;
         return true;
       }
-    } while (startTime + METADATA_DETECTION_TIME > Date.now());
+    }
 
     // prettier-ignore
     console.warn(
