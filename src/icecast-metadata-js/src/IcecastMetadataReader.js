@@ -76,9 +76,6 @@ class Stats {
 }
 
 const noOp = () => {};
-const METADATA_DETECTION_TIME = 3000;
-// prettier-ignore
-const METADATA_SEARCH = [null,83,116,114,101,97,109,84,105,116,108,101,61]; // StreamTitle=
 
 /**
  * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
@@ -210,21 +207,72 @@ class IcecastMetadataReader {
   }
 
   *_generator() {
-    if (!(this._icyMetaInt > 0)) {
-      this._icyMetaInt = yield* this._detectMetadataInterval();
-
-      if (!this._icyMetaInt) {
-        do {
-          yield* this._getStream(this._buffer.length);
-        } while (true);
-      }
+    if (yield* this._hasIcyMetadata()) {
+      do {
+        yield* this._getStream(this._icyMetaInt);
+        yield* this._getMetadataLength();
+        if (this._remainingData) yield* this._getMetadata();
+      } while (true);
     }
 
     do {
-      yield* this._getStream(this._icyMetaInt);
-      yield* this._getMetadataLength();
-      if (this._remainingData) yield* this._getMetadata();
+      yield* this._getStream(this._buffer.length);
     } while (true);
+  }
+
+  *_hasIcyMetadata() {
+    if (this._icyMetaInt > 0) return true;
+
+    console.warn(
+      "icecast-metadata-js",
+      "\n  Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.",
+      "\n  See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
+    );
+
+    // prettier-ignore
+    const METADATA_SEARCH = [null,83,116,114,101,97,109,84,105,116,108,101,61]; // StreamTitle=
+    const METADATA_DETECTION_TIME = 6000; // Timeout for detecting metadata
+    const startTime = Date.now();
+
+    do {
+      let data;
+      // read data
+      while (!data) {
+        data = yield;
+      }
+
+      this._buffer = new AppendableBuffer(this._buffer.length + data.length)
+        .append(this._buffer)
+        .append(data).buffer;
+
+      // search for metadata
+      detectMetadata: for (
+        let metaInt = this._buffer.length - data.length;
+        metaInt < this._buffer.length - METADATA_SEARCH.length;
+        metaInt++
+      ) {
+        for (let i = 1; i < METADATA_SEARCH.length; i++) {
+          if (this._buffer[i + metaInt] !== METADATA_SEARCH[i])
+            continue detectMetadata;
+        }
+
+        // found metadata
+        console.warn(
+          "icecast-metadata-js",
+          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${metaInt}.`
+        );
+        this._icyMetaInt = metaInt;
+        return true;
+      }
+    } while (startTime + METADATA_DETECTION_TIME > Date.now());
+
+    // prettier-ignore
+    console.warn(
+      "icecast-metadata-js",
+      `\n  ICY Metadata not detected after searching ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`,
+      "\n  Assuming stream does not contain ICY metadata. Audio errors will occur if there is ICY metadata."
+    );
+    return false;
   }
 
   *_getStream(remainingData) {
@@ -302,57 +350,6 @@ class IcecastMetadataReader {
     } while (this._remainingData);
 
     return metadataBuffer.buffer;
-  }
-
-  *_detectMetadataInterval() {
-    console.warn(
-      "icecast-metadata-js",
-      "\n  Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata." +
-        "\n  See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
-    );
-    const startTime = Date.now();
-
-    do {
-      let data;
-      // read data
-      while (!data) {
-        data = yield;
-      }
-
-      this._buffer = new AppendableBuffer(this._buffer.length + data.length)
-        .append(this._buffer)
-        .append(data).buffer;
-
-      detectMetadata: for (
-        let metaInt = this._buffer.length - data.length;
-        metaInt < this._buffer.length - METADATA_SEARCH.length;
-        metaInt++
-      ) {
-        for (let i = 1; i < METADATA_SEARCH.length; i++) {
-          if (this._buffer[i + metaInt] !== METADATA_SEARCH[i])
-            continue detectMetadata;
-        }
-
-        // found metadata
-        console.warn(
-          "icecast-metadata-js",
-          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${metaInt}.`
-        );
-        return metaInt;
-      }
-    } while (startTime + METADATA_DETECTION_TIME > Date.now());
-
-    // timed-out searching for metadata
-    console.warn(
-      "icecast-metadata-js",
-      "\n  ICY Metadata not detected after searching " +
-        this._buffer.length +
-        " bytes for " +
-        (Date.now() - startTime) / 1000 +
-        " seconds." +
-        "\n  Assuming stream does not contain ICY metadata. Audio errors will occur if there is ICY metadata."
-    );
-    return 0;
   }
 
   *_getNextValue() {
