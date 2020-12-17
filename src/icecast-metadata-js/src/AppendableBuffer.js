@@ -29,6 +29,20 @@ class AppendableBuffer {
     this._length = 0;
   }
 
+  /**
+   * @description Concatenates passed in buffers and returns a single buffer
+   * @param  {...Uint8Array} buffers
+   * @static
+   */
+  static appendBuffers(...buffers) {
+    return buffers.reduce(
+      (acc, buffer) => acc.append(buffer),
+      new AppendableBuffer(
+        buffers.reduce((acc, buffer) => acc + buffer.length, 0)
+      )
+    ).buffer;
+  }
+
   get length() {
     return this._length;
   }

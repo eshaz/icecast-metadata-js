@@ -62,8 +62,8 @@ class Stats {
     this._currentBytesRemaining -= bytes;
   }
 
-  set currentBytesRemaining(bytes) {
-    this._currentBytesRemaining = bytes;
+  set addCurrentBytesRemaining(bytes) {
+    this._currentBytesRemaining += bytes;
   }
 
   set currentStreamBytesRemaining(bytes) {
@@ -99,7 +99,7 @@ class IcecastMetadataReader {
     icyDetectionTimeout = 2000,
     onStream = noOp,
     onMetadata = noOp,
-  }) {
+  } = {}) {
     this._remainingData = 0;
     this._currentPosition = 0;
     this._buffer = new Uint8Array(0);
@@ -239,27 +239,24 @@ class IcecastMetadataReader {
     // prettier-ignore
     const METADATA_SEARCH = [null,83,116,114,101,97,109,84,105,116,108,101,61]; // StreamTitle=
     const startTime = Date.now();
+    let metaInt = 0;
 
     while (startTime + this._icyDetectionTimeout > Date.now()) {
-      let data;
-      // read data
-      while (!data) {
-        data = yield;
-      }
-
-      this._buffer = new AppendableBuffer(this._buffer.length + data.length)
-        .append(this._buffer)
-        .append(data).buffer;
+      this._buffer = AppendableBuffer.appendBuffers(
+        this._buffer,
+        yield* this._readData()
+      );
 
       // search for metadata
-      detectMetadata: for (
-        let metaInt = this._buffer.length - data.length;
-        metaInt < this._buffer.length - METADATA_SEARCH.length;
-        metaInt++
+      detectMetadata: while (
+        metaInt <
+        this._buffer.length - METADATA_SEARCH.length
       ) {
         for (let i = 1; i < METADATA_SEARCH.length; i++) {
-          if (this._buffer[i + metaInt] !== METADATA_SEARCH[i])
+          if (this._buffer[i + metaInt] !== METADATA_SEARCH[i]) {
+            metaInt++;
             continue detectMetadata;
+          }
         }
 
         // found metadata
@@ -345,8 +342,7 @@ class IcecastMetadataReader {
     // Store any partial metadata updates until a full metadata chunk can be parsed.
     const metadataBuffer = new AppendableBuffer(
       this._remainingData + currentMetadata.length
-    );
-    metadataBuffer.append(currentMetadata);
+    ).append(currentMetadata);
 
     do {
       const metadata = yield* this._getNextValue();
@@ -359,10 +355,9 @@ class IcecastMetadataReader {
   }
 
   *_getNextValue() {
-    while (this._currentPosition === this._buffer.length) {
-      this._buffer = yield; // if out of data, accept new data in the .next() call
+    if (this._currentPosition === this._buffer.length) {
+      this._buffer = yield* this._readData();
       this._currentPosition = 0;
-      this._stats.currentBytesRemaining = this._buffer.length;
     }
     const value = this._buffer.subarray(
       this._currentPosition,
@@ -373,6 +368,17 @@ class IcecastMetadataReader {
     this._currentPosition += value.length;
 
     return value;
+  }
+
+  *_readData() {
+    let data;
+
+    do {
+      data = yield; // if out of data, accept new data in the .next() call
+    } while (!data || data.length === 0);
+
+    this._stats.addCurrentBytesRemaining = data.length;
+    return data;
   }
 }
 
