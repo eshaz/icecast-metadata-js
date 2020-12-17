@@ -283,10 +283,12 @@ class IcecastMetadataReader {
     this._stats.currentStreamBytesRemaining = remainingData;
 
     do {
-      const stream = yield* this._getNextValue();
-      this._stats.addStreamBytes = stream.length;
+      const streamPayload = {
+        stream: yield* this._getNextValue(),
+        stats: this._stats.stats,
+      };
 
-      const streamPayload = { stream, stats: this._stats.stats };
+      this._stats.addStreamBytes = streamPayload.stream.length;
       /**
        * Stream callback.
        *
@@ -314,15 +316,19 @@ class IcecastMetadataReader {
   *_getMetadata() {
     this._stats.currentMetadataBytesRemaining = this._remainingData;
 
-    let metadata = yield* this._getNextValue();
-    this._stats.addMetadataBytes = metadata.length;
+    const metadataBuffer = new AppendableBuffer(this._remainingData);
 
-    if (this._remainingData) metadata = yield* this._storeMetadata(metadata);
+    do {
+      metadataBuffer.append(yield* this._getNextValue());
+    } while (this._remainingData); // store any partial metadata updates
+
+    this._stats.addMetadataBytes = metadataBuffer.length;
 
     const metadataPayload = {
-      metadata: this.parseMetadata(metadata),
+      metadata: this.parseMetadata(metadataBuffer.buffer),
       stats: this._stats.stats,
     };
+
     /**
      * Metadata callback.
      *
@@ -336,22 +342,6 @@ class IcecastMetadataReader {
     this._onMetadataPromise = this._onMetadata(metadataPayload);
 
     yield metadataPayload;
-  }
-
-  *_storeMetadata(currentMetadata) {
-    // Store any partial metadata updates until a full metadata chunk can be parsed.
-    const metadataBuffer = new AppendableBuffer(
-      this._remainingData + currentMetadata.length
-    ).append(currentMetadata);
-
-    do {
-      const metadata = yield* this._getNextValue();
-      metadataBuffer.append(metadata);
-
-      this._stats.addMetadataBytes = metadata.length;
-    } while (this._remainingData);
-
-    return metadataBuffer.buffer;
   }
 
   *_getNextValue() {
