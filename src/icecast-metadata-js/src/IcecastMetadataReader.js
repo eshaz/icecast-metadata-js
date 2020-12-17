@@ -80,6 +80,7 @@ const noOp = () => {};
 /**
  * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
  * @param {number} icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
+ * @param {number} icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
  *
  * @callback onMetadata
  * @param {object} value Object containing Metadata and Statistics
@@ -283,22 +284,12 @@ class IcecastMetadataReader {
     this._stats.currentStreamBytesRemaining = remainingData;
 
     do {
-      const streamPayload = {
-        stream: yield* this._getNextValue(),
-        stats: this._stats.stats,
-      };
+      const stream = yield* this._getNextValue();
+      this._stats.addStreamBytes = stream.length;
 
-      this._stats.addStreamBytes = streamPayload.stream.length;
-      /**
-       * Stream callback.
-       *
-       * @callback onStream
-       * @type {object}
-       * @property {Uint8Array} stream Stream bytes.
-       * @property {object} stats Statistics on bytes read.
-       */
+      const streamPayload = { stream, stats: this._stats.stats };
+
       this._onStreamPromise = this._onStream(streamPayload);
-
       yield streamPayload;
     } while (this._remainingData);
   }
@@ -315,7 +306,6 @@ class IcecastMetadataReader {
 
   *_getMetadata() {
     this._stats.currentMetadataBytesRemaining = this._remainingData;
-
     const metadataBuffer = new AppendableBuffer(this._remainingData);
 
     do {
@@ -329,18 +319,7 @@ class IcecastMetadataReader {
       stats: this._stats.stats,
     };
 
-    /**
-     * Metadata callback.
-     *
-     * @callback onMetadata
-     * @type {object}
-     * @property {object} metadata Metadata key value pairs..
-     * @param {property} [metadata.StreamTitle] Title of the metadata update.
-     * @param {property} [metadata.StreamUrl] Url (usually album art) of the metadata update.
-     * @property {object} stats Statistics on bytes read.
-     */
     this._onMetadataPromise = this._onMetadata(metadataPayload);
-
     yield metadataPayload;
   }
 

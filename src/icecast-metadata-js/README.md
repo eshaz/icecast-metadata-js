@@ -24,8 +24,9 @@ A generator that takes in raw icecast response data and return stream data and m
 ### Usage
 
 1. To use `IcecastMetadataReader`, create a new instance with the `Icy-MetaInt` header from the Icecast response as well as the optional `onStream` and `onMetadata` callbacks.
+   * If `icyMetaInt` is falsy, for example if the CORS policy does not allow clients to read the `Icy-MetaInt` header, then `IcecastMetadataReader` will attempt to detect the metadata interval based on the incoming request data.
 
-   *Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to    enable metadata.*
+   *The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to enable ICY metadata.*
    
    <pre>
    const headers = myHTTPResponse.headers;
@@ -108,8 +109,19 @@ A generator that takes in raw icecast response data and return stream data and m
 
 ### Methods
 
-`const icecastReader = new IcecastMetadataReader({metaInt, onStream, onMetadata})`
+`const icecastReader = new IcecastMetadataReader({icyMetaInt, onStream, onMetadata})`
 
+* `new IcecastMetadataReader({icyMetaInt, icyDetectionTimeout, onStream, onMetadata})`
+  * `icyMetaInt`
+    * ICY Metadata interval read from `Icy-MetaInt` header in the response
+  * `icyDetectionTimeout`
+    * Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
+    * Set to `0` to disable metadata detection
+    * default: `2000`
+  * `onStream`
+    * Async callback when stream data is returned
+  * `onMetadata`
+    * Async callback when stream data is returned
 * `icecastReader.iterator(data: Uint8Array)`
   * Takes in a byte array of raw icecast response body
   * Returns an Iterator that can be used in a `for ...of` loop to read stream or metadata
@@ -240,7 +252,7 @@ A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable st
    </pre>
 
 ### Methods
-`const icecastStream = new IcecastMetadataStream({icyBr, icyMetaInt})`
+`const icecastStream = new IcecastMetadataStream({icyBr, icyMetaInt, icyDetectionTimeout})`
 
 * `icecastStream.stream`
   * Gets the Readable for `stream` data
@@ -261,7 +273,7 @@ A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadable
     Notes: 
     * The GET request to the Icecast server must contain the `Icy-Metadata: 1` header to enable metadata.
       * CORS must allow the `Icy-Metadata` header. Without this header, metadata is not returned in the Icecast response.
-    * An invalid CORS policy on the Icecast server may prevent the `Icy-MetaInt` header from being read. To work around this, manually determine the metadata interval and pass it into the `icyMetaInt` option
+    * An inadequate CORS policy on the Icecast server may prevent the `Icy-MetaInt` header from being read. To work around this, `IcecastMetadataReader` will attempt to detect the metadata interval. Alternatively, the metadata interval can be manually determined an passed into the `icyMetaInt` option.
     * See the [Troublshooting](#troublshooting) section for more information on CORS.
    
     <pre>
@@ -286,8 +298,13 @@ A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadable
     </pre>
 
 ### Methods
-`const icecastReadable = new IcecastReadableStream(fetchResponse, {icyMetaInt, onStream, onMetadata})`
+`const icecastReadable = new IcecastReadableStream(fetchResponse, options)`
 
+* `new IcecastReadableStream(fetchResponse, options)`
+  * `fetchResponse`
+    * Response object from the `fetch` API
+  * `options`
+    * See the constructor parameters for `IcecastMetadataReader`
 * `icecastStream.startReading`
   * Starts reading and parsing the response. Resolves once response had ended.
   * `onStream` is called and awaited when stream data is discovered
