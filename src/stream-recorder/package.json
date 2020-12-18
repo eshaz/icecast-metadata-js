@@ -27,7 +27,7 @@
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
-    "icecast-metadata-js": "^0.0.2",
+    "icecast-metadata-js": "0.1.1",
     "abort-controller": "^3.0.0",
     "cron-parser": "^2.16.3",
     "node-fetch": "^2.6.1",
