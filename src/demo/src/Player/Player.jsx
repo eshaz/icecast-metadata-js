@@ -27,7 +27,7 @@ const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
   const play = useCallback(() => {
     onMetadataUpdate(LOADING);
     setIsPlaying(true);
-    metadataPlayer.play(station.endpoint, station.metaInt);
+    metadataPlayer.play(station.endpoint);
   }, [onMetadataUpdate, metadataPlayer, station]);
 
   const stop = useCallback(() => {

@@ -23,27 +23,39 @@ const bufferFunction = Buffer
 /**
  * @description Stores a collection of buffers as an array.
  */
-class MetadataBuffer {
+class AppendableBuffer {
   constructor(expectedLength) {
     this._buffer = bufferFunction(expectedLength);
     this._length = 0;
+  }
+
+  /**
+   * @description Concatenates passed in buffers and returns a single buffer
+   * @param  {...Uint8Array} buffers
+   * @static
+   */
+  static appendBuffers(...buffers) {
+    return buffers.reduce(
+      (acc, buffer) => acc.append(buffer),
+      new AppendableBuffer(
+        buffers.reduce((acc, buffer) => acc + buffer.length, 0)
+      )
+    ).buffer;
   }
 
   get length() {
     return this._length;
   }
 
-  /**
-   * @type {Uint8Array} Returns all stored data
-   */
-  pop() {
+  get buffer() {
     return this._buffer;
   }
 
-  push(data) {
+  append(data) {
     this._buffer.set(data, this._length);
     this._length += data.length;
+    return this;
   }
 }
 
-module.exports = MetadataBuffer;
+module.exports = AppendableBuffer;

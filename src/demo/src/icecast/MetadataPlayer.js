@@ -99,7 +99,7 @@ export default class MetadataPlayer {
     }
   }
 
-  play(endpoint, icyMetaInt) {
+  play(endpoint) {
     this._playing = true;
 
     this.fetchStream(endpoint)
@@ -108,7 +108,7 @@ export default class MetadataPlayer {
         this._isInitialMetadata = true;
 
         await new IcecastReadableStream(res, {
-          icyMetaInt,
+          icyDetectionTimeout: 6000,
           onStream: this._onStream,
           onMetadata: (value) => {
             this._isInitialMetadata

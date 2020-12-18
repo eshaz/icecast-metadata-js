@@ -692,4 +692,135 @@ describe("Icecast Metadata Reader", () => {
       });
     });
   });
+
+  describe("Detecting Metadata", () => {
+    const warn = console.warn;
+    beforeAll(() => {
+      console.warn = jest.fn();
+    });
+
+    afterAll(() => {
+      console.warn = warn;
+    });
+
+    const expectMetadata = (metadata, firstStats, secondStats) => {
+      expect(metadata.length).toEqual(2);
+      expect(metadata[0]).toEqual({
+        metadata: {
+          StreamTitle: "Djivan Gasparyan - Brother Hunter",
+          StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
+        },
+        stats: {
+          metadataBytesRead: 112,
+          streamBytesRead: 16000,
+          totalBytesRead: 16113,
+          ...firstStats,
+        },
+      });
+      expect(metadata[1]).toEqual({
+        metadata: {
+          StreamTitle:
+            "Harold Budd & John Foxx - Some Way Through All The Cities",
+          StreamUrl: "http://somafm.com/logos/512/dronezone512.png",
+        },
+        stats: {
+          metadataBytesRead: 256,
+          streamBytesRead: 6224000,
+          totalBytesRead: 6224645,
+          ...secondStats,
+        },
+      });
+    };
+
+    it("should detect the metadata and return the correct audio given it is read in chunks smaller than the metaint", () => {
+      const reader = new IcecastMetadataReader();
+      const returnedValues = readChunks(reader, raw256k, 15999);
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expectMetadata(
+        returnedValues.metadata,
+        {
+          currentBytesRemaining: 15885,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 1,
+        },
+        {
+          currentBytesRemaining: 14965,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 389,
+        }
+      );
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+    });
+
+    it("should detect the metadata and return the correct audio given it is read in chunks larger than the metaint", () => {
+      const reader = new IcecastMetadataReader();
+      const returnedValues = readChunks(reader, raw256k, 16001);
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expectMetadata(
+        returnedValues.metadata,
+        {
+          currentBytesRemaining: 15889,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 1,
+        },
+        {
+          currentBytesRemaining: 15745,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 389,
+        }
+      );
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+    });
+
+    it("should detect the metadata and return the correct audio given it is read in chunks of equal size to the metaint", () => {
+      const reader = new IcecastMetadataReader();
+      const returnedValues = readChunks(reader, raw256k, 16000);
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expectMetadata(
+        returnedValues.metadata,
+        {
+          currentBytesRemaining: 15887,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 1,
+        },
+        {
+          currentBytesRemaining: 15355,
+          currentMetadataBytesRemaining: 0,
+          currentStreamBytesRemaining: 0,
+          metadataLengthBytesRead: 389,
+        }
+      );
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+    });
+
+    it("should detect the metadata and return the correct audio given it is read in chunks of random size", () => {
+      const reader = new IcecastMetadataReader();
+      const returnedValues = readChunks(
+        reader,
+        raw256k,
+        Math.floor(Math.random() * 30000)
+      );
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+    });
+
+    it("should detect the metadata and return the correct audio given it is read in chunks of 1 size", () => {
+      const reader = new IcecastMetadataReader();
+      const returnedValues = readChunks(reader, raw16k, 10);
+
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expect(returnedValues.metadata.length).toEqual(259);
+      expect(Buffer.compare(returnedAudio, expected16k)).toBeFalsy();
+    });
+  });
 });

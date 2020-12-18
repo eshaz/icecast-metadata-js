@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const MetadataBuffer = require("./MetadataBuffer");
+const AppendableBuffer = require("./AppendableBuffer");
 const Decoder = require("util").TextDecoder || TextDecoder;
 
 class Stats {
@@ -42,36 +42,36 @@ class Stats {
     };
   }
 
-  set addStreamBytes(bytes) {
-    this._streamBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentStreamBytesRemaining -= bytes;
-    this._currentBytesRemaining -= bytes;
-  }
-
-  set addMetadataLengthBytes(bytes) {
-    this._metadataLengthBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentBytesRemaining -= bytes;
-  }
-
-  set addMetadataBytes(bytes) {
-    this._metadataBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentMetadataBytesRemaining -= bytes;
-    this._currentBytesRemaining -= bytes;
-  }
-
-  set currentBytesRemaining(bytes) {
-    this._currentBytesRemaining = bytes;
-  }
-
   set currentStreamBytesRemaining(bytes) {
     this._currentStreamBytesRemaining = bytes;
   }
 
   set currentMetadataBytesRemaining(bytes) {
     this._currentMetadataBytesRemaining = bytes;
+  }
+
+  addStreamBytes(bytes) {
+    this._streamBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentStreamBytesRemaining -= bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  addMetadataLengthBytes(bytes) {
+    this._metadataLengthBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  addMetadataBytes(bytes) {
+    this._metadataBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentMetadataBytesRemaining -= bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  addCurrentBytesRemaining(bytes) {
+    this._currentBytesRemaining += bytes;
   }
 }
 
@@ -80,6 +80,7 @@ const noOp = () => {};
 /**
  * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
  * @param {number} icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
+ * @param {number} icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
  *
  * @callback onMetadata
  * @param {object} value Object containing Metadata and Statistics
@@ -94,14 +95,20 @@ const noOp = () => {};
  * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
  */
 class IcecastMetadataReader {
-  constructor({ icyMetaInt, onStream = noOp, onMetadata = noOp }) {
-    this._icyMetaInt = icyMetaInt;
+  constructor({
+    icyMetaInt,
+    icyDetectionTimeout = 2000,
+    onStream = noOp,
+    onMetadata = noOp,
+  } = {}) {
     this._remainingData = 0;
     this._currentPosition = 0;
-    this._buffer = null;
+    this._buffer = new Uint8Array(0);
     this._stats = new Stats();
     this._decoder = new Decoder("utf-8");
 
+    this._icyMetaInt = icyMetaInt;
+    this._icyDetectionTimeout = icyDetectionTimeout;
     this._onStream = onStream;
     this._onMetadata = onMetadata;
     this._onStreamPromise = Promise.resolve();
@@ -207,32 +214,82 @@ class IcecastMetadataReader {
   }
 
   *_generator() {
+    if (yield* this._hasIcyMetadata()) {
+      do {
+        yield* this._getStream(this._icyMetaInt);
+        yield* this._getMetadataLength();
+        if (this._remainingData) yield* this._getMetadata();
+      } while (true);
+    }
+
     do {
-      yield* this._getStream();
-      yield* this._getMetadataLength();
-      this._remainingData && (yield* this._getMetadata());
+      yield* this._getStream(this._buffer.length);
     } while (true);
   }
 
-  *_getStream() {
-    this._remainingData = this._icyMetaInt;
-    this._stats.currentStreamBytesRemaining = this._icyMetaInt;
+  *_hasIcyMetadata() {
+    if (this._icyMetaInt > 0) return true;
+    if (!this._icyDetectionTimeout) return false;
+
+    console.warn(
+      "icecast-metadata-js",
+      "\n  Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.",
+      "\n  See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
+    );
+
+    // prettier-ignore
+    const METADATA_SEARCH = [null,83,116,114,101,97,109,84,105,116,108,101,61]; // StreamTitle=
+    const startTime = Date.now();
+    let metaInt = 0;
+
+    while (startTime + this._icyDetectionTimeout > Date.now()) {
+      this._buffer = AppendableBuffer.appendBuffers(
+        this._buffer,
+        yield* this._readData()
+      );
+
+      // search for metadata
+      detectMetadata: while (
+        metaInt <
+        this._buffer.length - METADATA_SEARCH.length
+      ) {
+        for (let i = 1; i < METADATA_SEARCH.length; i++) {
+          if (this._buffer[i + metaInt] !== METADATA_SEARCH[i]) {
+            metaInt++;
+            continue detectMetadata;
+          }
+        }
+
+        // found metadata
+        console.warn(
+          "icecast-metadata-js",
+          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${metaInt}.`
+        );
+        this._icyMetaInt = metaInt;
+        return true;
+      }
+    }
+
+    // prettier-ignore
+    console.warn(
+      "icecast-metadata-js",
+      `\n  ICY Metadata not detected after searching ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`,
+      "\n  Assuming stream does not contain ICY metadata. Audio errors will occur if there is ICY metadata."
+    );
+    return false;
+  }
+
+  *_getStream(remainingData) {
+    this._remainingData = remainingData;
+    this._stats.currentStreamBytesRemaining = remainingData;
 
     do {
       const stream = yield* this._getNextValue();
-      this._stats.addStreamBytes = stream.length;
+      this._stats.addStreamBytes(stream.length);
 
       const streamPayload = { stream, stats: this._stats.stats };
-      /**
-       * Stream callback.
-       *
-       * @callback onStream
-       * @type {object}
-       * @property {Uint8Array} stream Stream bytes.
-       * @property {object} stats Statistics on bytes read.
-       */
-      this._onStreamPromise = this._onStream(streamPayload);
 
+      this._onStreamPromise = this._onStream(streamPayload);
       yield streamPayload;
     } while (this._remainingData);
   }
@@ -244,58 +301,32 @@ class IcecastMetadataReader {
       this._remainingData = (yield* this._getNextValue())[0] * 16;
     } while (this._remainingData === 1);
 
-    this._stats.addMetadataLengthBytes = 1;
+    this._stats.addMetadataLengthBytes(1);
   }
 
   *_getMetadata() {
     this._stats.currentMetadataBytesRemaining = this._remainingData;
+    const metadataBuffer = new AppendableBuffer(this._remainingData);
 
-    let metadata = yield* this._getNextValue();
-    this._stats.addMetadataBytes = metadata.length;
+    do {
+      metadataBuffer.append(yield* this._getNextValue());
+    } while (this._remainingData); // store any partial metadata updates
 
-    if (this._remainingData) metadata = yield* this._storeMetadata(metadata);
+    this._stats.addMetadataBytes(metadataBuffer.length);
 
     const metadataPayload = {
-      metadata: this.parseMetadata(metadata),
+      metadata: this.parseMetadata(metadataBuffer.buffer),
       stats: this._stats.stats,
     };
-    /**
-     * Metadata callback.
-     *
-     * @callback onMetadata
-     * @type {object}
-     * @property {object} metadata Metadata key value pairs..
-     * @param {property} [metadata.StreamTitle] Title of the metadata update.
-     * @param {property} [metadata.StreamUrl] Url (usually album art) of the metadata update.
-     * @property {object} stats Statistics on bytes read.
-     */
-    this._onMetadataPromise = this._onMetadata(metadataPayload);
 
+    this._onMetadataPromise = this._onMetadata(metadataPayload);
     yield metadataPayload;
   }
 
-  *_storeMetadata(currentMetadata) {
-    // Store any partial metadata updates until a full metadata chunk can be parsed.
-    const metadataBuffer = new MetadataBuffer(
-      this._remainingData + currentMetadata.length
-    );
-    metadataBuffer.push(currentMetadata);
-
-    do {
-      const metadata = yield* this._getNextValue();
-      metadataBuffer.push(metadata);
-
-      this._stats.addMetadataBytes = metadata.length;
-    } while (this._remainingData);
-
-    return metadataBuffer.pop();
-  }
-
   *_getNextValue() {
-    while (!this._buffer || this._currentPosition === this._buffer.length) {
-      this._buffer = yield; // if out of data, accept new data in the .next() call
+    if (this._currentPosition === this._buffer.length) {
+      this._buffer = yield* this._readData();
       this._currentPosition = 0;
-      this._stats.currentBytesRemaining = this._buffer.length;
     }
     const value = this._buffer.subarray(
       this._currentPosition,
@@ -306,6 +337,17 @@ class IcecastMetadataReader {
     this._currentPosition += value.length;
 
     return value;
+  }
+
+  *_readData() {
+    let data;
+
+    do {
+      data = yield; // if out of data, accept new data in the .next() call
+    } while (!data || data.length === 0);
+
+    this._stats.addCurrentBytesRemaining(data.length);
+    return data;
   }
 }
 
