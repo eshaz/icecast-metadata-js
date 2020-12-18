@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Library for Browser and NodeJS that reads, parses, and synchronizes icy metadata",
   "keywords": [
     "icecast",
