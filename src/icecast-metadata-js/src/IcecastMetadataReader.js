@@ -42,36 +42,36 @@ class Stats {
     };
   }
 
-  set addStreamBytes(bytes) {
-    this._streamBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentStreamBytesRemaining -= bytes;
-    this._currentBytesRemaining -= bytes;
-  }
-
-  set addMetadataLengthBytes(bytes) {
-    this._metadataLengthBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentBytesRemaining -= bytes;
-  }
-
-  set addMetadataBytes(bytes) {
-    this._metadataBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentMetadataBytesRemaining -= bytes;
-    this._currentBytesRemaining -= bytes;
-  }
-
-  set addCurrentBytesRemaining(bytes) {
-    this._currentBytesRemaining += bytes;
-  }
-
   set currentStreamBytesRemaining(bytes) {
     this._currentStreamBytesRemaining = bytes;
   }
 
   set currentMetadataBytesRemaining(bytes) {
     this._currentMetadataBytesRemaining = bytes;
+  }
+
+  addStreamBytes(bytes) {
+    this._streamBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentStreamBytesRemaining -= bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  addMetadataLengthBytes(bytes) {
+    this._metadataLengthBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  addMetadataBytes(bytes) {
+    this._metadataBytesRead += bytes;
+    this._totalBytesRead += bytes;
+    this._currentMetadataBytesRemaining -= bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
+  addCurrentBytesRemaining(bytes) {
+    this._currentBytesRemaining += bytes;
   }
 }
 
@@ -285,7 +285,7 @@ class IcecastMetadataReader {
 
     do {
       const stream = yield* this._getNextValue();
-      this._stats.addStreamBytes = stream.length;
+      this._stats.addStreamBytes(stream.length);
 
       const streamPayload = { stream, stats: this._stats.stats };
 
@@ -301,7 +301,7 @@ class IcecastMetadataReader {
       this._remainingData = (yield* this._getNextValue())[0] * 16;
     } while (this._remainingData === 1);
 
-    this._stats.addMetadataLengthBytes = 1;
+    this._stats.addMetadataLengthBytes(1);
   }
 
   *_getMetadata() {
@@ -312,7 +312,7 @@ class IcecastMetadataReader {
       metadataBuffer.append(yield* this._getNextValue());
     } while (this._remainingData); // store any partial metadata updates
 
-    this._stats.addMetadataBytes = metadataBuffer.length;
+    this._stats.addMetadataBytes(metadataBuffer.length);
 
     const metadataPayload = {
       metadata: this.parseMetadata(metadataBuffer.buffer),
@@ -346,7 +346,7 @@ class IcecastMetadataReader {
       data = yield; // if out of data, accept new data in the .next() call
     } while (!data || data.length === 0);
 
-    this._stats.addCurrentBytesRemaining = data.length;
+    this._stats.addCurrentBytesRemaining(data.length);
     return data;
   }
 }
