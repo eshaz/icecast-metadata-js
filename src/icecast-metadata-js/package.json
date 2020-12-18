@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Library for Browser and NodeJS that reads, parses, and synchronizes icy metadata",
   "keywords": [
     "icecast",
@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/eshaz/icecast-metadata-js/issues"
   },
-  "homepage": "https://github.com/eshaz/icecast-metadata-js/src/icecast-metadata-js",
+  "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js",
   "devDependencies": {
     "@types/jest": "^26.0.7",
     "jest": "^26.6.3",
