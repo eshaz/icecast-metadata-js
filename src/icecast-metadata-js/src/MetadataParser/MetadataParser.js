@@ -67,14 +67,14 @@ class MetadataParser {
     yield metadataPayload;
   }
 
-  *_getNextValue(minLength) {
+  *_getNextValue(length = 0) {
     while (this._currentPosition === this._buffer.length) {
-      this._buffer = yield* this._readData(minLength);
+      this._buffer = yield* this._readData(length);
       this._currentPosition = 0;
     }
     const value = this._buffer.subarray(
       this._currentPosition,
-      this._remainingData + this._currentPosition
+      (length || this._remainingData) + this._currentPosition
     );
 
     this._remainingData -= value.length;
@@ -87,12 +87,10 @@ class MetadataParser {
     this._buffer = yield;
 
     while (!this._buffer && this._buffer.length < minLength) {
-      if (data && data.length) {
-        const temp = new Uint8Array(this._buffer.length + data.length);
-        temp.set(this._buffer);
-        temp.set(data, this._buffer.length);
-        this._buffer = temp;
-      }
+      const temp = new Uint8Array(this._buffer.length + data.length);
+      temp.set(this._buffer);
+      temp.set(data, this._buffer.length);
+      this._buffer = temp;
     }
 
     return this._buffer;
