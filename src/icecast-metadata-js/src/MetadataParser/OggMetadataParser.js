@@ -1,8 +1,8 @@
 const MetadataParser = require("./MetadataParser");
 
 class OggMetadataParser extends MetadataParser {
-  constructor() {
-    super();
+  constructor(params) {
+    super(params);
     this._generator = this.readOgg();
     this._generator.next();
   }
@@ -45,6 +45,17 @@ class OggMetadataParser extends MetadataParser {
     }
   }
 
+  *_getNextValue(length) {
+    const streamPayload = {
+      stream: yield* super._getNextValue(length),
+      stats: this._stats.stats,
+    };
+
+    this._onStreamPromise = this._onStream(streamPayload);
+    yield streamPayload;
+    return streamPayload.stream;
+  }
+
   *_readMetadata(matchString) {
     if (
       this.startsWith(
@@ -52,8 +63,15 @@ class OggMetadataParser extends MetadataParser {
         matchString
       )
     ) {
-      const metadata = yield* this.readVorbisComment();
-      console.log(metadata);
+      const metadataPayload = {
+        metadata: yield* this.readVorbisComment(),
+        stats: this._stats.stats,
+      };
+
+      console.log(metadataPayload.metadata);
+
+      this._onMetadataPromise = this._onMetadata(metadataPayload);
+      yield metadataPayload;
     }
   }
 
@@ -98,7 +116,6 @@ class OggMetadataParser extends MetadataParser {
   }
 
   *_readOggPage() {
-    this._remainingData = 27;
     const baseOggPage = yield* this._getNextValue(27); // OGG Page header without page segments
 
     // Bytes (1-4 of 28)
@@ -118,29 +135,33 @@ class OggMetadataParser extends MetadataParser {
         (acc, octet) => acc + octet,
         0
       );
+      return true;
     } else {
       console.log("not an ogg stream...");
-      throw new Error();
+      return false;
     }
   }
 
   *readOgg() {
-    yield* this._readOggPage();
-
-    switch (yield* this._identifyCodec()) {
-      case "vorbis":
-        while (true) {
-          yield* this._readStream();
-          yield* this._readOggPage();
-          yield* this._readMetadata("\x03vorbis");
-        }
-      case "opus":
-        while (true) {
-          yield* this._readStream();
-          yield* this._readOggPage();
-          yield* this._readMetadata("OpusTags");
-        }
+    if (yield* this._readOggPage()) {
+      switch (yield* this._identifyCodec()) {
+        case "vorbis":
+          while (true) {
+            yield* this._readStream();
+            yield* this._readOggPage();
+            yield* this._readMetadata("\x03vorbis");
+          }
+        case "opus":
+          while (true) {
+            yield* this._readStream();
+            yield* this._readOggPage();
+            yield* this._readMetadata("OpusTags");
+          }
+      }
     }
+
+    this._remainingData = Infinity;
+    yield* this._readStream();
   }
 }
 

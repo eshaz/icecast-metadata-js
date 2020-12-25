@@ -26,7 +26,10 @@ class MetadataParser {
       let i = this._generator.next(chunk);
       i.value;
       i = this._generator.next()
-    ) {}
+    ) {
+      await this._onStreamPromise;
+      await this._onMetadataPromise;
+    }
   }
 
   *_getStream(remainingData) {
