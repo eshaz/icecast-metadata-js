@@ -17,6 +17,7 @@
 
 import IcecastMetadataReader from "./IcecastMetadataReader";
 import OggMetadataParser from "./MetadataParser/OggMetadataParser";
+import IcyMetadataParser from "./MetadataParser/IcyMetadataParser";
 
 const noOp = () => {};
 
@@ -39,7 +40,7 @@ export default class IcecastReadableStream extends ReadableStream {
 
     super({
       async start(controller) {
-        const icecast = new OggMetadataParser({
+        const icecast = new IcyMetadataParser({
           icyMetaInt:
             parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
           icyDetectionTimeout,

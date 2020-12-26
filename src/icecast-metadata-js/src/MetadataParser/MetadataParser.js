@@ -16,11 +16,58 @@ class MetadataParser {
     this._onMetadata = onMetadata;
     this._onStreamPromise = Promise.resolve();
     this._onMetadataPromise = Promise.resolve();
-
-    //this._generator = this._generator();
-    //this._generator.next();
   }
 
+  /**
+   * @description Returns an iterator that yields stream or metadata.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
+   * @yields {object} Object containing stream or metadata.
+   */
+  *iterator(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {
+      yield i.value;
+    }
+  }
+
+  /**
+   * @description Reads all data in the passed in chunk and calls the onStream and onMetadata callbacks.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   */
+  readAll(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {}
+  }
+
+  /**
+   * @description Returns an async iterator that yields stream or metadata and awaits the onStream and onMetadata callbacks.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
+   * @yields {object} Object containing stream or metadata.
+   */
+  async *asyncIterator(chunk) {
+    for (
+      let i = this._generator.next(chunk);
+      i.value;
+      i = this._generator.next()
+    ) {
+      await this._onStreamPromise;
+      await this._onMetadataPromise;
+      yield i.value;
+    }
+  }
+
+  /**
+   * @description Reads all data in the chunk and awaits the onStream and onMetadata callbacks.
+   * @param {Uint8Array} chunk Next chunk of data to read
+   */
   async asyncReadAll(chunk) {
     for (
       let i = this._generator.next(chunk);
@@ -32,21 +79,25 @@ class MetadataParser {
     }
   }
 
-  *_getStream(remainingData) {
-    this._remainingData = remainingData;
-    this._stats.currentStreamBytesRemaining = remainingData;
+  *_sendStream(stream) {
+    this._stats.addStreamBytes(stream.length);
 
-    do {
-      const stream = yield* this._getNextValue();
-      this._stats.addStreamBytes(stream.length);
+    const streamPayload = { stream, stats: this._stats.stats };
 
-      const streamPayload = { stream, stats: this._stats.stats };
+    this._onStreamPromise = this._onStream(streamPayload);
+    yield streamPayload;
+  }
 
-      console.log("stream");
+  *_sendMetadata(metadata) {
+    this._stats.addMetadataBytes(metadata.length);
 
-      this._onStreamPromise = this._onStream(streamPayload);
-      yield streamPayload;
-    } while (this._remainingData);
+    const metadataPayload = {
+      metadata: this.parseMetadata(metadata),
+      stats: this._stats.stats,
+    };
+
+    this._onMetadataPromise = this._onMetadata(metadataPayload);
+    yield metadataPayload;
   }
 
   *_getMetadata(remainingData) {
@@ -87,16 +138,23 @@ class MetadataParser {
   }
 
   *_readData(minLength = 0) {
-    this._buffer = yield;
-
+    /*
     while (!this._buffer && this._buffer.length < minLength) {
       const temp = new Uint8Array(this._buffer.length + data.length);
       temp.set(this._buffer);
       temp.set(data, this._buffer.length);
       this._buffer = temp;
     }
+    */
 
-    return this._buffer;
+    let data;
+
+    do {
+      data = yield; // if out of data, accept new data in the .next() call
+    } while (!data || data.length === 0);
+
+    this._stats.addCurrentBytesRemaining(data.length);
+    return data;
   }
 }
 

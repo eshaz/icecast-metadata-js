@@ -3,7 +3,7 @@ const MetadataParser = require("./MetadataParser");
 class OggMetadataParser extends MetadataParser {
   constructor(params) {
     super(params);
-    this._generator = this.readOgg();
+    this._generator = this._generator();
     this._generator.next();
   }
 
@@ -18,14 +18,9 @@ class OggMetadataParser extends MetadataParser {
   }
 
   *_getNextValue(length) {
-    const streamPayload = {
-      stream: yield* super._getNextValue(length),
-      stats: this._stats.stats,
-    };
-
-    this._onStreamPromise = this._onStream(streamPayload);
-    yield streamPayload;
-    return streamPayload.stream;
+    const value = yield* super._getNextValue(length);
+    yield* this._sendStream(value);
+    return value;
   }
 
   *_getMetadata({ regex, length }) {
@@ -80,7 +75,7 @@ class OggMetadataParser extends MetadataParser {
     return comments;
   }
 
-  *_readOggPage() {
+  *_hasOggPage() {
     const baseOggPage = yield* this._getNextValue(27); // OGG Page header without page segments
 
     // Bytes (1-4 of 28)
@@ -120,19 +115,19 @@ class OggMetadataParser extends MetadataParser {
     }
   }
 
-  *readOgg() {
-    const hasOggPage = yield* this._readOggPage();
-    const codecMatcher = yield* this._identifyCodec();
-
-    if (hasOggPage && codecMatcher) {
-      while (yield* this._readOggPage()) {
-        yield* this._getMetadata(codecMatcher);
-        yield* this._getStream();
+  *_generator() {
+    if (yield* this._hasOggPage()) {
+      const codecMatcher = yield* this._identifyCodec();
+      if (codecMatcher) {
+        while (yield* this._hasOggPage()) {
+          yield* this._getMetadata(codecMatcher);
+          yield* this._getStream();
+        }
       }
-    } else {
-      this._remainingData = Infinity;
-      yield* this._getStream();
     }
+
+    this._remainingData = Infinity;
+    yield* this._getStream();
   }
 }
 
