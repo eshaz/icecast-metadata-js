@@ -1,8 +1,12 @@
-const AppendableBuffer = require("../AppendableBuffer");
 const Decoder = require("util").TextDecoder || TextDecoder;
 const Stats = require("./Stats");
 
 const noOp = () => {};
+
+// Use fast buffer allocation if this is a NodeJS runtime or Uint8Array if a browser runtime
+const bufferFunction = Buffer
+  ? (length) => Buffer.allocUnsafe(length)
+  : (length) => new Uint8Array(length);
 
 class MetadataParser {
   constructor({ onStream = noOp, onMetadata = noOp } = {}) {
@@ -100,35 +104,23 @@ class MetadataParser {
     yield metadataPayload;
   }
 
-  *_getMetadata(remainingData) {
-    this._remainingData = remainingData;
-    this._stats.currentMetadataBytesRemaining = this._remainingData;
-
-    const metadataBuffer = new AppendableBuffer(this._remainingData);
-
-    do {
-      metadataBuffer.append(yield* this._getNextValue());
-    } while (this._remainingData); // store any partial metadata updates
-
-    this._stats.addMetadataBytes(metadataBuffer.length);
-
-    const metadataPayload = {
-      metadata: this.parseMetadata(metadataBuffer.buffer),
-      stats: this._stats.stats,
-    };
-
-    this._onMetadataPromise = this._onMetadata(metadataPayload);
-    yield metadataPayload;
-  }
-
-  *_getNextValue(length = 0) {
-    while (this._currentPosition === this._buffer.length) {
-      this._buffer = yield* this._readData(length);
+  *_getNextValue(minLength = 0) {
+    if (this._currentPosition === this._buffer.length) {
+      this._buffer = yield* this._readData();
       this._currentPosition = 0;
     }
+
+    while (this._buffer.length - this._currentPosition < minLength) {
+      const newData = yield* this._readData();
+      const temp = bufferFunction(this._buffer.length + newData.length);
+      temp.set(this._buffer);
+      temp.set(newData, this._buffer.length);
+      this._buffer = temp;
+    }
+
     const value = this._buffer.subarray(
       this._currentPosition,
-      (length || this._remainingData) + this._currentPosition
+      (minLength || this._remainingData) + this._currentPosition
     );
 
     this._remainingData -= value.length;
@@ -137,16 +129,7 @@ class MetadataParser {
     return value;
   }
 
-  *_readData(minLength = 0) {
-    /*
-    while (!this._buffer && this._buffer.length < minLength) {
-      const temp = new Uint8Array(this._buffer.length + data.length);
-      temp.set(this._buffer);
-      temp.set(data, this._buffer.length);
-      this._buffer = temp;
-    }
-    */
-
+  *_readData() {
     let data;
 
     do {

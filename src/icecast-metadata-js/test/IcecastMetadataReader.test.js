@@ -1,5 +1,5 @@
 const fs = require("fs");
-const IcecastMetadataReader = require("../src/IcecastMetadataReader");
+const IcecastMetadataReader = require("../src/MetadataParser/IcyMetadataParser");
 
 const getBuffArray = (buffer, increment) => {
   let rawBuffs = [];
@@ -182,7 +182,7 @@ describe("Icecast Metadata Reader", () => {
       expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
-    it("should return the correct audio given it is read in chunks of 1 size", () => {
+    it("should return the correct audio given it is read in chunks of size 10", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: isicsMetaInt });
       const returnedValues = readChunks(reader, raw16k, 10);
 
@@ -813,7 +813,7 @@ describe("Icecast Metadata Reader", () => {
       expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
     });
 
-    it("should detect the metadata and return the correct audio given it is read in chunks of 1 size", () => {
+    it("should detect the metadata and return the correct audio given it is read in chunks of size 10", () => {
       const reader = new IcecastMetadataReader();
       const returnedValues = readChunks(reader, raw16k, 10);
 

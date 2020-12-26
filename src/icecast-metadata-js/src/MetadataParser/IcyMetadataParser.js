@@ -172,13 +172,8 @@ class IcyMetadataParser extends MetadataParser {
 
   *_getMetadata() {
     this._stats.currentMetadataBytesRemaining = this._remainingData;
-    const metadataBuffer = new AppendableBuffer(this._remainingData);
-
-    do {
-      metadataBuffer.append(yield* this._getNextValue());
-    } while (this._remainingData); // store any partial metadata updates
-
-    yield* this._sendMetadata(metadataBuffer.buffer);
+    
+    yield* this._sendMetadata(yield* this._getNextValue(this._remainingData));
   }
 }
 

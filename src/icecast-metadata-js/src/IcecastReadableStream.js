@@ -40,7 +40,7 @@ export default class IcecastReadableStream extends ReadableStream {
 
     super({
       async start(controller) {
-        const icecast = new IcyMetadataParser({
+        const icecast = new OggMetadataParser({
           icyMetaInt:
             parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
           icyDetectionTimeout,
