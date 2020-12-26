@@ -1,9 +1,5 @@
 const MetadataParser = require("./MetadataParser");
 
-const FLAC = Symbol();
-const OPUS = Symbol();
-const VORBIS = Symbol();
-
 class OggMetadataParser extends MetadataParser {
   constructor(params) {
     super(params);
@@ -12,41 +8,13 @@ class OggMetadataParser extends MetadataParser {
   }
 
   getUint32(data, offset = 0) {
-    let bytes = [];
-    for (let i = offset; i < offset + 4; i++) {
-      bytes.push(data[i]);
-    }
-    const view = new DataView(Uint8Array.from(bytes).buffer);
-
-    return view.getUint32(0, true);
-  }
-
-  getInt32(data, offset) {
-    let bytes = [];
-    for (let i = offset; i < offset + 4; i++) {
-      bytes.push(data[i]);
-    }
-    const view = new DataView(Uint8Array.from(bytes).buffer);
-
-    return view.getInt32(0, true);
+    return new DataView(
+      Uint8Array.from([...data.subarray(offset, offset + 4)]).buffer
+    ).getUint32(0, true);
   }
 
   _matchBytes(matchString, bytes) {
     return String.fromCharCode(...bytes).match(matchString);
-  }
-
-  *_identifyCodec() {
-    const data = yield* this._getNextValue(8);
-
-    yield* this._readStream();
-
-    if (this._matchBytes(/\x7fFLAC/, data.subarray(0, 5))) {
-      return FLAC;
-    } else if (this._matchBytes(/OpusHead/, data.subarray(0, 8))) {
-      return OPUS;
-    } else if (this._matchBytes(/\x01vorbis/, data.subarray(0, 7))) {
-      return VORBIS;
-    }
   }
 
   *_getNextValue(length) {
@@ -60,27 +28,25 @@ class OggMetadataParser extends MetadataParser {
     return streamPayload.stream;
   }
 
-  *_readMetadata(matchString, length) {
-    if (this._matchBytes(matchString, yield* this._getNextValue(length))) {
+  *_getMetadata({ regex, length }) {
+    if (this._matchBytes(regex, yield* this._getNextValue(length))) {
       const metadataPayload = {
-        metadata: yield* this.readVorbisComment(),
+        metadata: yield* this._readVorbisComment(),
         stats: this._stats.stats,
       };
-
-      console.log(metadataPayload.metadata);
 
       this._onMetadataPromise = this._onMetadata(metadataPayload);
       yield metadataPayload;
     }
   }
 
-  *_readStream() {
+  *_getStream() {
     while (this._remainingData) {
       yield* this._getNextValue();
     }
   }
 
-  *readVorbisComment() {
+  *_readVorbisComment() {
     /*
     1) [vendor_length] = read an unsigned integer of 32 bits
     2) [vendor_string] = read a UTF-8 vector as [vendor_length] octets
@@ -125,7 +91,6 @@ class OggMetadataParser extends MetadataParser {
       this._matchBytes(/OggS/, baseOggPage.subarray(0, 4)) &&
       !(baseOggPage[5] & 0b11111000)
     ) {
-      //console.log(this.getInt32(baseOggPage, 18));
       // Byte (27 of 28)
       // * `JJJJJJJJ`: Number of page segments in the segment table
       const oggPageSegments = yield* this._getNextValue(baseOggPage[26]);
@@ -141,32 +106,33 @@ class OggMetadataParser extends MetadataParser {
     }
   }
 
-  *readOgg() {
-    if (yield* this._readOggPage()) {
-      switch (yield* this._identifyCodec()) {
-        case FLAC:
-          while (true) {
-            yield* this._readStream();
-            yield* this._readOggPage();
-            yield* this._readMetadata(/^[\x84|\x04]/, 4);
-          }
-        case OPUS:
-          while (true) {
-            yield* this._readStream();
-            yield* this._readOggPage();
-            yield* this._readMetadata(/OpusTags/, 8);
-          }
-        case VORBIS:
-          while (true) {
-            yield* this._readStream();
-            yield* this._readOggPage();
-            yield* this._readMetadata(/\x03vorbis/, 7);
-          }
-      }
-    }
+  *_identifyCodec() {
+    const data = yield* this._getNextValue(8);
 
-    this._remainingData = Infinity;
-    yield* this._readStream();
+    yield* this._getStream();
+
+    if (this._matchBytes(/\x7fFLAC/, data.subarray(0, 5))) {
+      return { regex: /^[\x84|\x04]/, length: 4 };
+    } else if (this._matchBytes(/OpusHead/, data.subarray(0, 8))) {
+      return { regex: /OpusTags/, length: 8 };
+    } else if (this._matchBytes(/\x01vorbis/, data.subarray(0, 7))) {
+      return { regex: /\x03vorbis/, length: 7 };
+    }
+  }
+
+  *readOgg() {
+    const hasOggPage = yield* this._readOggPage();
+    const codecMatcher = yield* this._identifyCodec();
+
+    if (hasOggPage && codecMatcher) {
+      while (yield* this._readOggPage()) {
+        yield* this._getMetadata(codecMatcher);
+        yield* this._getStream();
+      }
+    } else {
+      this._remainingData = Infinity;
+      yield* this._getStream();
+    }
   }
 }
 
