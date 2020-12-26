@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const AppendableBuffer = require("./AppendableBuffer");
+const AppendableBuffer = null; // = require("./AppendableBuffer");
 const Decoder = require("util").TextDecoder || TextDecoder;
 const Stats = require("./MetadataParser/Stats");
 

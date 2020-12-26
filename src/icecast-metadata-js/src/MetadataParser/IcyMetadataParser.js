@@ -15,7 +15,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const AppendableBuffer = require("../AppendableBuffer");
 const MetadataParser = require("./MetadataParser");
 
 /**
@@ -74,21 +73,11 @@ class IcyMetadataParser extends MetadataParser {
     return metadata;
   }
 
-  /**
-   * @description Parses Icecast metadata bytes into key value pairs.
-   * @param {Uint8Array} metadataBytes Bytes containing Icecast metadata.
-   * @returns {object} Parsed metadata key value pairs. (i.e. {StreamTitle: "A Title"})
-   */
-  parseMetadata(metadataBytes) {
-    return IcyMetadataParser.parseMetadataString(
-      this._decoder.decode(metadataBytes)
-    );
-  }
-
   *_generator() {
     if (yield* this._hasIcyMetadata()) {
       do {
-        yield* this._getStream(this._icyMetaInt);
+        this._remainingData = this._icyMetaInt;
+        yield* this._getStream();
         yield* this._getMetadataLength();
         if (this._remainingData) yield* this._getMetadata();
       } while (true);
@@ -114,7 +103,7 @@ class IcyMetadataParser extends MetadataParser {
     let metaInt = 0;
 
     while (startTime + this._icyDetectionTimeout > Date.now()) {
-      this._buffer = AppendableBuffer.appendBuffers(
+      this._buffer = MetadataParser.concatBuffers(
         this._buffer,
         yield* this._readData()
       );
@@ -153,9 +142,9 @@ class IcyMetadataParser extends MetadataParser {
   *_getStream() {
     this._stats.currentStreamBytesRemaining = this._remainingData;
 
-    do {
+    while (this._remainingData) {
       yield* this._sendStream(yield* super._getNextValue());
-    } while (this._remainingData);
+    }
   }
 
   *_getMetadataLength() {
@@ -171,7 +160,12 @@ class IcyMetadataParser extends MetadataParser {
   *_getMetadata() {
     this._stats.currentMetadataBytesRemaining = this._remainingData;
 
-    yield* this._sendMetadata(yield* this._getNextValue(this._remainingData));
+    const metadata = yield* this._getNextValue(this._remainingData);
+    this._stats.addMetadataBytes(metadata.length);
+
+    yield* this._sendMetadata(
+      IcyMetadataParser.parseMetadataString(this._decoder.decode(metadata))
+    );
   }
 }
 

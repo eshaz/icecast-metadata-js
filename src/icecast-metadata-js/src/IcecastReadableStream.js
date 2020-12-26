@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import IcecastMetadataReader from "./IcecastMetadataReader";
+//import IcecastMetadataReader from "./IcecastMetadataReader";
 import OggMetadataParser from "./MetadataParser/OggMetadataParser";
 import IcyMetadataParser from "./MetadataParser/IcyMetadataParser";
 
@@ -40,7 +40,7 @@ export default class IcecastReadableStream extends ReadableStream {
 
     super({
       async start(controller) {
-        const icecast = new IcyMetadataParser({
+        const icecast = new OggMetadataParser({
           icyMetaInt:
             parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
           icyDetectionTimeout,

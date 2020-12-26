@@ -22,6 +22,13 @@ class MetadataParser {
     this._onMetadataPromise = Promise.resolve();
   }
 
+  static concatBuffers(buf1, buf2) {
+    const result = bufferFunction(buf1.length + buf2.length);
+    result.set(buf1);
+    result.set(buf2, buf1.length);
+    return result;
+  }
+
   /**
    * @description Returns an iterator that yields stream or metadata.
    * @param {Uint8Array} chunk Next chunk of data to read
@@ -93,10 +100,8 @@ class MetadataParser {
   }
 
   *_sendMetadata(metadata) {
-    this._stats.addMetadataBytes(metadata.length);
-
     const metadataPayload = {
-      metadata: this.parseMetadata(metadata),
+      metadata,
       stats: this._stats.stats,
     };
 

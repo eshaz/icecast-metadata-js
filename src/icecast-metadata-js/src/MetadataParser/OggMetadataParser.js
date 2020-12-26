@@ -17,62 +17,19 @@ class OggMetadataParser extends MetadataParser {
     return String.fromCharCode(...bytes).match(matchString);
   }
 
-  *_getNextValue(length) {
-    const value = yield* super._getNextValue(length);
-    yield* this._sendStream(value);
-    return value;
-  }
-
-  *_getMetadata({ regex, length }) {
-    if (this._matchBytes(regex, yield* this._getNextValue(length))) {
-      const metadataPayload = {
-        metadata: yield* this._readVorbisComment(),
-        stats: this._stats.stats,
-      };
-
-      this._onMetadataPromise = this._onMetadata(metadataPayload);
-      yield metadataPayload;
-    }
-  }
-
-  *_getStream() {
-    while (this._remainingData) {
-      yield* this._getNextValue();
-    }
-  }
-
-  *_readVorbisComment() {
-    /*
-    1) [vendor_length] = read an unsigned integer of 32 bits
-    2) [vendor_string] = read a UTF-8 vector as [vendor_length] octets
-    3) [user_comment_list_length] = read an unsigned integer of 32 bits
-    4) iterate [user_comment_list_length] times {
-       5) [length] = read an unsigned integer of 32 bits
-       6) this iteration's user comment = read a UTF-8 vector as [length] octets
-    }
-    7) [framing_bit] = read a single bit as boolean
-    8) if ( [framing_bit] unset or end of packet ) then ERROR
-    9) done.
-    */
-    const vendorStringLength = this.getUint32(yield* this._getNextValue(4));
-
-    const vendorString = this._decoder.decode(
-      yield* this._getNextValue(vendorStringLength)
-    );
-
-    console.log(vendorString);
-
-    const commentListLength = this.getUint32(yield* this._getNextValue(4));
-
-    let comments = [];
-    for (let i = 0; i < commentListLength; i++) {
-      const commentLength = this.getUint32(yield* this._getNextValue(4));
-      comments.push(
-        this._decoder.decode(yield* this._getNextValue(commentLength))
-      );
+  *_generator() {
+    if (yield* this._hasOggPage()) {
+      const codecMatcher = yield* this._identifyCodec();
+      if (codecMatcher) {
+        while (yield* this._hasOggPage()) {
+          yield* this._getMetadata(codecMatcher);
+          yield* this._getStream();
+        }
+      }
     }
 
-    return comments;
+    this._remainingData = Infinity;
+    yield* this._getStream();
   }
 
   *_hasOggPage() {
@@ -96,7 +53,11 @@ class OggMetadataParser extends MetadataParser {
       );
       return true;
     } else {
-      console.log("not an ogg stream...");
+      console.warn(
+        "icecast-metadata-js",
+        "\n  This stream is not an OGG stream. No OGG metadata will be returned.",
+        "\n  See https://github.com/eshaz/icecast-metadata-js for information on OGG metadata."
+      );
       return false;
     }
   }
@@ -115,19 +76,65 @@ class OggMetadataParser extends MetadataParser {
     }
   }
 
-  *_generator() {
-    if (yield* this._hasOggPage()) {
-      const codecMatcher = yield* this._identifyCodec();
-      if (codecMatcher) {
-        while (yield* this._hasOggPage()) {
-          yield* this._getMetadata(codecMatcher);
-          yield* this._getStream();
-        }
-      }
+  *_getMetadata({ regex, length }) {
+    if (this._matchBytes(regex, yield* this._getNextValue(length))) {
+      yield* this._sendMetadata(yield* this._readVorbisComment());
+    }
+  }
+
+  *_getStream() {
+    while (this._remainingData) {
+      yield* this._getNextValue();
+    }
+  }
+
+  *_getNextValue(length) {
+    const value = yield* super._getNextValue(length);
+
+    this._stats.currentStreamBytesRemaining = value.length;
+
+    yield* this._sendStream(value);
+    return value;
+  }
+
+  *_readVorbisComment() {
+    /*
+    1) [vendor_length] = read an unsigned integer of 32 bits
+    2) [vendor_string] = read a UTF-8 vector as [vendor_length] octets
+    3) [user_comment_list_length] = read an unsigned integer of 32 bits
+    4) iterate [user_comment_list_length] times {
+       5) [length] = read an unsigned integer of 32 bits
+       6) this iteration's user comment = read a UTF-8 vector as [length] octets
+    }
+    7) [framing_bit] = read a single bit as boolean
+    8) if ( [framing_bit] unset or end of packet ) then ERROR
+    9) done.
+    */
+    let bytesRead = 0;
+    const vendorStringLength = this.getUint32(yield* this._getNextValue(4));
+    bytesRead += 4 + vendorStringLength;
+
+    const vendorString = this._decoder.decode(
+      yield* this._getNextValue(vendorStringLength)
+    );
+
+    console.log(vendorString);
+
+    const commentListLength = this.getUint32(yield* this._getNextValue(4));
+    bytesRead += 4;
+
+    let comments = [];
+    for (let i = 0; i < commentListLength; i++) {
+      const commentLength = this.getUint32(yield* this._getNextValue(4));
+      bytesRead += 4 + commentLength;
+      comments.push(
+        this._decoder.decode(yield* this._getNextValue(commentLength))
+      );
     }
 
-    this._remainingData = Infinity;
-    yield* this._getStream();
+    this._stats.addMetadataBytes(bytesRead);
+
+    return comments;
   }
 }
 
