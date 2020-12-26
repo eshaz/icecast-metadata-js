@@ -118,15 +118,15 @@ class OggMetadataParser extends MetadataParser {
       yield* this._getNextValue(vendorStringLength)
     );
 
-    console.log(vendorString);
+    const comments = [];
 
     const commentListLength = this.getUint32(yield* this._getNextValue(4));
     bytesRead += 4;
 
-    let comments = [];
     for (let i = 0; i < commentListLength; i++) {
       const commentLength = this.getUint32(yield* this._getNextValue(4));
       bytesRead += 4 + commentLength;
+
       comments.push(
         this._decoder.decode(yield* this._getNextValue(commentLength))
       );
@@ -134,7 +134,16 @@ class OggMetadataParser extends MetadataParser {
 
     this._stats.addMetadataBytes(bytesRead);
 
-    return comments;
+    return comments
+      .map((comment) => comment.match(/([\x20-\x7a]+?)=(.*)/))
+      .map((comment) => [comment[1].toUpperCase(), comment[2]])
+      .reduce(
+        (acc, [key, val]) => ({
+          ...acc,
+          [key]: acc[key] ? `${acc[key]}, ${val}` : val,
+        }),
+        { VENDOR_STRING: vendorString }
+      );
   }
 }
 
