@@ -94,9 +94,8 @@ class IcyMetadataParser extends MetadataParser {
       } while (true);
     }
 
-    do {
-      yield* this._getStream(this._buffer.length);
-    } while (true);
+    this._remainingData = Infinity;
+    yield* this._getStream();
   }
 
   *_hasIcyMetadata() {
@@ -151,9 +150,8 @@ class IcyMetadataParser extends MetadataParser {
     return false;
   }
 
-  *_getStream(remainingData) {
-    this._remainingData = remainingData;
-    this._stats.currentStreamBytesRemaining = remainingData;
+  *_getStream() {
+    this._stats.currentStreamBytesRemaining = this._remainingData;
 
     do {
       yield* this._sendStream(yield* super._getNextValue());
@@ -172,7 +170,7 @@ class IcyMetadataParser extends MetadataParser {
 
   *_getMetadata() {
     this._stats.currentMetadataBytesRemaining = this._remainingData;
-    
+
     yield* this._sendMetadata(yield* this._getNextValue(this._remainingData));
   }
 }
