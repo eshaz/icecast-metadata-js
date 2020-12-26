@@ -1,5 +1,9 @@
 const MetadataParser = require("./MetadataParser");
 
+const FLAC = Symbol();
+const OPUS = Symbol();
+const VORBIS = Symbol();
+
 class OggMetadataParser extends MetadataParser {
   constructor(params) {
     super(params);
@@ -27,8 +31,8 @@ class OggMetadataParser extends MetadataParser {
     return view.getInt32(0, true);
   }
 
-  startsWith(bytes, string) {
-    return [...string].every((char, idx) => char.charCodeAt(0) === bytes[idx]);
+  _matchBytes(matchString, bytes) {
+    return String.fromCharCode(...bytes).match(matchString);
   }
 
   *_identifyCodec() {
@@ -36,12 +40,12 @@ class OggMetadataParser extends MetadataParser {
 
     yield* this._readStream();
 
-    if (this.startsWith(data, "\x01vorbis")) {
-      return "vorbis";
-    } else if (this.startsWith(data, "OpusHead")) {
-      return "opus";
-    } else if (this.startsWith(data, "\x7fFLAC")) {
-      return "flac";
+    if (this._matchBytes(/\x7fFLAC/, data.subarray(0, 5))) {
+      return FLAC;
+    } else if (this._matchBytes(/OpusHead/, data.subarray(0, 8))) {
+      return OPUS;
+    } else if (this._matchBytes(/\x01vorbis/, data.subarray(0, 7))) {
+      return VORBIS;
     }
   }
 
@@ -56,13 +60,8 @@ class OggMetadataParser extends MetadataParser {
     return streamPayload.stream;
   }
 
-  *_readMetadata(matchString) {
-    if (
-      this.startsWith(
-        yield* this._getNextValue(matchString.length),
-        matchString
-      )
-    ) {
+  *_readMetadata(matchString, length) {
+    if (this._matchBytes(matchString, yield* this._getNextValue(length))) {
       const metadataPayload = {
         metadata: yield* this.readVorbisComment(),
         stats: this._stats.stats,
@@ -123,7 +122,7 @@ class OggMetadataParser extends MetadataParser {
     // Byte (6 of 28)
     // * `00000...`: All zeros
     if (
-      this.startsWith(baseOggPage, "OggS") &&
+      this._matchBytes(/OggS/, baseOggPage.subarray(0, 4)) &&
       !(baseOggPage[5] & 0b11111000)
     ) {
       //console.log(this.getInt32(baseOggPage, 18));
@@ -145,17 +144,23 @@ class OggMetadataParser extends MetadataParser {
   *readOgg() {
     if (yield* this._readOggPage()) {
       switch (yield* this._identifyCodec()) {
-        case "vorbis":
+        case FLAC:
           while (true) {
             yield* this._readStream();
             yield* this._readOggPage();
-            yield* this._readMetadata("\x03vorbis");
+            yield* this._readMetadata(/^[\x84|\x04]/, 4);
           }
-        case "opus":
+        case OPUS:
           while (true) {
             yield* this._readStream();
             yield* this._readOggPage();
-            yield* this._readMetadata("OpusTags");
+            yield* this._readMetadata(/OpusTags/, 8);
+          }
+        case VORBIS:
+          while (true) {
+            yield* this._readStream();
+            yield* this._readOggPage();
+            yield* this._readMetadata(/\x03vorbis/, 7);
           }
       }
     }
