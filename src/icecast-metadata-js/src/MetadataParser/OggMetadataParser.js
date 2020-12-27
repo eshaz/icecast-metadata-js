@@ -91,10 +91,14 @@ class OggMetadataParser extends MetadataParser {
   *_getNextValue(length) {
     const value = yield* super._getNextValue(length);
 
-    this._stats.currentStreamBytesRemaining = value.length;
-
     yield* this._sendStream(value);
     return value;
+  }
+
+  *_readData() {
+    const data = yield* super._readData();
+    this._stats.currentStreamBytesRemaining = data.length;
+    return data;
   }
 
   *_readVorbisComment() {
@@ -110,17 +114,27 @@ class OggMetadataParser extends MetadataParser {
     8) if ( [framing_bit] unset or end of packet ) then ERROR
     9) done.
     */
+    const vendorStringLength = this._getUint32(yield* this._getNextValue(4));
+    this._stats.addMetadataBytes(4);
+
     const vendorString = this._decoder.decode(
-      yield* this._getNextValue(this._getUint32(yield* this._getNextValue(4)))
+      yield* this._getNextValue(vendorStringLength)
     );
+    this._stats.addMetadataBytes(vendorStringLength);
+
     const commentListLength = this._getUint32(yield* this._getNextValue(4));
+    this._stats.addMetadataBytes(4);
 
     const comments = [];
     for (let i = 0; i < commentListLength; i++) {
-      comments.push(
-        yield* this._getNextValue(this._getUint32(yield* this._getNextValue(4)))
-      );
+      const commentLength = yield* this._getNextValue(4);
+      this._stats.addMetadataBytes(4);
+
+      comments.push(yield* this._getNextValue(this._getUint32(commentLength)));
+      this._stats.addMetadataBytes(comments[comments.length - 1].length);
     }
+
+    this._stats.currentMetadataBytesRemaining = 0;
 
     return comments.reduce(
       (metadata, comment) => {

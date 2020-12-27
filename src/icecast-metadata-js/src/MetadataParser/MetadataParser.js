@@ -137,6 +137,7 @@ class MetadataParser {
       (minLength || this._remainingData) + this._currentPosition
     );
 
+    this._stats.addBytes(value.length);
     this._remainingData -= value.length;
     this._currentPosition += value.length;
 

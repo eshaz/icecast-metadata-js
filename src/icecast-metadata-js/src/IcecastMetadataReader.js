@@ -18,21 +18,16 @@
 const MetadataParser = require("./MetadataParser/MetadataParser");
 const IcyMetadataParser = require("./MetadataParser/IcyMetadataParser");
 const OggMetadataParser = require("./MetadataParser/OggMetadataParser");
+const DualMetadataParser = require("./MetadataParser/DualMetadataParser");
 
 class IcecastMetadataReader {
   constructor({ metadataTypes = ["icy"], ...rest } = {}) {
-    const isIcyEnabled = metadataTypes.includes("icy");
-    const isOggEnabled = metadataTypes.includes("ogg");
+    const hasIcy = metadataTypes.includes("icy");
+    const hasOgg = metadataTypes.includes("ogg");
 
-    if (isIcyEnabled && isOggEnabled) {
-      const oggMetadataParser = new OggMetadataParser(rest);
-      this._metadataParser = new IcyMetadataParser({
-        ...rest,
-        onStream: async ({ stream }) =>
-          await oggMetadataParser.asyncReadAll(stream),
-      });
-    } else if (isOggEnabled) this._metadataParser = new OggMetadataParser(rest);
-    else if (isIcyEnabled) this._metadataParser = new IcyMetadataParser(rest);
+    if (hasIcy && hasOgg) this._metadataParser = new DualMetadataParser(rest);
+    else if (hasOgg) this._metadataParser = new OggMetadataParser(rest);
+    else if (hasIcy) this._metadataParser = new IcyMetadataParser(rest);
     else this._metadataParser = new MetadataParser(rest);
   }
 

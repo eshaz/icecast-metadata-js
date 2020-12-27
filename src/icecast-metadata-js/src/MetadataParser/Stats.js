@@ -23,31 +23,30 @@ class Stats {
   }
 
   set currentStreamBytesRemaining(bytes) {
-    this._currentStreamBytesRemaining = bytes;
+    this._currentStreamBytesRemaining += bytes;
   }
 
   set currentMetadataBytesRemaining(bytes) {
     this._currentMetadataBytesRemaining = bytes;
   }
 
+  addBytes(bytes) {
+    this._totalBytesRead += bytes;
+    this._currentBytesRemaining -= bytes;
+  }
+
   addStreamBytes(bytes) {
     this._streamBytesRead += bytes;
-    this._totalBytesRead += bytes;
     this._currentStreamBytesRemaining -= bytes;
-    this._currentBytesRemaining -= bytes;
   }
 
   addMetadataLengthBytes(bytes) {
     this._metadataLengthBytesRead += bytes;
-    this._totalBytesRead += bytes;
-    this._currentBytesRemaining -= bytes;
   }
 
   addMetadataBytes(bytes) {
     this._metadataBytesRead += bytes;
-    this._totalBytesRead += bytes;
     this._currentMetadataBytesRemaining -= bytes;
-    this._currentBytesRemaining -= bytes;
   }
 
   addCurrentBytesRemaining(bytes) {
