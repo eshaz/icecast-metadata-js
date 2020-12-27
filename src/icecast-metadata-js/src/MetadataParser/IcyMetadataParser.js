@@ -35,13 +35,8 @@ const MetadataParser = require("./MetadataParser");
  * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
  */
 class IcyMetadataParser extends MetadataParser {
-  constructor({
-    icyMetaInt,
-    icyDetectionTimeout = 2000,
-    onStream,
-    onMetadata,
-  } = {}) {
-    super({ onMetadata, onStream });
+  constructor({ icyMetaInt, icyDetectionTimeout = 2000, ...rest }) {
+    super(rest);
 
     this._icyMetaInt = icyMetaInt;
     this._icyDetectionTimeout = icyDetectionTimeout;

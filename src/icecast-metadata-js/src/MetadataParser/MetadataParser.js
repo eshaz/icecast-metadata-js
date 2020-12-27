@@ -9,7 +9,7 @@ const bufferFunction = Buffer
   : (length) => new Uint8Array(length);
 
 class MetadataParser {
-  constructor({ onStream = noOp, onMetadata = noOp } = {}) {
+  constructor({ onStream = noOp, onMetadata = noOp }) {
     this._remainingData = 0;
     this._currentPosition = 0;
     this._buffer = new Uint8Array(0);
@@ -126,11 +126,10 @@ class MetadataParser {
     }
 
     while (this._buffer.length - this._currentPosition < minLength) {
-      const newData = yield* this._readData();
-      const temp = bufferFunction(this._buffer.length + newData.length);
-      temp.set(this._buffer);
-      temp.set(newData, this._buffer.length);
-      this._buffer = temp;
+      this._buffer = MetadataParser._concatBuffers(
+        this._buffer,
+        yield* this._readData()
+      );
     }
 
     const value = this._buffer.subarray(

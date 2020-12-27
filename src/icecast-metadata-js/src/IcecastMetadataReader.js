@@ -49,11 +49,11 @@ class IcecastMetadataReader {
   }
 
   async *asyncIterator(chunk) {
-    yield* this._metadataParser.asyncIterator(chunk);
+    return yield* this._metadataParser.asyncIterator(chunk);
   }
 
   async asyncReadAll(chunk) {
-    this._metadataParser.asyncReadAll(chunk);
+    return this._metadataParser.asyncReadAll(chunk);
   }
 }
 
