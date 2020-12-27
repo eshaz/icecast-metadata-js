@@ -3,21 +3,12 @@ const MetadataParser = require("./MetadataParser");
 class OggMetadataParser extends MetadataParser {
   constructor(params) {
     super(params);
-    this._generator = this._generator();
+
+    this._generator = this._oggParser();
     this._generator.next();
   }
 
-  getUint32(data, offset = 0) {
-    return new DataView(
-      Uint8Array.from([...data.subarray(offset, offset + 4)]).buffer
-    ).getUint32(0, true);
-  }
-
-  _matchBytes(matchString, bytes) {
-    return String.fromCharCode(...bytes).match(matchString);
-  }
-
-  *_generator() {
+  *_oggParser() {
     if (yield* this._hasOggPage()) {
       const codecMatcher = yield* this._identifyCodec();
       if (codecMatcher) {
@@ -32,9 +23,18 @@ class OggMetadataParser extends MetadataParser {
     yield* this._getStream();
   }
 
+  _getUint32(data, offset = 0) {
+    return new DataView(
+      Uint8Array.from([...data.subarray(offset, offset + 4)]).buffer
+    ).getUint32(0, true);
+  }
+
+  _matchBytes(matchString, bytes) {
+    return String.fromCharCode(...bytes).match(matchString);
+  }
+
   *_hasOggPage() {
     const baseOggPage = yield* this._getNextValue(27); // OGG Page header without page segments
-
     // Bytes (1-4 of 28)
     // Frame sync (must equal OggS): `AAAAAAAA|AAAAAAAA|AAAAAAAA|AAAAAAAA`:
     // Byte (6 of 28)
@@ -110,27 +110,17 @@ class OggMetadataParser extends MetadataParser {
     8) if ( [framing_bit] unset or end of packet ) then ERROR
     9) done.
     */
-    let bytesRead = 0;
-    const vendorStringLength = this.getUint32(yield* this._getNextValue(4));
-    bytesRead += 4 + vendorStringLength;
-
     const vendorString = this._decoder.decode(
-      yield* this._getNextValue(vendorStringLength)
+      yield* this._getNextValue(this._getUint32(yield* this._getNextValue(4)))
     );
+    const commentListLength = this._getUint32(yield* this._getNextValue(4));
 
     const comments = [];
-
-    const commentListLength = this.getUint32(yield* this._getNextValue(4));
-    bytesRead += 4;
-
     for (let i = 0; i < commentListLength; i++) {
-      const commentLength = this.getUint32(yield* this._getNextValue(4));
-      bytesRead += 4 + commentLength;
-
-      comments.push(yield* this._getNextValue(commentLength));
+      comments.push(
+        yield* this._getNextValue(this._getUint32(yield* this._getNextValue(4)))
+      );
     }
-
-    this._stats.addMetadataBytes(bytesRead);
 
     return comments.reduce(
       (metadata, comment) => {

@@ -46,8 +46,22 @@ class IcyMetadataParser extends MetadataParser {
     this._icyMetaInt = icyMetaInt;
     this._icyDetectionTimeout = icyDetectionTimeout;
 
-    this._generator = this._generator();
+    this._generator = this._icyParser();
     this._generator.next();
+  }
+
+  *_icyParser() {
+    if (yield* this._hasIcyMetadata()) {
+      do {
+        this._remainingData = this._icyMetaInt;
+        yield* this._getStream();
+        yield* this._getMetadataLength();
+        if (this._remainingData) yield* this._getMetadata();
+      } while (true);
+    }
+
+    this._remainingData = Infinity;
+    yield* this._getStream();
   }
 
   /**
@@ -55,7 +69,7 @@ class IcyMetadataParser extends MetadataParser {
    * @param {string} metadataString Icecast formatted metadata string. (i.e. "StreamTitle='A Title';")
    * @returns {object} Parsed metadata key value pairs. (i.e. {StreamTitle: "A Title"})
    */
-  static parseMetadataString(metadataString) {
+  static parseIcyMetadata(metadataString) {
     /**
      * Metadata is a string of key='value' pairs delimited by a semicolon.
      * The string is a fixed length and any unused bytes at the end are 0x00.
@@ -71,20 +85,6 @@ class IcyMetadataParser extends MetadataParser {
     }
     // {StreamTitle: "The Stream Title", StreamUrl: "https://example.com"}
     return metadata;
-  }
-
-  *_generator() {
-    if (yield* this._hasIcyMetadata()) {
-      do {
-        this._remainingData = this._icyMetaInt;
-        yield* this._getStream();
-        yield* this._getMetadataLength();
-        if (this._remainingData) yield* this._getMetadata();
-      } while (true);
-    }
-
-    this._remainingData = Infinity;
-    yield* this._getStream();
   }
 
   *_hasIcyMetadata() {
@@ -103,7 +103,7 @@ class IcyMetadataParser extends MetadataParser {
     let metaInt = 0;
 
     while (startTime + this._icyDetectionTimeout > Date.now()) {
-      this._buffer = MetadataParser.concatBuffers(
+      this._buffer = MetadataParser._concatBuffers(
         this._buffer,
         yield* this._readData()
       );
@@ -164,7 +164,7 @@ class IcyMetadataParser extends MetadataParser {
     this._stats.addMetadataBytes(metadata.length);
 
     yield* this._sendMetadata(
-      IcyMetadataParser.parseMetadataString(this._decoder.decode(metadata))
+      IcyMetadataParser.parseIcyMetadata(this._decoder.decode(metadata))
     );
   }
 }

@@ -1,5 +1,5 @@
 const fs = require("fs");
-const IcecastMetadataReader = require("../src/MetadataParser/IcyMetadataParser");
+const IcecastMetadataReader = require("../src/IcecastMetadataReader");
 
 const getBuffArray = (buffer, increment) => {
   let rawBuffs = [];
@@ -396,7 +396,7 @@ describe("Icecast Metadata Reader", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -411,7 +411,7 @@ describe("Icecast Metadata Reader", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -426,7 +426,7 @@ describe("Icecast Metadata Reader", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -441,7 +441,7 @@ describe("Icecast Metadata Reader", () => {
         StreamUrl: "https://example.c",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -455,7 +455,7 @@ describe("Icecast Metadata Reader", () => {
         StreamTitle: "The Stream Title",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -466,7 +466,7 @@ describe("Icecast Metadata Reader", () => {
       const metadataString = "StreamTitle='The Stream Title';\0\0\0";
       const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -477,7 +477,7 @@ describe("Icecast Metadata Reader", () => {
       const metadataString = "StreamTitl";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -493,7 +493,7 @@ describe("Icecast Metadata Reader", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -504,7 +504,7 @@ describe("Icecast Metadata Reader", () => {
       const metadataString = "";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
         metadataString
       );
 
@@ -516,7 +516,7 @@ describe("Icecast Metadata Reader", () => {
         const metadataString = "Stream Title='The Stream Title';\0";
         const expectedMetadata = { "Stream Title": "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -527,7 +527,7 @@ describe("Icecast Metadata Reader", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamU";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -540,7 +540,7 @@ describe("Icecast Metadata Reader", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -554,7 +554,7 @@ describe("Icecast Metadata Reader", () => {
           StreamTitle: "Nils Landgren & Jan LundgrenÂ  - Why Did You Let Me Go",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -569,7 +569,7 @@ describe("Icecast Metadata Reader", () => {
             "Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -584,7 +584,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -599,7 +599,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -614,7 +614,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -629,7 +629,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -642,7 +642,7 @@ describe("Icecast Metadata Reader", () => {
           StreamTitle: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -656,7 +656,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -670,7 +670,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "some url",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 
@@ -684,7 +684,7 @@ describe("Icecast Metadata Reader", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseMetadataString(
+        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
           metadataString
         );
 

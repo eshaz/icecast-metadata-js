@@ -20,9 +20,19 @@ class MetadataParser {
     this._onMetadata = onMetadata;
     this._onStreamPromise = Promise.resolve();
     this._onMetadataPromise = Promise.resolve();
+
+    this._generator = this._passThroughParser();
+    this._generator.next();
   }
 
-  static concatBuffers(buf1, buf2) {
+  *_passThroughParser() {
+    this._remainingData = Infinity;
+    while (true) {
+      yield* this._sendStream(yield* this._getNextValue());
+    }
+  }
+
+  static _concatBuffers(buf1, buf2) {
     const result = bufferFunction(buf1.length + buf2.length);
     result.set(buf1);
     result.set(buf2, buf1.length);
