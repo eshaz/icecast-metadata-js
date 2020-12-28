@@ -18,22 +18,11 @@
 const MetadataParser = require("./MetadataParser");
 
 /**
- * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
- * @param {number} icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
- * @param {number} icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
- *
- * @callback onMetadata
- * @param {object} value Object containing Metadata and Statistics
- * @param {object} metadata Object containing the metadata received.
- * @param {string} [metadata.StreamTitle] Title of the metadata update.
- * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
- * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
- *
- * @callback onStream
- * @param {object} value Object containing Stream data and Statistics
- * @param {Uint8Array} stream Object containing the stream buffer.
- * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
+ * @description Parses ICY metadata from an Icecast stream
+ * @protected
+ * @see IcecastMetadataReader
  */
+
 class IcyMetadataParser extends MetadataParser {
   constructor({ icyMetaInt, icyDetectionTimeout = 2000, ...rest }) {
     super(rest);
@@ -59,11 +48,6 @@ class IcyMetadataParser extends MetadataParser {
     yield* this._getStream();
   }
 
-  /**
-   * @description Parses an Icecast metadata string into key value pairs.
-   * @param {string} metadataString Icecast formatted metadata string. (i.e. "StreamTitle='A Title';")
-   * @returns {object} Parsed metadata key value pairs. (i.e. {StreamTitle: "A Title"})
-   */
   static parseIcyMetadata(metadataString) {
     /**
      * Metadata is a string of key='value' pairs delimited by a semicolon.

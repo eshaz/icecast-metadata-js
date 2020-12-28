@@ -1,3 +1,20 @@
+/* Copyright 2020 Ethan Halsall
+    This file is part of icecast-metadata-js.
+
+    icecast-metadata-js free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    icecast-metadata-js distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>
+*/
+
 const Decoder = require("util").TextDecoder || TextDecoder;
 const Stats = require("./Stats");
 
@@ -7,6 +24,12 @@ const noOp = () => {};
 const bufferFunction = Buffer
   ? (length) => Buffer.allocUnsafe(length)
   : (length) => new Uint8Array(length);
+
+/**
+ * @description Passthrough parser
+ * @protected
+ * @see IcecastMetadataReader
+ */
 
 class MetadataParser {
   constructor({ onStream = noOp, onMetadata = noOp }) {
@@ -39,12 +62,6 @@ class MetadataParser {
     return result;
   }
 
-  /**
-   * @description Returns an iterator that yields stream or metadata.
-   * @param {Uint8Array} chunk Next chunk of data to read
-   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
-   * @yields {object} Object containing stream or metadata.
-   */
   *iterator(chunk) {
     for (
       let i = this._generator.next(chunk);
@@ -55,10 +72,6 @@ class MetadataParser {
     }
   }
 
-  /**
-   * @description Reads all data in the passed in chunk and calls the onStream and onMetadata callbacks.
-   * @param {Uint8Array} chunk Next chunk of data to read
-   */
   readAll(chunk) {
     for (
       let i = this._generator.next(chunk);
@@ -67,12 +80,6 @@ class MetadataParser {
     ) {}
   }
 
-  /**
-   * @description Returns an async iterator that yields stream or metadata and awaits the onStream and onMetadata callbacks.
-   * @param {Uint8Array} chunk Next chunk of data to read
-   * @returns {IterableIterator} Iterator that operates over a raw icecast response.
-   * @yields {object} Object containing stream or metadata.
-   */
   async *asyncIterator(chunk) {
     for (
       let i = this._generator.next(chunk);
@@ -85,10 +92,6 @@ class MetadataParser {
     }
   }
 
-  /**
-   * @description Reads all data in the chunk and awaits the onStream and onMetadata callbacks.
-   * @param {Uint8Array} chunk Next chunk of data to read
-   */
   async asyncReadAll(chunk) {
     for (
       let i = this._generator.next(chunk);

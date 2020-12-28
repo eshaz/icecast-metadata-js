@@ -5,7 +5,8 @@ Icecast Metadata JS is NodeJS and browser module that takes in an Icecast respon
 ## Checkout the demo [here](https://eshaz.github.io/icecast-metadata-js/)!
 
 * [`IcecastMetadataReader`](#icecastmetadatareader)
-  * Gets stream data and metadata from a raw Icecast response 
+  * Gets stream data and metadata from a raw Icecast response
+  * Supports ICY and OGG (Vorbis Comment) metadata
 * [`IcecastMetadataQueue`](#icecastmetadataqueue)
   * Queues metadata and schedules metadata updates
 * [`IcecastMetadataStream`](#icecastmetadatastream)
