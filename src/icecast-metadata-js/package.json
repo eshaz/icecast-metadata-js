@@ -1,11 +1,13 @@
 {
   "name": "icecast-metadata-js",
-  "version": "0.1.2",
-  "description": "Library for Browser and NodeJS that reads, parses, and synchronizes icy metadata",
+  "version": "0.2.0",
+  "description": "Library for Web Browsers and NodeJS that reads, parses, and synchronizes Icecast stream metadata",
   "keywords": [
     "icecast",
     "shoutcast",
-    "icy-metadata",
+    "metadata",
+    "icy",
+    "ogg",
     "streaming audio"
   ],
   "type": "module",
@@ -33,7 +35,7 @@
   },
   "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js",
   "devDependencies": {
-    "@types/jest": "^26.0.7",
+    "@types/jest": "^26.0.19",
     "jest": "^26.6.3",
     "prettier": "^2.2.1"
   }

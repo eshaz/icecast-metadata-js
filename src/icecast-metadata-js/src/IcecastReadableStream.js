@@ -30,10 +30,7 @@ export default class IcecastReadableStream extends ReadableStream {
    * @param {object} options Configuration options for IcecastMetadataReader
    * @see IcecastMetadataReader for information on the options parameter
    */
-  constructor(
-    response,
-    { icyMetaInt, onStream = noOp, ...rest }
-  ) {
+  constructor(response, { icyMetaInt, onStream = noOp, ...rest }) {
     const readerIterator = IcecastReadableStream.asyncIterator(response.body);
 
     super({

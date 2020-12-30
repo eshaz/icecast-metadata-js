@@ -4,15 +4,15 @@ Icecast Metadata JS is an evolving Javascript based tool set for parsing, record
 
 ## Checkout the demo [here](https://eshaz.github.io/icecast-metadata-js/)!
 
-### npm package coming soon!
-
 ## Modules:
- * [**Icecast Metadata JS**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js#readme)
-   * NodeJS and Browser based module for reading audio and metadata from an Icecast response body
+ * [**Icecast Metadata JS**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js#readme) (click for further documentation)
+   * Browser and NodeJS module for reading audio and metadata from an Icecast response body
+   * [NPM Package](https://www.npmjs.com/package/icecast-metadata-js) - Install using `npm i icecast-metadata-js`
    * This module actively used here to display realtime metadata updates: https://dsmrad.io
    * LGPL 3.0 or Greater
  * [**Stream Recorder**](#stream-recorder)
    * NodeJS based application for recording / archiving Icecast audio and metadata
+   * NPM Package coming soon!
    * GPL 3.0 or Greater
  * [**Demo**](#demo)
    * React application that demonstrates how to use the MediaSource Extensions API with `icecast-metadata-js`
@@ -30,6 +30,7 @@ Stream Recorder is a NodeJS application for recording and archiving Icecast stre
 
 ### Run Locally
 
+* `git clone https://github.com/eshaz/icecast-metadata-js.git`
 * `cd src/stream-recorder`
 * `npm i`
 * `npm run build-recorder`
@@ -157,23 +158,22 @@ https://github.com/eshaz/icecast-metadata-js/tree/master/src/demo
 
 ### Browser compatibility
 
-The demo is based on the MediaSource Extensions (MSE) API. Some browsers do not support common audio formats with the MSE API. *(i.e. Firefox does not support audio/aac)* If you find that your browser doesn't support an MSE codec that you would like to use for Icecast, please enter a GitHub issue.
+The demo is based on the MediaSource Extensions (MSE) API. Some browsers do not support common audio formats with the MSE API. If you find that your browser doesn't support an MSE codec that you would like to use for Icecast, please enter a GitHub issue.
 
 Checkout this link to see which codecs your browser supports.
 https://cconcolato.github.io/media-mime-support/#audio_codecs
 
 
 #### Supported Browsers / Codecs:
- * Chrome `audio/mpeg`, `audio/aac`
- * Firefox *`audio/mpeg` is supported by wrapping the data in Fragmented ISOBMFF `audio/mp4; codecs="mp3"`*
- * iOS / Safari *support unknown*
+ * Chrome, Firefox `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus)
+ * iOS, Safari, Edge, others... *support unknown* - Let me know if it works!
 
-#### Un-supported Browsers:
- * Chrome `audio/opus`, `audio/ogg`
- * Firefox *MediaSource codecs `audio/aac`, `audio/opus`, `audio/ogg` are not supported*
+#### Un-supported Codecs:
+ * Chrome, Firefox `application/ogg` (vorbis)
 
 ### Running Locally
 
+* `git clone https://github.com/eshaz/icecast-metadata-js.git`
 * `cd src/demo`
 * `npm i`
 * `npm start` -> Runs a local server on http://localhost:3000
@@ -190,13 +190,33 @@ Cross-Origin Response Sharing is a client side security mechanism to prevent scr
 
 Read more about CORS here: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
-Icecast is dependent on being able to request and read headers (specifically the `Icy-*` headers). If you intend on serving your Icecast stream on a website that is not on the same origin as your Icecast server, you will need to add the below CORS headers.
+OGG Metadata is not dependent on requesting or reading any headers, but still relies on CORS for reading the response cross-origin.
 
-**Metadata will not work in a browser without: `Access-Control-Allow-Headers: Icy-Metadata`**
+ICY metadata is dependent on being able to request and read headers (specifically the `Icy-*` headers). If you intend on serving your Icecast stream on a website that is not on the same origin as your Icecast server, you will need to add the below CORS headers.
+
+
+### CORS configuration for OGG metadata:
+* **OGG Metadata will not work in a browser without this configuration.**
+```
+Access-Control-Allow-Origin: '*'
+Access-Control-Allow-Methods: 'GET, OPTIONS'
+Access-Control-Allow-Headers: 'Content-Type'
+```
+
+### Bare minimum CORS configuration for ICY metadata:
+
+* **ICY Metadata will not work in a browser without this configuration.**
+```
+Access-Control-Allow-Origin: '*'
+Access-Control-Allow-Methods: 'GET, OPTIONS'
+Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
+```
+
+### Preferred CORS configuration for ICY metadata:
 
 ```
-Access-Control-Allow-Origin: 'https://your-website.example.com'
-Access-Control-Allow-Methods: 'GET, HEAD, OPTIONS'
+Access-Control-Allow-Origin: '*'
+Access-Control-Allow-Methods: 'GET, OPTIONS'
 Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
 Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url, Icy-Sr, Icy-Vbr, Icy-Pub';
 ```
