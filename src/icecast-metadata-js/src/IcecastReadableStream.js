@@ -30,20 +30,16 @@ export default class IcecastReadableStream extends ReadableStream {
    * @param {object} options Configuration options for IcecastMetadataReader
    * @see IcecastMetadataReader for information on the options parameter
    */
-  constructor(
-    response,
-    { icyMetaInt, icyDetectionTimeout, onStream = noOp, onMetadata }
-  ) {
+  constructor(response, { icyMetaInt, onStream = noOp, ...rest }) {
     const readerIterator = IcecastReadableStream.asyncIterator(response.body);
 
     super({
       async start(controller) {
         const icecast = new IcecastMetadataReader({
+          ...rest,
           icyMetaInt:
             parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
-          icyDetectionTimeout,
-          onMetadata,
-          onStream: (value) => {
+          onStream: async (value) => {
             controller.enqueue(value.stream);
             return onStream(value);
           },

@@ -27,7 +27,7 @@ const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
   const play = useCallback(() => {
     onMetadataUpdate(LOADING);
     setIsPlaying(true);
-    metadataPlayer.play(station.endpoint);
+    metadataPlayer.play(station);
   }, [onMetadataUpdate, metadataPlayer, station]);
 
   const stop = useCallback(() => {
@@ -57,7 +57,7 @@ const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
   return [isPlaying, toggle];
 };
 
-export default ({ station }) => {
+const Player = ({ station }) => {
   const [audioElement] = useState(new Audio());
   const [[audioHeight, audioWidth], setSpectrumSize] = useState([0, 0]);
   const [meters, setMeters] = useState(0);
@@ -70,8 +70,9 @@ export default ({ station }) => {
   );
 
   useEffect(() => {
-    document.title = metadata.StreamTitle
-      ? `${metadata.StreamTitle} | ${ICECAST_METADATA_JS_DEMO}`
+    const title = metadata.StreamTitle || metadata.TITLE;
+    document.title = title
+      ? `${title} | ${ICECAST_METADATA_JS_DEMO}`
       : ICECAST_METADATA_JS_DEMO;
   }, [metadata]);
 
@@ -110,7 +111,13 @@ export default ({ station }) => {
       </button>
       <div>
         <p className={styles.metadata}>
-          {typeof metadata === "object" ? metadata.StreamTitle : metadata}
+          {typeof metadata === "object"
+            ? metadata.StreamTitle ||
+              (metadata.ARTIST
+                ? `${metadata.ARTIST} - ${metadata.TITLE}`
+                : metadata.TITLE) ||
+              metadata.VENDOR_STRING
+            : metadata}
         </p>
         {station?.link && (
           <div className={styles.visitStation}>
@@ -129,3 +136,5 @@ export default ({ station }) => {
     </div>
   );
 };
+
+export default Player;

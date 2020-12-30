@@ -49,29 +49,30 @@ export default class MetadataPlayer {
     this._sourceBuffer.appendBuffer(chunk);
     await this._waitForSourceBuffer();
 
-    // buffer 2 seconds to remove flac skips
+    // buffer to remove flac skips
     if (
       this._playing &&
       this._sourceBuffer.buffered.length &&
-      this._sourceBuffer.buffered.end(0) > 2
+      this._sourceBuffer.buffered.end(0) > 0.5
     ) {
       this._playPromise = this._audioElement.play();
     }
 
-    if (this._audioElement.currentTime > 0) {
-      this._sourceBuffer.remove(0, this._audioElement.currentTime);
+    // keep last 2 seconds of audio in buffer
+    if (this._audioElement.currentTime > 2) {
+      this._sourceBuffer.remove(0, this._audioElement.currentTime - 2);
       await this._waitForSourceBuffer();
     }
   }
 
-  async fetchStream(endpoint) {
+  async fetchStream(station) {
     this._controller = new AbortController();
 
-    return fetch(endpoint, {
+    const hasIcy = station.metadataTypes.includes("icy");
+
+    return fetch(station.endpoint, {
       method: "GET",
-      headers: {
-        "Icy-MetaData": "1",
-      },
+      headers: hasIcy ? { "Icy-MetaData": "1" } : {},
       signal: this._controller.signal,
     });
   }
@@ -99,16 +100,17 @@ export default class MetadataPlayer {
     }
   }
 
-  play(endpoint) {
+  play(station) {
     this._playing = true;
 
-    this.fetchStream(endpoint)
+    this.fetchStream(station)
       .then(async (res) => {
         this.getMediaSource(res);
         this._isInitialMetadata = true;
 
         await new IcecastReadableStream(res, {
-          icyDetectionTimeout: 6000,
+          icyDetectionTimeout: 5000,
+          metadataTypes: station.metadataTypes,
           onStream: this._onStream,
           onMetadata: (value) => {
             this._isInitialMetadata
