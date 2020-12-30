@@ -58,18 +58,9 @@ export default class MetadataPlayer {
       this._playPromise = this._audioElement.play();
     }
 
-    // keep last 5 seconds of audio in buffer
-    if (
-      this._audioElement.currentTime > 5 &&
-      this._sourceBuffer.buffered.end(0) > 5
-    ) {
-      this._sourceBuffer.remove(
-        0,
-        Math.min(
-          this._sourceBuffer.buffered.end(0),
-          this._audioElement.currentTime
-        ) - 5
-      );
+    // keep last 2 seconds of audio in buffer
+    if (this._audioElement.currentTime > 2) {
+      this._sourceBuffer.remove(0, this._audioElement.currentTime - 2);
       await this._waitForSourceBuffer();
     }
   }
@@ -118,7 +109,7 @@ export default class MetadataPlayer {
         this._isInitialMetadata = true;
 
         await new IcecastReadableStream(res, {
-          icyDetectionTimeout: 1000,
+          icyDetectionTimeout: 5000,
           metadataTypes: station.metadataTypes,
           onStream: this._onStream,
           onMetadata: (value) => {

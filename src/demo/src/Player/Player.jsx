@@ -112,7 +112,11 @@ const Player = ({ station }) => {
       <div>
         <p className={styles.metadata}>
           {typeof metadata === "object"
-            ? metadata.StreamTitle || metadata.TITLE
+            ? metadata.StreamTitle ||
+              (metadata.ARTIST
+                ? `${metadata.ARTIST} - ${metadata.TITLE}`
+                : metadata.TITLE) ||
+              metadata.VENDOR_STRING
             : metadata}
         </p>
         {station?.link && (
