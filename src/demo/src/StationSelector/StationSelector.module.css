@@ -39,3 +39,12 @@
     font-size: calc(5px + 2vmin);
     text-align: center;
 }
+
+.codecInfo {
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    font-size: calc(6px + 1vmin);
+    font-family: monospace;
+    text-align: center;
+}

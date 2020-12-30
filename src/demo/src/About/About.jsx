@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./About.module.css";
 
-export default () => (
+const About = () => (
   <div className={styles.about}>
     <a
       className={styles.link}
@@ -21,3 +21,5 @@ export default () => (
     </div>
   </div>
 );
+
+export default About;
