@@ -8,6 +8,7 @@
     "metadata",
     "icy",
     "ogg",
+    "html5 audio",
     "streaming audio"
   ],
   "type": "module",
