@@ -24,8 +24,8 @@ icecast-metadata-js is avaiable on [NPM](https://www.npmjs.com/package/icecast-m
 
 * Run `npm i icecast-metadata-js` in the same diretory as your `package.json` file to install it.
 * Once icecast-metadata-js is installed, you can import each module listed above.
-  * ES6 import: `import { IcecastMetadataReader } from ("icecast-metadata-js");`
-  * CommonJS require: `const { IcecastMetadataReader } = require("icecast-metadata-js");`
+  * ES6 import (browser): `import { IcecastMetadataReader } from ("icecast-metadata-js");`
+  * CommonJS require (NodeJS): `const { IcecastMetadataReader } = require("icecast-metadata-js");`
 
 
 ## `IcecastMetadataReader`
