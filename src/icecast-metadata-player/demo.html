@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Icecast Metadata Player Demo</title>
+    <meta name="theme-color" content="#000000" />
+    <meta name="title" content="Icecast Metadata Player Demo" />
+    <script src="dist/main.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: monospace;
+      }
+      td {
+        padding-left: 10px;
+      }
+      input,
+      label,
+      button,
+      select {
+        margin: 5px;
+      }
+      pre {
+        margin: 0px;
+      }
+      select {
+        width: 97%;
+      }
+      label {
+        user-select: none;
+      }
+      button {
+        width: 80%;
+      }
+      .stream-endpoint {
+        width: 95%;
+      }
+      .column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .row {
+        display: flex;
+        flex-direction: row;
+      }
+      .time {
+        text-align: right;
+      }
+      .metadata {
+        text-align: left;
+      }
+      .metadata-info {
+        font-size: 12px;
+      }
+      .metadata-header {
+        text-align: left;
+        padding-left: 10px;
+      }
+    </style>
+  </head>
+  <body onload="document.options.reset();">
+    <div class="row">
+      <fieldset class="column">
+        <legend>Audio Controls</legend>
+        <button id="play">Play</button>
+        <button id="stop">Stop</button>
+        <button id="reset" onclick="document.options.reset();">Reset</button>
+      </fieldset>
+      <form name="options">
+        <fieldset>
+          <legend>Stream Endpoint</legend>
+          <input
+            class="stream-endpoint"
+            name="endpoint"
+            id="endpoint"
+            type="url"
+            value="https://dsmrad.io/stream/isics-all"
+          />
+          <select
+            id="stations"
+            name="stations"
+            onchange="document.getElementById('endpoint').value = event.target.value"
+          ></select>
+        </fieldset>
+        <div class="row">
+          <fieldset>
+            <legend>Metadata Types</legend>
+            <div class="column">
+              <div class="row">
+                <label for="icy">ICY</label>
+                <input id="icy" name="icy" type="checkbox" checked />
+              </div>
+              <div class="row">
+                <label for="ogg">OGG</label>
+                <input id="ogg" name="ogg" type="checkbox" />
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>ICY Metadata Options</legend>
+            <div class="row">
+              <div class="column">
+                <label for="icyMetaInt">ICY Metadata Interval</label>
+                <input name="icyMetaInt" id="icyMetaInt" disabled />
+              </div>
+              <div class="column">
+                <label for="icyDetectionTimeout"
+                  >ICY Detection Timeout (ms)</label
+                >
+                <input
+                  type="number"
+                  id="icyDetectionTimeout"
+                  name="icyDetectionTimeout"
+                  value="2000"
+                />
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </form>
+    </div>
+    <div class="metadata-info">
+      <table>
+        <th>Current Time</th>
+        <th class="metadata-header">Now Playing</th>
+        <tr>
+          <td class="time" id="currentTime"></td>
+          <td class="metadata" id="metadata"></td>
+        </tr>
+      </table>
+      <table id="metadataQueue"></table>
+    </div>
+  </body>
+  <script>
+    const form = document.querySelector("form");
+    const currentTimeEl = document.getElementById("currentTime");
+    const icyMetaIntEl = document.getElementById("icyMetaInt");
+    const metadataEl = document.getElementById("metadata");
+    const metadataQueueEl = document.getElementById("metadataQueue");
+
+    let formData, icecastMetadataPlayer, timer;
+
+    const onMetadata = (metadata) => {
+      metadataEl.innerHTML = `<pre>${formatMetadata(metadata)}</pre>`;
+
+      onMetadataEnqueue();
+    };
+
+    const onMetadataEnqueue = () => {
+      metadataQueueEl.innerHTML = icecastMetadataPlayer.metadataQueue.reduce(
+        (acc, { metadata, timestamp, timestampOffset }) =>
+          acc +
+          `<tr><td class="time">${formatTime(timestampOffset)}</td>` +
+          `<td class="metadata"><pre>${formatMetadata(
+            metadata
+          )}</pre></td></tr>`,
+        `<th>Update Time&nbsp</th><th class="metadata-header">Up Next</th>`
+      );
+    };
+
+    // gets a new instance of the IcecastMetadataPlayer and starts a timer
+    const getIcecastMetadataPlayer = () => {
+      const metadataTypes = [];
+      formData.icy && metadataTypes.push("icy");
+      formData.ogg && metadataTypes.push("ogg");
+
+      icecastMetadataPlayer = new IcecastMetadataPlayer(formData.endpoint, {
+        onMetadata,
+        onMetadataEnqueue,
+        metadataTypes,
+        icyDetectionTimeout: parseInt(formData.icyDetectionTimeout),
+        onError: (message) => {
+          metadataEl.innerHTML = message;
+        },
+      });
+
+      icecastMetadataPlayer.audioElement.addEventListener(
+        "playing",
+        () => {
+          icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
+
+          let time = 0;
+          timer = setInterval(() => {
+            time += 0.1;
+            currentTimeEl.innerHTML = formatTime(time.toFixed(2));
+          }, 100);
+        },
+        { once: true }
+      );
+    };
+
+    form.addEventListener("change", () => {
+      paramsUpdated = true;
+      formData = Object.fromEntries(new FormData(form).entries());
+    });
+
+    document.getElementById("play").addEventListener("click", () => {
+      if (icecastMetadataPlayer) stop();
+      init();
+
+      getIcecastMetadataPlayer();
+      icecastMetadataPlayer.play();
+    });
+
+    document.getElementById("stop").addEventListener("click", () => {
+      stop();
+    });
+
+    // helper functions
+    const formatTime = (seconds) =>
+      new Date(seconds * 1000).toISOString().substr(14, 8);
+
+    const formatMetadata = (metadata) =>
+      JSON.stringify(metadata, null, 1)
+        .replace(/\{\n|\n\}/g, "")
+        .replace(/^ "|\n "/g, '\n"');
+
+    const stop = () => {
+      clearInterval(timer);
+      icecastMetadataPlayer.stop();
+    };
+
+    const init = () => {
+      formData = Object.fromEntries(new FormData(form).entries());
+      metadataEl.innerHTML = "Loading...";
+      metadataQueueEl.innerHTML = "";
+      currentTimeEl.innerHTML = "00:00.00";
+    };
+  </script>
+  <script>
+    // Stations Selector setup
+    // prettier-ignore
+    const stations = [
+    {"name":"DSMRad.io ISICS All","endpoint":"https://dsmrad.io/stream/isics-all","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"DSMRad.io SARA All","endpoint":"https://dsmrad.io/stream/sara-all","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radio Cumbernauld","endpoint":"https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291","codec":"AAC","metadataTypes":["icy"]},
+    {"name":"Радио 13 (Radio 13)","endpoint":"https://play.radio13.ru/96","codec":"Opus","metadataTypes":["ogg"]},
+    {"name":"Jazz4ever","endpoint":"https://streaming211.radionomy.com/Jazz4ever","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radio BluesFlac","endpoint":"https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac","codec":"FLAC","metadataTypes":["icy"]},
+    {"name":"90.9 Jazzy rádió - Jazzy Cool","endpoint":"https://s04.diazol.hu:9530/live.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"90.9 Jazzy rádió - Jazzy Groove","endpoint":"https://s04.diazol.hu:9510/live.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"90.9 Jazzy rádió - Jazzy Soul","endpoint":"https://s04.diazol.hu:9520/live.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radio Paradise Main","endpoint":"https://stream.radioparadise.com/flacm","codec":"FLAC","metadataTypes":["icy"]},
+    {"name":"Radio Paradise Mellow","endpoint":"https://stream.radioparadise.com/mellow-flacm","codec":"FLAC","metadataTypes":["icy","ogg"]},
+    {"name":"Radio Paradise Rock","endpoint":"https://stream.radioparadise.com/rock-flacm","codec":"FLAC","metadataTypes":["icy","ogg"]},
+    {"name":"Radio Paradise World/Etc","endpoint":"https://stream.radioparadise.com/world-etc-320","codec":"AAC","metadataTypes":["icy"]},
+    {"name":"OroyaWave","endpoint":"https://streamingv2.shoutcast.com/oroyawave","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"OroyaWave-Minimal","endpoint":"https://streamingv2.shoutcast.com/oroyawave-minimal","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radioparty.pl - House","endpoint":"https://s1.radioparty.pl:8000/house","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radioparty.pl - Trance","endpoint":"https://s2.radioparty.pl:8015/trance","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radioparty.pl - Vocal Trance","endpoint":"https://s2.radioparty.pl:8015/vocaltrance","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radioparty.pl - DJ Mixes","endpoint":"https://s1.radioparty.pl:8000/djmixes","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Radioparty.pl - Energy 2000","endpoint":"https://s2.radioparty.pl:8040/energy2000","codec":"AAC+","metadataTypes":["icy"]},
+    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Dance Wave Retro!","endpoint":"https://retro.dancewave.online/retrodance.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Metro DANCE! Radio","endpoint":"http://eu1.reliastream.com:7017/MDR","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Sama Radio Senegal","endpoint":"https://streamingv2.shoutcast.com/SamaRadio","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"ABC Piano","endpoint":"https://streaming211.radionomy.com/ABC-Piano","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Atmospheres Radio","endpoint":"https://streaming.galaxywebsolutions.com:9040/stream","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"HAWK Radio - Hilbert College","endpoint":"https://streamingv2.shoutcast.com/HAWK-Radio-Hilbert-College?icy=http","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"TheIndieBlend","endpoint":"https://streaming307.radionomy.com/TheIndieBlend?icy=http","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Andean Music","endpoint":"https://streamingv2.shoutcast.com/andeanmusic?icy=http","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Pure Rock FM 89/WONC","endpoint":"http://webcast.wonc.org:8000/wonclive-160s-opus.ogg","codec":"Opus","metadataTypes":["ogg"]},
+    {"name":"TheRadio.CC","endpoint":"http://stream.theradio.cc:8000/trcc-stream.opus","codec":"Opus","metadataTypes":["ogg"]}
+  ];
+
+    const select = document.getElementById("stations");
+
+    stations.forEach(({ name, codec, metadataTypes, endpoint }, idx) => {
+      const option = document.createElement("option");
+      option.text = `${name} - (${codec} - ${metadataTypes
+        .join(", ")
+        .toUpperCase()})`;
+      option.value = endpoint;
+      option.name = endpoint;
+      select.add(option);
+    });
+  </script>
+</html>
