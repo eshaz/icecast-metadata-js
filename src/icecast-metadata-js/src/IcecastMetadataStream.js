@@ -18,15 +18,15 @@
 const { Writable, PassThrough } = require("stream");
 const IcecastMetadataReader = require("./IcecastMetadataReader");
 
-/**
- * @description NodeJS streams wrapper for IcecastMetadataReader
- * @param {object} IcecastMetadataStream constructor parameter
- * @param {number} IcecastMetadataStream.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
- * @param {number} IcecastMetadataStream.icyBr Bitrate of audio stream used to increase accuracy when updating metadata
- * @param {number} IcecastMetadataStream.icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
- * @param {number} IcecastMetadataStream.metadataTypes Types of metadata to capture: "icy" and/or "ogg"
- */
 class IcecastMetadataStream extends Writable {
+  /**
+   * @description NodeJS streams wrapper for IcecastMetadataReader
+   * @param {object} IcecastMetadataStream constructor parameter
+   * @param {number} IcecastMetadataStream.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
+   * @param {number} IcecastMetadataStream.icyBr Bitrate of audio stream used to increase accuracy when updating metadata
+   * @param {number} IcecastMetadataStream.icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
+   * @param {number} IcecastMetadataStream.metadataTypes Types of metadata to capture: "icy" and/or "ogg"
+   */
   constructor({ icyBr, ...rest }) {
     super();
     this._icyBr = icyBr;

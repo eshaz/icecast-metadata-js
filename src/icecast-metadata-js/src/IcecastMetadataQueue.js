@@ -24,15 +24,23 @@ class IcecastMetadataQueue {
    * @param {Object} IcecastMetadataQueue constructor parameter
    * @param {number} [IcecastMetadataQueue.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
    * @param {onMetadataUpdate} [IcecastMetadataQueue.onMetadataUpdate] Callback executed when metadata is scheduled to update
+   * @param {onMetadataEnqueue} [IcecastMetadataQueue.onMetadataEnqueue] Callback executed when metadata is enqueued
    *
    * @callback onMetadataUpdate
    * @param {Object} metadata Object containing all metadata received.
    * @param {string} [metadata.StreamTitle] Title of the metadata update.
    * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
-   * @param {number} time Time in seconds the metadata should be displayed / recorded
+   * @param {number} timestampOffset Total time buffered when the metadata was added
+   * @param {number} timestamp Current time of the audio player when the metadata was added
+   *
+   * @callback onMetadataEnqueue
+   * @param {Object} metadata Object containing all metadata received.
+   * @param {string} [metadata.StreamTitle] Title of the metadata update.
+   * @param {string} [metadata.StreamUrl] Url (usually album art) of the metadata update.
+   * @param {number} timestampOffset Total time buffered when the metadata was added
+   * @param {number} timestamp Current time of the audio player when the metadata was added
    *
    */
-
   constructor({ icyBr, onMetadataUpdate = noOp, onMetadataEnqueue = noOp }) {
     this._icyBr = icyBr;
     this._onMetadataUpdate = onMetadataUpdate;
