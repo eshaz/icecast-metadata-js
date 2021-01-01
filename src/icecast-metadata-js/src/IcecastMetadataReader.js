@@ -20,27 +20,26 @@ const IcyMetadataParser = require("./MetadataParser/IcyMetadataParser");
 const OggMetadataParser = require("./MetadataParser/OggMetadataParser");
 const DualMetadataParser = require("./MetadataParser/DualMetadataParser");
 
-/**
- * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
- * @param {number} IcecastMetadataReader.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
- * @param {number} IcecastMetadataReader.icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
- * @param {Array} IcecastMetadataReader.metadataTypes Types of metadata to capture: "icy" and/or "ogg"
- *
- * @callback onMetadata
- * @param {object} value Object containing Metadata and Statistics
- * @param {object} metadata Object containing the metadata received.
- * @param {string} [metadata.StreamTitle] (ICY) Title of the metadata update.
- * @param {string} [metadata.StreamUrl] (ICY) Url (usually album art) of the metadata update.
- * @param {string} [metadata.TITLE] (OGG) Url Title of the metadata update.
- * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
- *
- * @callback onStream
- * @param {object} value Object containing Stream data and Statistics
- * @param {Uint8Array} stream Object containing the stream buffer.
- * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
- */
-
 class IcecastMetadataReader {
+  /**
+   * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
+   * @param {number} IcecastMetadataReader.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
+   * @param {number} IcecastMetadataReader.icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
+   * @param {Array} IcecastMetadataReader.metadataTypes Types of metadata to capture: "icy" and/or "ogg"
+   *
+   * @callback onMetadata
+   * @param {object} value Object containing Metadata and Statistics
+   * @param {object} metadata Object containing the metadata received.
+   * @param {string} [metadata.StreamTitle] (ICY) Title of the metadata update.
+   * @param {string} [metadata.StreamUrl] (ICY) Url (usually album art) of the metadata update.
+   * @param {string} [metadata.TITLE] (OGG) Url Title of the metadata update.
+   * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
+   *
+   * @callback onStream
+   * @param {object} value Object containing Stream data and Statistics
+   * @param {Uint8Array} stream Object containing the stream buffer.
+   * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
+   */
   constructor({ metadataTypes = ["icy"], ...rest } = {}) {
     const hasIcy = metadataTypes.includes("icy");
     const hasOgg = metadataTypes.includes("ogg");
@@ -58,6 +57,14 @@ class IcecastMetadataReader {
    */
   static parseIcyMetadata(string) {
     return IcyMetadataParser.parseIcyMetadata(string);
+  }
+
+  /**
+   * @description Gets the ICY metadata interval for this instance.
+   * @returns {number} ICY metadata interval in bytes.
+   */
+  get icyMetaInt() {
+    return this._metadataParser.icyMetaInt;
   }
 
   /**

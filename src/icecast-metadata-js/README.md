@@ -193,6 +193,9 @@ A generator that takes in raw icecast response data and return stream data and m
   * Iteration will pause until the `onStream` and `onMetadata` resolve.
   * `onStream` is called and awaited when stream is read
   * `onMetadata` is called and awaited when metadata is read
+* `icecastReader.icyMetaInt`
+  * Returns the ICY metadata interval for this instance.
+  * This can be used to return the detected metadata interval.
 * `IcecastMetadataReader.parseIcyMetadata(metadataString: string)`
   * Takes in a string of unparsed ICY metadata
   * Returns object with metadata parsed into key value pairs
@@ -219,7 +222,7 @@ Metadata updates can be highly accurate because they are embedded inline with th
 
 ### Usage
 
-1. To use `IcecastMetadataQueue`, create a new instance with the `Icy-Br` header from the Icecast response representing the bitrate of your stream as well as the optional `onMetadataUpdate` callback.
+1. To use `IcecastMetadataQueue`, create a new instance with the `Icy-Br` header from the Icecast response representing the bitrate of your stream as well as the optional `onMetadataUpdate` and `onMetadataEnqueue` callback.
 
    *Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to    enable metadata.*
   
@@ -233,6 +236,7 @@ Metadata updates can be highly accurate because they are embedded inline with th
    const metadataQueue = new IcecastMetadataQueue({
      icyBr: parseInt(headers.get("Icy-Br")),
      onMetadataUpdate: onMetadataUpdate,
+     onMetadataEnqueue: onMetadataEnqueue,
    });
    </pre>
 
@@ -243,22 +247,25 @@ Metadata updates can be highly accurate because they are embedded inline with th
    
    const icecastMetadataReader = new IcecastMetadataReader({
      icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
-     onMetadata: (value) => metadataQueue.addMetadata(value, audio.timestampOffset - audio.currentTime)
+     onMetadata: (value) => metadataQueue.addMetadata(value, audio.timestampOffset, audio.currentTime)
    })
    </pre>
 
+1. The `onMetadataEnqueue()` callback will be executed with the values passed in.
 
 1. When the metadata is due to be updated, the metadata will be popped from the queue and `onMetadataUpdate()` will be called with the metadata.
 
 ### Methods
 
-`const metadataQueue = new IcecastMetadataQueue({icyBr, onMetadataUpdate})`
+`const metadataQueue = new IcecastMetadataQueue({icyBr, onMetadataUpdate, onMetadataEnqueue})`
 
 * `metadataQueue.metadataQueue`
   * Gets the contents of the metadata queue
-* `metadataQueue.addMetadata(metadata: object, seconds: number)`
-  * Takes in a `metadata` object and the number of seconds to delay the metadata update
-  * The buffer offset should be the total seconds of audio in the player buffer when the metadata was read.
+  * Array of `{metadata, timestampOffset, timestamp}` objects in FILO order.
+* `metadataQueue.addMetadata(metadata, timestampOffset, currentTime)`
+  * Takes in a `metadata` object, total buffered audio in seconds, and the current time in seconds
+  * `timestampOffset` should be the total seconds of audio in the player buffer when the metadata was read.
+  * `currentTime` (optional, if icyBr is passed in) the current time in the audio player.
 * `metadataQueue.getTimeByBytes(numberOfBytes: number)`
   * Takes in a number of stream bytes read and derives the seconds to delay the metadata update based on a constant audio bitrate.
   * This only works for constant bitrate streams.
