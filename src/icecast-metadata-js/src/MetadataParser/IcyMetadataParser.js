@@ -66,6 +66,10 @@ class IcyMetadataParser extends MetadataParser {
     return metadata;
   }
 
+  get icyMetaInt() {
+    return this._icyMetaInt;
+  }
+
   *_hasIcyMetadata() {
     if (this._icyMetaInt > 0) return true;
     if (!this._icyDetectionTimeout) return false;

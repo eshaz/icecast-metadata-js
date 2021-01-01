@@ -193,6 +193,9 @@ A generator that takes in raw icecast response data and return stream data and m
   * Iteration will pause until the `onStream` and `onMetadata` resolve.
   * `onStream` is called and awaited when stream is read
   * `onMetadata` is called and awaited when metadata is read
+* `icecastReader.icyMetaInt`
+  * Returns the ICY metadata interval for this instance.
+  * This can be used to return the detected metadata interval.
 * `IcecastMetadataReader.parseIcyMetadata(metadataString: string)`
   * Takes in a string of unparsed ICY metadata
   * Returns object with metadata parsed into key value pairs

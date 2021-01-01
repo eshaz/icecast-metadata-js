@@ -61,6 +61,14 @@ class IcecastMetadataReader {
   }
 
   /**
+   * @description Gets the ICY metadata interval for this instance.
+   * @returns {number} ICY metadata interval in bytes.
+   */
+  get icyMetaInt() {
+    return this._metadataParser.icyMetaInt;
+  }
+
+  /**
    * @description Returns an iterator that yields stream or metadata.
    * @param {Uint8Array} chunk Next chunk of data to read
    * @returns {Iterator} Iterator that operates over a raw icecast response.

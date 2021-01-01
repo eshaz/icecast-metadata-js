@@ -20,11 +20,6 @@ const Stats = require("./Stats");
 
 const noOp = () => {};
 
-// Use fast buffer allocation if this is a NodeJS runtime or Uint8Array if a browser runtime
-const bufferFunction = Buffer
-  ? (length) => Buffer.allocUnsafe(length)
-  : (length) => new Uint8Array(length);
-
 /**
  * @description Passthrough parser
  * @protected
@@ -56,7 +51,7 @@ class MetadataParser {
   }
 
   static _concatBuffers(buf1, buf2) {
-    const result = bufferFunction(buf1.length + buf2.length);
+    const result = new Uint8Array(buf1.length + buf2.length);
     result.set(buf1);
     result.set(buf2, buf1.length);
     return result;

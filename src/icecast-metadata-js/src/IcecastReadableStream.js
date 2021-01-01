@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-import IcecastMetadataReader from "./IcecastMetadataReader";
+const IcecastMetadataReader = require("./IcecastMetadataReader");
 
 const noOp = () => {};
 
@@ -23,7 +23,7 @@ const noOp = () => {};
  * @description Browser ReadableStream wrapper for IcecastMetadataReader
  * @extends ReadableStream
  */
-export default class IcecastReadableStream extends ReadableStream {
+class IcecastReadableStream extends ReadableStream {
   /**
    *
    * @param {ReadableStream} response ReadableStream for raw Icecast response data
@@ -32,10 +32,11 @@ export default class IcecastReadableStream extends ReadableStream {
    */
   constructor(response, { icyMetaInt, onStream = noOp, ...rest }) {
     const readerIterator = IcecastReadableStream.asyncIterator(response.body);
+    let icecast;
 
     super({
       async start(controller) {
-        const icecast = new IcecastMetadataReader({
+        icecast = new IcecastMetadataReader({
           ...rest,
           icyMetaInt:
             parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
@@ -52,6 +53,12 @@ export default class IcecastReadableStream extends ReadableStream {
         controller.close();
       },
     });
+
+    this._icecast = icecast;
+  }
+
+  get icyMetaInt() {
+    return this._icecast.icyMetaInt;
   }
 
   /**
@@ -77,3 +84,5 @@ export default class IcecastReadableStream extends ReadableStream {
     };
   }
 }
+
+module.exports = IcecastReadableStream;

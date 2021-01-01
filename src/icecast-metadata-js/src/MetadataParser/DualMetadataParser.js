@@ -31,6 +31,10 @@ class DualMetadataParser {
     this._icyMetadataParser = new IcyMetadataParser(rest);
   }
 
+  get icyMetaInt() {
+    return this._icyMetadataParser.icyMetaInt;
+  }
+
   *iterator(chunk) {
     for (const value of this._icyMetadataParser.iterator(chunk)) {
       if (value.stream) {
