@@ -13,7 +13,7 @@ const About = () => (
       </div>
     </a>
     <div className={styles.description}>
-      Javascript library that reads, parses, and queues realtime metadata from
+      Javascript library that reads, parses, and queues real-time metadata from
       an Icecast stream.
     </div>
     <div className={styles.disclaimer}>

@@ -66,7 +66,10 @@ class IcecastMetadataPlayer {
   play() {
     if (this._state === STOPPED) {
       this._state = PLAYING;
-      this._audioElement.play();
+
+      this._audioElement.addEventListener("canplay", () => {
+        this._audioElement.play();
+      }, {once: true})
 
       this._fetchStream()
         .then(async (res) => {
@@ -76,7 +79,7 @@ class IcecastMetadataPlayer {
             onMetadata: (value) =>
               this._icecastMetadataQueue.addMetadata(
                 value,
-                this._sourceBuffer?.timestampOffset || 0,
+                this._sourceBuffer && this._sourceBuffer.timestampOffset || 0,
                 this._audioElement.currentTime
               ),
             onStream,
@@ -87,8 +90,8 @@ class IcecastMetadataPlayer {
           await this._icecastReadableStream.startReading();
         })
         .catch(async (e) => {
-          await this._destroyMediaSource();
           this._icecastMetadataQueue.purgeMetadataQueue();
+          await this._destroyMediaSource();
           if (e.name !== "AbortError" && e.message !== "Error in body stream") {
             console.error(e);
             this._fallbackToAudioSrc();
@@ -154,7 +157,7 @@ class IcecastMetadataPlayer {
     this._mediaSource = null;
     this._audioElement.pause();
     this._audioElement.removeAttribute("src");
-    await this._audioElement.load();
+    this._audioElement.load();
   }
 
   async _waitForSourceBuffer() {
@@ -181,6 +184,7 @@ class IcecastMetadataPlayer {
     const fetchStream = () =>
       fetch(this._endpoint, {
         method: "GET",
+        cache: "no-store",
         headers: this._metadataTypes.includes("icy")
           ? { "Icy-MetaData": 1 }
           : {},
@@ -188,7 +192,7 @@ class IcecastMetadataPlayer {
       });
 
     return fetchStream().catch((e) => {
-      if (this._metadataTypes.includes("icy")) {
+      if (this._metadataTypes.includes("icy") && e.name !== "AbortError") {
         this._metadataTypes = this._metadataTypes.filter(
           (metadata) => metadata !== "icy"
         );
