@@ -5,7 +5,7 @@
     <title>Icecast Metadata Player Demo</title>
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="dist/main.js"></script>
+    <script src="build/icecast-metadata-player-0.0.1.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
       rel="stylesheet"
@@ -13,6 +13,10 @@
     <style>
       body {
         font-family: monospace;
+        margin: 0 10%;
+      }
+      strong {
+        font-family: sans-serif;
       }
       td {
         padding-left: 10px;
@@ -38,6 +42,10 @@
       .stream-endpoint {
         width: 95%;
       }
+      hr,
+      header {
+        margin: 30px 0 20px;
+      }
       .column {
         display: flex;
         flex-direction: column;
@@ -47,6 +55,9 @@
       .row {
         display: flex;
         flex-direction: row;
+      }
+      .options-group {
+        justify-content: center;
       }
       .time {
         text-align: right;
@@ -64,7 +75,61 @@
     </style>
   </head>
   <body onload="document.options.reset();">
-    <div class="row">
+    <header>
+      <strong>
+        <a href="/">Main React Demo</a> | <a href="demo.html">HTML Demo</a> |
+        <a href="bare-minimum-demo.html">"Bare Minimum" HTML Demo</a>
+      </strong>
+    </header>
+    <hr />
+    <strong>Icecast Metadata Player HTML Demo</strong>
+    <p>
+      This page demonstrates the IcecastMetadataPlayer module.
+      IcecastMetadataPlayer is a simple JavaScript file that can be included in
+      a <i>&lt;script&gt;</i> tag to add the <i>IcecastMetadataPlayer</i> class
+      as a global variable to your webpage.
+    </p>
+    <p>
+      <i>IcecastMetadataPlayer</i> is as simple as possible to use, as it
+      handles all of the MSE, fetch logic, error handling, and audio
+      functionality. To use <i>IcecastMetadataAudio</i> include the file in a
+      <i>&lt;script&gt;</i> tag on your webpage, assign a variable to
+      <i>new IcecastMetadataPlayer(endpoint, options)</i> to create a new
+      instance, and then call <i>play()</i> or <i>stop()</i> to control
+      playback.
+    </p>
+    <p>
+      <a
+        >This module is a part of
+        <a href="https://github.com/eshaz/icecast-metadata-js"
+          >icecast-metadata-js</a
+        >. See the GitHub repository and the above links for more
+        information.</a
+      >
+    </p>
+    <h3>Controls</h3>
+    <ul>
+      <li>
+        <b>Stream Endpoint</b> selects which URL to request by using the
+        pre-selected streams, or entered manually in the input field.
+      </li>
+      <li>
+        <b>Metadata Types</b> select which metadata types to read from the
+        response.
+      </li>
+      <li>
+        <b>ICY Metadata Interval</b> shows the detected metadata interval either
+        from the <i>Icy-MetaInt</i> header value or the value detected in the
+        stream.
+      </li>
+      <li>
+        <b>ICY Detection Timeout</b> is the time in milliseconds to wait before
+        giving up on detecting ICY metadata in the response. (Note: If a stream
+        actually contains ICY metadata and timesout, there will be errors in the
+        decoded audio.
+      </li>
+    </ul>
+    <div class="row options-group">
       <fieldset class="column">
         <legend>Audio Controls</legend>
         <button id="play">Play</button>
@@ -124,6 +189,8 @@
         </div>
       </form>
     </div>
+    <hr />
+    <strong>Metadata</strong>
     <div class="metadata-info">
       <table>
         <th>Current Time</th>
@@ -153,7 +220,7 @@
 
     const onMetadataEnqueue = () => {
       metadataQueueEl.innerHTML = icecastMetadataPlayer.metadataQueue.reduce(
-        (acc, { metadata, timestamp, timestampOffset }) =>
+        (acc, { metadata, timestampOffset }) =>
           acc +
           `<tr><td class="time">${formatTime(timestampOffset)}</td>` +
           `<td class="metadata"><pre>${formatMetadata(

@@ -23,9 +23,7 @@ const {
 } = require("icecast-metadata-js");
 const ISOBMFFAudioWrapper = require("isobmff-audio").default;
 
-const PRE_ROLL = 0.5; // Wait before playing
 const BUFFER = 2; // seconds of audio to store in SourceBuffer
-
 const STOPPED = Symbol();
 const PLAYING = Symbol();
 
@@ -68,6 +66,7 @@ class IcecastMetadataPlayer {
   play() {
     if (this._state === STOPPED) {
       this._state = PLAYING;
+      this._audioElement.play();
 
       this._fetchStream()
         .then(async (res) => {
@@ -116,9 +115,6 @@ class IcecastMetadataPlayer {
   }
 
   _fallbackToAudioSrc() {
-    this._metadataTypes = this._metadataTypes.filter(
-      (metadata) => metadata !== "icy"
-    );
     this._logError(
       "Falling back to HTML5 audio with no metadata updates. See the console for details on the error."
     );
@@ -138,7 +134,7 @@ class IcecastMetadataPlayer {
   }
 
   async _createMediaSource(mimeType) {
-    //this._mediaSource = new MediaSource();
+    this._mediaSource = new MediaSource();
     this._audioElement.src = URL.createObjectURL(this._mediaSource);
 
     await new Promise((resolve) => {
@@ -156,6 +152,7 @@ class IcecastMetadataPlayer {
 
   async _destroyMediaSource() {
     this._mediaSource = null;
+    this._audioElement.pause();
     this._audioElement.removeAttribute("src");
     await this._audioElement.load();
   }
@@ -171,13 +168,6 @@ class IcecastMetadataPlayer {
 
     this._sourceBuffer.appendBuffer(chunk);
     await this._waitForSourceBuffer();
-
-    if (
-      this._sourceBuffer.buffered.length &&
-      this._sourceBuffer.buffered.end(0) > PRE_ROLL
-    ) {
-      this._playPromise = this._audioElement.play();
-    }
 
     if (this._audioElement.currentTime > BUFFER) {
       this._sourceBuffer.remove(0, this._audioElement.currentTime - BUFFER);

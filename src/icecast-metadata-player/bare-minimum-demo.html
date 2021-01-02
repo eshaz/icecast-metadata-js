@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="build/icecast-metadata-player-0.0.1.min.js"></script>
+    <style>
+      body {
+        text-align: left;
+        font-family: monospace;
+        margin: 0 10%;
+      }
+      pre {
+        margin: 0;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        margin-left: 10px;
+      }
+      .row {
+        display: flex;
+      }
+    </style>
+  </head>
+  <script>
+    // helper functions for the demo
+    let icecastMetadataPlayer, metadataEl, metadataQueueEl;
+
+    const formatTime = (seconds) =>
+      new Date(seconds * 1000).toISOString().substr(14, 8);
+
+    const formatMetadata = (metadata) =>
+      JSON.stringify(metadata, null, 1)
+        .replace(/\{\n|\n\}/g, "")
+        .replace(/^ "|\n "/g, '\n"');
+
+    const onMetadata = (metadata) => {
+      metadataEl.innerHTML = `<td><pre>${formatMetadata(metadata)}</pre></td>`;
+      onMetadataEnqueue();
+    };
+
+    const onMetadataEnqueue = () => {
+      metadataQueueEl.innerHTML = icecastMetadataPlayer.metadataQueue.reduce(
+        (acc, { metadata, timestampOffset }) =>
+          acc +
+          `<tr><td><pre>${formatTime(timestampOffset)}</pre></td>` +
+          `<td><pre>${formatMetadata(metadata)}</pre></td></tr>`,
+        `<th>Up Next</th>`
+      );
+    };
+  </script>
+  <body onload="document.options.reset();">
+    <strong>Icecast Metadata Player <i>"Bare Minimum"</i> HTML Demo</strong>
+    <ul>
+      <li>Press Play on the <code>audio</code> element to play the stream</li>
+      <li>The stream endpoint can be updated in the input field.</li>
+    </ul>
+    <div class="row">
+      <audio
+        id="audio"
+        onplay="getIcecastMetadataPlayer(); icecastMetadataPlayer.play();"
+        onpause="icecastMetadataPlayer.stop();"
+        controls
+      ></audio>
+      <form name="options">
+        <label for="endpoint">Stream Endpoint</label>
+        <input
+          class="stream-endpoint"
+          name="endpoint"
+          id="endpoint"
+          type="url"
+          value="https://dsmrad.io/stream/isics-all"
+          onchange=""
+        />
+      </form>
+    </div>
+    <div class="metadata-info">
+      <table>
+        <th>Now Playing</th>
+        <tr id="metadata"></tr>
+      </table>
+      <table id="metadataQueue"></table>
+    </div>
+  </body>
+  <script>
+    const endpoint = document.getElementById("endpoint");
+    const audioElement = document.getElementById("audio");
+    metadataEl = document.getElementById("metadata");
+    metadataQueueEl = document.getElementById("metadataQueue");
+
+    const getIcecastMetadataPlayer = () => {
+      icecastMetadataPlayer = new IcecastMetadataPlayer(endpoint.value, {
+        audioElement, //                  audio element in HTML
+        onMetadata, //                    called when metadata is synced with the audio
+        onMetadataEnqueue, //             called when metadata is discovered in the stream
+        metadataTypes: ["icy", "ogg"], // detect ICY and OGG metadata
+        icyDetectionTimeout: 5000, //     attempt to detect ICY metadata for 5 seconds
+        onError: (message) => {
+          metadataEl.innerHTML = message;
+        },
+      });
+    };
+  </script>
+</html>
