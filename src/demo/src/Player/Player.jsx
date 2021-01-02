@@ -32,32 +32,25 @@ const useMetadataPlayer = (station, onMetadata, audioElement) => {
   }, [onMetadata, metadataPlayer]);
 
   useEffect(() => {
-    if (station) {
-      if (metadataPlayer) stop();
-      setMetadataPlayer(
-        new IcecastMetadataPlayer(station.endpoint, {
-          onMetadata: (meta) => {
-            console.log(meta);
-            onMetadata(meta);
-          },
-          icyDetectionTimeout: 5000,
-          metadataTypes: station.metadataTypes,
-          audioElement,
-        })
-      );
+    if (metadataPlayer?.playing) {
+      metadataPlayer.stop();
     }
-  }, [station, onMetadata, audioElement]);
 
-  useEffect(() => {
-    if (metadataPlayer) {
-      if (metadataPlayer.playing) {
-        stop();
-        play();
-      } else {
-        play();
-      }
+    if (station) {
+      const player = new IcecastMetadataPlayer(station.endpoint, {
+        onMetadata: (meta) => {
+          console.log(meta);
+          onMetadata(meta);
+        },
+        icyDetectionTimeout: 5000,
+        metadataTypes: station.metadataTypes,
+        audioElement,
+      });
+      player.play();
+
+      setMetadataPlayer(player);
     }
-  }, [metadataPlayer, play, stop]);
+  }, [station]);
 
   useEffect(() => {
     audioElement.addEventListener("pause", stop);

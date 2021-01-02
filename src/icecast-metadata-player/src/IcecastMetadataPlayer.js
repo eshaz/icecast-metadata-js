@@ -45,6 +45,8 @@ class IcecastMetadataPlayer {
       onMetadataUpdate: options.onMetadata || noOp,
       onMetadataEnqueue: options.onMetadataEnqueue || noOp,
     });
+
+    this._createMediaSource();
   }
 
   get audioElement() {
@@ -66,10 +68,15 @@ class IcecastMetadataPlayer {
   play() {
     if (this._state === STOPPED) {
       this._state = PLAYING;
+      this._createMediaSource();
 
-      this._audioElement.addEventListener("canplay", () => {
-        this._audioElement.play();
-      }, {once: true})
+      this._audioElement.addEventListener(
+        "canplay",
+        () => {
+          this._audioElement.play();
+        },
+        { once: true }
+      );
 
       this._fetchStream()
         .then(async (res) => {
@@ -79,7 +86,7 @@ class IcecastMetadataPlayer {
             onMetadata: (value) =>
               this._icecastMetadataQueue.addMetadata(
                 value,
-                this._sourceBuffer && this._sourceBuffer.timestampOffset || 0,
+                (this._sourceBuffer && this._sourceBuffer.timestampOffset) || 0,
                 this._audioElement.currentTime
               ),
             onStream,
@@ -91,7 +98,8 @@ class IcecastMetadataPlayer {
         })
         .catch(async (e) => {
           this._icecastMetadataQueue.purgeMetadataQueue();
-          await this._destroyMediaSource();
+          this._audioElement.pause();
+          this._sourceBuffer = null;
           if (e.name !== "AbortError" && e.message !== "Error in body stream") {
             console.error(e);
             this._fallbackToAudioSrc();
@@ -136,28 +144,29 @@ class IcecastMetadataPlayer {
     this.play();
   }
 
-  async _createMediaSource(mimeType) {
+  _createMediaSource() {
+    this._sourceBuffer = null;
     this._mediaSource = new MediaSource();
     this._audioElement.src = URL.createObjectURL(this._mediaSource);
-
-    await new Promise((resolve) => {
-      this._mediaSource.addEventListener(
-        "sourceopen",
-        () => {
-          this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
-          this._sourceBuffer.mode = "sequence";
-          resolve();
-        },
-        { once: true }
-      );
-    });
   }
 
-  async _destroyMediaSource() {
-    this._mediaSource = null;
-    this._audioElement.pause();
-    this._audioElement.removeAttribute("src");
-    this._audioElement.load();
+  async _createSourceBuffer(mimeType) {
+    if (this._mediaSource.readyState === "open") {
+      this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
+      this._sourceBuffer.mode = "sequence";
+    } else {
+      await new Promise((resolve) => {
+        this._mediaSource.addEventListener(
+          "sourceopen",
+          () => {
+            this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
+            this._sourceBuffer.mode = "sequence";
+            resolve();
+          },
+          { once: true }
+        );
+      });
+    }
   }
 
   async _waitForSourceBuffer() {
@@ -167,14 +176,16 @@ class IcecastMetadataPlayer {
   }
 
   async _appendSourceBuffer(chunk, mimeType) {
-    if (!this._mediaSource) await this._createMediaSource(mimeType);
+    if (!this._sourceBuffer) await this._createSourceBuffer(mimeType);
 
-    this._sourceBuffer.appendBuffer(chunk);
-    await this._waitForSourceBuffer();
-
-    if (this._audioElement.currentTime > BUFFER) {
-      this._sourceBuffer.remove(0, this._audioElement.currentTime - BUFFER);
+    if (this._mediaSource.sourceBuffers.length) {
+      this._sourceBuffer.appendBuffer(chunk);
       await this._waitForSourceBuffer();
+
+      if (this._audioElement.currentTime > BUFFER) {
+        this._sourceBuffer.remove(0, this._audioElement.currentTime - BUFFER);
+        await this._waitForSourceBuffer();
+      }
     }
   }
 

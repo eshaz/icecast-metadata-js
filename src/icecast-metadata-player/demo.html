@@ -15,6 +15,18 @@
         font-family: monospace;
         margin: 0 10%;
       }
+      header {
+        text-align: center;
+      }
+      .header-links {
+        font-size: 16px;
+        font-family: sans-serif;
+        text-decoration: none;
+        user-select: none;
+      }
+      .header-link {
+        text-decoration: none;
+      }
       strong {
         font-family: sans-serif;
       }
@@ -42,8 +54,7 @@
       .stream-endpoint {
         width: 95%;
       }
-      hr,
-      header {
+      hr {
         margin: 20px 0;
       }
       .column {
@@ -76,21 +87,28 @@
   </head>
   <body onload="document.options.reset();">
     <header>
-      <h1 style="margin-bottom: 5px">
+      <h1 style="margin-bottom: 0px">
         <a href="https://github.com/eshaz/icecast-metadata-js"
           ><b>icecast-metadata-js</b></a
         >
       </h1>
-      Javascript library that reads, parses, and queues real-time metadata from
-      an Icecast stream.
-      <hr />
-      <strong>
-        <a href="/">React Demo</a>&nbsp;&nbsp; | &nbsp;&nbsp;<a href="demo.html"
+      <p>
+        Javascript library that reads, parses, and queues real-time metadata
+        from an Icecast stream.
+      </p>
+      <div class="header-links">
+        <a class="header-link" href="/">React Demo</a>&nbsp;&nbsp; |
+        &nbsp;&nbsp;<a
+          class="header-link"
+          style="font-weight: bold"
+          href="demo.html"
           >HTML Demo</a
-        >&nbsp;&nbsp; | &nbsp;&nbsp;<a href="bare-minimum-demo.html"
+        >&nbsp;&nbsp; | &nbsp;&nbsp;<a
+          class="header-link"
+          href="bare-minimum-demo.html"
           ><i>"Bare Minimum"</i> HTML Demo</a
         >
-      </strong>
+      </div>
     </header>
     <hr />
     <strong>Icecast Metadata Player HTML Demo</strong>
