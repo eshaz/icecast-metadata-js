@@ -44,7 +44,7 @@
       }
       hr,
       header {
-        margin: 30px 0 20px;
+        margin: 20px 0;
       }
       .column {
         display: flex;
@@ -76,18 +76,37 @@
   </head>
   <body onload="document.options.reset();">
     <header>
+      <h1 style="margin-bottom: 5px">
+        <a href="https://github.com/eshaz/icecast-metadata-js"
+          ><b>icecast-metadata-js</b></a
+        >
+      </h1>
+      Javascript library that reads, parses, and queues realtime metadata from
+      an Icecast stream.
+      <hr />
       <strong>
-        <a href="/">Main React Demo</a> | <a href="demo.html">HTML Demo</a> |
-        <a href="bare-minimum-demo.html">"Bare Minimum" HTML Demo</a>
+        <a href="/">React Demo</a> | <a href="demo.html">HTML Demo</a> |
+        <a href="bare-minimum-demo.html"><i>"Bare Minimum"</i> HTML Demo</a>
       </strong>
     </header>
     <hr />
     <strong>Icecast Metadata Player HTML Demo</strong>
     <p>
+      <b
+        ><a
+          >This module is a part of
+          <a href="https://github.com/eshaz/icecast-metadata-js"
+            >icecast-metadata-js</a
+          >. See the links in the header for more information.</a
+        ></b
+      >
+    </p>
+    <p>
       This page demonstrates the IcecastMetadataPlayer module.
       IcecastMetadataPlayer is a simple JavaScript file that can be included in
       a <i>&lt;script&gt;</i> tag to add the <i>IcecastMetadataPlayer</i> class
-      as a global variable to your webpage.
+      as a global variable to your webpage. It is also available as an NPM
+      package
     </p>
     <p>
       <i>IcecastMetadataPlayer</i> is as simple as possible to use, as it
@@ -97,15 +116,6 @@
       <i>new IcecastMetadataPlayer(endpoint, options)</i> to create a new
       instance, and then call <i>play()</i> or <i>stop()</i> to control
       playback.
-    </p>
-    <p>
-      <a
-        >This module is a part of
-        <a href="https://github.com/eshaz/icecast-metadata-js"
-          >icecast-metadata-js</a
-        >. See the GitHub repository and the above links for more
-        information.</a
-      >
     </p>
     <h3>Controls</h3>
     <ul>

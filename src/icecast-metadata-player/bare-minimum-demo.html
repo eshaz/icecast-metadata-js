@@ -9,6 +9,13 @@
         font-family: monospace;
         margin: 0 10%;
       }
+      strong {
+        font-family: sans-serif;
+      }
+      hr,
+      header {
+        margin: 20px 0;
+      }
       pre {
         margin: 0;
       }
@@ -51,18 +58,51 @@
     };
   </script>
   <body onload="document.options.reset();">
+    <header>
+      <h1 style="margin-bottom: 5px">
+        <a href="https://github.com/eshaz/icecast-metadata-js"
+          ><b>icecast-metadata-js</b></a
+        >
+      </h1>
+      Javascript library that reads, parses, and queues realtime metadata from
+      an Icecast stream.
+      <hr />
+      <strong>
+        <a href="/">React Demo</a> | <a href="demo.html">HTML Demo</a> |
+        <a href="bare-minimum-demo.html"><i>"Bare Minimum"</i> HTML Demo</a>
+      </strong>
+    </header>
+    <hr />
     <strong>Icecast Metadata Player <i>"Bare Minimum"</i> HTML Demo</strong>
+    <p>
+      <b
+        ><a
+          >This module is a part of
+          <a href="https://github.com/eshaz/icecast-metadata-js"
+            >icecast-metadata-js</a
+          >. See the links in the header for more information.</a
+        ></b
+      >
+    </p>
+    <p>
+      This page demonstrates the <i>bare-minimum</i> usage of the
+      IcecastMetadataPlayer module. See the other demo links in the header for
+      more detailed examples.
+    </p>
     <ul>
-      <li>Press Play on the <code>audio</code> element to play the stream</li>
-      <li>The stream endpoint can be updated in the input field.</li>
+      <li>Press Play on the <code>audio</code> element to play the stream.</li>
+      <li>To update the stream endpoint, type in the stream url, and click play.</li>
     </ul>
+    <hr />
     <div class="row">
       <audio
         id="audio"
         onplay="getIcecastMetadataPlayer(); icecastMetadataPlayer.play();"
         onpause="icecastMetadataPlayer.stop();"
         controls
-      ></audio>
+      >
+        Your browser does not support HTML5 audio.
+      </audio>
       <form name="options">
         <label for="endpoint">Stream Endpoint</label>
         <input
@@ -75,6 +115,7 @@
         />
       </form>
     </div>
+    <hr />
     <div class="metadata-info">
       <table>
         <th>Now Playing</th>
