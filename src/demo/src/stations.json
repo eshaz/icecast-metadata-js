@@ -24,14 +24,6 @@
     "metadataTypes": ["icy"]
   },
   {
-    "name": "1RadioLounge",
-    "description": "24/7 h. relax music...chill, ambient...",
-    "link": "http://1radiolounge.playtheradio.com/",
-    "endpoint": "https://streaming211.radionomy.com/1RadioLounge_64.aac",
-    "codec": "AAC",
-    "metadataTypes": ["icy"]
-  },
-  {
     "name": "Радио 13 (Radio 13)",
     "description": "Радио 13 - самая позитивная радиостанция в интернете. Самые лучшие хиты, эфирные программы и звездные гости эфиров. (Radio 13 - the most positive radio station on the internet. The best hits, on-air programs and star guests on the air.)",
     "link": "https://radio13.ru",
@@ -53,7 +45,7 @@
     "link": "https://bluesflac.com/",
     "endpoint": "https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac",
     "codec": "FLAC",
-    "metadataTypes": ["icy"]
+    "metadataTypes": ["icy", "ogg"]
   },
   {
     "name": "90.9 Jazzy rádió - Jazzy Cool",
@@ -101,7 +93,7 @@
     "link": "https://radioparadise.com/",
     "endpoint": "https://stream.radioparadise.com/mellow-flacm",
     "codec": "FLAC",
-    "metadataTypes": ["icy", "ogg"]
+    "metadataTypes": ["icy"]
   },
   {
     "name": "Radio Paradise Rock",
@@ -109,7 +101,7 @@
     "link": "https://radioparadise.com/",
     "endpoint": "https://stream.radioparadise.com/rock-flacm",
     "codec": "FLAC",
-    "metadataTypes": ["icy", "ogg"]
+    "metadataTypes": ["icy"]
   },
   {
     "name": "Radio Paradise World/Etc",

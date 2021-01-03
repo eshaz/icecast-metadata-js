@@ -4,7 +4,13 @@
     align-items: center;
 }
 
-.link {
+.headerLink {
+    text-decoration: none;
+    color: yellow;
+    font-size: calc(10px + 1vmin);
+}
+
+.mainLink {
     padding-top: calc(1px + 1vmin);
     display: flex;
     flex-direction: column;
@@ -20,9 +26,8 @@
 
 .description {
     color: white;
-    padding-top: calc(1px + .5vmin);
     font-size: calc(5px + 1vmin);
-    margin-bottom: 5px;
+    padding-bottom: calc(5px + .1vmin);
 }
 
 .disclaimer {

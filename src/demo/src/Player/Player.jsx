@@ -1,10 +1,14 @@
-import React, { useLayoutEffect, useEffect, useState } from "react";
+import React, {
+  useLayoutEffect,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import AudioSpectrum from "react-audio-spectrum";
-import MetadataPlayer from "../icecast/MetadataPlayer";
+import IcecastMetadataPlayer from "icecast-metadata-player";
 import { ReactComponent as Play } from "./play.svg";
 import { ReactComponent as Pause } from "./pause.svg";
 import styles from "./Player.module.css";
-import { useCallback } from "react";
 
 const SELECT_STATION = "Select a station";
 const SELECT_OR_PLAY = "Select a station or press play";
@@ -12,57 +16,59 @@ const LOADING = "Loading...";
 const VISIT_STATION = "Visit this station at ";
 const ICECAST_METADATA_JS_DEMO = "Icecast Metadata JS Demo";
 
-const useMetadataPlayer = (station, onMetadataUpdate, audioElement) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [metadataPlayer] = useState(
-    new MetadataPlayer({
-      onMetadataUpdate: (meta) => {
-        console.log(meta);
-        onMetadataUpdate(meta);
-      },
-      audioElement,
-    })
-  );
+const useMetadataPlayer = (station, onMetadata, audioElement) => {
+  const [metadataPlayer, setMetadataPlayer] = useState();
+
+  const toggle = () => (metadataPlayer?.playing ? stop() : play());
 
   const play = useCallback(() => {
-    onMetadataUpdate(LOADING);
-    setIsPlaying(true);
-    metadataPlayer.play(station);
-  }, [onMetadataUpdate, metadataPlayer, station]);
+    onMetadata(LOADING);
+    metadataPlayer.play();
+  }, [onMetadata, metadataPlayer]);
 
   const stop = useCallback(() => {
-    onMetadataUpdate(SELECT_OR_PLAY);
-    setIsPlaying(false);
+    onMetadata(SELECT_OR_PLAY);
     metadataPlayer.stop();
-  }, [onMetadataUpdate, metadataPlayer]);
+  }, [onMetadata, metadataPlayer]);
+
+  useEffect(() => {
+    if (metadataPlayer?.playing) {
+      onMetadata(SELECT_OR_PLAY);
+      metadataPlayer.stop();
+    }
+
+    if (station) {
+      const player = new IcecastMetadataPlayer(station.endpoint, {
+        onMetadata: (meta) => {
+          console.log(meta);
+          onMetadata(meta);
+        },
+        icyDetectionTimeout: 5000,
+        metadataTypes: station.metadataTypes,
+        audioElement,
+      });
+
+      onMetadata(LOADING);
+      player.play();
+
+      setMetadataPlayer(player);
+    }
+  }, [station]);
 
   useEffect(() => {
     audioElement.addEventListener("pause", stop);
     return () => audioElement.removeEventListener("pause", stop);
-  }, []);
+  }, [audioElement, stop]);
 
-  useEffect(() => {
-    if (station) {
-      if (isPlaying) {
-        stop();
-        play();
-      } else {
-        play();
-      }
-    }
-  }, [station]);
-
-  const toggle = () => (isPlaying ? stop() : play());
-
-  return [isPlaying, toggle];
+  return [metadataPlayer?.playing, toggle];
 };
 
 const Player = ({ station }) => {
   const [audioElement] = useState(new Audio());
   const [[audioHeight, audioWidth], setSpectrumSize] = useState([0, 0]);
   const [meters, setMeters] = useState(0);
-  const [metadata, setMetadata] = useState(SELECT_STATION);
 
+  const [metadata, setMetadata] = useState(SELECT_STATION);
   const [isPlaying, toggle] = useMetadataPlayer(
     station,
     setMetadata,
