@@ -141,15 +141,23 @@ class IcecastMetadataPlayer {
       "Falling back to HTML5 audio with no metadata updates. See the console for details on the error."
     );
 
+    this._state = STOPPED;
+
     this.play = () => {
-      this._audioElement.src = this._endpoint;
-      this._audioElement.play();
+      if (this._state === STOPPED) {
+        this._state = PLAYING;
+        this._audioElement.src = this._endpoint;
+        this._audioElement.play();
+      }
     };
 
     this.stop = () => {
-      this._audioElement.pause();
-      this._audioElement.removeAttribute("src");
-      this._audioElement.load();
+      if (this._state === PLAYING) {
+        this._state = STOPPED;
+        this._audioElement.pause();
+        this._audioElement.removeAttribute("src");
+        this._audioElement.load();
+      }
     };
 
     this.play();
@@ -232,7 +240,7 @@ class IcecastMetadataPlayer {
 
     if (MediaSource.isTypeSupported(mimeType)) {
       return async ({ stream }) => this._appendSourceBuffer(stream, mimeType);
-    } else if (MediaSource.isTypeSupported(isobmff.mimeType)) {
+    } else if (false) {
       return async ({ stream }) => {
         for await (const fragment of isobmff.iterator(stream)) {
           await this._appendSourceBuffer(fragment, isobmff.mimeType);

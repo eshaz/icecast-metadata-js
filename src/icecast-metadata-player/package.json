@@ -13,7 +13,7 @@
     "streaming audio"
   ],
   "scripts": {
-    "format": "prettier --write '**/*.*js*' --write '**/*.*html'",
+    "format": "prettier --write '**/*.*js*'",
     "build": "webpack"
   },
   "browser": "./src/IcecastMetadataPlayer.js",
