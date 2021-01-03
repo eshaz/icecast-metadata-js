@@ -40,27 +40,30 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Installing
 
-### [NPM](https://www.npmjs.com/package/icecast-metadata-player)
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.0.3.min.js" download>latest build</a>, or install via [NPM](https://www.npmjs.com/package/icecast-metadata-player).
+2. Include the file in a `<script>` tag in your html.
+3. `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
 
-* Run `npm i icecast-metadata-player` in the same directory as your `package.json` file to install it.
-* Once icecast-metadata-js is installed, you can import each module listed above.
-  * ES6 import: `import IcecastMetadataPlayer from ("icecast-metadata-player");`
-  * CommonJS require: `const IcecastMetadataPlayer = require("icecast-metadata-player");`
+   **Example**
 
-### `<script>` tag
-
-* Download the Javascript file <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.0.3.min.js" download>here</a>.
-* Include the file in a `<script>` tag in your html.
-* `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
-    ```
-    <script src="icecast-metadata-player-0.0.3.min.js"></script>
-    <script>
-      const player = new IcecastMetadataPlayer("https://stream.example.com");
-
-      player.play();    
-    </script>
-    ```
-
+   ```
+   <script src="icecast-metadata-player-0.0.3.min.js"></script>
+   <script>
+     const onMetadata = (metadata) => {
+       document.getElementById("metadata").innerHTML = metadata.StreamTitle;
+     };
+     const player = 
+       new IcecastMetadataPlayer(
+         "https://dsmrad.io/stream/isics-all",
+         { onMetadata }
+       );
+   </script>
+   <body>
+     <button onclick="player.play();"> Play </button>
+     <button onclick="player.stop();"> Stop </button>
+     <p> Now Playing: <span id="metadata"></span> </p>
+   </body>
+   ```
 ---
 
 ## Usage
