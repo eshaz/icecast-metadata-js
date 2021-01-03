@@ -1,7 +1,17 @@
 {
   "name": "icecast-metadata-player",
   "version": "0.0.1",
-  "description": "Javascript module that plays and reads metadata from an Icecast compatible stream.",
+  "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
+  "keywords": [
+    "icecast",
+    "shoutcast",
+    "metadata",
+    "icy",
+    "ogg",
+    "media source extensions",
+    "html5 audio",
+    "streaming audio"
+  ],
   "scripts": {
     "format": "prettier --write '**/*.*js*' --write '**/*.*html'",
     "build": "webpack"
@@ -19,7 +29,7 @@
   "bugs": {
     "url": "https://github.com/eshaz/icecast-metadata-js/issues"
   },
-  "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js",
+  "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player",
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "prettier": "^2.2.1",

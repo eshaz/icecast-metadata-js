@@ -5,7 +5,7 @@
     <title>Icecast Metadata Player Demo</title>
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="build/icecast-metadata-player-0.0.1.min.js"></script>
+    <script src="icecast-metadata-player-0.0.1.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
       rel="stylesheet"
@@ -78,6 +78,7 @@
       }
       .metadata-info {
         font-size: 12px;
+        min-height: 500px;
       }
       .metadata-header {
         text-align: left;
@@ -297,7 +298,6 @@
     };
 
     form.addEventListener("change", () => {
-      paramsUpdated = true;
       formData = Object.fromEntries(new FormData(form).entries());
     });
 

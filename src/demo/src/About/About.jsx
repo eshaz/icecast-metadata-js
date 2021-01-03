@@ -18,16 +18,19 @@ const About = () => (
         React Demo
       </a>
       &nbsp;&nbsp; | &nbsp;&nbsp;
-      <a className={styles.headerLink} href="demo.html">
+      <a
+        className={styles.headerLink}
+        href={`${process.env.PUBLIC_URL}/demo.html`}
+      >
         HTML Demo
       </a>
       &nbsp;&nbsp; | &nbsp;&nbsp;
-      <a className={styles.headerLink} href="bare-minimum-demo.html">
+      <a
+        className={styles.headerLink}
+        href={`${process.env.PUBLIC_URL}/bare-minimum-demo.html`}
+      >
         <i>"Bare Minimum"</i> &nbsp;HTML Demo
       </a>
-    </div>
-    <div className={styles.disclaimer}>
-      Stations are presented here for demonstration purposes only.
     </div>
   </div>
 );
