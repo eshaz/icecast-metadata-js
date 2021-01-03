@@ -241,7 +241,7 @@ class IcecastMetadataPlayer {
 
     if (MediaSource.isTypeSupported(mimeType)) {
       return async ({ stream }) => this._appendSourceBuffer(stream, mimeType);
-    } else if (false) {
+    } else if (MediaSource.isTypeSupported(isobmff.mimeType)) {
       return async ({ stream }) => {
         for await (const fragment of isobmff.iterator(stream)) {
           await this._appendSourceBuffer(fragment, isobmff.mimeType);
