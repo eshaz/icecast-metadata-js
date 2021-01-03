@@ -142,8 +142,6 @@ class IcecastMetadataPlayer {
       "Falling back to HTML5 audio with no metadata updates. See the console for details on the error."
     );
 
-    this._state = STOPPED;
-
     this.play = () => {
       if (this._state === STOPPED) {
         this._state = PLAYING;
@@ -161,6 +159,7 @@ class IcecastMetadataPlayer {
       }
     };
 
+    this._state = PLAYING;
     this.play();
   }
 
