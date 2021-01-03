@@ -9,7 +9,6 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
 
 ## Supported codecs:
 
-
 * **MP3** `audio/mpeg`
 * **AAC, AAC+, AAC-HE** `audio/aac`
 * **FLAC, OPUS** `application/ogg`
