@@ -71,6 +71,15 @@ class IcecastMetadataPlayer {
       this._createMediaSource();
 
       this._audioElement.addEventListener(
+        "pause",
+        () => {
+          this.stop();
+          this._createMediaSource();
+        },
+        { once: true }
+      );
+
+      this._audioElement.addEventListener(
         "canplay",
         () => {
           this._audioElement.play();
@@ -94,12 +103,14 @@ class IcecastMetadataPlayer {
             icyMetaInt: this._icyMetaInt,
             icyDetectionTimeout: this._icyDetectionTimeout,
           });
+
           await this._icecastReadableStream.startReading();
         })
         .catch(async (e) => {
           this._icecastMetadataQueue.purgeMetadataQueue();
           this._audioElement.pause();
           this._sourceBuffer = null;
+
           if (e.name !== "AbortError" && e.message !== "Error in body stream") {
             console.error(e);
             this._fallbackToAudioSrc();

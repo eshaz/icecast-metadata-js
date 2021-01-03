@@ -33,6 +33,7 @@ const useMetadataPlayer = (station, onMetadata, audioElement) => {
 
   useEffect(() => {
     if (metadataPlayer?.playing) {
+      onMetadata(SELECT_OR_PLAY);
       metadataPlayer.stop();
     }
 
@@ -46,6 +47,8 @@ const useMetadataPlayer = (station, onMetadata, audioElement) => {
         metadataTypes: station.metadataTypes,
         audioElement,
       });
+
+      onMetadata(LOADING);
       player.play();
 
       setMetadataPlayer(player);

@@ -30,7 +30,7 @@
       pre {
         margin: 0;
       }
-      form {
+      .options {
         display: flex;
         flex-direction: column;
         flex-grow: 1;
@@ -68,7 +68,9 @@
       );
     };
   </script>
-  <body onload="document.options.reset();">
+  <body
+    onload="document.getElementById('endpoint').value = 'https:\/\/dsmrad.io/stream/isics-all';"
+  >
     <header>
       <h1 style="margin-bottom: 0px">
         <a href="https://github.com/eshaz/icecast-metadata-js"
@@ -127,7 +129,7 @@
       >
         Your browser does not support HTML5 audio.
       </audio>
-      <form name="options">
+      <div class="options">
         <label for="endpoint">Stream Endpoint</label>
         <input
           class="stream-endpoint"
@@ -135,9 +137,8 @@
           id="endpoint"
           type="url"
           value="https://dsmrad.io/stream/isics-all"
-          onchange=""
         />
-      </form>
+      </div>
     </div>
     <hr />
     <div class="metadata-info">
@@ -168,5 +169,10 @@
     };
 
     getIcecastMetadataPlayer();
+
+    endpoint.addEventListener("change", () => {
+      audioElement.pause();
+      getIcecastMetadataPlayer();
+    });
   </script>
 </html>
