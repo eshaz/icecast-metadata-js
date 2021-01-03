@@ -30,6 +30,20 @@ const PLAYING = Symbol();
 const noOp = () => {};
 
 class IcecastMetadataPlayer {
+  /**
+   * @constructor
+   * @param {string} endpoint Endpoint of the Icecast compatible stream
+   * @param {object} options Options object
+   * @param {HTMLAudioElement} options.audioElement Audio element to play the stream
+   * @param {Array} options.metadataTypes Array of metadata types to parse
+   * @param {number} options.icyMetaInt ICY metadata interval
+   * @param {number} options.icyDetectionTimeout ICY metadata detection timeout
+   *
+   * @callback options.onStream Called when stream audio data is returned
+   * @callback options.onMetadata Called with metadata when synchronized with the audio
+   * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
+   * @callback options.onError Called with a message when a fallback or error condition is met
+   */
   constructor(endpoint, options = {}) {
     this._endpoint = endpoint;
     this._audioElement = options.audioElement || new Audio();
@@ -39,6 +53,7 @@ class IcecastMetadataPlayer {
     this._onError = options.onError || noOp;
     this._metadataTypes = options.metadataTypes || ["icy"];
 
+    this._hasIcy = this._metadataTypes.includes("icy");
     this._state = STOPPED;
     this._icecastReadableStream = {};
     this._icecastMetadataQueue = new IcecastMetadataQueue({
@@ -49,22 +64,37 @@ class IcecastMetadataPlayer {
     this._createMediaSource();
   }
 
+  /**
+   * @returns {HTMLAudioElement} The audio element associated with this instance
+   */
   get audioElement() {
     return this._audioElement;
   }
 
+  /**
+   * @returns {number} The ICY metadata interval in number of bytes for this instance
+   */
   get icyMetaInt() {
     return this._icecastReadableStream.icyMetaInt;
   }
 
+  /**
+   * @returns {Array<Metadata>} Array of enqueued metadata objects in FILO order
+   */
   get metadataQueue() {
     return this._icecastMetadataQueue.metadataQueue;
   }
 
+  /**
+   * @returns {boolean} The current playing state
+   */
   get playing() {
     return this._state === PLAYING;
   }
 
+  /**
+   * @description Plays the Icecast stream
+   */
   play() {
     if (this._state === STOPPED) {
       this._state = PLAYING;
@@ -121,6 +151,9 @@ class IcecastMetadataPlayer {
     }
   }
 
+  /**
+   * @description Stops playing the Icecast stream
+   */
   stop() {
     if (this._state === PLAYING) {
       this._state = STOPPED;
@@ -159,7 +192,8 @@ class IcecastMetadataPlayer {
       }
     };
 
-    this._state = PLAYING;
+    this._state = STOPPED;
+
     this.play();
   }
 
@@ -211,21 +245,17 @@ class IcecastMetadataPlayer {
   async _fetchStream() {
     this._controller = new AbortController();
 
-    const fetchStream = () =>
+    const fetchStream = (headers = {}) =>
       fetch(this._endpoint, {
         method: "GET",
-        cache: "no-store",
-        headers: this._metadataTypes.includes("icy")
-          ? { "Icy-MetaData": 1 }
-          : {},
+        headers,
         signal: this._controller.signal,
       });
 
-    return fetchStream().catch((e) => {
-      if (this._metadataTypes.includes("icy") && e.name !== "AbortError") {
-        this._metadataTypes = this._metadataTypes.filter(
-          (metadata) => metadata !== "icy"
-        );
+    if (!this._hasIcy) return fetchStream();
+
+    return fetchStream({ "Icy-MetaData": 1 }).catch((e) => {
+      if (e.name !== "AbortError") {
         this._logError(
           "Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata."
         );
@@ -236,24 +266,23 @@ class IcecastMetadataPlayer {
   }
 
   _getOnStream(mimeType) {
+    if (MediaSource.isTypeSupported(mimeType))
+      return async ({ stream }) => this._appendSourceBuffer(stream, mimeType);
+
     const isobmff = new ISOBMFFAudioWrapper(mimeType);
 
-    if (MediaSource.isTypeSupported(mimeType)) {
-      return async ({ stream }) => this._appendSourceBuffer(stream, mimeType);
-    } else if (MediaSource.isTypeSupported(isobmff.mimeType)) {
+    if (MediaSource.isTypeSupported(isobmff.mimeType))
       return async ({ stream }) => {
         for await (const fragment of isobmff.iterator(stream)) {
           await this._appendSourceBuffer(fragment, isobmff.mimeType);
         }
       };
-    } else {
-      this._logError(
-        `Media Source Extensions API in your browser does not support ${mimeType} ${isobmff.mimeType}`,
-        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-      );
 
-      throw new Error("Unsupported Codec");
-    }
+    this._logError(
+      `Media Source Extensions API in your browser does not support ${mimeType} ${isobmff.mimeType}`,
+      "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+    );
+    throw new Error("Unsupported Codec");
   }
 }
 

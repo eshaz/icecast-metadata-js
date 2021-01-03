@@ -13,6 +13,8 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
 * **AAC, AAC+, AAC-HE** `audio/aac`
 * **FLAC, OPUS** `application/ogg`
 
+*Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) container using* [`isobmff-audio`](https://github.com/eshaz/isobmff-audio)
+
 ## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
 
 * [Installing](#installing)
@@ -37,20 +39,30 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Installing
 
-### [NPM](https://www.npmjs.com/package/icecast-metadata-player)
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.0.3.min.js" download>latest build</a>, or install via [NPM](https://www.npmjs.com/package/icecast-metadata-player).
+2. Include the file in a `<script>` tag in your html.
+3. `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
 
-* Run `npm i icecast-metadata-player` in the same directory as your `package.json` file to install it.
-* Once icecast-metadata-js is installed, you can import each module listed above.
-  * ES6 import (browser): `import { IcecastMetadataReader } from ("icecast-metadata-js");`
-  * CommonJS require (NodeJS): `const { IcecastMetadataReader } = require("icecast-metadata-js");`
+   **Example**
 
-### `<script>` tag
-
-* Download the Javascript file [here](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player/build).
-* Include the file in a `<script>` tag in your html.
-  * i.e. `<script src="icecast-metadata-player-0.0.1.min.js"></script>`
-* `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
-
+   ```
+   <script src="icecast-metadata-player-0.0.3.min.js"></script>
+   <script>
+     const onMetadata = (metadata) => {
+       document.getElementById("metadata").innerHTML = metadata.StreamTitle;
+     };
+     const player = 
+       new IcecastMetadataPlayer(
+         "https://dsmrad.io/stream/isics-all",
+         { onMetadata }
+       );
+   </script>
+   <body>
+     <button onclick="player.play();"> Play </button>
+     <button onclick="player.stop();"> Stop </button>
+     <p> Now Playing: <span id="metadata"></span> </p>
+   </body>
+   ```
 ---
 
 ## Usage
@@ -67,39 +79,39 @@ https://github.com/eshaz/icecast-metadata-js
 
   ### ICY Metadata
 
-  * When reading ICY metadata, it is preferable, but not required, to pass in the `Icy-MetaInt` into the constructor of `IcecastMetadataReaader`. If `icyMetaInt` is falsy, for example if the CORS policy does not allow clients to read the `Icy-MetaInt` header, then `IcecastMetadataReader` will attempt to detect the metadata interval based on the incoming request data.
+  * When reading ICY metadata, the client should be able to read the `Icy-MetaInt` header value on the response. If the CORS policy does not allow clients to read the `Icy-MetaInt` header, then `IcecastMetadataPlayer` will attempt to detect the metadata interval based on the incoming request data.
 
-    <pre>
+    ```
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.mp3", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["icy"]
       ...options
     })
-    </pre>
+    ```
 
   ### OGG Metadata
 
   * OGG (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
 
-    <pre>
+    ```
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.opus", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["ogg"]
       ...options
     })
-    </pre>
+    ```
 
   ### ICY and OGG Metadata
 
   * ICY and OGG metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
 
-    <pre>
+    ```
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["icy", "ogg"]
       ...options
     })
-    </pre>
+    ```
 
 ### Playing a Stream
 
@@ -107,7 +119,7 @@ https://github.com/eshaz/icecast-metadata-js
 
     *Note:* IcecastMetadataPlayer will attempt to "fallback" on any CORS issues or Media Source API issues. See the [Troubleshooting](#troubleshooting) section for more details.
 
-    <pre>
+    ```
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["icy"]
@@ -115,22 +127,20 @@ https://github.com/eshaz/icecast-metadata-js
     })
 
     player.play();
-    </pre>
+    ```
 
 1. Metadata will be sent as soon as it is discovered via the `onMetadataEnqueue` and when the metadata is synchronized with the audio via the `onMetadata` callback. See the [Methods](#methods) section below for additional callbacks.
     
-    #### `metadata`
-    <pre>
-    {
-      metadata: {
-        StreamTitle: "The stream's title", // ICY
-        TITLE: "The stream's title", // OGG
-        ... // key value pairs of metadata
-      },
-      timestampOffset: 10, // audio time when the metadata should be shown
-      timestamp: 5, // audio player time when the metadata was discovered
+    #### Metadata
+    ```
+    { 
+      StreamTitle: "The stream's title", // ICY
+      StreamUrl: "The stream's url", //     ICY
+      TITLE: "The stream's title", //       OGG
+      ARTIST: "The stream's artist", //     OGG
+      ALBUM: "The stream's album" //        OGG
     }
-    </pre>
+    ```
 
 1. To stop playing the stream, call the `stop()` method on the instance.
 
@@ -235,8 +245,8 @@ const player = new IcecastMetadataPlayer(endpoint, {
 
 > Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.
 
-* The stream has been requested with ICY metadata, but the server did not respond with the `Icy-MetaInt` header. `IcecastMetadataReader` will attempt to detect the ICY metadata interval, and will timeout after a default of 2 seconds, or the value in milliseconds passed into the `icyDetectionTimeout` option.
-* This warning could also show if the stream was requested with ICY metadata, but it does not contain ICY metadata. In this case, the ICY detection should timeout and the stream should play without ICY metadata. Please update your code to no longer request ICY metadata.
+* The stream has been requested with ICY metadata, but the server did not respond with the `Icy-MetaInt` header. `IcecastMetadataPlayer` will attempt to detect the ICY metadata interval, and will timeout after a default of 2 seconds, or the value in milliseconds passed into the `icyDetectionTimeout` option.
+* This warning could also be displayed if the stream was requested with ICY metadata, but it does not contain ICY metadata. In this case, the ICY detection should timeout and the stream should play without ICY metadata. Please update your code to no longer request ICY metadata.
 
 > This stream is not an OGG stream. No OGG metadata will be returned.
 

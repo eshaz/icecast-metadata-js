@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/eshaz/icecast-metadata-js#readme",
   "devDependencies": {
-    "exports-loader": "^1.1.1",
     "@types/jest": "^26.0.19",
+    "exports-loader": "^1.1.1",
     "jest": "^26.6.3",
     "prettier": "^2.1.2",
     "terser-webpack-plugin": "^5.0.0",
@@ -27,9 +27,9 @@
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
-    "icecast-metadata-js": "0.3.0",
     "abort-controller": "^3.0.0",
     "cron-parser": "^2.16.3",
+    "icecast-metadata-js": "0.3.0",
     "node-fetch": "^2.6.1",
     "yargs": "^16.1.0"
   }
