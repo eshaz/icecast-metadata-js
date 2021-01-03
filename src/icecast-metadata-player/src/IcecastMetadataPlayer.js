@@ -70,6 +70,7 @@ class IcecastMetadataPlayer {
       this._state = PLAYING;
       this._createMediaSource();
 
+      // allow for remote control pause
       this._audioElement.addEventListener(
         "pause",
         () => {
