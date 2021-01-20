@@ -56,25 +56,38 @@ class OggMetadataParser extends MetadataParser {
   }
 
   *_hasOggPage() {
-    const baseOggPage = yield* this._getNextValue(27); // OGG Page header without page segments
     // Bytes (1-4 of 28)
     // Frame sync (must equal OggS): `AAAAAAAA|AAAAAAAA|AAAAAAAA|AAAAAAAA`:
     // Byte (6 of 28)
     // * `00000...`: All zeros
-    if (
-      this._matchBytes(/OggS/, baseOggPage.subarray(0, 4)) &&
-      !(baseOggPage[5] & 0b11111000)
-    ) {
-      // Byte (27 of 28)
-      // * `JJJJJJJJ`: Number of page segments in the segment table
-      const oggPageSegments = yield* this._getNextValue(baseOggPage[26]);
+    let syncBytes = [];
+    while (syncBytes.length <= 65307) {
+      // max ogg page size
+      const bytes = yield* super._getNextValue(5); // Sync with OGG page without sending stream data
+      if (
+        bytes[0] === 0x4f &&
+        bytes[1] === 0x67 &&
+        bytes[2] === 0x67 &&
+        bytes[3] === 0x53 &&
+        !(bytes[5] & 0b11111000)
+      ) {
+        this._currentPosition -= 5;
+        this._remainingData += 5;
+        this._stats._totalBytesRead -= 5;
+        this._stats._currentBytesRemaining += 5;
+        break;
+      }
+      syncBytes.push(bytes[0]);
 
-      this._remainingData = oggPageSegments.reduce(
-        (acc, octet) => acc + octet,
-        0
-      );
-      return true;
-    } else {
+      this._currentPosition -= 4;
+      this._remainingData += 4;
+      this._stats._totalBytesRead -= 4;
+      this._stats._currentBytesRemaining += 4;
+    }
+
+    if (syncBytes.length) yield* this._sendStream(Uint8Array.from(syncBytes));
+
+    if (syncBytes.length > 65307) {
       console.warn(
         "icecast-metadata-js",
         "\n  This stream is not an OGG stream. No OGG metadata will be returned.",
@@ -82,6 +95,17 @@ class OggMetadataParser extends MetadataParser {
       );
       return false;
     }
+
+    const baseOggPage = yield* this._getNextValue(27);
+    // Byte (27 of 28)
+    // * `JJJJJJJJ`: Number of page segments in the segment table
+    const oggPageSegments = yield* this._getNextValue(baseOggPage[26]);
+
+    this._remainingData = oggPageSegments.reduce(
+      (acc, octet) => acc + octet,
+      0
+    );
+    return true;
   }
 
   *_identifyCodec() {
