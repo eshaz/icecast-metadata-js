@@ -25,6 +25,7 @@ const license = `
 
 module.exports = {
   mode: "production",
+  devtool: "source-map",
   entry: "/src/IcecastMetadataPlayer.js",
   output: {
     path: __dirname + "/build",
