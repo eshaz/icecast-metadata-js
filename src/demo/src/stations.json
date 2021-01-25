@@ -24,24 +24,24 @@
     "metadataTypes": ["icy"]
   },
   {
-    "name": "Darksynth Radio",
-    "description": "nightride.fm",
-    "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/darksynth.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"]
-  },
-  {
     "name": "Nightride FM",
-    "description": "nightride.fm",
+    "description": "Synthwave / Retrowave / Outrun",
     "link": "https://nightride.fm",
     "endpoint": "https://stream.nightride.fm/nightride.ogg",
     "codec": "Vorbis",
     "metadataTypes": ["ogg"]
   },
   {
+    "name": "Darksynth Radio",
+    "description": "Darksynth / Cyberpunk / Horror",
+    "link": "https://nightride.fm",
+    "endpoint": "https://stream.nightride.fm/darksynth.ogg",
+    "codec": "Vorbis",
+    "metadataTypes": ["ogg"]
+  },
+  {
     "name": "EBSM",
-    "description": "nightride.fm",
+    "description": "EBSM / Industrial / Clubbing",
     "link": "https://nightride.fm",
     "endpoint": "https://stream.nightride.fm/ebsm.ogg",
     "codec": "Vorbis",
@@ -49,7 +49,7 @@
   },
   {
     "name": "REKT",
-    "description": "nightride.fm",
+    "description": "DnB / Dubstep / Electronic",
     "link": "https://nightride.fm",
     "endpoint": "https://stream.nightride.fm/rekt.ogg",
     "codec": "Vorbis",
@@ -57,7 +57,7 @@
   },
   {
     "name": "Rektory",
-    "description": "nightride.fm",
+    "description": "Fallout / 1930s / Reefer Jazz",
     "link": "https://nightride.fm",
     "endpoint": "https://stream.nightride.fm/rektory.ogg",
     "codec": "Vorbis",
@@ -65,7 +65,7 @@
   },
   {
     "name": "Rektify",
-    "description": "nightride.fm",
+    "description": "LoFi / Chill / HipHop",
     "link": "https://nightride.fm",
     "endpoint": "https://stream.nightride.fm/rektify.ogg",
     "codec": "Vorbis",
