@@ -5,7 +5,7 @@
     <title>Icecast Metadata Player Demo</title>
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-0.0.3.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-0.1.0.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
       rel="stylesheet"
@@ -143,7 +143,7 @@
       <li>
         Download the
         <a
-          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.0.3.min.js"
+          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.1.0.min.js"
           download
           >latest build</a
         >, or install via
@@ -165,7 +165,7 @@
     </ol>
     <b>Example</b>
     <pre>
-      &lt;script src="icecast-metadata-player-0.0.3.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-0.1.0.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -265,6 +265,7 @@
         </div>
       </form>
     </div>
+    <div id="audioInfo"></div>
     <hr />
     <strong>Metadata</strong>
     <div class="metadata-info">
@@ -272,8 +273,8 @@
         <th>Current Time</th>
         <th class="metadata-header">Now Playing</th>
         <tr>
-          <td class="time" id="currentTime"></td>
-          <td class="metadata" id="metadata"></td>
+          <td class="time"><div id="currentTime"></div></td>
+          <td class="metadata"><div id="metadata"></div></td>
         </tr>
       </table>
       <table id="metadataQueue"></table>
@@ -281,10 +282,15 @@
   </body>
   <script>
     const form = document.querySelector("form");
-    const currentTimeEl = document.getElementById("currentTime");
     const icyMetaIntEl = document.getElementById("icyMetaInt");
+
     const metadataEl = document.getElementById("metadata");
     const metadataQueueEl = document.getElementById("metadataQueue");
+
+    const currentTimeEl = document.getElementById("currentTime");
+    currentTimeEl.attachShadow({ mode: "open" });
+    const audioInfoEl = document.getElementById("audioInfo");
+    audioInfoEl.attachShadow({ mode: "open" });
 
     let formData, icecastMetadataPlayer, timer;
 
@@ -306,6 +312,14 @@
       );
     };
 
+    let count = 0;
+
+    const onCodecUpdate = (audioCodecData) => {
+      audioInfoEl.shadowRoot.innerHTML = `<pre>${formatMetadata(
+        audioCodecData
+      )}</pre>`;
+    };
+
     // gets a new instance of the IcecastMetadataPlayer and starts a timer
     const getIcecastMetadataPlayer = () => {
       const metadataTypes = [];
@@ -315,6 +329,7 @@
       icecastMetadataPlayer = new IcecastMetadataPlayer(formData.endpoint, {
         onMetadata,
         onMetadataEnqueue,
+        onCodecUpdate,
         metadataTypes,
         icyDetectionTimeout: parseInt(formData.icyDetectionTimeout),
         onError: (message) => {
@@ -330,7 +345,7 @@
           let time = 0;
           timer = setInterval(() => {
             time += 0.1;
-            currentTimeEl.innerHTML = formatTime(time.toFixed(2));
+            currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
           }, 100);
         },
         { once: true }
@@ -369,6 +384,7 @@
 
     const init = () => {
       formData = Object.fromEntries(new FormData(form).entries());
+      audioInfoEl.shadowRoot.innerHTML = "";
       metadataEl.innerHTML = "Loading...";
       metadataQueueEl.innerHTML = "";
       currentTimeEl.innerHTML = "00:00.00";
@@ -380,25 +396,33 @@
     const stations = [
     {"name":"DSMRad.io ISICS All","endpoint":"https://dsmrad.io/stream/isics-all","codec":"MP3","metadataTypes":["icy"]},
     {"name":"DSMRad.io SARA All","endpoint":"https://dsmrad.io/stream/sara-all","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Radio Cumbernauld","endpoint":"https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291","codec":"AAC","metadataTypes":["icy"]},
-    {"name":"Радио 13 (Radio 13)","endpoint":"https://play.radio13.ru/96","codec":"Opus","metadataTypes":["ogg"]},
     {"name":"Jazz4ever","endpoint":"https://streaming211.radionomy.com/Jazz4ever","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Radio BluesFlac","endpoint":"https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac","codec":"FLAC","metadataTypes":["icy"]},
+    {"name":"Darksynth Radio","endpoint": "https://stream.nightride.fm/darksynth.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
+    {"name":"Nightride FM","endpoint": "https://stream.nightride.fm/nightride.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
+    {"name":"EBSM","endpoint": "https://stream.nightride.fm/ebsm.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
+    {"name":"REKT","endpoint": "https://stream.nightride.fm/rekt.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
+    {"name":"Rektory","endpoint": "https://stream.nightride.fm/rektory.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
+    {"name":"Rektify","endpoint": "https://stream.nightride.fm/rektify.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
     {"name":"90.9 Jazzy rádió - Jazzy Cool","endpoint":"https://s04.diazol.hu:9530/live.mp3","codec":"MP3","metadataTypes":["icy"]},
     {"name":"90.9 Jazzy rádió - Jazzy Groove","endpoint":"https://s04.diazol.hu:9510/live.mp3","codec":"MP3","metadataTypes":["icy"]},
     {"name":"90.9 Jazzy rádió - Jazzy Soul","endpoint":"https://s04.diazol.hu:9520/live.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"The Zen Lounge","endpoint": "https://server.thezenlounge.jp/radio/8000/radio_192.aac","codec":"AAC 192","metadataTypes":["ogg"]},
+    {"name":"The Zen Lounge","endpoint": "https://server.thezenlounge.jp/radio/8000/radio_192.ogg","codec":"Vorbis 192","metadataTypes":["ogg"]},
+    {"name":"The Zen Lounge","endpoint": "https://server.thezenlounge.jp/radio/8000/radio_320.ogg","codec":"Vorbis 320","metadataTypes":["ogg"]},
     {"name":"Radio Paradise Main","endpoint":"https://stream.radioparadise.com/flacm","codec":"FLAC","metadataTypes":["icy"]},
+    {"name":"Radio BluesFlac","endpoint":"https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac","codec":"FLAC","metadataTypes":["icy"]},
     {"name":"Radio Paradise Mellow","endpoint":"https://stream.radioparadise.com/mellow-flacm","codec":"FLAC","metadataTypes":["icy","ogg"]},
     {"name":"Radio Paradise Rock","endpoint":"https://stream.radioparadise.com/rock-flacm","codec":"FLAC","metadataTypes":["icy","ogg"]},
     {"name":"Radio Paradise World/Etc","endpoint":"https://stream.radioparadise.com/world-etc-320","codec":"AAC","metadataTypes":["icy"]},
-    {"name":"OroyaWave","endpoint":"https://streamingv2.shoutcast.com/oroyawave","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"OroyaWave-Minimal","endpoint":"https://streamingv2.shoutcast.com/oroyawave-minimal","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Radioparty.pl - House","endpoint":"https://s1.radioparty.pl:8000/house","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Radioparty.pl - Trance","endpoint":"https://s2.radioparty.pl:8015/trance","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Radioparty.pl - Vocal Trance","endpoint":"https://s2.radioparty.pl:8015/vocaltrance","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Radioparty.pl - DJ Mixes","endpoint":"https://s1.radioparty.pl:8000/djmixes","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Radioparty.pl - Energy 2000","endpoint":"https://s2.radioparty.pl:8040/energy2000","codec":"AAC+","metadataTypes":["icy"]},
     {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.mp3","codec":"MP3","metadataTypes":["icy"]},
+    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.aac","codec":"AAC","metadataTypes":["icy"]},
+    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
+    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.opus","codec":"Opus","metadataTypes":["ogg"]},
     {"name":"Dance Wave Retro!","endpoint":"https://retro.dancewave.online/retrodance.mp3","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Metro DANCE! Radio","endpoint":"http://eu1.reliastream.com:7017/MDR","codec":"MP3","metadataTypes":["icy"]},
     {"name":"Sama Radio Senegal","endpoint":"https://streamingv2.shoutcast.com/SamaRadio","codec":"MP3","metadataTypes":["icy"]},
