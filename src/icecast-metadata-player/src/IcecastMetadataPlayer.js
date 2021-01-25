@@ -21,9 +21,10 @@ const {
   IcecastReadableStream,
   IcecastMetadataQueue,
 } = require("icecast-metadata-js");
-const ISOBMFFAudioWrapper = require("isobmff-audio").default;
+const MSEAudioWrapper = require("mse-audio-wrapper").default;
 
-const BUFFER = 2; // seconds of audio to store in SourceBuffer
+const BUFFER = 10; // seconds of audio to store in SourceBuffer
+const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 const STOPPED = Symbol();
 const PLAYING = Symbol();
 
@@ -42,6 +43,7 @@ class IcecastMetadataPlayer {
    * @callback options.onStream Called when stream audio data is returned
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
+   * @callback options.onCodecUpdate Called when the audio codec information has changed
    * @callback options.onError Called with a message when a fallback or error condition is met
    */
   constructor(endpoint, options = {}) {
@@ -51,6 +53,7 @@ class IcecastMetadataPlayer {
     this._icyDetectionTimeout = options.icyDetectionTimeout;
     this._onStream = options.onStream || noOp;
     this._onError = options.onError || noOp;
+    this._onCodecUpdate = options.onCodecUpdate || noOp;
     this._metadataTypes = options.metadataTypes || ["icy"];
 
     this._hasIcy = this._metadataTypes.includes("icy");
@@ -126,7 +129,16 @@ class IcecastMetadataPlayer {
             onMetadata: (value) =>
               this._icecastMetadataQueue.addMetadata(
                 value,
-                (this._sourceBuffer && this._sourceBuffer.timestampOffset) || 0,
+                (this._mediaSource &&
+                  this._mediaSource.sourceBuffers.length &&
+                  Math.max(
+                    // work-around for WEBM reporting a negative timestampOffset
+                    this._mediaSource.sourceBuffers[0].timestampOffset,
+                    this._mediaSource.sourceBuffers[0].buffered.length
+                      ? this._mediaSource.sourceBuffers[0].buffered.end(0)
+                      : 0
+                  )) ||
+                  0,
                 this._audioElement.currentTime
               ),
             onStream,
@@ -204,6 +216,15 @@ class IcecastMetadataPlayer {
   }
 
   async _createSourceBuffer(mimeType) {
+    this._sourceBufferRemoved = 0;
+    if (!MediaSource.isTypeSupported(mimeType)) {
+      this._logError(
+        `Media Source Extensions API in your browser does not support ${mimeType}`,
+        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+      );
+      throw new Error("Unsupported Codec");
+    }
+
     if (this._mediaSource.readyState === "open") {
       this._sourceBuffer = this._mediaSource.addSourceBuffer(mimeType);
       this._sourceBuffer.mode = "sequence";
@@ -235,7 +256,11 @@ class IcecastMetadataPlayer {
       this._sourceBuffer.appendBuffer(chunk);
       await this._waitForSourceBuffer();
 
-      if (this._audioElement.currentTime > BUFFER) {
+      if (
+        this._audioElement.currentTime > BUFFER &&
+        this._sourceBufferRemoved + BUFFER_INTERVAL * 1000 < Date.now()
+      ) {
+        this._sourceBufferRemoved = Date.now();
         this._sourceBuffer.remove(0, this._audioElement.currentTime - BUFFER);
         await this._waitForSourceBuffer();
       }
@@ -269,20 +294,15 @@ class IcecastMetadataPlayer {
     if (MediaSource.isTypeSupported(mimeType))
       return async ({ stream }) => this._appendSourceBuffer(stream, mimeType);
 
-    const isobmff = new ISOBMFFAudioWrapper(mimeType);
+    const isobmff = new MSEAudioWrapper(mimeType, {
+      onCodecUpdate: this._onCodecUpdate,
+    });
 
-    if (MediaSource.isTypeSupported(isobmff.mimeType))
-      return async ({ stream }) => {
-        for await (const fragment of isobmff.iterator(stream)) {
-          await this._appendSourceBuffer(fragment, isobmff.mimeType);
-        }
-      };
-
-    this._logError(
-      `Media Source Extensions API in your browser does not support ${mimeType} ${isobmff.mimeType}`,
-      "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-    );
-    throw new Error("Unsupported Codec");
+    return async ({ stream }) => {
+      for await (const fragment of isobmff.iterator(stream)) {
+        await this._appendSourceBuffer(fragment, isobmff.mimeType);
+      }
+    };
   }
 }
 

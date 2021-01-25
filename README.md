@@ -167,13 +167,9 @@ The demo is based on the MediaSource Extensions (MSE) API. Some browsers do not 
 Checkout this link to see which codecs your browser supports.
 https://cconcolato.github.io/media-mime-support/#audio_codecs
 
-
 #### Supported Browsers / Codecs:
- * Chrome, Firefox `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus)
+ * Chrome, Firefox `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
  * iOS, Safari, Edge, others... *support unknown* - Let me know if it works!
-
-#### Un-supported Codecs:
- * Chrome, Firefox `application/ogg` (vorbis)
 
 ### Running Locally
 

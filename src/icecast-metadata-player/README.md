@@ -11,9 +11,9 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
 
 * **MP3** `audio/mpeg`
 * **AAC, AAC+, AAC-HE** `audio/aac`
-* **FLAC, OPUS** `application/ogg`
+* **FLAC, OPUS, Vorbis** `application/ogg`
 
-*Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) container using* [`isobmff-audio`](https://github.com/eshaz/isobmff-audio)
+*Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
 
 ## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
 
@@ -31,6 +31,8 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
   * [Getters](#getters)
   * [Methods](#methods)
 * [Troubleshooting](#troubleshooting)
+  * [Debugging](#debugging)
+  * [Error Messages](#error-messages)
 
 See the main page of this repo for other Icecast JS tools:
 https://github.com/eshaz/icecast-metadata-js
@@ -39,14 +41,14 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Installing
 
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.0.3.min.js" download>latest build</a>, or install via [NPM](https://www.npmjs.com/package/icecast-metadata-player).
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.1.0.min.js" download>latest build</a>, or install via [NPM](https://www.npmjs.com/package/icecast-metadata-player).
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```
-   <script src="icecast-metadata-player-0.0.3.min.js"></script>
+   <script src="icecast-metadata-player-0.1.0.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -165,6 +167,7 @@ const player = new IcecastMetadataPlayer(endpoint, {
   onStream,
   onMetadata,
   onMetadataEnqueue,
+  onCodecUpdate
   onError
 })
 ```
@@ -203,6 +206,10 @@ const player = new IcecastMetadataPlayer(endpoint, {
     * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
   * `timestampOffset` time when is scheduled to be updated.
   * `timestamp` time when metadata was discovered on the stream.
+* `onCodecUpdate({ ...codecInformation })` (optional)
+  * Called with audio codec information whenever there is a change
+  * Information such as `bitrate` and `samplingRate` are passed in as an object to this callback
+  * **Only called when [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper) is being used to wrap the response in ISOBMFF or WEBM**
 * `onError(message)` (optional)
   * Called when a fallback condition or error condition is met.
 
@@ -241,6 +248,14 @@ const player = new IcecastMetadataPlayer(endpoint, {
 
 ## Troubleshooting
 
+### Debugging
+
+#### Source Map
+
+IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
+* To enable the source map, simply copy `icecast-metadata-player-0.1.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-0.1.0.min.js` in your website.
+* The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
+
 ### Error messages
 
 > Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.
@@ -254,7 +269,9 @@ const player = new IcecastMetadataPlayer(endpoint, {
 
 > Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata.
 
-* A network error occurred while requesting the stream with the `Icy-MetaData: 1` header. If you want ICY metadata, your CORS policy must allow this header to be requested. See [CORS Troubleshooting](https://github.com/eshaz/icecast-metadata-js#cors) for more information.
+* A network error occurred while requesting the stream with the `Icy-MetaData: 1` header.
+  * If you want ICY metadata, your CORS policy must allow this header to be requested. See [CORS Troubleshooting](https://github.com/eshaz/icecast-metadata-js#cors) for more information.
+  * Additionally, attempting to access a HTTP from a HTTPS origin will be blocked by modern browsers
 
 > Media Source Extensions API in your browser does not support `codec`, `audio/mp4; codec="codec"`
 
@@ -263,4 +280,4 @@ const player = new IcecastMetadataPlayer(endpoint, {
 > Falling back to HTML5 audio with no metadata updates. See the console for details on the error.
 
 * A general error occurred when playing the stream. IcecastMetadataPlayer should continue to play the stream, but there will be no metadata updates.
-The Media Source API is a relatively new browser feature, and there can be varying support across platforms.
+* This may be caused by lack of browser support for the Media Source API, which varies across platforms.
