@@ -292,7 +292,10 @@ class IcecastMetadataPlayer {
 
   _getOnStream(mimeType) {
     if (MediaSource.isTypeSupported(mimeType))
-      return async ({ stream }) => this._appendSourceBuffer(stream, mimeType);
+      return async ({ stream }) => {
+        this._onStream(stream);
+        await this._appendSourceBuffer(stream, mimeType);
+      };
 
     const isobmff = new MSEAudioWrapper(mimeType, {
       onCodecUpdate: this._onCodecUpdate,
@@ -300,6 +303,7 @@ class IcecastMetadataPlayer {
 
     return async ({ stream }) => {
       for await (const fragment of isobmff.iterator(stream)) {
+        this._onStream(fragment);
         await this._appendSourceBuffer(fragment, isobmff.mimeType);
       }
     };
