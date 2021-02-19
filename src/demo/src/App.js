@@ -19,42 +19,40 @@ const App = () => {
   const [metadata, setMetadata] = useState(SELECT_STATION);
   const [icecast, setIcecast] = useState();
 
-  const getIcecastPlayer = (station) =>
-    new IcecastMetadataPlayer(station.endpoint, {
-      onMetadata: (meta) => {
-        console.log(meta);
-        setMetadata(meta);
-      },
-      onStop: () => {
-        setPlaying(false);
-        setMetadata(SELECT_OR_PLAY);
-      },
-      onLoading: () => {
-        setPlaying(true);
-        setMetadata(LOADING);
-      },
-      onPlay: () => {
-        setPlaying(true);
-      },
-      icyDetectionTimeout: 5000,
-      metadataTypes: station.metadataTypes,
-      audioElement,
-    });
-
-  useEffect(() => {
-    if (station) {
+  const changeStation = useCallback(
+    (station) => {
       if (icecast) icecast.stop();
 
-      const player = getIcecastPlayer(station);
+      const player = new IcecastMetadataPlayer(station.endpoint, {
+        onMetadata: (meta) => {
+          console.log(meta);
+          setMetadata(meta);
+        },
+        onStop: () => {
+          setPlaying(false);
+          setMetadata(SELECT_OR_PLAY);
+        },
+        onLoading: () => {
+          setPlaying(true);
+          setMetadata(LOADING);
+        },
+        onPlay: () => {
+          setPlaying(true);
+        },
+        icyDetectionTimeout: 5000,
+        metadataTypes: station.metadataTypes,
+        audioElement,
+      });
 
       setPlaying(true);
       setMetadata(LOADING);
       player.play();
 
       setIcecast(player);
-    }
-  }, [station]);
-
+      setStation(station);
+    },
+    [icecast, audioElement]
+  );
   useEffect(() => {
     if (icecast) {
       audioElement.addEventListener("pause", icecast.stop);
@@ -71,7 +69,7 @@ const App = () => {
       <header className={styles.header}>
         <About />
       </header>
-      <StationSelector stations={stations} changeStation={setStation} />
+      <StationSelector stations={stations} changeStation={changeStation} />
       <footer className={styles.footer}>
         <Player
           station={station}
