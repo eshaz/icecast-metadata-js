@@ -16,71 +16,66 @@ const LOADING = "Loading...";
 const VISIT_STATION = "Visit this station at ";
 const ICECAST_METADATA_JS_DEMO = "Icecast Metadata JS Demo";
 
-const useMetadataPlayer = (station, onMetadata, audioElement) => {
-  const [metadataPlayer, setMetadataPlayer] = useState();
-
-  const toggle = () => (metadataPlayer?.playing ? stop() : play());
-
-  const play = useCallback(() => {
-    onMetadata(LOADING);
-    metadataPlayer.play();
-  }, [onMetadata, metadataPlayer]);
-
-  const stop = useCallback(() => {
-    onMetadata(SELECT_OR_PLAY);
-    metadataPlayer.stop();
-  }, [onMetadata, metadataPlayer]);
-
-  useEffect(() => {
-    if (metadataPlayer?.playing) {
-      onMetadata(SELECT_OR_PLAY);
-      metadataPlayer.stop();
-    }
-
-    if (station) {
-      const player = new IcecastMetadataPlayer(station.endpoint, {
-        onMetadata: (meta) => {
-          console.log(meta);
-          onMetadata(meta);
-        },
-        icyDetectionTimeout: 5000,
-        metadataTypes: station.metadataTypes,
-        audioElement,
-      });
-
-      onMetadata(LOADING);
-      player.play();
-
-      setMetadataPlayer(player);
-    }
-  }, [station]);
-
-  useEffect(() => {
-    audioElement.addEventListener("pause", stop);
-    return () => audioElement.removeEventListener("pause", stop);
-  }, [audioElement, stop]);
-
-  return [metadataPlayer?.playing, toggle];
-};
-
 const Player = ({ station }) => {
   const [audioElement] = useState(new Audio());
   const [[audioHeight, audioWidth], setSpectrumSize] = useState([0, 0]);
   const [meters, setMeters] = useState(0);
 
   const [metadata, setMetadata] = useState(SELECT_STATION);
-  const [isPlaying, toggle] = useMetadataPlayer(
-    station,
-    setMetadata,
-    audioElement
-  );
+  const [icecast, setIcecast] = useState();
+  const [playing, setPlaying] = useState(false);
 
+  // begin playing when a new station is selected
+  useEffect(() => {
+    if (icecast) {
+      icecast.play();
+      // browser audio element integration
+      audioElement.addEventListener("pause", icecast.stop);
+      return () => audioElement.removeEventListener("pause", icecast.stop);
+    }
+  }, [audioElement, icecast]);
+
+  // change station
+  useEffect(() => {
+    if (station) {
+      icecast && icecast.stop();
+
+      setIcecast(
+        new IcecastMetadataPlayer(station.endpoint, {
+          onMetadata: (meta) => {
+            console.log(meta);
+            setMetadata(meta);
+          },
+          onStop: () => {
+            setPlaying(false)
+            setMetadata(SELECT_OR_PLAY);
+          },
+          onLoading: () => {
+            setPlaying(true)
+            setMetadata(LOADING);
+          },
+          onPlay: () => {
+            setPlaying(true)
+          },
+          icyDetectionTimeout: 5000,
+          metadataTypes: station.metadataTypes,
+          audioElement,
+        })
+      );
+    }
+  }, [station, audioElement]);
+
+  // update metadata in title
   useEffect(() => {
     const title = metadata.StreamTitle || metadata.TITLE;
     document.title = title
       ? `${title} | ${ICECAST_METADATA_JS_DEMO}`
       : ICECAST_METADATA_JS_DEMO;
   }, [metadata]);
+
+  const toggle = useCallback(() => {
+    playing ? icecast.stop() : icecast.play();
+  }, [icecast, playing]);
 
   useLayoutEffect(() => {
     const updateSize = () => {
@@ -113,7 +108,7 @@ const Player = ({ station }) => {
         />
       </div>
       <button disabled={!station} className={styles.button} onClick={toggle}>
-        {isPlaying ? <Pause /> : <Play />}
+        {playing ? <Pause /> : <Play />}
       </button>
       <div>
         <p className={styles.metadata}>

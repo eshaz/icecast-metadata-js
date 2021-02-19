@@ -41,7 +41,11 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Installing
 
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.1.2.min.js" download>latest build</a>, or install via [NPM](https://www.npmjs.com/package/icecast-metadata-player).
+### Install via [NPM](https://www.npmjs.com/package/icecast-metadata-player)
+* `npm i icecast-metadata-player`
+
+### Install as a standalone script
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.1.2.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
 

@@ -25,8 +25,13 @@ const MSEAudioWrapper = require("mse-audio-wrapper").default;
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
-const STOPPED = Symbol();
-const PLAYING = Symbol();
+
+// State
+const STOPPED = Symbol("stopped");
+const LOADING = Symbol("loading");
+const PLAYING = Symbol("playing");
+const RETRYING = Symbol("retrying");
+const ERROR = Symbol("error");
 
 const noOp = () => {};
 
@@ -48,21 +53,30 @@ class IcecastMetadataPlayer {
    */
   constructor(endpoint, options = {}) {
     this._endpoint = endpoint;
+
+    // options
     this._audioElement = options.audioElement || new Audio();
     this._icyMetaInt = options.icyMetaInt;
     this._icyDetectionTimeout = options.icyDetectionTimeout;
-    this._onStream = options.onStream || noOp;
-    this._onError = options.onError || noOp;
-    this._onCodecUpdate = options.onCodecUpdate || noOp;
     this._metadataTypes = options.metadataTypes || ["icy"];
-
     this._hasIcy = this._metadataTypes.includes("icy");
-    this._state = STOPPED;
-    this._icecastReadableStream = {};
+
+    // callbacks
+    this._onStream = options.onStream || noOp;    
     this._icecastMetadataQueue = new IcecastMetadataQueue({
       onMetadataUpdate: options.onMetadata || noOp,
       onMetadataEnqueue: options.onMetadataEnqueue || noOp,
     });
+    this._onPlay = options.onPlay || noOp;
+    this._onStop = options.onStop || noOp;
+    this._onLoading = options.onLoading || noOp;
+    this._onRetrying = options.onRetrying || noOp;
+    this._onError = options.onError || noOp;
+
+    this._onCodecUpdate = options.onCodecUpdate || noOp;
+    this._playerState = STOPPED;
+    this._icecastReadableStream = {};
+
 
     this._createMediaSource();
   }
@@ -99,8 +113,8 @@ class IcecastMetadataPlayer {
    * @description Plays the Icecast stream
    */
   play() {
-    if (this._state === STOPPED) {
-      this._state = PLAYING;
+    if (this._state !== PLAYING) {
+      this._state = LOADING;
       this._createMediaSource();
 
       // allow for remote control pause
@@ -123,6 +137,7 @@ class IcecastMetadataPlayer {
 
       this._fetchStream()
         .then(async (res) => {
+          this._state = PLAYING;
           const onStream = this._getOnStream(res.headers.get("content-type"));
 
           this._icecastReadableStream = new IcecastReadableStream(res, {
@@ -153,11 +168,11 @@ class IcecastMetadataPlayer {
           this._icecastMetadataQueue.purgeMetadataQueue();
           this._audioElement.pause();
           this._sourceBuffer = null;
+          this._state = STOPPED;
 
           if (e.name !== "AbortError" && e.message !== "Error in body stream") {
             console.error(e);
             this._fallbackToAudioSrc();
-            this._state = STOPPED;
           }
         });
     }
@@ -167,10 +182,26 @@ class IcecastMetadataPlayer {
    * @description Stops playing the Icecast stream
    */
   stop() {
-    if (this._state === PLAYING) {
-      this._state = STOPPED;
+    if (this._state === LOADING || this._state === PLAYING) {
       this._controller.abort();
     }
+  }
+
+  get _state() {
+    return this._playerState
+  }
+
+  set _state(state) {
+    this._playerState = state;
+
+    const events = {
+      [PLAYING]: () => {console.log("playing"); this._onPlay()},
+      [STOPPED]: () => {console.log("stopped"); this._onStop()},
+      [LOADING]: () => {console.log("loading"); this._onLoading()},
+      [RETRYING]:() => {console.log("retrying"); this._onRetrying()}
+    }
+    
+    events[state]();
   }
 
   _logError(...messages) {
@@ -188,7 +219,7 @@ class IcecastMetadataPlayer {
     );
 
     this.play = () => {
-      if (this._state === STOPPED) {
+      if (this._state !== PLAYING) {
         this._state = PLAYING;
         this._audioElement.src = this._endpoint;
         this._audioElement.play();
@@ -196,15 +227,13 @@ class IcecastMetadataPlayer {
     };
 
     this.stop = () => {
-      if (this._state === PLAYING) {
+      if (this._state !== STOPPED) {
         this._state = STOPPED;
         this._audioElement.pause();
         this._audioElement.removeAttribute("src");
         this._audioElement.load();
       }
     };
-
-    this._state = STOPPED;
 
     this.play();
   }
