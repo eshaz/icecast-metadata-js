@@ -19,43 +19,50 @@ const App = () => {
   const [metadata, setMetadata] = useState(SELECT_STATION);
   const [icecast, setIcecast] = useState();
 
+  const getIcecastPlayer = (station) =>
+    new IcecastMetadataPlayer(station.endpoint, {
+      onMetadata: (meta) => {
+        console.log(meta);
+        setMetadata(meta);
+      },
+      onStop: () => {
+        setPlaying(false);
+        setMetadata(SELECT_OR_PLAY);
+      },
+      onLoading: () => {
+        setPlaying(true);
+        setMetadata(LOADING);
+      },
+      onPlay: () => {
+        setPlaying(true);
+      },
+      icyDetectionTimeout: 5000,
+      metadataTypes: station.metadataTypes,
+      audioElement,
+    });
+
   useEffect(() => {
     if (station) {
-      if (icecast) {
-        icecast.stop();
-      }
+      if (icecast) icecast.stop();
 
-      setIcecast(
-        new IcecastMetadataPlayer(station.endpoint, {
-          onMetadata: (meta) => {
-            console.log(meta);
-            setMetadata(meta);
-          },
-          onStop: () => {
-            setMetadata(SELECT_OR_PLAY);
-          },
-          onLoading: () => {
-            setMetadata(LOADING);
-          },
-          icyDetectionTimeout: 5000,
-          metadataTypes: station.metadataTypes,
-          audioElement,
-        })
-      );
+      const player = getIcecastPlayer(station);
+
+      setPlaying(true);
+      setMetadata(LOADING);
+      player.play();
+
+      setIcecast(player);
     }
-  }, [station, audioElement]);
+  }, [station]);
 
   useEffect(() => {
     if (icecast) {
-      setPlaying(true);
-      icecast.play();
       audioElement.addEventListener("pause", icecast.stop);
       return () => audioElement.removeEventListener("pause", icecast.stop);
     }
   }, [icecast, audioElement]);
 
   const toggle = useCallback(() => {
-    setPlaying(!playing);
     playing ? icecast.stop() : icecast.play();
   }, [icecast, playing]);
 
