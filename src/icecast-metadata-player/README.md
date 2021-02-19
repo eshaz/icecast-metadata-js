@@ -200,7 +200,7 @@ const player = new IcecastMetadataPlayer(endpoint, {
     * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
   * `timestampOffset` time when is scheduled to be updated.
   * `timestamp` time when metadata was discovered on the stream.
-* `onMetadata(metadata, timestampOffset, timestamp)` (optional)
+* `onMetadataEnqueue(metadata, timestampOffset, timestamp)` (optional)
   * Called when metadata is discovered on the stream.
     * ICY: `{ "StreamTitle: "The Stream Title" }`
     * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
