@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -39,7 +39,7 @@
     "webpack-cli": "^4.3.0"
   },
   "dependencies": {
-    "icecast-metadata-js": "0.3.1",
+    "icecast-metadata-js": "0.3.2",
     "mse-audio-wrapper": "1.0.1"
   }
 }
