@@ -145,7 +145,7 @@ class IcecastMetadataPlayer {
    * @description Plays the Icecast stream
    */
   play() {
-    if (this._state !== PLAYING) {
+    if (this._state === STOPPED) {
       this._state = LOADING;
       this._fireEvent(LOAD);
 
@@ -161,18 +161,24 @@ class IcecastMetadataPlayer {
         { once: true }
       );
 
-      this._audioElement.addEventListener(
-        "canplay",
-        () => {
-          this._state = PLAYING;
-          this._fireEvent(PLAY);
-          this._audioElement.play();
-        },
-        { once: true }
-      );
-
       this._fetchStream()
         .then(async (res) => {
+          if (!res.ok) {
+            const error = new Error(`${res.status} received from ${res.url}`);
+            error.name = "HTTP Response Error";
+            throw error;
+          }
+
+          this._audioElement.addEventListener(
+            "canplay",
+            () => {
+              this._state = PLAYING;
+              this._fireEvent(PLAY);
+              this._audioElement.play();
+            },
+            { once: true }
+          );
+
           this._fireEvent(STREAM_START);
           const onStream = this._getOnStream(res.headers.get("content-type"));
 
@@ -212,6 +218,7 @@ class IcecastMetadataPlayer {
 
             // retry any potentially recoverable errors
             if (
+              e.name !== "HTTP Response Error" &&
               e.message !== "Error in body stream" &&
               e.message !== "Failed to fetch"
             ) {
@@ -230,7 +237,7 @@ class IcecastMetadataPlayer {
    * @description Stops playing the Icecast stream
    */
   stop() {
-    if (this._state === LOADING || this._state === PLAYING) {
+    if (this._state !== STOPPED) {
       this._controller.abort();
     }
   }
@@ -364,14 +371,14 @@ class IcecastMetadataPlayer {
         await this._appendSourceBuffer(stream, mimeType);
       };
 
-    const isobmff = new MSEAudioWrapper(mimeType, {
+    const mseAudioWrapper = new MSEAudioWrapper(mimeType, {
       onCodecUpdate: (...args) => this._fireEvent(CODEC_UPDATE, ...args),
     });
 
     return async ({ stream }) => {
-      for await (const fragment of isobmff.iterator(stream)) {
+      for await (const fragment of mseAudioWrapper.iterator(stream)) {
         this._fireEvent(STREAM, fragment);
-        await this._appendSourceBuffer(fragment, isobmff.mimeType);
+        await this._appendSourceBuffer(fragment, mseAudioWrapper.mimeType);
       }
     };
   }

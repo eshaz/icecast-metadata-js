@@ -212,6 +212,7 @@
         onMetadataEnqueue, //             called when metadata is discovered in the stream
         metadataTypes: ["icy", "ogg"], // detect ICY and OGG metadata
         icyDetectionTimeout: 5000, //     attempt to detect ICY metadata for 5 seconds
+        enableLogging: true, //           enable error logs to the console
         onError: (message) => {
           metadataEl.innerHTML = message;
         },

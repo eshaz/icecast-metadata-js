@@ -35,7 +35,7 @@ const App = () => {
           setPlaying(false);
           setMetadata(SELECT_OR_PLAY);
         },
-        onLoading: () => {
+        onLoad: () => {
           setPlaying(true);
           setMetadata(LOADING);
         },
