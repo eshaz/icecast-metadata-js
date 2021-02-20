@@ -5,17 +5,17 @@
     "main.js.map": "/icecast-metadata-js/static/js/main.e920c4c8.chunk.js.map",
     "runtime-main.js": "/icecast-metadata-js/static/js/runtime-main.b3cc6761.js",
     "runtime-main.js.map": "/icecast-metadata-js/static/js/runtime-main.b3cc6761.js.map",
-    "static/js/2.bd2ef0dc.chunk.js": "/icecast-metadata-js/static/js/2.bd2ef0dc.chunk.js",
-    "static/js/2.bd2ef0dc.chunk.js.map": "/icecast-metadata-js/static/js/2.bd2ef0dc.chunk.js.map",
+    "static/js/2.4ffa21a8.chunk.js": "/icecast-metadata-js/static/js/2.4ffa21a8.chunk.js",
+    "static/js/2.4ffa21a8.chunk.js.map": "/icecast-metadata-js/static/js/2.4ffa21a8.chunk.js.map",
     "index.html": "/icecast-metadata-js/index.html",
     "static/css/main.c3ee1a3c.chunk.css.map": "/icecast-metadata-js/static/css/main.c3ee1a3c.chunk.css.map",
-    "static/js/2.bd2ef0dc.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.bd2ef0dc.chunk.js.LICENSE.txt",
+    "static/js/2.4ffa21a8.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.4ffa21a8.chunk.js.LICENSE.txt",
     "static/media/pause.50a7fb92.svg": "/icecast-metadata-js/static/media/pause.50a7fb92.svg",
     "static/media/play.18e046c1.svg": "/icecast-metadata-js/static/media/play.18e046c1.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.b3cc6761.js",
-    "static/js/2.bd2ef0dc.chunk.js",
+    "static/js/2.4ffa21a8.chunk.js",
     "static/css/main.c3ee1a3c.chunk.css",
     "static/js/main.e920c4c8.chunk.js"
   ]
