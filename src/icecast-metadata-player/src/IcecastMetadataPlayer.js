@@ -63,7 +63,6 @@ const icecastReadableStream = Symbol();
 const icecastMetadataQueue = Symbol();
 const abortController = Symbol();
 const mediaSource = Symbol();
-const sourceBuffer = Symbol();
 const sourceBufferRemoved = Symbol();
 const events = Symbol();
 const state = Symbol();
@@ -75,7 +74,7 @@ const fireEvent = Symbol();
 const logError = Symbol();
 const fallbackToAudioSrc = Symbol();
 const createMediaSource = Symbol();
-const createSourceBuffer = Symbol();
+const getMimeType = Symbol();
 const waitForSourceBuffer = Symbol();
 const appendSourceBuffer = Symbol();
 const fetchStream = Symbol();
@@ -161,7 +160,7 @@ class IcecastMetadataPlayer extends EventTarget {
     p.get(this)[state] = STOPPED;
     p.get(this)[icecastReadableStream] = {};
 
-    this[createMediaSource]();
+    p.get(this)[audioElement].src = URL.createObjectURL(new MediaSource());
   }
 
   /**
@@ -207,14 +206,14 @@ class IcecastMetadataPlayer extends EventTarget {
       p.get(this)[state] = LOADING;
       this[fireEvent](LOAD);
 
-      this[createMediaSource]();
-
       // allow for pause integration with browser
       p.get(this)[audioElement].addEventListener(
         "pause",
         () => {
+          p.get(this)[audioElement].src = URL.createObjectURL(
+            new MediaSource()
+          );
           this.stop();
-          this[createMediaSource]();
         },
         { once: true }
       );
@@ -227,6 +226,8 @@ class IcecastMetadataPlayer extends EventTarget {
             throw error;
           }
 
+          this[fireEvent](STREAM_START);
+
           p.get(this)[audioElement].addEventListener(
             "canplay",
             () => {
@@ -237,11 +238,8 @@ class IcecastMetadataPlayer extends EventTarget {
             { once: true }
           );
 
-          this[fireEvent](STREAM_START);
-          const onStream = this[getOnStream](res.headers.get("content-type"));
-
           p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
-            onMetadata: (value) =>
+            onMetadata: (value) => {
               p.get(this)[icecastMetadataQueue].addMetadata(
                 value,
                 (p.get(this)[mediaSource] &&
@@ -257,8 +255,13 @@ class IcecastMetadataPlayer extends EventTarget {
                   )) ||
                   0,
                 p.get(this)[audioElement].currentTime
-              ),
-            onStream,
+              );
+            },
+            onStream: this[getOnStream](
+              this[getMimeType](res.headers.get("content-type")).then(
+                this[createMediaSource].bind(this)
+              )
+            ),
             metadataTypes: p.get(this)[metadataTypes],
             icyMetaInt: p.get(this)[icyMetaInt],
             icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
@@ -271,7 +274,6 @@ class IcecastMetadataPlayer extends EventTarget {
           this[fireEvent](STREAM_END);
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
           p.get(this)[audioElement].pause();
-          p.get(this)[sourceBuffer] = null;
 
           if (e.name !== "AbortError") {
             this[fireEvent](ERROR, e);
@@ -299,6 +301,115 @@ class IcecastMetadataPlayer extends EventTarget {
   stop() {
     if (p.get(this)[state] !== STOPPED) {
       p.get(this)[abortController].abort();
+    }
+  }
+
+  async [fetchStream]() {
+    p.get(this)[abortController] = new AbortController();
+
+    const fetchStream = (headers = {}) =>
+      fetch(p.get(this)[endpoint], {
+        method: "GET",
+        headers,
+        signal: p.get(this)[abortController].signal,
+      });
+
+    if (!p.get(this)[hasIcy]) return fetchStream();
+
+    return fetchStream({ "Icy-MetaData": 1 }).catch((e) => {
+      if (e.name !== "AbortError") {
+        this[fireEvent](
+          ERROR,
+          "Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata."
+        );
+        return fetchStream();
+      }
+      throw e;
+    });
+  }
+
+  async [getMimeType](inputMimeType) {
+    if (MediaSource.isTypeSupported(inputMimeType)) {
+      return inputMimeType;
+    } else {
+      return new Promise((onMimeType) => {
+        p.get(this).mseAudioWrapper = new MSEAudioWrapper(inputMimeType, {
+          onCodecUpdate: (...args) => this[fireEvent](CODEC_UPDATE, ...args),
+          onMimeType,
+        });
+      }).then((mimeType) => {
+        if (!MediaSource.isTypeSupported(mimeType)) {
+          this[fireEvent](
+            ERROR,
+            `Media Source Extensions API in your browser does not support ${inputMimeType} or ${mimeType}`,
+            "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+          );
+          throw new Error("Unsupported Codec");
+        }
+
+        return mimeType;
+      });
+    }
+  }
+
+  async [createMediaSource](mimeType) {
+    const ms = (p.get(this)[mediaSource] = new MediaSource());
+    p.get(this)[audioElement].src = URL.createObjectURL(ms);
+    p.get(this)[sourceBufferRemoved] = 0;
+
+    await new Promise((resolve) => {
+      ms.addEventListener(
+        "sourceopen",
+        () => {
+          ms.addSourceBuffer(mimeType);
+          ms.sourceBuffers[0].mode = "sequence";
+          resolve();
+        },
+        { once: true }
+      );
+    });
+  }
+
+  [getOnStream](mediaSourcePromise) {
+    const onStream = async ({ stream }) => {
+      this[fireEvent](STREAM, stream);
+      await mediaSourcePromise;
+      await this[appendSourceBuffer](stream);
+    };
+
+    const mseAudioWrapper = p.get(this).mseAudioWrapper;
+
+    if (mseAudioWrapper) {
+      return async ({ stream }) => {
+        for await (const fragment of mseAudioWrapper.iterator(stream)) {
+          await onStream({ stream: fragment });
+        }
+      };
+    } else {
+      return onStream;
+    }
+  }
+
+  async [waitForSourceBuffer](sb) {
+    return new Promise((resolve) => {
+      sb.addEventListener("updateend", resolve, {
+        once: true,
+      });
+    });
+  }
+
+  async [appendSourceBuffer](chunk) {
+    const sourceBuffer = p.get(this)[mediaSource].sourceBuffers[0];
+    sourceBuffer.appendBuffer(chunk);
+    await this[waitForSourceBuffer](sourceBuffer);
+
+    if (
+      p.get(this)[audioElement].currentTime > BUFFER &&
+      p.get(this)[sourceBufferRemoved] + BUFFER_INTERVAL * 1000 < Date.now()
+    ) {
+      p.get(this)[sourceBufferRemoved] = Date.now();
+      sourceBuffer.remove(0, p.get(this)[audioElement].currentTime - BUFFER);
+      await this[waitForSourceBuffer](sourceBuffer);
     }
   }
 
@@ -341,119 +452,6 @@ class IcecastMetadataPlayer extends EventTarget {
     };
 
     this.play();
-  }
-
-  [createMediaSource]() {
-    p.get(this)[sourceBuffer] = null;
-    p.get(this)[mediaSource] = new MediaSource();
-    p.get(this)[audioElement].src = URL.createObjectURL(
-      p.get(this)[mediaSource]
-    );
-  }
-
-  async [createSourceBuffer](mimeType) {
-    p.get(this)[sourceBufferRemoved] = 0;
-    if (!MediaSource.isTypeSupported(mimeType)) {
-      this[fireEvent](
-        ERROR,
-        `Media Source Extensions API in your browser does not support ${mimeType}`,
-        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-      );
-      throw new Error("Unsupported Codec");
-    }
-
-    if (p.get(this)[mediaSource].readyState === "open") {
-      p.get(this)[sourceBuffer] = p
-        .get(this)
-        [mediaSource].addSourceBuffer(mimeType);
-      p.get(this)[sourceBuffer].mode = "sequence";
-    } else {
-      await new Promise((resolve) => {
-        p.get(this)[mediaSource].addEventListener(
-          "sourceopen",
-          () => {
-            p.get(this)[sourceBuffer] = p
-              .get(this)
-              [mediaSource].addSourceBuffer(mimeType);
-            p.get(this)[sourceBuffer].mode = "sequence";
-            resolve();
-          },
-          { once: true }
-        );
-      });
-    }
-  }
-
-  async [waitForSourceBuffer]() {
-    return new Promise((resolve) => {
-      p.get(this)[sourceBuffer].addEventListener("updateend", resolve, {
-        once: true,
-      });
-    });
-  }
-
-  async [appendSourceBuffer](chunk, mimeType) {
-    if (!p.get(this)[sourceBuffer]) await this[createSourceBuffer](mimeType);
-
-    if (p.get(this)[mediaSource].sourceBuffers.length) {
-      p.get(this)[sourceBuffer].appendBuffer(chunk);
-      await this[waitForSourceBuffer]();
-
-      if (
-        p.get(this)[audioElement].currentTime > BUFFER &&
-        p.get(this)[sourceBufferRemoved] + BUFFER_INTERVAL * 1000 < Date.now()
-      ) {
-        p.get(this)[sourceBufferRemoved] = Date.now();
-        p.get(this)[sourceBuffer].remove(
-          0,
-          p.get(this)[audioElement].currentTime - BUFFER
-        );
-        await this[waitForSourceBuffer]();
-      }
-    }
-  }
-
-  async [fetchStream]() {
-    p.get(this)[abortController] = new AbortController();
-
-    const fetchStream = (headers = {}) =>
-      fetch(p.get(this)[endpoint], {
-        method: "GET",
-        headers,
-        signal: p.get(this)[abortController].signal,
-      });
-
-    if (!p.get(this)[hasIcy]) return fetchStream();
-
-    return fetchStream({ "Icy-MetaData": 1 }).catch((e) => {
-      if (e.name !== "AbortError") {
-        this[fireEvent](
-          ERROR,
-          "Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata."
-        );
-        return fetchStream();
-      }
-      throw e;
-    });
-  }
-
-  [getOnStream](mimeType) {
-    if (MediaSource.isTypeSupported(mimeType))
-      return async ({ stream }) => {
-        this[fireEvent](STREAM, stream);
-        await this[appendSourceBuffer](stream, mimeType);
-      };
-
-    const mseAudioWrapper = new MSEAudioWrapper(mimeType, {
-      onCodecUpdate: (...args) => this[fireEvent](CODEC_UPDATE, ...args),
-    });
-
-    return async ({ stream }) => {
-      for await (const fragment of mseAudioWrapper.iterator(stream)) {
-        this[fireEvent](STREAM, fragment);
-        await this[appendSourceBuffer](fragment, mseAudioWrapper.mimeType);
-      }
-    };
   }
 }
 

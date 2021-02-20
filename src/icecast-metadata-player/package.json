@@ -40,6 +40,6 @@
   },
   "dependencies": {
     "icecast-metadata-js": "0.3.2",
-    "mse-audio-wrapper": "1.0.1"
+    "mse-audio-wrapper": "file:../../../isobmff-audio"
   }
 }
