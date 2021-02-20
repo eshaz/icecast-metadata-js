@@ -17,6 +17,7 @@ const Player = ({ station, playing, toggle, audioElement, metadata }) => {
     ? `${title} | ${ICECAST_METADATA_JS_DEMO}`
     : ICECAST_METADATA_JS_DEMO;
 
+  // adjust canvas size for audio spectrum
   useLayoutEffect(() => {
     const updateSize = () => {
       const player = document.getElementById("player");

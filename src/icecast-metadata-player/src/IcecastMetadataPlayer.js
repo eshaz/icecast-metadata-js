@@ -27,11 +27,24 @@ const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
 // State
-const STOPPED = Symbol("stopped");
-const LOADING = Symbol("loading");
-const PLAYING = Symbol("playing");
-const RETRYING = Symbol("retrying");
-const ERROR = Symbol("error");
+const LOADING = "loading";
+const PLAYING = "playing";
+const STOPPED = "stopped";
+const RETRYING = "retrying";
+
+// Events
+const PLAY = "play";
+const LOAD = "load";
+const STREAM_START = "streamstart";
+const STREAM = "stream";
+const STREAM_END = "streamend";
+const METADATA = "metadata";
+const METADATA_ENQUEUE = "metadataenqueue";
+const CODEC_UPDATE = "codecupdate";
+const STOP = "stop";
+const RETRY = "retry";
+const RETRY_TIMEOUT = "retrytimeout";
+const ERROR = "error";
 
 const noOp = () => {};
 
@@ -45,11 +58,18 @@ class IcecastMetadataPlayer {
    * @param {number} options.icyMetaInt ICY metadata interval
    * @param {number} options.icyDetectionTimeout ICY metadata detection timeout
    *
-   * @callback options.onStream Called when stream audio data is returned
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
-   * @callback options.onCodecUpdate Called when the audio codec information has changed
    * @callback options.onError Called with a message when a fallback or error condition is met
+   * @callback options.onPlay Called when the audio element begins playing
+   * @callback options.onLoad Called when stream request is started
+   * @callback options.onStreamStart Called when stream requests begins to return data
+   * @callback options.onStream Called when stream data is sent to the audio element
+   * @callback options.onStreamEnd Called when the stream request completes
+   * @callback options.onStop Called when the stream is completely stopped and all cleanup operations are complete
+   * @callback options.onRetry Called when a connection retry is attempted
+   * @callback options.onRetryTimeout Called when when connections attempts have timed out
+   * @callback options.onCodecUpdate Called when the audio codec information has changed
    */
   constructor(endpoint, options = {}) {
     this._endpoint = endpoint;
@@ -60,23 +80,35 @@ class IcecastMetadataPlayer {
     this._icyDetectionTimeout = options.icyDetectionTimeout;
     this._metadataTypes = options.metadataTypes || ["icy"];
     this._hasIcy = this._metadataTypes.includes("icy");
+    this._enableLogging = options.enableLogging || false;
 
     // callbacks
-    this._onStream = options.onStream || noOp;    
+    this._events = {
+      [PLAY]: options.onPlay || noOp,
+      [LOAD]: options.onLoad || noOp,
+      [STREAM_START]: options.onStreamStart || noOp,
+      [STREAM]: options.onStream || noOp,
+      [STREAM_END]: options.onStreamEnd || noOp,
+      [METADATA]: options.onMetadata || noOp,
+      [METADATA_ENQUEUE]: options.onMetadataEnqueue || noOp,
+      [CODEC_UPDATE]: options.onCodecUpdate || noOp,
+      [STOP]: options.onStop || noOp,
+      [RETRY]: options.onRetry || noOp,
+      [RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
+      [ERROR]: (...messages) => {
+        if (this._enableLogging) this._logError(...messages);
+        if (options.onError) options.onError(messages[0]);
+      },
+    };
+
     this._icecastMetadataQueue = new IcecastMetadataQueue({
-      onMetadataUpdate: options.onMetadata || noOp,
-      onMetadataEnqueue: options.onMetadataEnqueue || noOp,
+      onMetadataUpdate: (...args) => this._fireEvent(METADATA, ...args),
+      onMetadataEnqueue: (...args) =>
+        this._fireEvent(METADATA_ENQUEUE, ...args),
     });
-    this._onPlay = options.onPlay || noOp;
-    this._onStop = options.onStop || noOp;
-    this._onLoading = options.onLoading || noOp;
-    this._onRetrying = options.onRetrying || noOp;
-    this._onError = options.onError || noOp;
 
-    this._onCodecUpdate = options.onCodecUpdate || noOp;
-    this._playerState = STOPPED;
+    this._state = STOPPED;
     this._icecastReadableStream = {};
-
 
     this._createMediaSource();
   }
@@ -115,9 +147,11 @@ class IcecastMetadataPlayer {
   play() {
     if (this._state !== PLAYING) {
       this._state = LOADING;
+      this._fireEvent(LOAD);
+
       this._createMediaSource();
 
-      // allow for remote control pause
+      // allow for pause integration with browser
       this._audioElement.addEventListener(
         "pause",
         () => {
@@ -130,6 +164,8 @@ class IcecastMetadataPlayer {
       this._audioElement.addEventListener(
         "canplay",
         () => {
+          this._state = PLAYING;
+          this._fireEvent(PLAY);
           this._audioElement.play();
         },
         { once: true }
@@ -137,7 +173,7 @@ class IcecastMetadataPlayer {
 
       this._fetchStream()
         .then(async (res) => {
-          this._state = PLAYING;
+          this._fireEvent(STREAM_START);
           const onStream = this._getOnStream(res.headers.get("content-type"));
 
           this._icecastReadableStream = new IcecastReadableStream(res, {
@@ -163,17 +199,29 @@ class IcecastMetadataPlayer {
           });
 
           await this._icecastReadableStream.startReading();
+          this._fireEvent(STREAM_END);
         })
         .catch(async (e) => {
+          this._fireEvent(STREAM_END);
           this._icecastMetadataQueue.purgeMetadataQueue();
           this._audioElement.pause();
           this._sourceBuffer = null;
-          this._state = STOPPED;
 
-          if (e.name !== "AbortError" && e.message !== "Error in body stream") {
-            console.error(e);
-            this._fallbackToAudioSrc();
+          if (e.name !== "AbortError") {
+            this._fireEvent(ERROR, e);
+
+            // retry any potentially recoverable errors
+            if (
+              e.message !== "Error in body stream" &&
+              e.message !== "Failed to fetch"
+            ) {
+              this._fallbackToAudioSrc();
+            }
           }
+        })
+        .finally(() => {
+          this._state = STOPPED;
+          this._fireEvent(STOP);
         });
     }
   }
@@ -187,21 +235,8 @@ class IcecastMetadataPlayer {
     }
   }
 
-  get _state() {
-    return this._playerState
-  }
-
-  set _state(state) {
-    this._playerState = state;
-
-    const events = {
-      [PLAYING]: () => {console.log("playing"); this._onPlay()},
-      [STOPPED]: () => {console.log("stopped"); this._onStop()},
-      [LOADING]: () => {console.log("loading"); this._onLoading()},
-      [RETRYING]:() => {console.log("retrying"); this._onRetrying()}
-    }
-    
-    events[state]();
+  _fireEvent(event, ...args) {
+    this._events[event](...args);
   }
 
   _logError(...messages) {
@@ -209,18 +244,18 @@ class IcecastMetadataPlayer {
       "icecast-metadata-js",
       messages.reduce((acc, message) => acc + "\n  " + message, "")
     );
-
-    this._onError(messages[0]);
   }
 
   _fallbackToAudioSrc() {
-    this._logError(
+    this._fireEvent(
+      ERROR,
       "Falling back to HTML5 audio with no metadata updates. See the console for details on the error."
     );
 
     this.play = () => {
       if (this._state !== PLAYING) {
         this._state = PLAYING;
+        this._fireEvent(PLAY);
         this._audioElement.src = this._endpoint;
         this._audioElement.play();
       }
@@ -229,6 +264,7 @@ class IcecastMetadataPlayer {
     this.stop = () => {
       if (this._state !== STOPPED) {
         this._state = STOPPED;
+        this._fireEvent(STOP);
         this._audioElement.pause();
         this._audioElement.removeAttribute("src");
         this._audioElement.load();
@@ -247,7 +283,8 @@ class IcecastMetadataPlayer {
   async _createSourceBuffer(mimeType) {
     this._sourceBufferRemoved = 0;
     if (!MediaSource.isTypeSupported(mimeType)) {
-      this._logError(
+      this._fireEvent(
+        ERROR,
         `Media Source Extensions API in your browser does not support ${mimeType}`,
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
@@ -310,7 +347,8 @@ class IcecastMetadataPlayer {
 
     return fetchStream({ "Icy-MetaData": 1 }).catch((e) => {
       if (e.name !== "AbortError") {
-        this._logError(
+        this._fireEvent(
+          ERROR,
           "Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata."
         );
         return fetchStream();
@@ -322,17 +360,17 @@ class IcecastMetadataPlayer {
   _getOnStream(mimeType) {
     if (MediaSource.isTypeSupported(mimeType))
       return async ({ stream }) => {
-        this._onStream(stream);
+        this._fireEvent(STREAM, stream);
         await this._appendSourceBuffer(stream, mimeType);
       };
 
     const isobmff = new MSEAudioWrapper(mimeType, {
-      onCodecUpdate: this._onCodecUpdate,
+      onCodecUpdate: (...args) => this._fireEvent(CODEC_UPDATE, ...args),
     });
 
     return async ({ stream }) => {
       for await (const fragment of isobmff.iterator(stream)) {
-        this._onStream(fragment);
+        this._fireEvent(STREAM, fragment);
         await this._appendSourceBuffer(fragment, isobmff.mimeType);
       }
     };

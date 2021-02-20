@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
@@ -28,7 +28,10 @@ const App = () => {
           console.log(meta);
           setMetadata(meta);
         },
-        onStop: () => {
+        onPlay: () => {
+          setPlaying(true);
+        },
+        onStreamEnd: () => {
           setPlaying(false);
           setMetadata(SELECT_OR_PLAY);
         },
@@ -36,10 +39,8 @@ const App = () => {
           setPlaying(true);
           setMetadata(LOADING);
         },
-        onPlay: () => {
-          setPlaying(true);
-        },
         icyDetectionTimeout: 5000,
+        enableLogging: true,
         metadataTypes: station.metadataTypes,
         audioElement,
       });
@@ -53,12 +54,6 @@ const App = () => {
     },
     [icecast, audioElement]
   );
-  useEffect(() => {
-    if (icecast) {
-      audioElement.addEventListener("pause", icecast.stop);
-      return () => audioElement.removeEventListener("pause", icecast.stop);
-    }
-  }, [icecast, audioElement]);
 
   const toggle = useCallback(() => {
     playing ? icecast.stop() : icecast.play();
