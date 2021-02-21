@@ -20,8 +20,11 @@ const App = () => {
   const [icecast, setIcecast] = useState();
 
   const changeStation = useCallback(
-    (station) => {
-      if (icecast) icecast.stop();
+    async (station) => {
+      if (icecast) {
+        await icecast.stop();
+        icecast.detachAudioElement();
+      }
 
       const player = new IcecastMetadataPlayer(station.endpoint, {
         onMetadata: (meta) => {
@@ -31,7 +34,7 @@ const App = () => {
         onPlay: () => {
           setPlaying(true);
         },
-        onStreamEnd: () => {
+        onStop: () => {
           setPlaying(false);
           setMetadata(SELECT_OR_PLAY);
         },

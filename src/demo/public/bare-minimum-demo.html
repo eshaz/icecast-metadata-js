@@ -210,7 +210,7 @@
         audioElement, //                  audio element in HTML
         onMetadata, //                    called when metadata is synced with the audio
         onMetadataEnqueue, //             called when metadata is discovered in the stream
-        metadataTypes: ["icy", "ogg"], // detect ICY and OGG metadata
+        metadataTypes: ["icy"], //        detect ICY metadata
         icyDetectionTimeout: 5000, //     attempt to detect ICY metadata for 5 seconds
         enableLogging: true, //           enable error logs to the console
         onError: (message) => {

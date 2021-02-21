@@ -333,14 +333,7 @@
         metadataTypes,
         icyDetectionTimeout: parseInt(formData.icyDetectionTimeout),
         enableLogging: true,
-        onError: (message) => {
-          metadataEl.innerHTML = message;
-        },
-      });
-
-      icecastMetadataPlayer.audioElement.addEventListener(
-        "playing",
-        () => {
+        onPlay: () => {
           icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
 
           let time = 0;
@@ -349,8 +342,17 @@
             currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
           }, 100);
         },
-        { once: true }
-      );
+        onStop: () => {
+          clearInterval(timer);
+        },
+        onError: (message) => {
+          metadataEl.innerHTML = message;
+        },
+      });
+
+      icecastMetadataPlayer.addEventListener("metadata", (...args) => {
+        console.log(args);
+      });
     };
 
     form.addEventListener("change", () => {
@@ -358,7 +360,7 @@
     });
 
     document.getElementById("play").addEventListener("click", () => {
-      if (icecastMetadataPlayer) stop();
+      if (icecastMetadataPlayer) icecastMetadataPlayer.stop();
       init();
 
       getIcecastMetadataPlayer();
@@ -366,7 +368,7 @@
     });
 
     document.getElementById("stop").addEventListener("click", () => {
-      stop();
+      icecastMetadataPlayer.stop();
     });
 
     // helper functions
@@ -378,13 +380,9 @@
         .replace(/\{\n|\n\}/g, "")
         .replace(/^ "|\n "/g, '\n"');
 
-    const stop = () => {
-      clearInterval(timer);
-      icecastMetadataPlayer.stop();
-    };
-
     const init = () => {
       formData = Object.fromEntries(new FormData(form).entries());
+      currentTimeEl.shadowRoot.innerHTML = ""
       audioInfoEl.shadowRoot.innerHTML = "";
       metadataEl.innerHTML = "Loading...";
       metadataQueueEl.innerHTML = "";
