@@ -48,8 +48,6 @@ const App = () => {
         audioElement,
       });
 
-      setPlaying(true);
-      setMetadata(LOADING);
       player.play();
 
       setIcecast(player);
