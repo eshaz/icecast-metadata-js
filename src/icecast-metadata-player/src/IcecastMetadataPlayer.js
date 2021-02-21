@@ -79,14 +79,13 @@ const fireEvent = Symbol();
 const fallbackToAudioSrc = Symbol();
 const createMediaSource = Symbol();
 const createSourceBuffer = Symbol();
-const play = Symbol();
-const stop = Symbol();
 
 const getMimeType = Symbol();
 const waitForSourceBuffer = Symbol();
 const appendSourceBuffer = Symbol();
 const fetchStream = Symbol();
 const getOnStream = Symbol();
+const attachAudioElement = Symbol();
 
 class IcecastMetadataPlayer extends EventTarget {
   /**
@@ -169,10 +168,22 @@ class IcecastMetadataPlayer extends EventTarget {
         this[fireEvent](METADATA_ENQUEUE, ...args),
     });
 
-    this.attachAudioElement();
+    // audio element event handlers
+    p.get(this)[onAudioPlay] = () => {
+      this.play();
+    };
+    p.get(this)[onAudioPause] = () => {
+      this.stop();
+    };
+    p.get(this)[onAudioCanPlay] = () => {
+      p.get(this)[audioElement].play();
+      p.get(this)[state] = PLAYING;
+      this[fireEvent](PLAY);
+    };
+
+    this[attachAudioElement]();
 
     p.get(this)[state] = STOPPED;
-    p.get(this)[icecastReadableStream] = {};
     p.get(this)[mediaSourcePromise] = this[createMediaSource]();
   }
 
@@ -211,23 +222,11 @@ class IcecastMetadataPlayer extends EventTarget {
     return p.get(this)[state];
   }
 
-  attachAudioElement() {
+  [attachAudioElement]() {
     // audio events
-    p.get(this)[onAudioPlay] = () => {
-      this[play]();
-    };
-    p.get(this)[onAudioPause] = () => {
-      this[stop]();
-    };
-    p.get(this)[onAudioCanPlay] = () => {
-      p.get(this)[state] = PLAYING;
-      this[fireEvent](PLAY);
-    };
-
     const audio = p.get(this)[audioElement];
     audio.addEventListener("pause", p.get(this)[onAudioPause]);
     audio.addEventListener("play", p.get(this)[onAudioPlay]);
-    audio.addEventListener("canplay", p.get(this)[onAudioCanPlay]);
   }
 
   /**
@@ -238,7 +237,7 @@ class IcecastMetadataPlayer extends EventTarget {
     audio.removeEventListener("pause", p.get(this)[onAudioPause]);
     audio.removeEventListener("play", p.get(this)[onAudioPlay]);
     audio.removeEventListener("canplay", p.get(this)[onAudioCanPlay]);
-    audio.removeEventListener("canplay", this._canPlay);
+    p.get(this)[audioElement] = null;
   }
 
   /**
@@ -246,30 +245,16 @@ class IcecastMetadataPlayer extends EventTarget {
    * @async Resolves when the audio element is playing
    */
   async play() {
-    this._canPlay = () => {
-      p.get(this)[audioElement].play();
-    };
-
-    p.get(this)[audioElement].addEventListener("canplay", this._canPlay, {
-      once: true,
-    });
-
-    await this[play]();
-  }
-
-  /**
-   * @description Stops playing the Icecast stream
-   * @async Resolves the icecast stream has stopped
-   */
-  async stop() {
-    await this[stop]();
-  }
-
-  async [play]() {
     if (this.state === STOPPED) {
       p.get(this)[abortController] = new AbortController();
       p.get(this)[state] = LOADING;
       this[fireEvent](LOAD);
+
+      p.get(this)[audioElement].addEventListener(
+        "canplay",
+        p.get(this)[onAudioCanPlay],
+        { once: true }
+      );
 
       this[fetchStream]()
         .then(async (res) => {
@@ -340,8 +325,7 @@ class IcecastMetadataPlayer extends EventTarget {
           }
           p.get(this)[audioElement].removeEventListener(
             "canplay",
-            this._canPlay,
-            { once: true }
+            p.get(this)[onAudioCanPlay]
           );
 
           this[fireEvent](STOP);
@@ -356,7 +340,11 @@ class IcecastMetadataPlayer extends EventTarget {
     }
   }
 
-  async [stop]() {
+  /**
+   * @description Stops playing the Icecast stream
+   * @async Resolves the icecast stream has stopped
+   */
+  async stop() {
     if (this.state !== STOPPED && this.state !== STOPPING) {
       p.get(this)[state] = STOPPING;
       p.get(this)[abortController].abort();
