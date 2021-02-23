@@ -114,7 +114,8 @@ class IcyMetadataParser extends MetadataParser {
     // prettier-ignore
     this._logError(
       "ICY Metadata not detected, but continuing anyway. Audio errors will occur if there is ICY metadata.",
-      `Searched ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`
+      `Searched ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`,
+      "Try increasing the `icyDetectionTimeout` value if ICY metadata is present in the stream."
     );
     return false;
   }
