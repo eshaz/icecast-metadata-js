@@ -74,8 +74,6 @@ const onAudioCanPlay = Symbol();
 const mseAudioWrapper = Symbol();
 const mediaSourcePromise = Symbol();
 
-const log = Symbol();
-
 // private methods
 const fireEvent = Symbol();
 const fallbackToAudioSrc = Symbol();
@@ -158,22 +156,6 @@ class IcecastMetadataPlayer extends EventTarget {
         }
         if (options.onError) options.onError(...messages);
       },
-    };
-
-    p.get(this)[log] = {
-      [PLAY]: (event) => console.log(event),
-      [LOAD]: (event) => console.log(event),
-      [STREAM_START]: (event) => console.log(event),
-      [STREAM]: noOp,
-      [STREAM_END]: (event) => console.log(event),
-      [METADATA]: noOp,
-      [METADATA_ENQUEUE]: noOp,
-      [CODEC_UPDATE]: noOp,
-      [STOP]: (event) => console.log(event),
-      [RETRY]: (event) => console.log(event),
-      [RETRY_TIMEOUT]: (event) => console.log(event),
-      [WARN]: (event) => console.log(event),
-      [ERROR]: (event) => console.log(event),
     };
 
     p.get(this)[icecastMetadataQueue] = new IcecastMetadataQueue({
@@ -483,7 +465,6 @@ class IcecastMetadataPlayer extends EventTarget {
   }
 
   [fireEvent](event, ...args) {
-    p.get(this)[log][event](event);
     this.dispatchEvent(new CustomEvent(event, { detail: args }));
     p.get(this)[events][event](...args);
   }
