@@ -155,7 +155,6 @@ class MetadataParser {
 
     this._currentPosition += value.length;
 
-
     return value;
   }
 
