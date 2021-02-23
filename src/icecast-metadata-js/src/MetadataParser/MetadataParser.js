@@ -27,18 +27,20 @@ const noOp = () => {};
  */
 
 class MetadataParser {
-  constructor({ onStream = noOp, onMetadata = noOp }) {
+  constructor(params) {
     this._remainingData = 0;
     this._currentPosition = 0;
     this._buffer = new Uint8Array(0);
     this._stats = new Stats();
     this._decoder = new Decoder("utf-8");
 
-    this._onStream = onStream;
-    this._onMetadata = onMetadata;
+    this._onStream = params.onStream || noOp;
+    this._onMetadata = params.onMetadata || noOp;
+    this._onError = params.onError || noOp;
+    this._enableLogging = params.enableLogging || false;
+
     this._onStreamPromise = Promise.resolve();
     this._onMetadataPromise = Promise.resolve();
-
     this._generator = this._passThroughParser();
     this._generator.next();
   }
@@ -96,6 +98,16 @@ class MetadataParser {
       await this._onStreamPromise;
       await this._onMetadataPromise;
     }
+  }
+
+  _logError(...messages) {
+    if (this._enableLogging) {
+      console.warn(
+        "icecast-metadata-js",
+        messages.reduce((acc, message) => acc + "\n  " + message, "")
+      );
+    }
+    this._onError(...messages);
   }
 
   *_sendStream(stream) {
