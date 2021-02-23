@@ -147,7 +147,7 @@ class IcecastMetadataPlayer extends EventTarget {
             messages.reduce((acc, message) => acc + "\n  " + message, "")
           );
         }
-        if(options.onWarn) options.onWarn(...messages);
+        if (options.onWarn) options.onWarn(...messages);
       },
       [ERROR]: (...messages) => {
         if (p.get(this)[enableLogging]) {
@@ -156,7 +156,7 @@ class IcecastMetadataPlayer extends EventTarget {
             messages.reduce((acc, message) => acc + "\n  " + message, "")
           );
         }
-        if(options.onError) options.onError(...messages);
+        if (options.onError) options.onError(...messages);
       },
     };
 
@@ -221,13 +221,6 @@ class IcecastMetadataPlayer extends EventTarget {
    */
   get metadataQueue() {
     return p.get(this)[icecastMetadataQueue].metadataQueue;
-  }
-
-  /**
-   * @returns {boolean} The current playing state
-   */
-  get playing() {
-    return this.state === PLAYING;
   }
 
   /**
