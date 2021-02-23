@@ -27,6 +27,7 @@ icecast-metadata-js is avaiable on [NPM](https://www.npmjs.com/package/icecast-m
   * ES6 import (browser): `import { IcecastMetadataReader } from ("icecast-metadata-js");`
   * CommonJS require (NodeJS): `const { IcecastMetadataReader } = require("icecast-metadata-js");`
 
+---
 
 ## `IcecastMetadataReader`
 
@@ -60,6 +61,8 @@ A generator that takes in raw icecast response data and return stream data and m
     const icecastReader = new IcecastMetadataReader({
       onStream,
       onMetadata,
+      onError,
+      enableLogging: true,
       metadataTypes: ["icy"]
       icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
     });
@@ -151,28 +154,54 @@ A generator that takes in raw icecast response data and return stream data and m
 
 **Note: Stream data is always returned immediately when it is discovered in the raw response. Metadata is stored within the IcecastMetadataReader until a full chunk of metadata can be parsed and returned. The IcecastMetadataReader also internally tracks the metadata interval to properly return metadata. If you are reading a continuous stream of raw response data, be sure to use the same instance of the IcecastMetadataReader.**
 
+```
+const options = {
+  metadataTypes: ["icy"],
+  icyMetaInt: 16000,
+  icyDetectionTimeout: 2000,
+  enableLogging: false,
+  onStream: () => {},
+  onMetadata: () => {},
+  onError: () => {}
+}
+```
+
+### Options
+
+* `metadataTypes`
+  * Array containing zero, one, or both metadata types to parse
+  * Values:
+    * `[]` - Will not parse metadata
+    * `["icy"]` - Parse ICY metadata only
+    * `["ogg"]` - Parse OGG (vorbis comment) metadata only
+    * `["icy", "ogg"]` - Parse both ICY and OGG metadata
+  * default: `["icy"]`
+* `enableLogging`
+  * Set to `true` to enable console warnings
+  * default: `false`
+
+#### *Only used when `["icy"]` metadata type is enabled*
+* `icyMetaInt`
+  * ICY Metadata interval read from `Icy-MetaInt` header in the response
+* `icyDetectionTimeout`
+  * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
+  * Set to `0` to disable metadata detection
+  * default: `2000`
+
+### Callbacks
+* `onStream`
+  * Async callback when stream data is returned
+* `onMetadata`
+  * Async callback when stream data is returned
+* `onError(message)`
+  * Callback when a warning / error occurs
+
+```
+const icecastReader = 
+  new IcecastMetadataReader(options);
+```
+
 ### Methods
-
-`const icecastReader = new IcecastMetadataReader({icyMetaInt, onStream, onMetadata})`
-
-* `new IcecastMetadataReader({icyMetaInt, icyDetectionTimeout, onStream, onMetadata})`
-  * `metadataTypes`
-    * Array containing zero, one, or both metadata types to parse
-    * Values:
-      * `[]` - Will not parse metadata
-      * `["icy"]` - Parse ICY metadata only
-      * `["ogg"]` - Parse OGG (vorbis comment) metadata only
-      * `["icy", "ogg"]` - Parse both ICY and OGG metadata
-  * `icyMetaInt`
-    * ICY Metadata interval read from `Icy-MetaInt` header in the response
-  * `icyDetectionTimeout`
-    * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
-    * Set to `0` to disable metadata detection
-    * default: `2000`
-  * `onStream`
-    * Async callback when stream data is returned
-  * `onMetadata`
-    * Async callback when stream data is returned
 * `icecastReader.iterator(data: Uint8Array)`
   * Takes in a byte array of raw icecast response body
   * Returns an Iterator that can be used in a `for ...of` loop to read stream or metadata
@@ -201,6 +230,8 @@ A generator that takes in raw icecast response data and return stream data and m
   * Returns object with metadata parsed into key value pairs
     * `"StreamTitle='A Stream Title';/0/0/0/0"` -> `{StreamTitle: "A Stream Title"}` 
 
+---
+
 ## `IcecastMetadataQueue`
 
 Schedules metadata updates based on audio time or bytes read.
@@ -211,7 +242,7 @@ Metadata updates can be highly accurate because they are embedded inline with th
 
 1. Decode the audio and use the exact audio offset time to queue metadata.
    * Great Accuracy
-   * *Used by: Icecast Metadata JS Demo*
+   * *Used by: Icecast Metadata Player*
 1. Derive the offset time based on a constant audio bitrate.
    * Good Accuracy
    * *Used by: Stream Recorder*
@@ -272,6 +303,8 @@ Metadata updates can be highly accurate because they are embedded inline with th
 * `metadataQueue.purgeMetadataQueue()`
   * Purges the metadata queue and clears any pending metadata updates.
 
+---
+
 ## `IcecastMetadataStream`
 
 A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable streams.
@@ -288,6 +321,7 @@ A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable st
    const icecastStream = new IcecastMetadataStream({
      icyBr: parseInt(headers.get("Icy-Br")),
      icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
+     ...options // See IcecastMetadataReader
    });
    </pre>
 
@@ -306,16 +340,24 @@ A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable st
    myHTTPResponse.body.pipe(icecastStream);
    </pre>
 
-### Methods
-`const icecastStream = new IcecastMetadataStream({icyBr, icyMetaInt, icyDetectionTimeout})`
+### Options
+`const icecastStream = new IcecastMetadataStream({icyBr ...options})`
 
+* `icyBr` (required)
+  * constant bitrate for the stream
+* `options`
+  * See the constructor parameters for [`IcecastMetadataReader`](#icecastmetadatareader)
+
+### Methods
 * `icecastStream.stream`
-  * Gets the Readable for `stream` data
+  * Gets the Readable stream for `stream` data
 * `icecastStream.metadata`
-  * Gets the Readable for `metadata`
+  * Gets the Readable stream for `metadata`
 
 *See documentation on NodeJS Writable Streams for additional methods.*
 https://nodejs.org/api/stream.html#stream_writable_streams
+
+---
 
 ## `IcecastReadableStream`
 
@@ -328,7 +370,7 @@ A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadable
     Notes: 
     * For ICY metadata, the GET request to the Icecast server must contain the `Icy-Metadata: 1` header to enable metadata.
       * CORS must allow the `Icy-Metadata` header. Without this header, ICY metadata is not returned in the Icecast response.
-    * An inadequate CORS policy on the Icecast server may prevent the `Icy-MetaInt` header from being read. To work around this, `IcecastMetadataReader` will attempt to detect the metadata interval. Alternatively, the metadata interval can be manually determined an passed into the `icyMetaInt` option.
+    * An inadequate CORS policy on the Icecast server may prevent the `Icy-MetaInt` header from being read. To work around this, `IcecastMetadataReader` will attempt to detect the metadata interval. Alternatively, the metadata interval can be manually determined and passed into the `icyMetaInt` option.
     * See the [Troublshooting](#troublshooting) section for more information on CORS.
    
     <pre>

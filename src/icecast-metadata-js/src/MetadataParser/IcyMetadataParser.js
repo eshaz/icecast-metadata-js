@@ -74,10 +74,9 @@ class IcyMetadataParser extends MetadataParser {
     if (this._icyMetaInt > 0) return true;
     if (!this._icyDetectionTimeout) return false;
 
-    console.warn(
-      "icecast-metadata-js",
-      "\n  Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.",
-      "\n  See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
+    this._logError(
+      "Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.",
+      "See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
     );
 
     // prettier-ignore
@@ -104,20 +103,18 @@ class IcyMetadataParser extends MetadataParser {
         }
 
         // found metadata
-        console.warn(
-          "icecast-metadata-js",
-          `\n  Found ICY Metadata! Setting Icy-MetaInt to ${metaInt}.`
-        );
+        // prettier-ignore
+        this._logError(`Found ICY Metadata! Setting Icy-MetaInt to ${metaInt}.`);
         this._icyMetaInt = metaInt;
+
         return true;
       }
     }
 
     // prettier-ignore
-    console.warn(
-      "icecast-metadata-js",
-      `\n  ICY Metadata not detected after searching ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`,
-      "\n  Assuming stream does not contain ICY metadata. Audio errors will occur if there is ICY metadata."
+    this._logError(
+      "ICY Metadata not detected, but continuing anyway. Audio errors will occur if there is ICY metadata.",
+      `Searched ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`
     );
     return false;
   }

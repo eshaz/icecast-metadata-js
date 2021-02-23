@@ -80,7 +80,6 @@ class OggMetadataParser extends MetadataParser {
       syncBytes.push(bytes[0]);
 
       this._currentPosition -= 4;
-      this._remainingData += 4;
       this._stats._totalBytesRead -= 4;
       this._stats._currentBytesRemaining += 4;
     }
@@ -88,10 +87,9 @@ class OggMetadataParser extends MetadataParser {
     if (syncBytes.length) yield* this._sendStream(Uint8Array.from(syncBytes));
 
     if (syncBytes.length > 65307) {
-      console.warn(
-        "icecast-metadata-js",
-        "\n  This stream is not an OGG stream. No OGG metadata will be returned.",
-        "\n  See https://github.com/eshaz/icecast-metadata-js for information on OGG metadata."
+      this._logError(
+        "This stream is not an OGG stream. No OGG metadata will be returned.",
+        "See https://github.com/eshaz/icecast-metadata-js for information on OGG metadata."
       );
       return false;
     }
