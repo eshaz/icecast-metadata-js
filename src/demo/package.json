@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "icecast-metadata-player": "0.1.2",
+    "icecast-metadata-player": "0.2.0",
     "react": "^16.13.1",
     "react-audio-spectrum": "^0.1.0",
     "react-dom": "^16.13.1",
