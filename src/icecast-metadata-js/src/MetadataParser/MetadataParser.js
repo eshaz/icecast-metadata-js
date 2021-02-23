@@ -147,12 +147,14 @@ class MetadataParser {
       (minLength || this._remainingData) + this._currentPosition
     );
 
-    this._remainingData -= value.length;
-    value.length < this._remainingData ? this._remainingData - value.length : 0;
+    this._stats.addBytes(value.length);
+    this._remainingData =
+      value.length < this._remainingData
+        ? this._remainingData - value.length
+        : 0;
 
     this._currentPosition += value.length;
 
-    this._stats.addBytes(value.length);
 
     return value;
   }
