@@ -107,7 +107,7 @@ class MetadataParser {
         messages.reduce((acc, message) => acc + "\n  " + message, "")
       );
     }
-    this._onError(messages[0]);
+    this._onError(...messages);
   }
 
   *_sendStream(stream) {
