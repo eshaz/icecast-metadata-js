@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-0.1.2.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-0.2.0.min.js"></script>
     <style>
       body {
         text-align: left;
@@ -124,7 +124,7 @@
       <li>
         Download the
         <a
-          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.1.2.min.js"
+          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.2.0.min.js"
           download
           >latest build</a
         >, or install via
@@ -146,7 +146,7 @@
     </ol>
     <b>Example</b>
     <pre>
-      &lt;script src="icecast-metadata-player-0.1.2.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-0.2.0.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -210,8 +210,9 @@
         audioElement, //                  audio element in HTML
         onMetadata, //                    called when metadata is synced with the audio
         onMetadataEnqueue, //             called when metadata is discovered in the stream
-        metadataTypes: ["icy", "ogg"], // detect ICY and OGG metadata
+        metadataTypes: ["icy"], //        detect ICY metadata
         icyDetectionTimeout: 5000, //     attempt to detect ICY metadata for 5 seconds
+        enableLogging: true, //           enable error logs to the console
         onError: (message) => {
           metadataEl.innerHTML = message;
         },

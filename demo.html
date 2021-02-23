@@ -5,7 +5,7 @@
     <title>Icecast Metadata Player Demo</title>
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-0.1.2.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-0.2.0.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
       rel="stylesheet"
@@ -143,7 +143,7 @@
       <li>
         Download the
         <a
-          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.1.2.min.js"
+          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-0.2.0.min.js"
           download
           >latest build</a
         >, or install via
@@ -165,7 +165,7 @@
     </ol>
     <b>Example</b>
     <pre>
-      &lt;script src="icecast-metadata-player-0.1.2.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-0.2.0.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -332,14 +332,8 @@
         onCodecUpdate,
         metadataTypes,
         icyDetectionTimeout: parseInt(formData.icyDetectionTimeout),
-        onError: (message) => {
-          metadataEl.innerHTML = message;
-        },
-      });
-
-      icecastMetadataPlayer.audioElement.addEventListener(
-        "playing",
-        () => {
+        enableLogging: true,
+        onPlay: () => {
           icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
 
           let time = 0;
@@ -348,8 +342,17 @@
             currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
           }, 100);
         },
-        { once: true }
-      );
+        onStop: () => {
+          clearInterval(timer);
+        },
+        onError: (message) => {
+          metadataEl.innerHTML = message;
+        },
+      });
+
+      icecastMetadataPlayer.addEventListener("metadata", (...args) => {
+        console.log(args);
+      });
     };
 
     form.addEventListener("change", () => {
@@ -357,7 +360,7 @@
     });
 
     document.getElementById("play").addEventListener("click", () => {
-      if (icecastMetadataPlayer) stop();
+      if (icecastMetadataPlayer) icecastMetadataPlayer.stop();
       init();
 
       getIcecastMetadataPlayer();
@@ -365,7 +368,7 @@
     });
 
     document.getElementById("stop").addEventListener("click", () => {
-      stop();
+      icecastMetadataPlayer.stop();
     });
 
     // helper functions
@@ -377,13 +380,9 @@
         .replace(/\{\n|\n\}/g, "")
         .replace(/^ "|\n "/g, '\n"');
 
-    const stop = () => {
-      clearInterval(timer);
-      icecastMetadataPlayer.stop();
-    };
-
     const init = () => {
       formData = Object.fromEntries(new FormData(form).entries());
+      currentTimeEl.shadowRoot.innerHTML = "";
       audioInfoEl.shadowRoot.innerHTML = "";
       metadataEl.innerHTML = "Loading...";
       metadataQueueEl.innerHTML = "";
