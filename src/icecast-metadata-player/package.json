@@ -39,7 +39,7 @@
     "webpack-cli": "^4.3.0"
   },
   "dependencies": {
-    "icecast-metadata-js": "0.3.2",
-    "mse-audio-wrapper": "file:../../../isobmff-audio"
+    "icecast-metadata-js": "0.4.0",
+    "mse-audio-wrapper": "1.1.0"
   }
 }

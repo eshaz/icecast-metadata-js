@@ -48,6 +48,7 @@ const CODEC_UPDATE = "codecupdate";
 const STOP = "stop";
 const RETRY = "retry";
 const RETRY_TIMEOUT = "retrytimeout";
+const WARN = "warn";
 const ERROR = "error";
 
 // options
@@ -100,7 +101,8 @@ class IcecastMetadataPlayer extends EventTarget {
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
-   * @callback options.onError Called with a message when a fallback or error condition is met
+   * @callback options.onError Called with message(s) when a fallback or error condition is met
+   * @callback options.onWarn Called with message(s) when a warning condition is met
    * @callback options.onPlay Called when the audio element begins playing
    * @callback options.onLoad Called when stream request is started
    * @callback options.onStreamStart Called when stream requests begins to return data
@@ -138,13 +140,23 @@ class IcecastMetadataPlayer extends EventTarget {
       [STOP]: options.onStop || noOp,
       [RETRY]: options.onRetry || noOp,
       [RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
-      [ERROR]: (...messages) => {
-        if (p.get(this)[enableLogging])
+      [WARN]: (...messages) => {
+        if (p.get(this)[enableLogging]) {
           console.warn(
             "icecast-metadata-js",
             messages.reduce((acc, message) => acc + "\n  " + message, "")
           );
-        if (options.onError) options.onError(messages[0]);
+        }
+        if(options.onWarn) options.onWarn(...messages);
+      },
+      [ERROR]: (...messages) => {
+        if (p.get(this)[enableLogging]) {
+          console.error(
+            "icecast-metadata-js",
+            messages.reduce((acc, message) => acc + "\n  " + message, "")
+          );
+        }
+        if(options.onError) options.onError(...messages);
       },
     };
 
@@ -160,6 +172,7 @@ class IcecastMetadataPlayer extends EventTarget {
       [STOP]: (event) => console.log(event),
       [RETRY]: (event) => console.log(event),
       [RETRY_TIMEOUT]: (event) => console.log(event),
+      [WARN]: (event) => console.log(event),
       [ERROR]: (event) => console.log(event),
     };
 
@@ -289,6 +302,7 @@ class IcecastMetadataPlayer extends EventTarget {
               );
             },
             onStream: this[getOnStream](res.headers.get("content-type")),
+            onError: (...args) => this[fireEvent](WARN, ...args),
             metadataTypes: p.get(this)[metadataTypes],
             icyMetaInt: p.get(this)[icyMetaInt],
             icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
