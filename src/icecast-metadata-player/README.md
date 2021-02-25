@@ -8,12 +8,20 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
     * See [Installing](#installing)
 
 ## Supported codecs:
-
 * **MP3** `audio/mpeg`
 * **AAC, AAC+, AAC-HE** `audio/aac`
 * **FLAC, OPUS, Vorbis** `application/ogg`
 
+## Supported Browsers:
+ * **Chrome, Firefox** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
+ * **Safari 13** `audio/mpeg`, `audio/aac`
+   * *unsupported* `application/ogg` (FLAC, Opus, Vorbis)
+ * **iOS, Edge, others...** *support unknown* - Let me know if it works!
+
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
+
+Checkout this link to see which codecs your browser supports.
+https://cconcolato.github.io/media-mime-support/#audio_codecs
 
 ## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
 

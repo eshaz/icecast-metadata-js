@@ -22,6 +22,7 @@ const {
   IcecastMetadataQueue,
 } = require("icecast-metadata-js");
 const MSEAudioWrapper = require("mse-audio-wrapper").default;
+const EventTargetPolyfill = require("./EventTargetPolyfill");
 
 const noOp = () => {};
 const p = new WeakMap();
@@ -87,7 +88,7 @@ const fetchStream = Symbol();
 const getOnStream = Symbol();
 const attachAudioElement = Symbol();
 
-class IcecastMetadataPlayer extends EventTarget {
+class IcecastMetadataPlayer extends EventTargetPolyfill {
   /**
    * @constructor
    * @param {string} endpoint Endpoint of the Icecast compatible stream
