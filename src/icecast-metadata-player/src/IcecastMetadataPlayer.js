@@ -72,6 +72,7 @@ const state = Symbol();
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
 const onAudioCanPlay = Symbol();
+const onAudioError = Symbol();
 const mseAudioWrapper = Symbol();
 const mediaSourcePromise = Symbol();
 
@@ -177,11 +178,26 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       p.get(this)[state] = PLAYING;
       this[fireEvent](PLAY);
     };
+    p.get(this)[onAudioError] = (e) => {
+      const errors = {
+        1: "MEDIA_ERR_ABORTED The fetching of the associated resource was aborted by the user's request.",
+        2: "MEDIA_ERR_NETWORK Some kind of network error occurred which prevented the media from being successfully fetched, despite having previously been available.",
+        3: "MEDIA_ERR_DECODE Despite having previously been determined to be usable, an error occurred while trying to decode the media resource, resulting in an error.",
+        4: "MEDIA_ERR_SRC_NOT_SUPPORTED The associated resource or media provider object (such as a MediaStream) has been found to be unsuitable.",
+        5: "MEDIA_ERR_ENCRYPTED",
+      };
+      this[fireEvent](
+        ERROR,
+        "The audio element encountered an error",
+        errors[e.target.error.code] || `Code: ${e.target.error.code}`,
+        `Message: ${e.target.error.message}`
+      );
+    };
 
     this[attachAudioElement]();
 
     p.get(this)[state] = STOPPED;
-    p.get(this)[mediaSourcePromise] = this[createMediaSource]();
+    this[createMediaSource]();
     p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
 
@@ -218,6 +234,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     const audio = p.get(this)[audioElement];
     audio.addEventListener("pause", p.get(this)[onAudioPause]);
     audio.addEventListener("play", p.get(this)[onAudioPlay]);
+    audio.addEventListener("error", p.get(this)[onAudioError]);
   }
 
   /**
@@ -228,6 +245,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     audio.removeEventListener("pause", p.get(this)[onAudioPause]);
     audio.removeEventListener("play", p.get(this)[onAudioPlay]);
     audio.removeEventListener("canplay", p.get(this)[onAudioCanPlay]);
+    audio.removeEventListener("error", p.get(this)[onAudioError]);
   }
 
   /**
@@ -308,7 +326,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
           );
           p.get(this)[audioElement].pause();
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-          p.get(this)[mediaSourcePromise] = this[createMediaSource]();
+          this[createMediaSource]();
 
           // retry any potentially recoverable errors
           if (
@@ -318,7 +336,9 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
             error.message !== "Failed to fetch" &&
             error.message !==
               "NetworkError when attempting to fetch resource." &&
-            error.message !== "network error"
+            error.message !== "network error" &&
+            error.message !==
+              "A server with the specified hostname could not be found."
           ) {
             this[fallbackToAudioSrc]();
           }
@@ -387,7 +407,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
           `Media Source Extensions API in your browser does not support ${inputMimeType} or ${mimeType}`,
           "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
         );
-        throw new Error("Unsupported Codec");
+        throw new Error(`Unsupported Media Source Codec ${mimeType}`);
       }
 
       return mimeType;
@@ -402,14 +422,26 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   }
 
   async [createMediaSource]() {
-    const ms = (p.get(this)[mediaSource] = new MediaSource());
-    p.get(this)[audioElement].src = URL.createObjectURL(ms);
+    try {
+      const ms = (p.get(this)[mediaSource] = new MediaSource());
 
-    await new Promise((resolve) => {
-      ms.addEventListener("sourceopen", resolve, {
-        once: true,
+      p.get(this)[audioElement].src = URL.createObjectURL(ms);
+      p.get(this)[mediaSourcePromise] = new Promise((resolve) => {
+        ms.addEventListener("sourceopen", resolve, {
+          once: true,
+        });
       });
-    });
+    } catch (e) {
+      this[fireEvent](
+        ERROR,
+        `Media Source Extensions API in your browser is not supported`,
+        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
+        e
+      );
+      p.get(this)[mediaSourcePromise] = new Promise(noOp);
+
+      this[fallbackToAudioSrc]();
+    }
   }
 
   [getOnStream](mimeType) {

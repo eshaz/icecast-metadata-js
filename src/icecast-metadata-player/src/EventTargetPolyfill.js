@@ -1,4 +1,5 @@
 // support for Safari 13
+// https://stackoverflow.com/a/58209729/14911733
 
 class EventTargetPolyfill {
   constructor() {
@@ -11,9 +12,9 @@ class EventTargetPolyfill {
     );
   }
 
-  addEventListener(type, listener) {
+  addEventListener(type, listener, options = {}) {
     if (!this.hasEventListener(type, listener)) {
-      this._listeners.push({ type, listener, options: { once: false } });
+      this._listeners.push({ type, listener, options });
     }
     // console.log(`${this}-listeners:`,this._listeners);
     return this;

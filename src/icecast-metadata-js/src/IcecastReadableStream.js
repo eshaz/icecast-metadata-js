@@ -43,7 +43,9 @@ class IcecastReadableStream {
           },
         });
 
-        for await (const chunk of IcecastReadableStream.asyncIterator(response.body)) {
+        for await (const chunk of IcecastReadableStream.asyncIterator(
+          response.body
+        )) {
           await icecast.asyncReadAll(chunk);
         }
 
@@ -54,13 +56,22 @@ class IcecastReadableStream {
     this._icecast = icecast;
   }
 
+  /**
+   * @returns Icecast Metadata Interval if it is present on this stream
+   */
   get icyMetaInt() {
     return this._icecast.icyMetaInt;
   }
 
   /**
-   * @description Creates an async iterator from this ReadableStream.
-   * @returns {Symbol.asyncIterator} Async Iterator for this ReadableStream.
+   * @returns The ReadableStream instance
+   */
+  get readableStream() {
+    return this._readableStream;
+  }
+
+  /**
+   * @description Starts reading from the response and processing stream and metadata.
    */
   async startReading() {
     for await (const i of IcecastReadableStream.asyncIterator(
