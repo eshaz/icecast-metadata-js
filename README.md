@@ -22,7 +22,7 @@ Icecast Metadata JS is an evolving Javascript based tool set for parsing, record
    * React application and HTML examples that demonstrate how to use `icecast-metadata-player`
 
 ## Troubleshooting
-  * [**HTTP and HTTPS Mixed Content**](#http-and-https-mixed-content)
+  * [**HTTP and HTTPS Mixed Content**](htto-and-https-mixed-content)
   * [**Cross-Origin Resource Sharing (CORS)**](#cors)
 
 ---
