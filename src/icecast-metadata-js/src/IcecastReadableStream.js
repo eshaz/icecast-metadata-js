@@ -21,20 +21,17 @@ const noOp = () => {};
 
 /**
  * @description Browser ReadableStream wrapper for IcecastMetadataReader
- * @extends ReadableStream
  */
-class IcecastReadableStream extends ReadableStream {
+class IcecastReadableStream {
   /**
-   *
    * @param {ReadableStream} response ReadableStream for raw Icecast response data
    * @param {object} options Configuration options for IcecastMetadataReader
    * @see IcecastMetadataReader for information on the options parameter
    */
   constructor(response, { icyMetaInt, onStream = noOp, ...rest }) {
-    const readerIterator = IcecastReadableStream.asyncIterator(response.body);
     let icecast;
 
-    super({
+    this._readableStream = new ReadableStream({
       async start(controller) {
         icecast = new IcecastMetadataReader({
           ...rest,
@@ -46,7 +43,9 @@ class IcecastReadableStream extends ReadableStream {
           },
         });
 
-        for await (const chunk of readerIterator) {
+        for await (const chunk of IcecastReadableStream.asyncIterator(
+          response.body
+        )) {
           await icecast.asyncReadAll(chunk);
         }
 
@@ -57,16 +56,27 @@ class IcecastReadableStream extends ReadableStream {
     this._icecast = icecast;
   }
 
+  /**
+   * @returns Icecast Metadata Interval if it is present on this stream
+   */
   get icyMetaInt() {
     return this._icecast.icyMetaInt;
   }
 
   /**
-   * @description Creates an async iterator from this ReadableStream.
-   * @returns {Symbol.asyncIterator} Async Iterator for this ReadableStream.
+   * @returns The ReadableStream instance
+   */
+  get readableStream() {
+    return this._readableStream;
+  }
+
+  /**
+   * @description Starts reading from the response and processing stream and metadata.
    */
   async startReading() {
-    for await (const i of IcecastReadableStream.asyncIterator(this)) {
+    for await (const i of IcecastReadableStream.asyncIterator(
+      this._readableStream
+    )) {
     }
   }
 

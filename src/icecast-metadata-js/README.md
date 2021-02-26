@@ -390,7 +390,7 @@ A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadable
     });
     </pre>
 
-### Methods
+### Instantiating
 `const icecastReadable = new IcecastReadableStream(fetchResponse, options)`
 
 * `new IcecastReadableStream(fetchResponse, options)`
@@ -398,10 +398,13 @@ A Browser ReadableStream wrapper for IcecastMetadataReader. The `IcecastReadable
     * Response object from the `fetch` API
   * `options`
     * See the constructor parameters for [`IcecastMetadataReader`](#icecastmetadatareader)
+
+### Methods
 * `icecastStream.startReading`
   * Starts reading and parsing the response. Resolves once response had ended.
   * `onStream` is called and awaited when stream data is discovered
   * `onMetadata` is called and awaited when metadata is discovered
 
-*See documentation on ReadableStream for additional methods.*
-https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream
+### Getters
+* `icecastStream.readableStream`
+  * Returns the underlying [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream)
