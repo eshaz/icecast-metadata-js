@@ -22,6 +22,7 @@ Icecast Metadata JS is an evolving Javascript based tool set for parsing, record
    * React application and HTML examples that demonstrate how to use `icecast-metadata-player`
 
 ## Troubleshooting
+  * [**HTTP and HTTPS Mixed Content**](htto-and-https-mixed-content)
   * [**Cross-Origin Resource Sharing (CORS)**](#cors)
 
 ---
@@ -47,6 +48,20 @@ https://github.com/eshaz/icecast-metadata-js/tree/master/src/demo
 
 
 # Troubleshooting
+
+## HTTP and HTTPS Mixed Content
+
+Browsers are configured by default to disallow mixed security content when the origin is being served from HTTPS. This means that any requests using HTTP that are being accessed from a HTTPS origin will be blocked and an error will be shown in the browser console. This affects many Icecast streams since the default is to serve a stream via HTTP and not HTTPS.
+
+The simplest and most secure way to fix this is to configure Icecast to serve only over HTTPS. HTTP, unlike HTTPS, is sent in clear text and can be easily intercepted, viewed, and / or modified by any party in between you and the server potentially injecting unwanted data in your request and corrupting your stream. See the [Icecast documentation](https://icecast.org/docs/) for more information on how to configure HTTPS.
+
+### See Also:
+* [Why Use HTTPS?](https://www.cloudflare.com/learning/ssl/why-use-https/)
+* [MDN Web Docs on Mixed Content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content/How_to_fix_website_with_mixed_content)
+* [Strict-Transport-Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
+* [How to stop an automatic redirect from “http://” to “https://”](https://superuser.com/questions/565409/how-to-stop-an-automatic-redirect-from-http-to-https-in-chrome)
+
+
 
 ## CORS
 
