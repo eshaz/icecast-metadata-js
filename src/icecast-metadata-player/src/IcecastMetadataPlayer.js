@@ -86,6 +86,7 @@ const getMimeType = Symbol();
 const waitForSourceBuffer = Symbol();
 const appendSourceBuffer = Symbol();
 const fetchStream = Symbol();
+const playResponse = Symbol();
 const getOnStream = Symbol();
 const attachAudioElement = Symbol();
 
@@ -158,6 +159,22 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
         }
         if (options.onError) options.onError(...messages);
       },
+    };
+
+    this._log = {
+      [PLAY]: (args) => console.log("PLAY", ...args),
+      [LOAD]: (args) => console.log("LOAD", ...args),
+      [STREAM_START]: (args) => console.log("STREAM_START", ...args),
+      [STREAM]: noOp, //(args) => console.log("STREAM", ...args),
+      [STREAM_END]: (args) => console.log("STREAM_END", ...args),
+      [METADATA]: noOp, //(args) => console.log("METADATA", ...args),
+      [METADATA_ENQUEUE]: noOp, //(args) => console.log("METADATA_ENQUEUE", ...args),
+      [CODEC_UPDATE]: noOp, //(args) => console.log("CODEC_UPDATE", ...args),
+      [STOP]: (args) => console.log("STOP", ...args),
+      [RETRY]: (args) => console.log("RETRY", ...args),
+      [RETRY_TIMEOUT]: (args) => console.log("RETRY_TIMEOUT", ...args),
+      [WARN]: (args) => console.log("WARN", ...args),
+      [ERROR]: (args) => console.log("ERROR", ...args),
     };
 
     p.get(this)[icecastMetadataQueue] = new IcecastMetadataQueue({
@@ -267,48 +284,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       let error;
 
       this[fetchStream]()
-        .then(async (res) => {
-          if (!res.ok) {
-            const error = new Error(`${res.status} received from ${res.url}`);
-            error.name = "HTTP Response Error";
-            throw error;
-          }
-
-          this[fireEvent](STREAM_START);
-
-          p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
-            onMetadata: (value) => {
-              p.get(this)[icecastMetadataQueue].addMetadata(
-                value,
-                (p.get(this)[mediaSource] &&
-                  p.get(this)[mediaSource].sourceBuffers.length &&
-                  Math.max(
-                    // work-around for WEBM reporting a negative timestampOffset
-                    p.get(this)[mediaSource].sourceBuffers[0].timestampOffset,
-                    p.get(this)[mediaSource].sourceBuffers[0].buffered.length
-                      ? p
-                          .get(this)
-                          [mediaSource].sourceBuffers[0].buffered.end(0)
-                      : 0
-                  )) ||
-                  0,
-                p.get(this)[audioElement].currentTime
-              );
-            },
-            onStream: this[getOnStream](res.headers.get("content-type")),
-            onError: (...args) => this[fireEvent](WARN, ...args),
-            metadataTypes: p.get(this)[metadataTypes],
-            icyMetaInt: p.get(this)[icyMetaInt],
-            icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
-          });
-
-          await p.get(this)[icecastReadableStream].startReading();
-
-          this[fireEvent](STREAM_END); // stream ended successfully because server closed connection
-        })
+        .then(async (res) => this[playResponse](res))
         .catch((e) => {
-          this[fireEvent](STREAM_END);
-
           if (
             e.name !== "AbortError" &&
             p.get(this)[state] !== STOPPING &&
@@ -369,25 +346,53 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   }
 
   async [fetchStream]() {
-    const fetchStream = (headers = {}) =>
-      fetch(p.get(this)[endpoint], {
-        method: "GET",
-        headers,
-        signal: p.get(this)[abortController].signal,
+    const res = await fetch(p.get(this)[endpoint], {
+      method: "GET",
+      headers: p.get(this)[hasIcy] ? { "Icy-MetaData": 1 } : {},
+      signal: p.get(this)[abortController].signal,
+    });
+
+    if (!res.ok) {
+      const error = new Error(`${res.status} received from ${res.url}`);
+      error.name = "HTTP Response Error";
+      throw error;
+    }
+
+    return res;
+  }
+
+  async [playResponse](res) {
+    try {
+      this[fireEvent](STREAM_START);
+
+      p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
+        onMetadata: (value) => {
+          p.get(this)[icecastMetadataQueue].addMetadata(
+            value,
+            (p.get(this)[mediaSource] &&
+              p.get(this)[mediaSource].sourceBuffers.length &&
+              Math.max(
+                // work-around for WEBM reporting a negative timestampOffset
+                p.get(this)[mediaSource].sourceBuffers[0].timestampOffset,
+                p.get(this)[mediaSource].sourceBuffers[0].buffered.length
+                  ? p.get(this)[mediaSource].sourceBuffers[0].buffered.end(0)
+                  : 0
+              )) ||
+              0,
+            p.get(this)[audioElement].currentTime
+          );
+        },
+        onStream: this[getOnStream](res.headers.get("content-type")),
+        onError: (...args) => this[fireEvent](WARN, ...args),
+        metadataTypes: p.get(this)[metadataTypes],
+        icyMetaInt: p.get(this)[icyMetaInt],
+        icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
       });
 
-    if (!p.get(this)[hasIcy]) return fetchStream();
-
-    return fetchStream({ "Icy-MetaData": 1 }).catch(async (e) => {
-      if (e.name !== "AbortError") {
-        this[fireEvent](
-          ERROR,
-          "Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata."
-        );
-        return fetchStream();
-      }
-      throw e;
-    });
+      await p.get(this)[icecastReadableStream].startReading();
+    } finally {
+      this[fireEvent](STREAM_END);
+    }
   }
 
   async [getMimeType](inputMimeType) {
@@ -498,6 +503,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   }
 
   [fireEvent](event, ...args) {
+    this._log[event](args);
     this.dispatchEvent(new CustomEvent(event, { detail: args }));
     p.get(this)[events][event](...args);
   }
