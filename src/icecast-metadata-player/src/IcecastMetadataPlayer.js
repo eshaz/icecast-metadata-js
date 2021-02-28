@@ -175,22 +175,6 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       },
     };
 
-    this._log = {
-      [PLAY]: (args) => console.log("PLAY", ...args),
-      [LOAD]: (args) => console.log("LOAD", ...args),
-      [STREAM_START]: (args) => console.log("STREAM_START", ...args),
-      [STREAM]: noOp, //(args) => console.log("STREAM", ...args),
-      [STREAM_END]: (args) => console.log("STREAM_END", ...args),
-      [METADATA]: noOp, //(args) => console.log("METADATA", ...args),
-      [METADATA_ENQUEUE]: noOp, //(args) => console.log("METADATA_ENQUEUE", ...args),
-      [CODEC_UPDATE]: noOp, //(args) => console.log("CODEC_UPDATE", ...args),
-      [STOP]: (args) => console.log("STOP", ...args),
-      [RETRY]: (args) => console.log("RETRY", ...args),
-      [RETRY_TIMEOUT]: (args) => console.log("RETRY_TIMEOUT", ...args),
-      [WARN]: (args) => console.log("WARN", ...args),
-      [ERROR]: (args) => console.log("ERROR", ...args),
-    };
-
     p.get(this)[icecastMetadataQueue] = new IcecastMetadataQueue({
       onMetadataUpdate: (...args) => this[fireEvent](METADATA, ...args),
       onMetadataEnqueue: (...args) =>
@@ -605,7 +589,6 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   }
 
   [fireEvent](event, ...args) {
-    this._log[event](args);
     this.dispatchEvent(new CustomEvent(event, { detail: args }));
     p.get(this)[events][event](...args);
   }
