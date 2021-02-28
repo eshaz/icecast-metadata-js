@@ -82,6 +82,7 @@ const mseAudioWrapper = Symbol();
 const mediaSourcePromise = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
+const onAudioWaiting = Symbol();
 
 // private methods
 const fireEvent = Symbol();
@@ -135,8 +136,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     p.get(this)[metadataTypes] = options.metadataTypes || ["icy"];
     p.get(this)[hasIcy] = p.get(this)[metadataTypes].includes("icy");
     p.get(this)[enableLogging] = options.enableLogging || false;
-    p.get(this)[retryDelayRate] = (options.retryDelayRate || 0.15) + 1;
-    p.get(this)[retryDelayMin] = (options.retryDelayMin || 0.2) * 1000;
+    p.get(this)[retryDelayRate] = (options.retryDelayRate || 0.1) + 1;
+    p.get(this)[retryDelayMin] = (options.retryDelayMin || 0.5) * 1000;
     p.get(this)[retryDelayMax] = (options.retryDelayMax || 2) * 1000;
     p.get(this)[retryTimeout] = (options.retryTimeout || 20) * 1000;
 
@@ -325,11 +326,15 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       this.reset = () => {
         clearTimeout(p.get(this)[retryTimeoutId]);
         this.removeEventListener(STREAM_START, this.reset);
-
+        p.get(this)[audioElement].removeEventListener(
+          "waiting",
+          p.get(this)[onAudioWaiting]
+        );
         p.get(this)[audioElement].removeEventListener(
           "canplay",
           p.get(this)[onAudioCanPlay]
         );
+
         p.get(this)[audioElement].pause();
         p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
         this[createMediaSource]();
@@ -338,10 +343,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       tryFetching().finally(() => {
         this.reset();
 
-        if (error) {
-          console.log(error, "falling back");
-          this[fallbackToAudioSrc]();
-        }
+        if (error) this[fallbackToAudioSrc]();
 
         this[fireEvent](STOP);
         this[state] = STOPPED;
@@ -388,22 +390,49 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
 
       // ensure the retry hasn't been cancelled while waiting
       return p.get(this)[state] === RETRYING;
-    } else if (
-      (p.get(this)[state] !== STOPPING &&
-        p.get(this)[state] !== STOPPED &&
-        error.message.match(/network|fetch|offline|Error in body stream/i)) ||
-      error.name === "HTTP Response Error"
+    }
+
+    if (
+      p.get(this)[state] !== STOPPING &&
+      p.get(this)[state] !== STOPPED &&
+      (error.message.match(/network|fetch|offline|Error in body stream/i) ||
+        error.name === "HTTP Response Error")
     ) {
       this[fireEvent](ERROR, error);
       this[state] = RETRYING;
-
       this.addEventListener(STREAM_START, this.reset, { once: true });
-      p.get(this)[retryTimeoutId] = setTimeout(() => {
-        this[fireEvent](RETRY_TIMEOUT);
-        this.stop();
-      }, p.get(this)[retryTimeout]);
-      p.get(this)[retryAttempt] = 0;
 
+      if (p.get(this)[hasIcy]) {
+        this[fireEvent](
+          WARN,
+          "This stream was requested with ICY metadata.",
+          'If there is a CORS preflight failure, try removing "icy" from the metadataTypes option.',
+          "See https://github.com/eshaz/icecast-metadata-js#cors for more details."
+        );
+      }
+
+      const audioWaiting = new Promise((resolve) => {
+        p.get(this)[onAudioWaiting] = resolve;
+        p.get(this)[audioElement].addEventListener(
+          "waiting",
+          p.get(this)[onAudioWaiting],
+          {
+            once: true,
+          }
+        );
+      });
+
+      // wait for whichever is longer, audio element waiting or retry timeout
+      p.get(this)[retryTimeoutId] = setTimeout(() => {
+        audioWaiting.then(() => {
+          if (p.get(this)[state] === RETRYING) {
+            this[fireEvent](RETRY_TIMEOUT);
+            this.stop();
+          }
+        });
+      }, p.get(this)[retryTimeout]);
+
+      p.get(this)[retryAttempt] = 0;
       return true;
     }
 
