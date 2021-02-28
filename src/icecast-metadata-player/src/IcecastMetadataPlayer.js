@@ -29,6 +29,8 @@ const p = new WeakMap();
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
+const DEFAULT_RETRY_INTERVAL = 2; // seconds before retrying the fetch request
+const DEFAULT_RETRY_TIMEOUT = 10; // seconds before giving up on retries
 
 // State
 const LOADING = "loading";
@@ -91,6 +93,7 @@ const fetchStream = Symbol();
 const playResponse = Symbol();
 const getOnStream = Symbol();
 const attachAudioElement = Symbol();
+const shouldRetry = Symbol();
 
 class IcecastMetadataPlayer extends EventTargetPolyfill {
   /**
@@ -129,8 +132,9 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     p.get(this)[metadataTypes] = options.metadataTypes || ["icy"];
     p.get(this)[hasIcy] = p.get(this)[metadataTypes].includes("icy");
     p.get(this)[enableLogging] = options.enableLogging || false;
-    p.get(this)[retryInterval] = options.retryInterval || 2;
-    p.get(this)[retryTimeout] = options.retryTimeout || 20;
+    p.get(this)[retryInterval] =
+      options.retryInterval || DEFAULT_RETRY_INTERVAL;
+    p.get(this)[retryTimeout] = options.retryTimeout || DEFAULT_RETRY_TIMEOUT;
 
     // callbacks
     p.get(this)[events] = {
@@ -296,62 +300,26 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
             });
           })
           .catch(async (e) => {
-            if (p.get(this)[state] === RETRYING) {
-              return retry();
-            }
-
-            if (
-              e.name !== "AbortError" &&
-              p.get(this)[state] !== STOPPING &&
-              p.get(this)[state] !== STOPPED
-            ) {
-              p.get(this)[abortController].abort(); // stop fetch if is wasn't aborted
-              this[fireEvent](ERROR, e);
-
-              if (
-                e.message.match(/network|fetch|offline/i) ||
-                e.name === "HTTP Response Error" ||
-                e.message === "Error in body stream"
-              ) {
-                return startRetrying();
+            if (e.name !== "AbortError") {
+              if (await this[shouldRetry](e)) {
+                return tryFetching();
               }
 
-              error = e;
+              p.get(this)[abortController].abort(); // stop fetch if is wasn't aborted
+
+              if (
+                p.get(this)[state] !== STOPPING &&
+                p.get(this)[state] !== STOPPED
+              ) {
+                this[fireEvent](ERROR, e);
+                error = e;
+              }
             }
           });
 
-      const startRetrying = async () => {
-        this[state] = RETRYING;
-
-        this._retryTimeout = setTimeout(() => {
-          this[fireEvent](RETRY_TIMEOUT);
-          this.stop();
-        }, p.get(this)[retryTimeout] * 1000);
-
-        this.addEventListener("streamstart", reset, { once: true });
-
-        return tryFetching();
-      };
-
-      const retry = async () => {
-        await new Promise((resolve) => {
-          this.addEventListener(STOPPING, resolve, { once: true });
-          setTimeout(() => {
-            this.removeEventListener(STOPPING, resolve);
-            resolve();
-          }, p.get(this)[retryInterval] * 1000);
-        });
-
-        if (p.get(this)[state] === RETRYING) {
-          this[fireEvent](RETRY);
-          p.get(this)[abortController] = new AbortController();
-          return tryFetching();
-        }
-      };
-
-      const reset = () => {
+      this.reset = () => {
         clearTimeout(this._retryTimeout);
-        this.removeEventListener("streamstart", reset);
+        this.removeEventListener(STREAM_START, this.reset);
 
         p.get(this)[audioElement].removeEventListener(
           "canplay",
@@ -363,9 +331,10 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       };
 
       tryFetching().finally(() => {
-        reset();
+        this.reset();
 
         if (error) {
+          console.log(error, "falling back");
           this[fallbackToAudioSrc]();
         }
 
@@ -392,6 +361,46 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
         this.addEventListener("stop", resolve, { once: true });
       });
     }
+  }
+
+  async [shouldRetry](error) {
+    if (p.get(this)[state] === RETRYING) {
+      // wait for retry interval
+      await new Promise((resolve) => {
+        this.addEventListener(STOPPING, resolve, { once: true });
+
+        setTimeout(() => {
+          this.removeEventListener(STOPPING, resolve);
+          resolve();
+        }, p.get(this)[retryInterval] * 1000);
+      });
+
+      // ensure the retry hasn't been cancelled while waiting
+      if (p.get(this)[state] === RETRYING) {
+        this[fireEvent](RETRY);
+        p.get(this)[abortController] = new AbortController();
+
+        return true;
+      }
+    } else if (
+      (p.get(this)[state] !== STOPPING &&
+        p.get(this)[state] !== STOPPED &&
+        error.message.match(/network|fetch|offline|Error in body stream/i)) ||
+      error.name === "HTTP Response Error"
+    ) {
+      this[fireEvent](ERROR, error);
+      this[state] = RETRYING;
+
+      this.addEventListener(STREAM_START, this.reset, { once: true });
+      this._retryTimeout = setTimeout(() => {
+        this[fireEvent](RETRY_TIMEOUT);
+        this.stop();
+      }, p.get(this)[retryTimeout] * 1000);
+
+      return true;
+    }
+
+    return false;
   }
 
   async [fetchStream]() {
