@@ -59,6 +59,8 @@ const icyMetaInt = Symbol();
 const icyDetectionTimeout = Symbol();
 const enableLogging = Symbol();
 const endpoint = Symbol();
+const retryInterval = Symbol();
+const retryTimeout = Symbol();
 
 // variables
 const hasIcy = Symbol();
@@ -127,6 +129,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     p.get(this)[metadataTypes] = options.metadataTypes || ["icy"];
     p.get(this)[hasIcy] = p.get(this)[metadataTypes].includes("icy");
     p.get(this)[enableLogging] = options.enableLogging || false;
+    p.get(this)[retryInterval] = options.retryInterval || 2;
+    p.get(this)[retryTimeout] = options.retryTimeout || 20;
 
     // callbacks
     p.get(this)[events] = {
@@ -192,7 +196,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     };
     p.get(this)[onAudioCanPlay] = () => {
       p.get(this)[audioElement].play();
-      p.get(this)[state] = PLAYING;
+      this[state] = PLAYING;
       this[fireEvent](PLAY);
     };
     p.get(this)[onAudioError] = (e) => {
@@ -213,7 +217,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
 
     this[attachAudioElement]();
 
-    p.get(this)[state] = STOPPED;
+    this[state] = STOPPED;
     this[createMediaSource]();
     p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
@@ -246,6 +250,11 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     return p.get(this)[state];
   }
 
+  set [state](_state) {
+    this.dispatchEvent(new CustomEvent(_state));
+    p.get(this)[state] = _state;
+  }
+
   [attachAudioElement]() {
     // audio events
     const audio = p.get(this)[audioElement];
@@ -272,57 +281,97 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   async play() {
     if (this.state === STOPPED) {
       p.get(this)[abortController] = new AbortController();
-      p.get(this)[state] = LOADING;
+      this[state] = LOADING;
       this[fireEvent](LOAD);
-
-      p.get(this)[audioElement].addEventListener(
-        "canplay",
-        p.get(this)[onAudioCanPlay],
-        { once: true }
-      );
 
       let error;
 
-      this[fetchStream]()
-        .then(async (res) => this[playResponse](res))
-        .catch((e) => {
-          if (
-            e.name !== "AbortError" &&
-            p.get(this)[state] !== STOPPING &&
-            p.get(this)[state] !== STOPPED
-          ) {
-            p.get(this)[abortController].abort(); // stop fetch if is wasn't aborted
-            this[fireEvent](ERROR, e);
-            error = e;
-          }
-        })
-        .finally(() => {
-          p.get(this)[audioElement].removeEventListener(
-            "canplay",
-            p.get(this)[onAudioCanPlay]
-          );
-          p.get(this)[audioElement].pause();
-          p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-          this[createMediaSource]();
+      const tryFetching = () =>
+        this[fetchStream]()
+          .then(async (res) => {
+            this[fireEvent](STREAM_START);
 
-          // retry any potentially recoverable errors
-          if (
-            error &&
-            error.name !== "HTTP Response Error" &&
-            error.message !== "Error in body stream" &&
-            error.message !== "Failed to fetch" &&
-            error.message !==
-              "NetworkError when attempting to fetch resource." &&
-            error.message !== "network error" &&
-            error.message !==
-              "A server with the specified hostname could not be found."
-          ) {
-            this[fallbackToAudioSrc]();
-          }
+            return this[playResponse](res).finally(() => {
+              this[fireEvent](STREAM_END);
+            });
+          })
+          .catch(async (e) => {
+            if (p.get(this)[state] === RETRYING) {
+              return retry();
+            }
 
-          this[fireEvent](STOP);
-          p.get(this)[state] = STOPPED;
+            if (
+              e.name !== "AbortError" &&
+              p.get(this)[state] !== STOPPING &&
+              p.get(this)[state] !== STOPPED
+            ) {
+              p.get(this)[abortController].abort(); // stop fetch if is wasn't aborted
+              this[fireEvent](ERROR, e);
+
+              if (
+                e.message.match(/network|fetch|offline/i) ||
+                e.name === "HTTP Response Error" ||
+                e.message === "Error in body stream"
+              ) {
+                return startRetrying();
+              }
+
+              error = e;
+            }
+          });
+
+      const startRetrying = async () => {
+        this[state] = RETRYING;
+
+        this._retryTimeout = setTimeout(() => {
+          this[fireEvent](RETRY_TIMEOUT);
+          this.stop();
+        }, p.get(this)[retryTimeout] * 1000);
+
+        this.addEventListener("streamstart", reset, { once: true });
+
+        return tryFetching();
+      };
+
+      const retry = async () => {
+        await new Promise((resolve) => {
+          this.addEventListener(STOPPING, resolve, { once: true });
+          setTimeout(() => {
+            this.removeEventListener(STOPPING, resolve);
+            resolve();
+          }, p.get(this)[retryInterval] * 1000);
         });
+
+        if (p.get(this)[state] === RETRYING) {
+          this[fireEvent](RETRY);
+          p.get(this)[abortController] = new AbortController();
+          return tryFetching();
+        }
+      };
+
+      const reset = () => {
+        clearTimeout(this._retryTimeout);
+        this.removeEventListener("streamstart", reset);
+
+        p.get(this)[audioElement].removeEventListener(
+          "canplay",
+          p.get(this)[onAudioCanPlay]
+        );
+        p.get(this)[audioElement].pause();
+        p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
+        this[createMediaSource]();
+      };
+
+      tryFetching().finally(() => {
+        reset();
+
+        if (error) {
+          this[fallbackToAudioSrc]();
+        }
+
+        this[fireEvent](STOP);
+        this[state] = STOPPED;
+      });
 
       await new Promise((resolve) => {
         this.addEventListener("play", resolve, { once: true });
@@ -336,7 +385,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
    */
   async stop() {
     if (this.state !== STOPPED && this.state !== STOPPING) {
-      p.get(this)[state] = STOPPING;
+      this[state] = STOPPING;
       p.get(this)[abortController].abort();
 
       await new Promise((resolve) => {
@@ -362,37 +411,37 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   }
 
   async [playResponse](res) {
-    try {
-      this[fireEvent](STREAM_START);
+    p.get(this)[audioElement].addEventListener(
+      "canplay",
+      p.get(this)[onAudioCanPlay],
+      { once: true }
+    );
 
-      p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
-        onMetadata: (value) => {
-          p.get(this)[icecastMetadataQueue].addMetadata(
-            value,
-            (p.get(this)[mediaSource] &&
-              p.get(this)[mediaSource].sourceBuffers.length &&
-              Math.max(
-                // work-around for WEBM reporting a negative timestampOffset
-                p.get(this)[mediaSource].sourceBuffers[0].timestampOffset,
-                p.get(this)[mediaSource].sourceBuffers[0].buffered.length
-                  ? p.get(this)[mediaSource].sourceBuffers[0].buffered.end(0)
-                  : 0
-              )) ||
-              0,
-            p.get(this)[audioElement].currentTime
-          );
-        },
-        onStream: this[getOnStream](res.headers.get("content-type")),
-        onError: (...args) => this[fireEvent](WARN, ...args),
-        metadataTypes: p.get(this)[metadataTypes],
-        icyMetaInt: p.get(this)[icyMetaInt],
-        icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
-      });
+    p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
+      onMetadata: (value) => {
+        p.get(this)[icecastMetadataQueue].addMetadata(
+          value,
+          (p.get(this)[mediaSource] &&
+            p.get(this)[mediaSource].sourceBuffers.length &&
+            Math.max(
+              // work-around for WEBM reporting a negative timestampOffset
+              p.get(this)[mediaSource].sourceBuffers[0].timestampOffset,
+              p.get(this)[mediaSource].sourceBuffers[0].buffered.length
+                ? p.get(this)[mediaSource].sourceBuffers[0].buffered.end(0)
+                : 0
+            )) ||
+            0,
+          p.get(this)[audioElement].currentTime
+        );
+      },
+      onStream: this[getOnStream](res.headers.get("content-type")),
+      onError: (...args) => this[fireEvent](WARN, ...args),
+      metadataTypes: p.get(this)[metadataTypes],
+      icyMetaInt: p.get(this)[icyMetaInt],
+      icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
+    });
 
-      await p.get(this)[icecastReadableStream].startReading();
-    } finally {
-      this[fireEvent](STREAM_END);
-    }
+    await p.get(this)[icecastReadableStream].startReading();
   }
 
   async [getMimeType](inputMimeType) {
@@ -412,7 +461,9 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
           `Media Source Extensions API in your browser does not support ${inputMimeType} or ${mimeType}`,
           "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
         );
-        throw new Error(`Unsupported Media Source Codec ${mimeType}`);
+        const error = new Error(`Unsupported Media Source Codec ${mimeType}`);
+        error.name = "CodecError";
+        throw error;
       }
 
       return mimeType;
@@ -536,7 +587,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       audio.removeAttribute("src");
       audio.load();
 
-      p.get(this)[state] = STOPPED;
+      this[state] = STOPPED;
       this[fireEvent](STOP);
     };
 

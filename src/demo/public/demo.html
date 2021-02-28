@@ -342,7 +342,7 @@
             currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
           }, 100);
         },
-        onStop: () => {
+        onStreamEnd: () => {
           clearInterval(timer);
         },
         onError: (message) => {
