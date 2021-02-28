@@ -3,7 +3,8 @@
 Icecast Metadata Player is a simple to use Javascript class that plays an Icecast stream with real-time metadata updates.
 
   * Plays an Icecast stream using the Media Source Extensions API and HTML5 audio.
-  * Pushes synchronized metadata updates taken from ICY metadata, or OGG metadata.
+  * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
+  * Seamless playback during network changes (i.e. Wifi to Cell network).
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
@@ -32,6 +33,9 @@ https://cconcolato.github.io/media-mime-support/#audio_codecs
   * [ICY and OGG Metadata](#icy-and-ogg-metadata)
   * [Playing a Stream](#playing-a-stream)
     * [Metadata](#metadata)
+* [Reconnecting](#reconnecting)
+  * [Reconnect Lifecycle](#reconnect-lifecycle)
+  * [Seamless Audio Playback](#seamless-audio-playback)
 * [API](#api)
   * [Methods](#methods)
   * [Getters](#getters)
@@ -131,7 +135,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 1. To begin playing a stream, call the `.play()` method on the instance.
 
-    *Note:* IcecastMetadataPlayer will attempt to "fallback" on any CORS issues or Media Source API issues. See the [Troubleshooting](#troubleshooting) section for more details.
+    *Note:* IcecastMetadataPlayer will attempt to "fallback" to HTML5 with no metadata on any Media Source API issues. See the [Troubleshooting](#troubleshooting) section for more details.
 
     ```
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
@@ -163,6 +167,32 @@ https://github.com/eshaz/icecast-metadata-js
     ```
 
 See the [HTML demos](https://github.com/eshaz/icecast-metadata-js/tree/master/src/demo/public/html-demos/) for examples.
+
+## Reconnecting
+
+IcecastMetadataPlayer enables retry / reconnect logic by default. When a fetch or network error occurs, IcecastMetadataPlayer will attempt to recover by retrying the fetch request.
+
+This allows for seamless audio playback when switching networks, (i.e. from a cell network to a Wifi network).
+
+See [Retry Options](#Retry-Options) to configure or disable reconnects. 
+
+### Reconnect Lifecycle:
+
+1. The `error` / `onError` event will be fired indicating the issue that caused the retry process to start.
+1. IcecastMetadataPlayer will retry the initial fetch request periodically using an exponential back-off strategy configurable in the `options` object.
+   * Each retry attempt will fire a `retry` / `onRetry` event.
+1. Retries will stop when either of the below conditions are met:
+   * The fetch request succeeds. ***or***
+   * The audio element is paused or `stop()` is called. ***or***
+   * The audio element buffer is empty **and** the retry timeout is met.
+1. When the retry is successful, a `streamstart` / `onStreamStart` event will be fired and the audio will restart playing from the new request.
+1. When the retry times out, a `retrytimeout` / `onRetryTimeout` event will be fired and the stream will stop.
+
+### Seamless audio playback:
+
+The audio will continue to play until the buffer runs out while reconnecting. If the reconnect is successful before the buffer runs out, there will only be a minimal blip in playback after a network change.
+
+To increase the amount of audio that is buffered by clients, increase the `<burst-size>` setting in your Icecast server.
 
 ---
 
@@ -226,6 +256,26 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 ### Options
 * `endpoint` (required)
   * HTTP(s) endpoint for the Icecast compatible stream.
+* `audioElement` (optional) - **Default** `new Audio()`
+  * HTML5 Audio Element to use to play the Icecast stream.
+* `enableLogging` (optional) **Default** `false`
+  * Set to `true` to enable warning and error logging to the console
+
+#### Retry Options
+* `retryTimeout` (optional) - **Default** `30` seconds
+  * Number of seconds to wait before giving up on retries
+  * Retries are enabled by default, Set to `0` to disable retries
+  * Retries will continue until this duration is met **AND** the audio buffer has been exhausted
+
+  *(advanced retry logic)*
+  * `retryDelayMin` (optional) - **Default** `0.5` seconds
+    * Minimum number of seconds between retries (start of the   exponential back-off curve)
+  * `retryDelayMax` (optional) - **Default** `2` seconds
+    * Maximum number of seconds between retries (start of the   exponential back-off curve)
+  * `retryDelayRate` (optional) - **Default** `0.1` i.e. 10%
+    * Percentage of seconds to increment after each retry (how   quickly to increase the back-off)
+
+#### Metadata Options
 * `metadataTypes` (optional) - **Default** `["icy"]`
   * Array containing zero, one, or both metadata types to parse
   * Values:
@@ -233,20 +283,15 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
     * `["icy"]` - **Default** Parse ICY metadata only 
     * `["ogg"]` - Parse OGG (vorbis comment) metadata only
     * `["icy", "ogg"]` - Parse both ICY and OGG metadata
-* `audioElement` (optional) - **Default** `new Audio()`
-  * HTML5 Audio Element to use to play the Icecast stream.
-* `enableLogging` (optional) **Default** `false`
-  * Set to `true` to enable warning and error logging to the console
 
-#### *Only used when `["icy"]` metadata type is enabled*
-* `icyMetaInt` (optional) **Default** *reads from the response header*
-  * ICY Metadata interval read from `Icy-MetaInt` header in the response
-* `icyDetectionTimeout` (optional) **Default** `2000`
-  * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
-  * Set to `0` to disable metadata detection
+  #### *Only used when `["icy"]` metadata type is enabled*
+  * `icyMetaInt` (optional) **Default** *reads from the response header*
+    * ICY Metadata interval read from `Icy-MetaInt` header in the response
+  * `icyDetectionTimeout` (optional) **Default** `2000`
+    * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
+    * Set to `0` to disable metadata detection
 
-### Callbacks 
-*(all optional)*
+### Callbacks *(all optional)*
 
 #### Metadata
 * `onMetadata(metadata, timestampOffset, timestamp)` Called when metadata is synchronized with the audio.
@@ -269,6 +314,10 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 * `onStream(streamData)` Called when stream data is sent to the audio element.
 * `onStreamEnd()` Called when the fetch request completes.
 * `onStop()` Called when the stream is completely stopped and all cleanup operations are complete.
+
+#### Reconnects
+* `onRetry()` Called when a retry / reconnect is attempted.
+* `onRetryTimeout()` Called when the retry / reconnect attempts have stopped because they have timed-out.
 
 #### Error / Warning
 * `onWarn(message, ...messages)` Called with message(s) when a warning condition is met.
