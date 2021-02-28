@@ -78,6 +78,7 @@ const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
 const onAudioCanPlay = Symbol();
 const onAudioError = Symbol();
+const resetPlayback = Symbol();
 const mseAudioWrapper = Symbol();
 const mediaSourcePromise = Symbol();
 const retryAttempt = Symbol();
@@ -139,7 +140,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     p.get(this)[retryDelayRate] = (options.retryDelayRate || 0.1) + 1;
     p.get(this)[retryDelayMin] = (options.retryDelayMin || 0.5) * 1000;
     p.get(this)[retryDelayMax] = (options.retryDelayMax || 2) * 1000;
-    p.get(this)[retryTimeout] = (options.retryTimeout || 20) * 1000;
+    p.get(this)[retryTimeout] = (options.retryTimeout || 30) * 1000;
 
     // callbacks
     p.get(this)[events] = {
@@ -195,6 +196,23 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       onMetadataEnqueue: (...args) =>
         this[fireEvent](METADATA_ENQUEUE, ...args),
     });
+
+    p.get(this)[resetPlayback] = () => {
+      clearTimeout(p.get(this)[retryTimeoutId]);
+      this.removeEventListener(STREAM_START, p.get(this)[resetPlayback]);
+      p.get(this)[audioElement].removeEventListener(
+        "waiting",
+        p.get(this)[onAudioWaiting]
+      );
+      p.get(this)[audioElement].removeEventListener(
+        "canplay",
+        p.get(this)[onAudioCanPlay]
+      );
+
+      p.get(this)[audioElement].pause();
+      p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
+      this[createMediaSource]();
+    };
 
     // audio element event handlers
     p.get(this)[onAudioPlay] = () => {
@@ -323,27 +341,11 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
             }
           });
 
-      this.reset = () => {
-        clearTimeout(p.get(this)[retryTimeoutId]);
-        this.removeEventListener(STREAM_START, this.reset);
-        p.get(this)[audioElement].removeEventListener(
-          "waiting",
-          p.get(this)[onAudioWaiting]
-        );
-        p.get(this)[audioElement].removeEventListener(
-          "canplay",
-          p.get(this)[onAudioCanPlay]
-        );
-
-        p.get(this)[audioElement].pause();
-        p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-        this[createMediaSource]();
-      };
-
       tryFetching().finally(() => {
-        this.reset();
+        p.get(this)[resetPlayback]();
 
-        if (error) this[fallbackToAudioSrc]();
+        if (error && !error.message.match(/network|fetch|offline/))
+          this[fallbackToAudioSrc]();
 
         this[fireEvent](STOP);
         this[state] = STOPPED;
@@ -371,6 +373,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   }
 
   async [shouldRetry](error) {
+    if (p.get(this)[retryTimeout] === 0) return false;
+
     if (p.get(this)[state] === RETRYING) {
       // wait for retry interval
       await new Promise((resolve) => {
@@ -400,7 +404,9 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     ) {
       this[fireEvent](ERROR, error);
       this[state] = RETRYING;
-      this.addEventListener(STREAM_START, this.reset, { once: true });
+      this.addEventListener(STREAM_START, p.get(this)[resetPlayback], {
+        once: true,
+      });
 
       if (p.get(this)[hasIcy]) {
         this[fireEvent](
