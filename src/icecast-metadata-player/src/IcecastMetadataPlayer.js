@@ -29,8 +29,6 @@ const p = new WeakMap();
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
-const DEFAULT_RETRY_INTERVAL = 2; // seconds before retrying the fetch request
-const DEFAULT_RETRY_TIMEOUT = 10; // seconds before giving up on retries
 
 // State
 const LOADING = "loading";
@@ -61,7 +59,10 @@ const icyMetaInt = Symbol();
 const icyDetectionTimeout = Symbol();
 const enableLogging = Symbol();
 const endpoint = Symbol();
-const retryInterval = Symbol();
+
+const retryDelayRate = Symbol();
+const retryDelayMin = Symbol();
+const retryDelayMax = Symbol();
 const retryTimeout = Symbol();
 
 // variables
@@ -79,6 +80,8 @@ const onAudioCanPlay = Symbol();
 const onAudioError = Symbol();
 const mseAudioWrapper = Symbol();
 const mediaSourcePromise = Symbol();
+const retryAttempt = Symbol();
+const retryTimeoutId = Symbol();
 
 // private methods
 const fireEvent = Symbol();
@@ -132,9 +135,10 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     p.get(this)[metadataTypes] = options.metadataTypes || ["icy"];
     p.get(this)[hasIcy] = p.get(this)[metadataTypes].includes("icy");
     p.get(this)[enableLogging] = options.enableLogging || false;
-    p.get(this)[retryInterval] =
-      options.retryInterval || DEFAULT_RETRY_INTERVAL;
-    p.get(this)[retryTimeout] = options.retryTimeout || DEFAULT_RETRY_TIMEOUT;
+    p.get(this)[retryDelayRate] = (options.retryDelayRate || 0.15) + 1;
+    p.get(this)[retryDelayMin] = (options.retryDelayMin || 0.2) * 1000;
+    p.get(this)[retryDelayMax] = (options.retryDelayMax || 2) * 1000;
+    p.get(this)[retryTimeout] = (options.retryTimeout || 20) * 1000;
 
     // callbacks
     p.get(this)[events] = {
@@ -302,6 +306,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
+                this[fireEvent](RETRY);
                 return tryFetching();
               }
 
@@ -318,7 +323,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
           });
 
       this.reset = () => {
-        clearTimeout(this._retryTimeout);
+        clearTimeout(p.get(this)[retryTimeoutId]);
         this.removeEventListener(STREAM_START, this.reset);
 
         p.get(this)[audioElement].removeEventListener(
@@ -369,19 +374,20 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       await new Promise((resolve) => {
         this.addEventListener(STOPPING, resolve, { once: true });
 
+        const delay = Math.min(
+          p.get(this)[retryDelayMin] *
+            p.get(this)[retryDelayRate] ** p.get(this)[retryAttempt]++,
+          p.get(this)[retryDelayMax]
+        ); // exponential backoff
+
         setTimeout(() => {
           this.removeEventListener(STOPPING, resolve);
           resolve();
-        }, p.get(this)[retryInterval] * 1000);
+        }, delay + delay * 0.3 * Math.random()); // jitter
       });
 
       // ensure the retry hasn't been cancelled while waiting
-      if (p.get(this)[state] === RETRYING) {
-        this[fireEvent](RETRY);
-        p.get(this)[abortController] = new AbortController();
-
-        return true;
-      }
+      return p.get(this)[state] === RETRYING;
     } else if (
       (p.get(this)[state] !== STOPPING &&
         p.get(this)[state] !== STOPPED &&
@@ -392,10 +398,11 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       this[state] = RETRYING;
 
       this.addEventListener(STREAM_START, this.reset, { once: true });
-      this._retryTimeout = setTimeout(() => {
+      p.get(this)[retryTimeoutId] = setTimeout(() => {
         this[fireEvent](RETRY_TIMEOUT);
         this.stop();
-      }, p.get(this)[retryTimeout] * 1000);
+      }, p.get(this)[retryTimeout]);
+      p.get(this)[retryAttempt] = 0;
 
       return true;
     }
