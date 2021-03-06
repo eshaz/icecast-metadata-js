@@ -23,7 +23,7 @@ const license = `
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
 `;
 
-module.exports = {
+const baseConfig  = {
   mode: "production",
   devtool: "source-map",
   entry: "/src/IcecastMetadataPlayer.js",
@@ -59,3 +59,43 @@ module.exports = {
     ],
   },
 };
+
+
+const umdConfig  = {
+  mode: "production",
+  devtool: "source-map",
+  entry: "/src/IcecastMetadataPlayer.js",
+  output: {
+    path: __dirname + "/build/umd",
+    filename: `${package.name}-${package.version}.min.js`,
+    libraryTarget: "umd",
+    library: "IcecastMetadataPlayer",
+  },
+  plugins: [new webpack.ProgressPlugin()],
+  resolve: {
+    fallback: { util: false },
+  },
+  module: {
+    rules: [],
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: {
+          condition: true,
+          banner: () => license,
+        },
+        terserOptions: {
+          mangle: {
+            properties: {
+              regex: /^_/,
+            },
+          },
+        },
+      }),
+    ],
+  },
+};
+
+module.exports = [baseConfig, umdConfig];
