@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/icecast-metadata-js/static/css/main.c3ee1a3c.chunk.css",
+    "main.css": "/icecast-metadata-js/static/css/main.e24e301e.chunk.css",
     "main.js": "/icecast-metadata-js/static/js/main.124f4d37.chunk.js",
     "main.js.map": "/icecast-metadata-js/static/js/main.124f4d37.chunk.js.map",
     "runtime-main.js": "/icecast-metadata-js/static/js/runtime-main.1f8b057d.js",
     "runtime-main.js.map": "/icecast-metadata-js/static/js/runtime-main.1f8b057d.js.map",
-    "static/js/2.11fcbb8b.chunk.js": "/icecast-metadata-js/static/js/2.11fcbb8b.chunk.js",
-    "static/js/2.11fcbb8b.chunk.js.map": "/icecast-metadata-js/static/js/2.11fcbb8b.chunk.js.map",
+    "static/js/2.a0a04e66.chunk.js": "/icecast-metadata-js/static/js/2.a0a04e66.chunk.js",
+    "static/js/2.a0a04e66.chunk.js.map": "/icecast-metadata-js/static/js/2.a0a04e66.chunk.js.map",
     "index.html": "/icecast-metadata-js/index.html",
-    "static/css/main.c3ee1a3c.chunk.css.map": "/icecast-metadata-js/static/css/main.c3ee1a3c.chunk.css.map",
-    "static/js/2.11fcbb8b.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.11fcbb8b.chunk.js.LICENSE.txt",
+    "static/css/main.e24e301e.chunk.css.map": "/icecast-metadata-js/static/css/main.e24e301e.chunk.css.map",
+    "static/js/2.a0a04e66.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.a0a04e66.chunk.js.LICENSE.txt",
     "static/media/pause.50a7fb92.svg": "/icecast-metadata-js/static/media/pause.50a7fb92.svg",
     "static/media/play.18e046c1.svg": "/icecast-metadata-js/static/media/play.18e046c1.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.1f8b057d.js",
-    "static/js/2.11fcbb8b.chunk.js",
-    "static/css/main.c3ee1a3c.chunk.css",
+    "static/js/2.a0a04e66.chunk.js",
+    "static/css/main.e24e301e.chunk.css",
     "static/js/main.124f4d37.chunk.js"
   ]
 }
