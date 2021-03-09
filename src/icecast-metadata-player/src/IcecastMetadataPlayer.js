@@ -21,14 +21,11 @@ const {
   IcecastReadableStream,
   IcecastMetadataQueue,
 } = require("icecast-metadata-js");
-const MSEAudioWrapper = require("mse-audio-wrapper").default;
+const MediaSourcePlayer = require("./players/MediaSourcePlayer");
 const EventTargetPolyfill = require("./EventTargetPolyfill");
 
 const noOp = () => {};
 const p = new WeakMap();
-
-const BUFFER = 10; // seconds of audio to store in SourceBuffer
-const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
 // State
 const LOADING = "loading";
@@ -70,8 +67,6 @@ const hasIcy = Symbol();
 const icecastReadableStream = Symbol();
 const icecastMetadataQueue = Symbol();
 const abortController = Symbol();
-const mediaSource = Symbol();
-const sourceBufferRemoved = Symbol();
 const events = Symbol();
 const state = Symbol();
 const onAudioPause = Symbol();
@@ -79,8 +74,6 @@ const onAudioPlay = Symbol();
 const onAudioCanPlay = Symbol();
 const onAudioError = Symbol();
 const resetPlayback = Symbol();
-const mseAudioWrapper = Symbol();
-const mediaSourcePromise = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 const onAudioWaiting = Symbol();
@@ -88,15 +81,8 @@ const onAudioWaiting = Symbol();
 // private methods
 const fireEvent = Symbol();
 const fallbackToAudioSrc = Symbol();
-const createMediaSource = Symbol();
-const createSourceBuffer = Symbol();
 
-const getMimeType = Symbol();
-const waitForSourceBuffer = Symbol();
-const appendSourceBuffer = Symbol();
-const fetchStream = Symbol();
 const playResponse = Symbol();
-const getOnStream = Symbol();
 const attachAudioElement = Symbol();
 const shouldRetry = Symbol();
 
@@ -195,7 +181,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
 
       p.get(this)[audioElement].pause();
       p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-      this[createMediaSource]();
+      this._playerResetPromise = this._player.reset();
     };
 
     // audio element event handlers
@@ -227,9 +213,33 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     };
 
     this[attachAudioElement]();
-
     this[state] = STOPPED;
-    this[createMediaSource]();
+
+    if (MediaSourcePlayer.isSupported()) {
+      this._player = new MediaSourcePlayer({
+        endpoint: p.get(this)[endpoint],
+        hasIcy: p.get(this)[hasIcy],
+        audioElement: p.get(this)[audioElement],
+        enableLogging: p.get(this)[enableLogging],
+        icecastMetadataQueue: p.get(this)[icecastMetadataQueue],
+        fireEvent: this[fireEvent].bind(this),
+        events: {
+          STREAM: STREAM,
+          CODEC_UPDATE: CODEC_UPDATE,
+          ERROR: ERROR,
+        },
+      });
+    } else {
+      this[fireEvent](
+        ERROR,
+        `Media Source Extensions API in your browser is not supported`,
+        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+      );
+
+      this._playerResetPromise = new Promise(noOp);
+      this[fallbackToAudioSrc]();
+    }
+
     p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
 
@@ -298,7 +308,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       let error;
 
       const tryFetching = () =>
-        this[fetchStream]()
+        this._player
+          .fetchStream(p.get(this)[abortController])
           .then(async (res) => {
             this[fireEvent](STREAM_START);
 
@@ -429,22 +440,6 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     return false;
   }
 
-  async [fetchStream]() {
-    const res = await fetch(p.get(this)[endpoint], {
-      method: "GET",
-      headers: p.get(this)[hasIcy] ? { "Icy-MetaData": 1 } : {},
-      signal: p.get(this)[abortController].signal,
-    });
-
-    if (!res.ok) {
-      const error = new Error(`${res.status} received from ${res.url}`);
-      error.name = "HTTP Response Error";
-      throw error;
-    }
-
-    return res;
-  }
-
   async [playResponse](res) {
     p.get(this)[audioElement].addEventListener(
       "canplay",
@@ -453,23 +448,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     );
 
     p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
-      onMetadata: (value) => {
-        p.get(this)[icecastMetadataQueue].addMetadata(
-          value,
-          (p.get(this)[mediaSource] &&
-            p.get(this)[mediaSource].sourceBuffers.length &&
-            Math.max(
-              // work-around for WEBM reporting a negative timestampOffset
-              p.get(this)[mediaSource].sourceBuffers[0].timestampOffset,
-              p.get(this)[mediaSource].sourceBuffers[0].buffered.length
-                ? p.get(this)[mediaSource].sourceBuffers[0].buffered.end(0)
-                : 0
-            )) ||
-            0,
-          p.get(this)[audioElement].currentTime
-        );
-      },
-      onStream: this[getOnStream](res.headers.get("content-type")),
+      onMetadata: this._player.getOnMetadata(),
+      onStream: this._player.getOnStream(res),
       onError: (...args) => this[fireEvent](WARN, ...args),
       metadataTypes: p.get(this)[metadataTypes],
       icyMetaInt: p.get(this)[icyMetaInt],
@@ -477,115 +457,6 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     });
 
     await p.get(this)[icecastReadableStream].startReading();
-  }
-
-  async [getMimeType](inputMimeType) {
-    if (MediaSource.isTypeSupported(inputMimeType)) {
-      return inputMimeType;
-    } else {
-      const mimeType = await new Promise((onMimeType) => {
-        p.get(this)[mseAudioWrapper] = new MSEAudioWrapper(inputMimeType, {
-          onCodecUpdate: (...args) => this[fireEvent](CODEC_UPDATE, ...args),
-          onMimeType,
-        });
-      });
-
-      if (!MediaSource.isTypeSupported(mimeType)) {
-        this[fireEvent](
-          ERROR,
-          `Media Source Extensions API in your browser does not support ${inputMimeType} or ${mimeType}`,
-          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-        );
-        const error = new Error(`Unsupported Media Source Codec ${mimeType}`);
-        error.name = "CodecError";
-        throw error;
-      }
-
-      return mimeType;
-    }
-  }
-
-  async [createSourceBuffer](mimeType) {
-    await p.get(this)[mediaSourcePromise];
-
-    p.get(this)[sourceBufferRemoved] = 0;
-    p.get(this)[mediaSource].addSourceBuffer(mimeType).mode = "sequence";
-  }
-
-  async [createMediaSource]() {
-    try {
-      const ms = (p.get(this)[mediaSource] = new MediaSource());
-
-      p.get(this)[audioElement].src = URL.createObjectURL(ms);
-      p.get(this)[mediaSourcePromise] = new Promise((resolve) => {
-        ms.addEventListener("sourceopen", resolve, {
-          once: true,
-        });
-      });
-    } catch (e) {
-      this[fireEvent](
-        ERROR,
-        `Media Source Extensions API in your browser is not supported`,
-        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
-        e
-      );
-      p.get(this)[mediaSourcePromise] = new Promise(noOp);
-
-      this[fallbackToAudioSrc]();
-    }
-  }
-
-  [getOnStream](mimeType) {
-    const sourceBufferPromise = this[getMimeType](mimeType).then((mimeType) =>
-      this[createSourceBuffer](mimeType)
-    );
-
-    const onStream = async ({ stream }) => {
-      this[fireEvent](STREAM, stream);
-      await sourceBufferPromise;
-      await this[appendSourceBuffer](stream);
-    };
-
-    const wrapper = p.get(this)[mseAudioWrapper];
-
-    return wrapper
-      ? async ({ stream }) => {
-          for await (const fragment of wrapper.iterator(stream)) {
-            await onStream({ stream: fragment });
-          }
-        }
-      : onStream;
-  }
-
-  async [waitForSourceBuffer]() {
-    return new Promise((resolve) => {
-      p.get(this)[mediaSource].sourceBuffers[0].addEventListener(
-        "updateend",
-        resolve,
-        {
-          once: true,
-        }
-      );
-    });
-  }
-
-  async [appendSourceBuffer](chunk) {
-    if (this.state !== STOPPING) {
-      p.get(this)[mediaSource].sourceBuffers[0].appendBuffer(chunk);
-      await this[waitForSourceBuffer]();
-
-      if (
-        p.get(this)[audioElement].currentTime > BUFFER &&
-        p.get(this)[sourceBufferRemoved] + BUFFER_INTERVAL * 1000 < Date.now()
-      ) {
-        p.get(this)[sourceBufferRemoved] = Date.now();
-        p.get(this)[mediaSource].sourceBuffers[0].remove(
-          0,
-          p.get(this)[audioElement].currentTime - BUFFER
-        );
-        await this[waitForSourceBuffer]();
-      }
-    }
   }
 
   [fireEvent](event, ...args) {
@@ -625,7 +496,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       this[fireEvent](STOP);
     };
 
-    p.get(this)[mediaSourcePromise].then(() => this.play());
+    this._playerResetPromise.then(() => this.play());
   }
 }
 
