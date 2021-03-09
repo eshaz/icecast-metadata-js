@@ -23,6 +23,7 @@ const {
 } = require("icecast-metadata-js");
 const MediaSourcePlayer = require("./players/MediaSourcePlayer");
 const EventTargetPolyfill = require("./EventTargetPolyfill");
+const HTML5Player = require("./players/HTML5Player");
 
 const noOp = () => {};
 const p = new WeakMap();
@@ -215,7 +216,9 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     this[attachAudioElement]();
     this[state] = STOPPED;
 
-    if (MediaSourcePlayer.isSupported()) {
+    if (
+      false //MediaSourcePlayer.isSupported()
+    ) {
       this._player = new MediaSourcePlayer({
         endpoint: p.get(this)[endpoint],
         hasIcy: p.get(this)[hasIcy],
@@ -230,14 +233,28 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
         },
       });
     } else {
+      this._player = new HTML5Player({
+        endpoint: p.get(this)[endpoint],
+        hasIcy: p.get(this)[hasIcy],
+        audioElement: p.get(this)[audioElement],
+        enableLogging: p.get(this)[enableLogging],
+        icecastMetadataQueue: p.get(this)[icecastMetadataQueue],
+        fireEvent: this[fireEvent].bind(this),
+        events: {
+          STREAM: STREAM,
+          CODEC_UPDATE: CODEC_UPDATE,
+          ERROR: ERROR,
+        },
+      });
+
       this[fireEvent](
         ERROR,
         `Media Source Extensions API in your browser is not supported`,
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
 
-      this._playerResetPromise = new Promise(noOp);
-      this[fallbackToAudioSrc]();
+      //this._playerResetPromise = new Promise(noOp);
+      //this[fallbackToAudioSrc]();
     }
 
     p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
