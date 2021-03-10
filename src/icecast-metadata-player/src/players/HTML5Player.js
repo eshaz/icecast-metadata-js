@@ -10,8 +10,8 @@ class HTML5Player {
     this._fireEvent = options.fireEvent;
     this._events = options.events;
 
-    this._fetchLoaded = 0;
     this._audioLoaded = 0;
+    this._offset = 0;
 
     this._audioElement.crossOrigin = "anonymous";
   }
@@ -20,6 +20,8 @@ class HTML5Player {
 
   async reset() {
     this._frame = null;
+    this._audioLoaded = 0;
+    this._offset = 0;
     this._audioElement.removeAttribute("src");
     this._audioElement.load();
   }
@@ -38,8 +40,6 @@ class HTML5Player {
     });
 
     this._audioElement.src = this._endpoint;
-    this._audioElement.play();
-
     await playing;
 
     return fetch(this._endpoint, {
@@ -47,7 +47,7 @@ class HTML5Player {
       headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
       signal: abortController.signal,
     }).then((res) => {
-      this._fetchLoaded = Date.now();
+      this._offset = Date.now() - this._audioLoaded;
 
       if (!res.ok) {
         const error = new Error(`${res.status} received from ${res.url}`);
@@ -61,20 +61,27 @@ class HTML5Player {
 
   getOnMetadata() {
     return (value) => {
-      const timestamp = this._frame ? this._frame.totalDuration / 1000 : 0;
-      const timestampOffset = (this._fetchLoaded - this._audioLoaded) / 1000;
+      const timestamp = this._frame
+        ? (this._frame.totalDuration + this._frame.duration - this._offset) /
+          1000
+        : 0;
 
-      console.log(timestamp, timestampOffset);
+      console.log(timestamp, this._audioElement.currentTime, this._offset);
 
-      this._icecastMetadataQueue.addMetadata(value, timestamp, timestampOffset);
+      this._icecastMetadataQueue.addMetadata(value, timestamp, 0);
     };
   }
 
   getOnStream(res) {
-    this._codecParser = new CodecParser(res.headers.get("content-type"), {});
+    this._codecParser = new CodecParser(res.headers.get("content-type"), {
+      onCodecUpdate: (...args) =>
+        this._fireEvent(this._events.CODEC_UPDATE, ...args),
+    });
 
-    return async ({ stream }) => {
-      for await (const frame of this._codecParser.iterator(stream)) {
+    return ({ stream }) => {
+      this._fireEvent(this._events.STREAM, stream);
+
+      for (const frame of this._codecParser.iterator(stream)) {
         this._frame = frame;
       }
     };

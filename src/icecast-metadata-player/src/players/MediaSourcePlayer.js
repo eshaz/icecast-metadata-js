@@ -11,6 +11,7 @@ class MediaSourcePlayer {
     this._enableLogging = options.enableLogging;
     this._icecastMetadataQueue = options.icecastMetadataQueue;
     this._fireEvent = options.fireEvent;
+    this._state = options.state;
     this._events = options.events;
 
     this._createMediaSource();
@@ -144,23 +145,23 @@ class MediaSourcePlayer {
   }
 
   async _appendSourceBuffer(chunk) {
-    //if (this.state !== STOPPING) {
-    this._mediaSource.sourceBuffers[0].appendBuffer(chunk);
-    await this._waitForSourceBuffer();
-
-    if (
-      this._audioElement.currentTime > BUFFER &&
-      this._sourceBufferRemoved + BUFFER_INTERVAL * 1000 < Date.now()
-    ) {
-      this._sourceBufferRemoved = Date.now();
-      this._mediaSource.sourceBuffers[0].remove(
-        0,
-        this._audioElement.currentTime - BUFFER
-      );
+    if (this._state() !== "stopping") {
+      this._mediaSource.sourceBuffers[0].appendBuffer(chunk);
       await this._waitForSourceBuffer();
+
+      if (
+        this._audioElement.currentTime > BUFFER &&
+        this._sourceBufferRemoved + BUFFER_INTERVAL * 1000 < Date.now()
+      ) {
+        this._sourceBufferRemoved = Date.now();
+        this._mediaSource.sourceBuffers[0].remove(
+          0,
+          this._audioElement.currentTime - BUFFER
+        );
+        await this._waitForSourceBuffer();
+      }
     }
   }
-  //}
 }
 
 module.exports = MediaSourcePlayer;
