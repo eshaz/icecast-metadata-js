@@ -17,12 +17,13 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
+
+const EventTargetPolyfill = require("./EventTargetPolyfill");
 const {
   IcecastReadableStream,
   IcecastMetadataQueue,
 } = require("icecast-metadata-js");
 const MediaSourcePlayer = require("./players/MediaSourcePlayer");
-const EventTargetPolyfill = require("./EventTargetPolyfill");
 const HTML5Player = require("./players/HTML5Player");
 
 const noOp = () => {};
@@ -467,7 +468,8 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
   [fallbackToHTML5]() {
     this[fireEvent](
       ERROR,
-      "Falling back to HTML5 audio with no metadata updates. See the console for details on the error."
+      "Falling back to HTML5 audio by using two requests: one for audio, and another for metadata.",
+      "See the console for details on the error."
     );
 
     this._player = new HTML5Player(this._playerParams);
