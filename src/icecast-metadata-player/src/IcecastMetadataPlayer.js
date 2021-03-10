@@ -81,7 +81,7 @@ const onAudioWaiting = Symbol();
 
 // private methods
 const fireEvent = Symbol();
-const fallbackToAudioSrc = Symbol();
+const fallbackToHTML5 = Symbol();
 
 const playResponse = Symbol();
 const attachAudioElement = Symbol();
@@ -218,7 +218,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     this[attachAudioElement]();
     this[state] = STOPPED;
 
-    const playerParams = {
+    this._playerParams = {
       endpoint: p.get(this)[endpoint],
       hasIcy: p.get(this)[hasIcy],
       audioElement: p.get(this)[audioElement],
@@ -233,13 +233,10 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
       },
     };
 
-    if (
-      false
-      // MediaSourcePlayer.isSupported()
-    ) {
-      this._player = new MediaSourcePlayer(playerParams);
+    if (MediaSourcePlayer.isSupported()) {
+      this._player = new MediaSourcePlayer(this._playerParams);
     } else {
-      this._player = new HTML5Player(playerParams);
+      this._player = new HTML5Player(this._playerParams);
 
       this[fireEvent](
         WARN,
@@ -349,7 +346,7 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
         p.get(this)[resetPlayback]();
 
         if (error && !error.message.match(/network|fetch|offline/))
-          this[fallbackToAudioSrc]();
+          this[fallbackToHTML5]();
 
         this[fireEvent](STOP);
         this[state] = STOPPED;
@@ -467,38 +464,13 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     p.get(this)[events][event](...args);
   }
 
-  [fallbackToAudioSrc]() {
+  [fallbackToHTML5]() {
     this[fireEvent](
       ERROR,
       "Falling back to HTML5 audio with no metadata updates. See the console for details on the error."
     );
 
-    const audio = p.get(this)[audioElement];
-    audio.crossOrigin = "anonymous";
-
-    this.play = async () => {
-      if (p.get(this)[state] !== PLAYING) {
-        audio.addEventListener("canplay", p.get(this)[onAudioCanPlay], {
-          once: true,
-        });
-        audio.src = p.get(this)[endpoint];
-
-        await new Promise((resolve) => {
-          this.addEventListener("play", resolve, { once: true });
-        });
-      }
-    };
-
-    this.stop = () => {
-      audio.removeEventListener("canplay", p.get(this)[onAudioCanPlay]);
-      audio.pause();
-      audio.removeAttribute("src");
-      audio.load();
-
-      this[state] = STOPPED;
-      this[fireEvent](STOP);
-    };
-
+    this._player = new HTML5Player(this._playerParams);
     this._playerResetPromise.then(() => this.play());
   }
 }
