@@ -62,13 +62,11 @@ class HTML5Player {
   getOnMetadata() {
     return (value) => {
       const timestamp = this._frame
-        ? (this._frame.totalDuration + this._frame.duration - this._offset) /
-          1000
+        ? (this._frame.totalDuration + this._offset) / 1000
         : 0;
+      const audioTime = Math.max(this._audioElement.currentTime, 0);
 
-      console.log(timestamp, this._audioElement.currentTime, this._offset);
-
-      this._icecastMetadataQueue.addMetadata(value, timestamp, 0);
+      this._icecastMetadataQueue.addMetadata(value, timestamp, audioTime);
     };
   }
 
