@@ -207,6 +207,12 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
         errors[e.target.error.code] || `Code: ${e.target.error.code}`,
         `Message: ${e.target.error.message}`
       );
+
+      if (this.state !== RETRYING) {
+        this.stop();
+      } else {
+        p.get(this)[resetPlayback]();
+      }
     };
 
     this[attachAudioElement]();

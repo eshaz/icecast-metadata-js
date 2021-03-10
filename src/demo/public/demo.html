@@ -337,13 +337,11 @@
           icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
 
           let time = 0;
+          clearInterval(timer);
           timer = setInterval(() => {
             time += 0.1;
             currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
           }, 100);
-        },
-        onStreamStart: () => {
-          clearInterval(timer);
         },
         onStop: () => {
           clearInterval(timer);

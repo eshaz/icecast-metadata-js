@@ -9,6 +9,7 @@ class HTML5Player {
     this._icecastMetadataQueue = options.icecastMetadataQueue;
     this._fireEvent = options.fireEvent;
     this._events = options.events;
+    this._state = options.state;
 
     this._audioLoaded = 0;
     this._offset = 0;
@@ -19,44 +20,50 @@ class HTML5Player {
   isSupported() {}
 
   async reset() {
-    this._frame = null;
-    this._audioLoaded = 0;
-    this._offset = 0;
-    this._audioElement.removeAttribute("src");
-    this._audioElement.load();
+    if (this._state() !== "playing") {
+      this._frame = null;
+      this._audioLoaded = 0;
+      this._offset = 0;
+      this._audioElement.removeAttribute("src");
+      this._audioElement.load();
+    }
   }
 
   async fetchStream(abortController) {
     const playing = new Promise((resolve) => {
       this._audioElement.addEventListener(
         "playing",
-        async () => {
+        () => {
           this._audioLoaded = Date.now();
-          console.log("playing");
           resolve();
         },
         { once: true }
       );
     });
 
-    this._audioElement.src = this._endpoint;
-    await playing;
-
-    return fetch(this._endpoint, {
-      method: "GET",
-      headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: abortController.signal,
-    }).then((res) => {
-      this._offset = Date.now() - this._audioLoaded;
-
-      if (!res.ok) {
-        const error = new Error(`${res.status} received from ${res.url}`);
-        error.name = "HTTP Response Error";
-        throw error;
-      }
-
-      return res;
+    const error = new Promise((_, reject) => {
+      this._audioElement.addEventListener("error", reject, { once: true });
     });
+
+    this._audioElement.src = this._endpoint;
+
+    return Promise.race([playing, error]).then(() =>
+      fetch(this._endpoint, {
+        method: "GET",
+        headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
+        signal: abortController.signal,
+      }).then((res) => {
+        this._offset = Date.now() - this._audioLoaded;
+
+        if (!res.ok) {
+          const error = new Error(`${res.status} received from ${res.url}`);
+          error.name = "HTTP Response Error";
+          throw error;
+        }
+
+        return res;
+      })
+    );
   }
 
   getOnMetadata() {
@@ -64,9 +71,12 @@ class HTML5Player {
       const timestamp = this._frame
         ? (this._frame.totalDuration + this._offset) / 1000
         : 0;
-      const audioTime = Math.max(this._audioElement.currentTime, 0);
 
-      this._icecastMetadataQueue.addMetadata(value, timestamp, audioTime);
+      this._icecastMetadataQueue.addMetadata(
+        value,
+        timestamp,
+        this._audioElement.currentTime
+      );
     };
   }
 
