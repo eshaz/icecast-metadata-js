@@ -18,13 +18,22 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-const EventTargetPolyfill = require("./EventTargetPolyfill");
-const {
+import EventTargetPolyfill from "./EventTargetPolyfill";
+import {
   IcecastReadableStream,
   IcecastMetadataQueue,
-} = require("icecast-metadata-js");
-const MediaSourcePlayer = require("./players/MediaSourcePlayer");
-const HTML5Player = require("./players/HTML5Player");
+} from "icecast-metadata-js";
+import MediaSourcePlayer from "./players/MediaSourcePlayer";
+import HTML5Player from "./players/HTML5Player";
+
+let EventClass;
+
+try {
+  new EventTarget();
+  EventClass = EventTarget;
+} catch {
+  EventClass = EventTargetPolyfill;
+}
 
 const noOp = () => {};
 const p = new WeakMap();
@@ -88,7 +97,7 @@ const playResponse = Symbol();
 const attachAudioElement = Symbol();
 const shouldRetry = Symbol();
 
-class IcecastMetadataPlayer extends EventTargetPolyfill {
+export default class IcecastMetadataPlayer extends EventClass {
   /**
    * @constructor
    * @param {string} endpoint Endpoint of the Icecast compatible stream
@@ -476,5 +485,3 @@ class IcecastMetadataPlayer extends EventTargetPolyfill {
     this._playerResetPromise.then(() => this.play());
   }
 }
-
-module.exports = IcecastMetadataPlayer;

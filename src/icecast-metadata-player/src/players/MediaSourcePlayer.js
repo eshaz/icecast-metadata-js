@@ -1,9 +1,9 @@
-const MSEAudioWrapper = require("mse-audio-wrapper").default;
+import MSEAudioWrapper from "mse-audio-wrapper";
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
-class MediaSourcePlayer {
+export default class MediaSourcePlayer {
   constructor(options) {
     this._audioElement = options.audioElement;
     this._endpoint = options.endpoint;
@@ -163,5 +163,3 @@ class MediaSourcePlayer {
     }
   }
 }
-
-module.exports = MediaSourcePlayer;

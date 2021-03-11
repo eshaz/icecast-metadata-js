@@ -30,8 +30,9 @@ module.exports = {
   output: {
     path: __dirname + "/build",
     filename: `${package.name}-${package.version}.min.js`,
-    libraryTarget: "var",
     library: "IcecastMetadataPlayer",
+    libraryExport: "default",
+    libraryTarget: "var",
   },
   plugins: [new webpack.ProgressPlugin()],
   resolve: {

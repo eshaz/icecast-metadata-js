@@ -1,6 +1,6 @@
-const CodecParser = require("codec-parser").default;
+import CodecParser from "codec-parser";
 
-class HTML5Player {
+export default class HTML5Player {
   constructor(options) {
     this._audioElement = options.audioElement;
     this._endpoint = options.endpoint;
@@ -91,5 +91,3 @@ class HTML5Player {
     };
   }
 }
-
-module.exports = HTML5Player;

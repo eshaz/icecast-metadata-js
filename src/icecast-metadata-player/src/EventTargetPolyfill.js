@@ -1,7 +1,7 @@
 // support for Safari 13
 // https://stackoverflow.com/a/58209729/14911733
 
-class EventTargetPolyfill {
+export default class EventTargetPolyfill {
   constructor() {
     this._listeners = [];
   }
@@ -47,11 +47,4 @@ class EventTargetPolyfill {
       });
     return this;
   }
-}
-
-try {
-  new EventTarget();
-  module.exports = EventTarget;
-} catch {
-  module.exports = EventTargetPolyfill;
 }
