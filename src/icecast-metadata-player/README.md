@@ -15,7 +15,7 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
 
 ## Supported Browsers:
  * **Chrome, Firefox** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **Safari 13** `audio/mpeg`, `audio/aac`
+ * **Safari Desktop** `audio/mpeg`, `audio/aac`
    * *unsupported* `application/ogg` (FLAC, Opus, Vorbis)
  * **iOS, Edge, others...** *support unknown* - Let me know if it works!
 
@@ -56,15 +56,26 @@ https://github.com/eshaz/icecast-metadata-js
 ### Install via [NPM](https://www.npmjs.com/package/icecast-metadata-player)
 * `npm i icecast-metadata-player`
 
+  **Example**
+
+  ```
+  import IcecastMetadataPlayer from "icecast-metadata-player";
+
+  const player = new IcecastMetadataPlayer(
+    "https://dsmrad.io/stream/isics-all",
+    { onMetadata: (metadata) => {console.log(metadata)} }
+  );
+  ```
+
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.0.1.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.2.0.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```
-   <script src="icecast-metadata-player-1.0.1.min.js"></script>
+   <script src="icecast-metadata-player-1.2.0.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -135,7 +146,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 1. To begin playing a stream, call the `.play()` method on the instance.
 
-    *Note:* IcecastMetadataPlayer will attempt to "fallback" to HTML5 with no metadata on any Media Source API issues. See the [Troubleshooting](#troubleshooting) section for more details.
+    *Note:* IcecastMetadataPlayer will use either the MediaSource api or, if that is not available, HTML5 audio with a second request for metadata.
 
     ```
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
@@ -347,7 +358,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.0.1.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.0.1.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.2.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.2.0.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Error messages
@@ -355,22 +366,32 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 > Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.
 
 * The stream has been requested with ICY metadata, but the server did not respond with the `Icy-MetaInt` header. `IcecastMetadataPlayer` will attempt to detect the ICY metadata interval, and will timeout after a default of 2 seconds, or the value in milliseconds passed into the `icyDetectionTimeout` option.
-* This warning could also be displayed if the stream was requested with ICY metadata, but it does not contain ICY metadata. In this case, the ICY detection should timeout and the stream should play without ICY metadata. Please update your code to no longer request ICY metadata.
+* If your stream contains ICY metadata, and it is not detected, audio errors will occur. Increase the detection timeout to search longer for ICY metadata.
+* This warning could also be displayed if the stream was requested with ICY metadata, but it does not contain ICY metadata. In this case, the ICY detection will timeout and the stream will play without ICY metadata. Please update your code to no longer request ICY metadata.
 
 > This stream is not an OGG stream. No OGG metadata will be returned.
 
-* IcecastMetadataReader has `"ogg"` passed into the `metadataTypes` options, but the stream response is not an ogg stream. ICY metadata and the stream will work without issues. Please remove the `"ogg"` option to remove this warning.
+* IcecastMetadataPlayer has `"ogg"` passed into the `metadataTypes` options, but the stream response is not an ogg stream. ICY metadata and the stream will work without issues. Please remove the `"ogg"` option to remove this warning.
 
-> Network request failed, possibly due to a CORS issue. Trying again without ICY Metadata.
+> This stream was requested with ICY metadata. If there is a CORS preflight failure, try removing "icy" from the metadataTypes option.
 
 * A network error occurred while requesting the stream with the `Icy-MetaData: 1` header.
-  * If you want ICY metadata, your CORS policy must allow this header to be requested. See [CORS Troubleshooting](https://github.com/eshaz/icecast-metadata-js#cors) for more information.
+  * IcecastMetadataPlayer will attempt to retry the request using the retry configuration.
+  * It's possible that this was caused by the Icecast server's CORS policy not allowing the `Icy-Metadata` header. If you want ICY metadata, your CORS policy must allow this header to be requested. See [CORS Troubleshooting](https://github.com/eshaz/icecast-metadata-js#cors) for more information.
   * Additionally, attempting to access a HTTP from a HTTPS origin will be blocked by modern browsers
+
+> Media Source Extensions API in your browser is not supported. Using two requests, one for audio, and another for metadata.
+
+* Your browser doesn't support the Media Source API extensions. IcecastMetadataPlayer will use one request for audio through HTML5 audio, and another request to read the metadata. Both requests will be synchronized for real-time metadata updates.
 
 > Media Source Extensions API in your browser does not support `codec`, `audio/mp4; codec="codec"`
 
-* The Media Source API in your browser does not support the audio codec of the Icecast stream. Metadata playback is currently not possible with this stream endpoint. This message should be followed up with the below message.
+* The Media Source API in your browser does not support the audio codec of the Icecast stream. This message should be followed up with the below message.
 
-> Falling back to HTML5 audio with no metadata updates. See the console for details on the error.
+> Falling back to HTML5 audio by using two requests: one for audio, and another for metadata. See the console for details on the error.
 
-* A general error occurred when playing the stream. IcecastMetadataPlayer should continue to play the stream, but there will be no metadata updates.
+* A general error occurred while playing the stream. This is likely due to an issue with the MediaSource api. The stream should recover using HTML5 audio and another request for real-time metadata.
+
+> The audio element encountered an error
+
+* An error occurred while the browser was playing or decoding the audio. This may occur if your browser doesn't support a codec.

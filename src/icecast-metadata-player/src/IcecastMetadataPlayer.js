@@ -78,6 +78,9 @@ const hasIcy = Symbol();
 const icecastReadableStream = Symbol();
 const icecastMetadataQueue = Symbol();
 const abortController = Symbol();
+const player = Symbol();
+const playerParams = Symbol();
+const playerResetPromise = Symbol();
 const events = Symbol();
 const state = Symbol();
 const onAudioPause = Symbol();
@@ -188,7 +191,7 @@ export default class IcecastMetadataPlayer extends EventClass {
 
       p.get(this)[audioElement].pause();
       p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-      this._playerResetPromise = this._player.reset();
+      p.get(this)[playerResetPromise] = p.get(this)[player].reset();
     };
 
     // audio element event handlers
@@ -228,7 +231,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[attachAudioElement]();
     this[state] = STOPPED;
 
-    this._playerParams = {
+    p.get(this)[playerParams] = {
       endpoint: p.get(this)[endpoint],
       hasIcy: p.get(this)[hasIcy],
       audioElement: p.get(this)[audioElement],
@@ -244,9 +247,9 @@ export default class IcecastMetadataPlayer extends EventClass {
     };
 
     if (MediaSourcePlayer.isSupported()) {
-      this._player = new MediaSourcePlayer(this._playerParams);
+      p.get(this)[player] = new MediaSourcePlayer(p.get(this)[playerParams]);
     } else {
-      this._player = new HTML5Player(this._playerParams);
+      p.get(this)[player] = new HTML5Player(p.get(this)[playerParams]);
 
       this[fireEvent](
         WARN,
@@ -324,7 +327,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       let error;
 
       const tryFetching = () =>
-        this._player
+        p.get(this)[player]
           .fetchStream(p.get(this)[abortController])
           .then(async (res) => {
             this[fireEvent](STREAM_START);
@@ -458,8 +461,8 @@ export default class IcecastMetadataPlayer extends EventClass {
 
   async [playResponse](res) {
     p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
-      onMetadata: this._player.getOnMetadata(),
-      onStream: this._player.getOnStream(res),
+      onMetadata: p.get(this)[player].getOnMetadata(),
+      onStream: p.get(this)[player].getOnStream(res),
       onError: (...args) => this[fireEvent](WARN, ...args),
       metadataTypes: p.get(this)[metadataTypes],
       icyMetaInt: p.get(this)[icyMetaInt],
@@ -481,7 +484,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       "See the console for details on the error."
     );
 
-    this._player = new HTML5Player(this._playerParams);
-    this._playerResetPromise.then(() => this.play());
+    p.get(this)[player] = new HTML5Player(p.get(this)[playerParams]);
+    p.get(this)[playerResetPromise].then(() => this.play());
   }
 }
