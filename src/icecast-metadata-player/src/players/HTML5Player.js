@@ -1,23 +1,14 @@
+import Player from "./Player";
 import CodecParser from "codec-parser";
 
-export default class HTML5Player {
+export default class HTML5Player extends Player {
   constructor(options) {
-    this._audioElement = options.audioElement;
-    this._endpoint = options.endpoint;
-    this._hasIcy = options.hasIcy;
-    this._enableLogging = options.enableLogging;
-    this._icecastMetadataQueue = options.icecastMetadataQueue;
-    this._fireEvent = options.fireEvent;
-    this._events = options.events;
-    this._state = options.state;
+    super(options);
 
-    this._audioLoaded = 0;
     this._offset = 0;
 
     this._audioElement.crossOrigin = "anonymous";
   }
-
-  isSupported() {}
 
   async reset() {
     if (this._state() !== "playing") {
@@ -31,49 +22,26 @@ export default class HTML5Player {
 
   async fetchStream(abortController) {
     const playing = new Promise((resolve) => {
-      this._audioElement.addEventListener(
-        "playing",
-        () => {
-          this._audioLoaded = Date.now();
-          resolve();
-        },
-        { once: true }
-      );
+      this._audioElement.addEventListener("playing", resolve, { once: true });
     });
-
     const error = new Promise((_, reject) => {
       this._audioElement.addEventListener("error", reject, { once: true });
     });
 
     this._audioElement.src = this._endpoint;
 
-    return Promise.race([playing, error]).then(() =>
-      fetch(this._endpoint, {
-        method: "GET",
-        headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-        signal: abortController.signal,
-      }).then((res) => {
-        this._offset = Date.now() - this._audioLoaded;
+    return Promise.race([playing, error]).then(async () => {
+      const audioLoaded = performance.now();
 
-        if (!res.ok) {
-          const error = new Error(`${res.status} received from ${res.url}`);
-          error.name = "HTTP Response Error";
-          throw error;
-        }
+      const res = await super.fetchStream(abortController);
+      this._offset = performance.now() - audioLoaded;
 
-        return res;
-      })
-    );
+      return res;
+    });
   }
 
-  getOnMetadata() {
-    return (value) => {
-      this._icecastMetadataQueue.addMetadata(
-        value,
-        this._frame ? (this._frame.totalDuration + this._offset) / 1000 : 0,
-        this._audioElement.currentTime
-      );
-    };
+  get metadataTimestamp() {
+    return this._frame ? (this._frame.totalDuration + this._offset) / 1000 : 0;
   }
 
   getOnStream(res) {

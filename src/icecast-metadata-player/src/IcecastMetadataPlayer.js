@@ -327,8 +327,9 @@ export default class IcecastMetadataPlayer extends EventClass {
       let error;
 
       const tryFetching = () =>
-        p.get(this)[player]
-          .fetchStream(p.get(this)[abortController])
+        p
+          .get(this)
+          [player].fetchStream(p.get(this)[abortController])
           .then(async (res) => {
             this[fireEvent](STREAM_START);
 

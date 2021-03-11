@@ -1,18 +1,12 @@
+import Player from "./Player";
 import MSEAudioWrapper from "mse-audio-wrapper";
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
-export default class MediaSourcePlayer {
+export default class MediaSourcePlayer extends Player {
   constructor(options) {
-    this._audioElement = options.audioElement;
-    this._endpoint = options.endpoint;
-    this._hasIcy = options.hasIcy;
-    this._enableLogging = options.enableLogging;
-    this._icecastMetadataQueue = options.icecastMetadataQueue;
-    this._fireEvent = options.fireEvent;
-    this._state = options.state;
-    this._events = options.events;
+    super(options);
 
     this._createMediaSource();
   }
@@ -31,39 +25,19 @@ export default class MediaSourcePlayer {
     await this._createMediaSource();
   }
 
-  async fetchStream(abortController) {
-    const res = await fetch(this._endpoint, {
-      method: "GET",
-      headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: abortController.signal,
-    });
-
-    if (!res.ok) {
-      const error = new Error(`${res.status} received from ${res.url}`);
-      error.name = "HTTP Response Error";
-      throw error;
-    }
-
-    return res;
-  }
-
-  getOnMetadata() {
-    return (value) => {
-      this._icecastMetadataQueue.addMetadata(
-        value,
-        (this._mediaSource &&
-          this._mediaSource.sourceBuffers.length &&
-          Math.max(
-            // work-around for WEBM reporting a negative timestampOffset
-            this._mediaSource.sourceBuffers[0].timestampOffset,
-            this._mediaSource.sourceBuffers[0].buffered.length
-              ? this._mediaSource.sourceBuffers[0].buffered.end(0)
-              : 0
-          )) ||
-          0,
-        this._audioElement.currentTime
-      );
-    };
+  get metadataTimestamp() {
+    return (
+      (this._mediaSource &&
+        this._mediaSource.sourceBuffers.length &&
+        Math.max(
+          // work-around for WEBM reporting a negative timestampOffset
+          this._mediaSource.sourceBuffers[0].timestampOffset,
+          this._mediaSource.sourceBuffers[0].buffered.length
+            ? this._mediaSource.sourceBuffers[0].buffered.end(0)
+            : 0
+        )) ||
+      0
+    );
   }
 
   getOnStream(res) {
