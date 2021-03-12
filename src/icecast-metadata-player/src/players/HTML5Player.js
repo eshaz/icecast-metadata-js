@@ -5,9 +5,13 @@ export default class HTML5Player extends Player {
   constructor(options) {
     super(options);
 
+    this._frame = null;
+    this._audioLoaded = 0;
     this._offset = 0;
 
     this._audioElement.crossOrigin = "anonymous";
+    this._audioElement.preload = "none";
+    this._audioElement.src = this._endpoint;
   }
 
   async reset() {
@@ -17,20 +21,21 @@ export default class HTML5Player extends Player {
       this._offset = 0;
       this._audioElement.removeAttribute("src");
       this._audioElement.load();
+      this._audioElement.src = this._endpoint;
     }
   }
 
   async fetchStream(abortController) {
-    const playing = new Promise((resolve) => {
+    const audioPromise = new Promise((resolve, reject) => {
+      this._icecast.addEventListener("stopping", resolve, { once: true }); // short circuit when user has stopped the stream
       this._audioElement.addEventListener("playing", resolve, { once: true });
-    });
-    const error = new Promise((_, reject) => {
       this._audioElement.addEventListener("error", reject, { once: true });
     });
 
     this._audioElement.src = this._endpoint;
+    this._audioElement.load();
 
-    return Promise.race([playing, error]).then(async () => {
+    return audioPromise.then(async () => {
       const audioLoaded = performance.now();
 
       const res = await super.fetchStream(abortController);

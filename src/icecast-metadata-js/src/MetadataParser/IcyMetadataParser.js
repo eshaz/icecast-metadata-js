@@ -55,13 +55,17 @@ class IcyMetadataParser extends MetadataParser {
      * i.e. "StreamTitle='The Stream Title';StreamUrl='https://example.com';\0\0\0\0\0\0"
      */
 
+    const metadataRegex = /(?<key>[^\0]+?)='(?<val>[^\0]*?)(;$|';|'$|$)/;
     const metadata = {};
+
     // [{key: "StreamTitle", val: "The Stream Title"}, {key: "StreamUrl", val: "https://example.com"}]
-    for (let match of metadataString.matchAll(
-      /(?<key>[^\0]+?)='(?<val>[^\0]*?)(;$|';|'$|$)/g
-    )) {
-      metadata[match["groups"]["key"]] = match["groups"]["val"];
+    for (const metadataElement of metadataString.match(
+      new RegExp(metadataRegex, "g")
+    ) || []) {
+      const match = metadataElement.match(metadataRegex);
+      if (match) metadata[match["groups"]["key"]] = match["groups"]["val"];
     }
+
     // {StreamTitle: "The Stream Title", StreamUrl: "https://example.com"}
     return metadata;
   }

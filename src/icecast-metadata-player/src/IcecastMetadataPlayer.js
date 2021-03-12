@@ -232,6 +232,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[state] = STOPPED;
 
     p.get(this)[playerParams] = {
+      icecast: this,
       endpoint: p.get(this)[endpoint],
       hasIcy: p.get(this)[hasIcy],
       audioElement: p.get(this)[audioElement],
