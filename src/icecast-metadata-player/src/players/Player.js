@@ -1,5 +1,6 @@
 export default class Player {
   constructor(options) {
+    this._icecast = options.icecast;
     this._audioElement = options.audioElement;
     this._endpoint = options.endpoint;
     this._hasIcy = options.hasIcy;
