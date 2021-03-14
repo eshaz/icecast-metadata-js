@@ -145,49 +145,45 @@ export default class MetadataGrabber {
   }
 
   async getIcyMetadata() {
-    return this._fetch({
+    return this._getStreamMetadata({
       endpoint: this._streamEndpoint,
       controller: this._icyController,
+      metadataType: "icy",
       headers: { "Icy-MetaData": 1 },
-      mapper: async (res) =>
-        new Promise((resolve) => {
-          new IcecastReadableStream(res, {
-            onMetadata: ({ metadata }) => {
-              this._icyController.abort();
-              resolve({ icy: metadata });
-            },
-            onMetadataFailed: () => {
-              this._icyController.abort();
-              resolve({ icy: {} });
-            },
-            metadataTypes: ["icy"],
-          }).startReading();
-        }),
     }).finally(() => {
       this._icyController = new AbortController();
     });
   }
 
   async getOggMetadata() {
-    return this._fetch({
+    return this._getStreamMetadata({
       endpoint: this._streamEndpoint,
       controller: this._oggController,
+      metadataType: "ogg",
+    }).finally(() => {
+      this._oggController = new AbortController();
+    });
+  }
+
+  async _getStreamMetadata({ endpoint, controller, headers, metadataType }) {
+    return this._fetch({
+      endpoint,
+      controller,
+      headers,
       mapper: async (res) =>
         new Promise((resolve) => {
           new IcecastReadableStream(res, {
             onMetadata: ({ metadata }) => {
-              this._oggController.abort();
-              resolve({ ogg: metadata });
+              controller.abort();
+              resolve({ [metadataType]: metadata });
             },
             onMetadataFailed: () => {
-              this._oggController.abort();
-              resolve({ ogg: {} });
+              controller.abort();
+              resolve({ [metadataType]: {} });
             },
-            metadataTypes: ["ogg"],
+            metadataTypes: metadataType,
           }).startReading();
         }),
-    }).finally(() => {
-      this._oggController = new AbortController();
     });
   }
 
@@ -198,6 +194,10 @@ export default class MetadataGrabber {
       headers,
       signal: controller.signal,
     })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        return res;
+      })
       .then(mapper)
       .catch((e) => {
         if (e.name !== "AbortError") {
