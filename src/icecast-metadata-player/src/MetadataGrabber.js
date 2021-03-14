@@ -2,9 +2,9 @@ import { IcecastReadableStream } from "icecast-metadata-js";
 
 const noOp = () => {};
 
-const STOPPED = Symbol();
-const RUNNING = Symbol();
-const FETCHING = Symbol();
+const STOPPED = "stopped";
+const RUNNING = "running";
+const FETCHING = "fetching";
 
 export default class MetadataGrabber {
   constructor(streamEndpoint, options = {}) {
@@ -17,20 +17,61 @@ export default class MetadataGrabber {
     this._icestatsEndpoint =
       options.icestatsEndpoint || `${serverPath}/status-json.xsl`;
     this._statsEndpoint = options.statsEndpoint || `${serverPath}/stats`;
-    this._sevenHtmlEndpoint =
-      options.sevenHtmlEndpoint || `${serverPath}/7.html`;
+    this._nextsongsEndpoint =
+      options.statsEndpoint || `${serverPath}/nextsongs`;
+    this._sevenhtmlEndpoint =
+      options.sevenhtmlEndpoint || `${serverPath}/7.html`;
 
     this._statsMethods = options.statsMethods || [
       "icestats",
       "stats",
-      "sevenHtml",
+      "nextsongs",
+      "sevenhtml",
       "icy",
       "ogg",
     ];
     this._interval = options.interval || 20000;
     this._onStats = options.onStats || console.log;
 
+    this._icyController = new AbortController();
+    this._oggController = new AbortController();
+    this._icestatsController = new AbortController();
+    this._statsController = new AbortController();
+    this._nextsongsController = new AbortController();
+    this._sevenhtmlController = new AbortController();
+
     this._state = STOPPED;
+  }
+
+  static xml2Json(xml) {
+    const deserialize = (xml) =>
+      new DOMParser().parseFromString(xml, "application/xml");
+
+    const serialize = (dom) => {
+      if (!dom.children.length) {
+        return Number.isNaN(Number(dom.innerHTML))
+          ? dom.innerHTML
+          : Number(dom.innerHTML);
+      }
+
+      const json = {};
+
+      for (const child of dom.children) {
+        if (child.nodeName in json) {
+          if (Array.isArray(json[child.nodeName])) {
+            json[child.nodeName].push(serialize(child));
+          } else {
+            json[child.nodeName] = [json[child.nodeName], serialize(child)];
+          }
+        } else {
+          json[child.nodeName] = serialize(child);
+        }
+      }
+
+      return json;
+    };
+
+    return serialize(deserialize(xml));
   }
 
   get state() {
@@ -44,7 +85,6 @@ export default class MetadataGrabber {
       this.getMetadata();
 
       this._intervalId = setInterval(() => {
-        console.log("interval");
         this.getMetadata();
       }, this._interval);
     }
@@ -58,24 +98,23 @@ export default class MetadataGrabber {
       this._icyController.abort();
       this._oggController.abort();
       this._icestatsController.abort();
-      this._sevenHtmlController.abort();
+      this._statsController.abort();
+      this._sevenhtmlController.abort();
     }
   }
 
   async getMetadata() {
     if (this._state === RUNNING) {
-      this._icyController = new AbortController();
-      this._oggController = new AbortController();
-      this._icestatsController = new AbortController();
-      this._sevenHtmlController = new AbortController();
-
+      console.log("fetching");
       const promises = [];
       //if (this._statsMethods.includes("icestats"))
       promises.push(this.getIcestats());
-      //if (this._statsMethods.includes("sevenHtml"))
-      promises.push(this.getSevenHtml());
+      //if (this._statsMethods.includes("sevenhtml"))
+      promises.push(this.getSevenhtml());
       //if (this._statsMethods.includes("stats"))
-      //promises.push(this.getStats());
+      promises.push(this.getStats());
+      //if (this._statsMethods.includes("nextsongs"))
+      promises.push(this.getNextsongs());
       //if (this._statsMethods.includes("icy"))
       promises.push(this.getIcyMetadata());
       //if (this._statsMethods.includes("ogg"))
@@ -95,9 +134,11 @@ export default class MetadataGrabber {
       endpoint: this._icestatsEndpoint,
       controller: this._icestatsController,
       mapper: (res) => res.json(),
-    }).finally(() => {
-      this._icestatsController = new AbortController();
-    });
+    })
+      .then((stats) => ({ icestats: stats ? stats.icestats : {} }))
+      .finally(() => {
+        this._icestatsController = new AbortController();
+      });
   }
 
   /*
@@ -110,12 +151,12 @@ export default class MetadataGrabber {
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Equivalent_of_7.html
   // CURRENTLISTENERS STREAMSTATUS PEAKLISTENERS MAXLISTENERS UNIQUELISTENERS BITRATE SONGTITLE
-  async getSevenHtml() {
+  async getSevenhtml() {
     return this._fetch({
-      endpoint: this._sevenHtmlEndpoint,
-      controller: this._sevenHtmlController,
-      mapper: async (res) => ({
-        sevenHtml: (await res.text()).match(/(.*?)<\/body>/gi).map((s) => {
+      endpoint: this._sevenhtmlEndpoint,
+      controller: this._sevenhtmlController,
+      mapper: async (res) =>
+        (await res.text()).match(/(.*?)<\/body>/gi).map((s) => {
           const stats = s
             .match(/(<body>|,)(?<stats>.*)<\/body>/i)
             .groups.stats.split(",");
@@ -138,10 +179,43 @@ export default class MetadataGrabber {
                 bitrate: parseInt(stats[3]),
               };
         }),
-      }),
-    }).finally(() => {
-      this._sevenHtmlController = new AbortController();
-    });
+    })
+      .then((sevenhtml) => ({
+        sevenhtml,
+      }))
+      .finally(() => {
+        this._sevenhtmlController = new AbortController();
+      });
+  }
+
+  async getStats() {
+    return this._fetch({
+      endpoint: this._statsEndpoint,
+      controller: this._statsController,
+      mapper: async (res) =>
+        res.text().then((xml) => MetadataGrabber.xml2Json(xml)),
+    })
+      .then((stats) => ({
+        stats: stats || "",
+      }))
+      .finally(() => {
+        this._statsController = new AbortController();
+      });
+  }
+
+  async getNextsongs() {
+    return this._fetch({
+      endpoint: this._nextsongsEndpoint,
+      controller: this._nextsongsController,
+      mapper: async (res) =>
+        res.text().then((xml) => MetadataGrabber.xml2Json(xml)),
+    })
+      .then((nextsongs) => ({
+        nextsongs,
+      }))
+      .finally(() => {
+        this._nextsongsController = new AbortController();
+      });
   }
 
   async getIcyMetadata() {
@@ -175,22 +249,23 @@ export default class MetadataGrabber {
           new IcecastReadableStream(res, {
             onMetadata: ({ metadata }) => {
               controller.abort();
-              resolve({ [metadataType]: metadata });
+              resolve(metadata);
             },
             onMetadataFailed: () => {
               controller.abort();
-              resolve({ [metadataType]: {} });
+              resolve();
             },
             metadataTypes: metadataType,
           }).startReading();
         }),
-    });
+    }).then((metadata) => ({ [metadataType]: metadata }));
   }
 
   async _fetch({ endpoint, controller, mapper, headers = {} }) {
     this._state = FETCHING;
 
     return fetch(endpoint, {
+      method: "GET",
       headers,
       signal: controller.signal,
     })
