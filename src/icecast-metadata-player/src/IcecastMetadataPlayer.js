@@ -22,6 +22,7 @@ import EventTargetPolyfill from "./EventTargetPolyfill";
 import { IcecastMetadataQueue } from "icecast-metadata-js";
 import MediaSourcePlayer from "./players/MediaSourcePlayer";
 import HTML5Player from "./players/HTML5Player";
+import MetadataGrabber from "./MetadataGrabber";
 
 let EventClass;
 
@@ -260,6 +261,15 @@ export default class IcecastMetadataPlayer extends EventClass {
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
     }
+
+    this._metadataGrabber = new MetadataGrabber(p.get(this)[endpoint], {
+      statsMethods: p.get(this)[metadataTypes],
+      statsEndpoint: "https://dsmrad.io/icecast/status-json.xsl",
+    });
+
+    this._metadataGrabber.start();
+
+    p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
 
   /**
