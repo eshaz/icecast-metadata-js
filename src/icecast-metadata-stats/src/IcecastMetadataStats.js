@@ -38,11 +38,11 @@ export default class IcecastMetadataStats {
       options.icestatsEndpoint || `${serverPath}/status-json.xsl`;
     this._statsEndpoint = options.statsEndpoint || `${serverPath}/stats`;
     this._nextsongsEndpoint =
-      options.statsEndpoint || `${serverPath}/nextsongs`;
+      options.nextsongsEndpoint || `${serverPath}/nextsongs`;
     this._sevenhtmlEndpoint =
       options.sevenhtmlEndpoint || `${serverPath}/7.html`;
 
-    this._statsMethods = options.statsMethods || [
+    this._sources = options.sources || [
       "icestats",
       "stats",
       "nextsongs",
@@ -51,7 +51,10 @@ export default class IcecastMetadataStats {
       "ogg",
     ];
 
-    this._interval = options.interval || 20000;
+    this._icyMetaInt = options.icyMetaInt;
+    this._icyDetectionTimeout = options.icyDetectionTimeout;
+
+    this._interval = (options.interval || 30) * 1000;
     this._onStats = options.onStats || console.log;
 
     this._icyController = new AbortController();
@@ -128,17 +131,17 @@ export default class IcecastMetadataStats {
     if (this._state === RUNNING) {
       console.log("fetching");
       const promises = [];
-      //if (this._statsMethods.includes("icestats"))
+      //if (this._sources.includes("icestats"))
       promises.push(this.getIcestats());
-      //if (this._statsMethods.includes("sevenhtml"))
+      //if (this._sources.includes("sevenhtml"))
       promises.push(this.getSevenhtml());
-      //if (this._statsMethods.includes("stats"))
+      //if (this._sources.includes("stats"))
       promises.push(this.getStats());
-      //if (this._statsMethods.includes("nextsongs"))
+      //if (this._sources.includes("nextsongs"))
       promises.push(this.getNextsongs());
-      //if (this._statsMethods.includes("icy"))
+      //if (this._sources.includes("icy"))
       promises.push(this.getIcyMetadata());
-      //if (this._statsMethods.includes("ogg"))
+      //if (this._sources.includes("ogg"))
       promises.push(this.getOggMetadata());
 
       const stats = await Promise.all(promises).then((stats) =>
@@ -215,7 +218,12 @@ export default class IcecastMetadataStats {
       endpoint: this._statsEndpoint,
       controller: this._statsController,
       mapper: async (res) =>
-        res.text().then((xml) => IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.STREAMSTATS),
+        res
+          .text()
+          .then(
+            (xml) =>
+              IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.STREAMSTATS
+          ),
     })
       .then((stats) => ({
         stats,
@@ -231,7 +239,12 @@ export default class IcecastMetadataStats {
       endpoint: this._nextsongsEndpoint,
       controller: this._nextsongsController,
       mapper: async (res) =>
-        res.text().then((xml) => IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.NEXTSONGS),
+        res
+          .text()
+          .then(
+            (xml) =>
+              IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.NEXTSONGS
+          ),
     })
       .then((nextsongs) => ({
         nextsongs,
@@ -279,6 +292,8 @@ export default class IcecastMetadataStats {
               resolve();
             },
             metadataTypes: metadataType,
+            icyMetaInt: this._icyMetaInt,
+            icyDetectionTimeout: this._icyDetectionTimeout,
           }).startReading();
         }),
     }).then((metadata) => ({ [metadataType]: metadata }));

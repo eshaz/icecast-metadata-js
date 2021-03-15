@@ -1,41 +1,32 @@
-# Icecast Metadata Player
+# Icecast Metadata Stats
 
-Icecast Metadata Player is a simple to use Javascript class that plays an Icecast stream with real-time metadata updates.
+Icecast Metadata Stats is a simple to use Javascript class that queries an Icecast compatible server for metadata and statistics.
 
-  * Plays an Icecast stream using the Media Source Extensions API and HTML5 audio.
-  * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
-  * Seamless playback during network changes (i.e. Wifi to Cell network).
-  * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
+  * Shows "Now Playing" information without playing audio.
+  * Configurable metadata / statistics refresh interval.
+  * Gathers information from multiple status pages / metadata sources.
+  * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-stats) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
-## Supported codecs:
-* **MP3** `audio/mpeg`
-* **AAC, AAC+, AAC-HE** `audio/aac`
-* **FLAC, OPUS, Vorbis** `application/ogg`
-
-## Supported Browsers:
- * **Chrome, Firefox** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **Safari Desktop** `audio/mpeg`, `audio/aac`
-   * *unsupported* `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS, Edge, others...** *support unknown* - Let me know if it works!
-
-*Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
-
-Checkout this link to see which codecs your browser supports.
-https://cconcolato.github.io/media-mime-support/#audio_codecs
+## Supported status APIs:
+* **`ICY Metadata`** ICY metadata from a stream
+* **`Ogg Metadata`** Ogg metadata from a stream
+* **`/status-json.xsl`** Icecast JSON status API
+* **`/stats`** Shoutcast V2 XML status API
+* **`/7.html`** Shoutcast V1 status API
+* **`/nextsongs`** Shoutcast V2 XML next songs API
 
 ## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
 
 * [Installing](#installing)
 * [Usage](#usage)
+* [Sources](#sources)
   * [ICY Metadata](#icy-metadata)
   * [OGG Metadata](#ogg-metadata)
-  * [ICY and OGG Metadata](#icy-and-ogg-metadata)
-  * [Playing a Stream](#playing-a-stream)
-    * [Metadata](#metadata)
-* [Reconnecting](#reconnecting)
-  * [Reconnect Lifecycle](#reconnect-lifecycle)
-  * [Seamless Audio Playback](#seamless-audio-playback)
+  * [/status-json.xsl](#ogg-metadata)
+  * [/stats](#ogg-metadata)
+  * [/7.html](#icy-and-ogg-metadata)
+  * [/nextsongs](#ogg-metadata)
 * [API](#api)
   * [Methods](#methods)
   * [Getters](#getters)
@@ -53,302 +44,278 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Installing
 
-### Install via [NPM](https://www.npmjs.com/package/icecast-metadata-player)
-* `npm i icecast-metadata-player`
+### Install via [NPM](https://www.npmjs.com/package/icecast-metadata-stats)
+* `npm i icecast-metadata-stats`
 
   **Example**
 
   ```
-  import IcecastMetadataPlayer from "icecast-metadata-player";
+  import IcecastMetadataStats from "icecast-metadata-stats";
 
-  const player = new IcecastMetadataPlayer(
-    "https://dsmrad.io/stream/isics-all",
-    { onMetadata: (metadata) => {console.log(metadata)} }
+  const statsListener = new IcecastMetadataStats(
+    "https://dsmrad.io/stream/isics-all", {
+      sources: ["icy"],
+      onStats: (stats) => { console.log(stats.icy) }
+    }
   );
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.1.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.0.1.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
-3. `IcecastMetadataReader` is made available as a global variable in your webpage to use wherever.
+3. `IcecastMetadataStats` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```
-   <script src="icecast-metadata-player-1.1.1.min.js"></script>
+   <script src="icecast-metadata-stats-0.0.1.min.js"></script>
    <script>
-     const onMetadata = (metadata) => {
-       document.getElementById("metadata").innerHTML = metadata.StreamTitle;
+     const onStats = (stats) => {
+       document.getElementById("stats").innerHTML = stats.icy.StreamTitle;
      };
-     const player = 
-       new IcecastMetadataPlayer(
+     const statsListener = 
+       new IcecastMetadataStats(
          "https://dsmrad.io/stream/isics-all",
-         { onMetadata }
+         { sources: ["icy"], onStats }
        );
+     statsListener.start();
    </script>
    <body>
-     <button onclick="player.play();"> Play </button>
-     <button onclick="player.stop();"> Stop </button>
-     <p> Now Playing: <span id="metadata"></span> </p>
+     <p> Now Playing: <span id="stats"></span> </p>
    </body>
    ```
----
 
 ## Usage
 
-* To use `IcecastMetadataPlayer`, create a new instance by passing in the stream endpoint, and the options object (optional). See the [Options](#options) and [Callbacks](#callback) sections for more information.
+1. To use `IcecastMetadataStats`, create a new instance by passing in the stream endpoint, and the options object (optional). See the [Options](#options) and [Callbacks](#callback) sections for more information.
 
-   ```
-   const player = new IcecastMetadataPlayer("https://stream.example.com", {
-     onMetadata: (metadata) => {console.log(metadata)},
-     ...options
-   })
-   ```
-  IcecastMetadataPlayer supports reading ICY metadata, Ogg (Vorbis Comment) metadata, or both. Each section below describes how to instantiate `IcecastMetadataPlayer` to use these different metadata types.
-
-  ### ICY Metadata
-
-  * When reading ICY metadata, the client should be able to read the `Icy-MetaInt` header value on the response. If the CORS policy does not allow clients to read the `Icy-MetaInt` header, then `IcecastMetadataPlayer` will attempt to detect the metadata interval based on the incoming request data.
+    IcecastMetadataStats supports reading metadata and statistics from multiple sources. Each source has it's own use case. See [Sources](#sources) for more information on which source(s) to choose.
 
     ```
-    const player = new IcecastMetadataPlayer("https://stream.example.com/stream.mp3", {
-      onMetadata: (metadata) => {console.log(metadata)},
-      metadataTypes: ["icy"]
+    const statsListener = new IcecastMetadataStats("https://stream.example.com", {
+      onStats: (stats) => { console.log(stats) },
+      interval: 30,
+      sources: ["icy"],
       ...options
     })
     ```
 
-  ### OGG Metadata
-
-  * OGG (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
-
+1. Metadata and statistics can be manually queried at any time using the methods listed in [Methods](#methods)
+1. To start querying once every *n* seconds for metadata and statistics, call `start()`.
     ```
-    const player = new IcecastMetadataPlayer("https://stream.example.com/stream.opus", {
-      onMetadata: (metadata) => {console.log(metadata)},
-      metadataTypes: ["ogg"]
-      ...options
-    })
+    statsListener.start();
+    ```
+1. To stop querying, call `stop()`
+    ```
+    statsListener.start();
     ```
 
-  ### ICY and OGG Metadata
+## Sources
 
-  * ICY and OGG metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
+IcecastMetadataStats supports multiple sources for server statistics and stream metadata. Each source has it's pros and cons. Generally, only one source should be chosen and that source should meet a good balance of information provided and data usage.
 
+  ### `ICY Metadata`
+
+  This source gathers metadata using the first instance of the stream's ICY metadata. Once the first metadata update is encountered, or no ICY metadata is detected, the request is closed.
+
+  * **Availability**: high
+    * Icy metadata is available on nearly all MP3 and AAC streams.
+    * Availability is dependent on CORS configuration.
+  * **Data Usage**: medium
+    * The lower the ICY metadata interval, the less data usage this source requires.
+    * Normally, at least 16000 bytes of data will need to be transferred before the ICY metadata is able to be read.
+  * **Information Provided**: low
+    * ICY metadata only provides `StreamTitle` and sometimes `StreamUrl` and `StreamNext`
+  * Example:
     ```
-    const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
-      onMetadata: (metadata) => {console.log(metadata)},
-      metadataTypes: ["icy", "ogg"]
-      ...options
-    })
-    ```
-
-### Playing a Stream
-
-1. To begin playing a stream, call the `.play()` method on the instance.
-
-    *Note:* IcecastMetadataPlayer will use either the MediaSource api or, if that is not available, HTML5 audio with a second request for metadata.
-
-    ```
-    const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
-      onMetadata: (metadata) => {console.log(metadata)},
-      metadataTypes: ["icy"]
-      ...options
-    })
-
-    player.play();
-    ```
-
-1. Metadata will be sent as soon as it is discovered via the `onMetadataEnqueue` callback and when the metadata is synchronized with the audio via the `onMetadata` callback. See the [Methods](#methods) section below for additional callbacks.
-    
-    #### Metadata
-    ```
-    { 
-      StreamTitle: "The stream's title", // ICY
-      StreamUrl: "The stream's url", //     ICY
-      TITLE: "The stream's title", //       OGG
-      ARTIST: "The stream's artist", //     OGG
-      ALBUM: "The stream's album" //        OGG
+    {
+      icy: {
+        StreamTitle: "Jeff Bennets Lounge Experience - Let's Come Together",
+        StreamUrl: "&title=Let's%20Come%20Together"
+      }
     }
     ```
 
-1. To stop playing the stream, call the `stop()` method on the instance.
+  ### `Ogg Metadata`
 
+  This source gathers metadata using the first instance of the stream's Ogg metadata. Once the first metadata update is encountered, or no Ogg metadata is detected, the request is closed.
+
+  * **Availability**: high
+    * Ogg metadata is generally available with all streams using the Ogg container.
+  * **Data Usage**: high
+    * Data usage varies depending on underlying codec, but is generally highest data usage compared to all other methods.
+  * **Information Provided**: low - high
+    * Ogg metadata can contain anywhere from only title / artist to detailed information on a track.
+  * Example
     ```
-    player.stop();
+    {
+      ogg: {
+        ALBUM: "La Sanpa",
+        ARTIST: "La Sanpa",
+        COMMENT: "https://lasanpa.bandcamp.com/album/la-sanpa↵CC BY 3.0",
+        DATE: "2015",
+        GENRE: "Folk",
+        TITLE: "Swallow tail",
+        TRACKNUMBER: "01",
+        VENDOR_STRING: "ocaml-opus by the Savonet Team.",
+        YEAR: "2015"
+      }
+    }
     ```
 
-See the [HTML demos](https://github.com/eshaz/icecast-metadata-js/tree/master/src/demo/public/html-demos/) for examples.
+  ### `/status-json.xsl`
 
-## Reconnecting
+  This source uses the Icecast JSON status api to query for server statistics and metadata.
 
-IcecastMetadataPlayer enables retry / reconnect logic by default. When a fetch or network error occurs, IcecastMetadataPlayer will attempt to recover by retrying the fetch request.
+  * **Availability**: medium - high
+    * Available on Icecast version 2.4 and up, and possibly more.
+    * May be blocked if hosting Icecast through a reverse proxy.
+  * **Data Usage**: low - medium
+    * Data usage goes up as more streams are added to the server.
+  * **Information Provided**: high
+    * Almost all information about a stream and the Icecast server is provided.
+  * Example: See [Icecast Docs](https://icecast.org/docs/icecast-latest/server-stats.html)
+    ```
+    {
+      icestats: {
+        // see the Icecast docs
+      }
+    }
+    ```
 
-This allows for seamless audio playback when switching networks, (i.e. from a cell network to a Wifi network).
+  ### `/stats`
 
-See [Retry Options](#Retry-Options) to configure or disable reconnects. 
+  This source uses the Shoutcast V2 / Icecast XML status api to query for server statistics and metadata.
 
-### Reconnect Lifecycle:
+  * **Availability**: medium
+    * Available on Shoutcast V2 and some versions of Icecast.
+    * May be blocked if hosting Icecast through a reverse proxy.
+  * **Data Usage**: low - medium
+    * Data usage goes up as more streams are added to the server.
+  * **Information Provided**: high
+    * Almost all information about a stream and the server is provided.
+  * Example: See [Shoutcast Docs](http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#General_Server_Summary)
+    ```
+    {
+      stats: {
+        // see the Shoutcast docs
+      }
+    }
+    ```
 
-1. The `error` / `onError` event will be fired indicating the issue that caused the retry process to start.
-1. IcecastMetadataPlayer will retry the initial fetch request periodically using an exponential back-off strategy configurable in the `options` object.
-   * Each retry attempt will fire a `retry` / `onRetry` event.
-1. Retries will stop when either of the below conditions are met:
-   * The fetch request succeeds. ***or***
-   * The audio element is paused or `stop()` is called. ***or***
-   * The audio element buffer is empty **and** the retry timeout is met.
-1. When the retry is successful, a `streamstart` / `onStreamStart` event will be fired and the audio will restart playing from the new request.
-1. When the retry times out, a `retrytimeout` / `onRetryTimeout` event will be fired and the stream will stop.
+  ### `/7.html`
 
-### Seamless audio playback:
+  This source is the original stats page provided by Shoutcast servers. It is still supported by some Icecast servers.
 
-The audio will continue to play until the buffer runs out while reconnecting. If the reconnect is successful before the buffer runs out, there will only be a minimal blip in playback after a network change.
+  * **Availability**: medium
+    * Available on old Shoutcast versions and some versions of Icecast.
+    * May be blocked if hosting Icecast through a reverse proxy.
+  * **Data Usage**: low
+    * The simplicity of this source makes it the lowest in data usage
+    * Data usage is usually less than 500 bytes.
+  * **Information Provided**: medium
+    * Provides minimal information on listeners and titles for each stream hosted on a server.
+  * Example:
+    ```
+    {
+      sevenhtml: {
+        StreamTitle: "Jeff Bennets Lounge Experience - Let's Come Together",
+        bitrate: 192,
+        currentListeners: 15,
+        maxListeners: 1000,
+        peakListeners: 64,
+        serverListeners: 22,
+        status: 1
+      }
+    }
+    ```
 
-To increase the amount of audio that is buffered by clients, increase the `<burst-size>` setting in your Icecast server.
+  ### `/nextsongs`
 
----
+  * **Availability**: low
+    * Available on Shoutcast versions
+    * Unavailable on Icecast
+  * **Data Usage**: low
+    * The simplicity of this source makes it the lowest in data usage
+    * Data usage is usually less than 500 bytes.
+  * **Information Provided**: n/a
+    * Provides information on upcoming songs.
+    * This is the only api that provides this information.
+  * Example: See [Shoutcast Docs](http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Nextsongs)
+    ```
+    {
+      nextsongs: {
+        // see the Shoutcast docs
+      }
+    }
+    ```
 
 ## API
 
 ### Methods
-* `player.play()` *async*
-  * Plays the Icecast Stream
-  * Resolves when the stream begins playing.
-
-* `player.stop()` *async*
-  * Stops playing the Icecast Stream
-  * Resolves when the stream has stopped.
-
-* `player.detachAudioElement()`
-  * Removes all internal event listeners from the audio element
-  * **Must be called if the audio element is going to be re-used outside of the current instance**
+* `start()` Start querying for metadata / stats once every *n* seconds where *n* is `options.interval`
+* `stop()` Stops querying for metadata / stats
+* `getMetadata()` *async* Manually queries for metadata using the sources passed into `options.sources`
+* `getIcestats()` *async* Manually queries for the Icecast JSON api `/status-json.xsl`
+* `getSevenhtml()` *async* Manually queries for the `/7.html` page
+* `getStats()` *async* Manually queries for the `/stats` page
+* `getNextsongs()` *async* Manually queries for the Icecast JSON api `/nextsongs`
+* `getIcyMetadata()` *async* Manually queries the stream for ICY metadata
+* `getOggMetadata()` *async* Manually queries the stream for Ogg metadata
 
 ### Getters
-* `player.audioElement`
-  * Returns the HTML5 Audio element.
-* `player.icyMetaInt`
-  * Returns the ICY Metadata Interval of this instance.
-* `player.metadataQueue`
-  * Returns the array of `metadata` objects in FIFO order.
-    ```
-    [
-      {
-        metadata: { StreamTitle: "Title 1" },
-        timestampOffset: 2.5,
-        timestamp: 1
-      },
-      {
-        metadata: { StreamTitle: "Title 2" },
-        timestampOffset: 5,
-        timestamp: 2
-      }
-    ]
-    ```
-* `player.state`
-  * Returns the current state of the IcecastMetadataPlayer.
-  * `"loading", "playing", "stopping", "stopped", "retrying"`
+* `statsListener.state`
+  * Returns the current state of the IcecastMetadataStats.
+  * `"running", "fetching", "stopped"`
 
 ## Instantiating
 
-You can create any number of instances of IcecastMetadataPlayer on your webpage.
-
-**Each instance must have it's own audio element.**
-
+You can create any number of instances of IcecastMetadataStats on your webpage. If you have a single Icecast server, you can create one instance and use it to get information on all of your streams.
 ```
-const player_1 = new IcecastMetadataPlayer("https://example.com/stream_1", {
+const statsListener = new IcecastMetadataStats("https://example.com/stream", {
   ...options,
   ...callbacks
 });
-
-const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
-  ...options,
-  ...callbacks
-})
 ```
 ### Options
 * `endpoint` (required)
-  * HTTP(s) endpoint for the Icecast compatible stream.
-* `audioElement` (optional) - **Default** `new Audio()`
-  * HTML5 Audio Element to use to play the Icecast stream.
-* `enableLogging` (optional) **Default** `false`
-  * Set to `true` to enable warning and error logging to the console
-
-#### Retry Options
-* `retryTimeout` (optional) - **Default** `30` seconds
-  * Number of seconds to wait before giving up on retries
-  * Retries are enabled by default, Set to `0` to disable retries
-  * Retries will continue until this duration is met **AND** the audio buffer has been exhausted
-
-  *(advanced retry logic)*
-  * `retryDelayMin` (optional) - **Default** `0.5` seconds
-    * Minimum number of seconds between retries (start of the   exponential back-off curve)
-  * `retryDelayMax` (optional) - **Default** `2` seconds
-    * Maximum number of seconds between retries (start of the   exponential back-off curve)
-  * `retryDelayRate` (optional) - **Default** `0.1` i.e. 10%
-    * Percentage of seconds to increment after each retry (how   quickly to increase the back-off)
-
-#### Metadata Options
-* `metadataTypes` (optional) - **Default** `["icy"]`
-  * Array containing zero, one, or both metadata types to parse
+  * Stream HTTP(s) endpoint for the Icecast compatible stream.
+* `sources` (optional) **Default** `["icestats"]`
+  * The source(s) to query.
   * Values:
-    * `[]` - Will not parse metadata
-    * `["icy"]` - **Default** Parse ICY metadata only 
-    * `["ogg"]` - Parse OGG (vorbis comment) metadata only
-    * `["icy", "ogg"]` - Parse both ICY and OGG metadata
+    * `"icestats"` - Icecast JSON api `/status-json.xsl`
+    * `"stats"` - Shoutcast / Icecast XML api `/stats`
+    * `"nextsongs"` - Shoutcast nextsongs api `/nextsongs`
+    * `"sevenhtml"` - Shoutcast / Icecast `/7.html`
+    * `"icy"` - ICY stream metadata
+    * `"ogg"` - Ogg stream metadata
+* `interval` (optional) **Default** `30`
+  * The frequency in seconds for queries
+* `icestatsEndpoint`
+* `nextsongsEndpoint`
+* `sevenhtmlEndpoint`
 
-  #### *Only used when `["icy"]` metadata type is enabled*
-  * `icyMetaInt` (optional) **Default** *reads from the response header*
-    * ICY Metadata interval read from `Icy-MetaInt` header in the response
-  * `icyDetectionTimeout` (optional) **Default** `2000`
-    * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
-    * Set to `0` to disable metadata detection
+#### *Only used when `["icy"]` metadata type is enabled*
+* `icyMetaInt` (optional) **Default** *reads from the response header*
+  * ICY Metadata interval read from `Icy-MetaInt` header in the response
+* `icyDetectionTimeout` (optional) **Default** `2000`
+  * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
+  * Set to `0` to disable metadata detection
 
-### Callbacks *(all optional)*
-
-#### Metadata
-* `onMetadata(metadata, timestampOffset, timestamp)` Called when metadata is synchronized with the audio.
-  * `metadata` ICY or Ogg metadata in an object of key value pairs
-    * ICY: `{ "StreamTitle: "The Stream Title" }`
-    * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
-  * `timestampOffset` time when is scheduled to be updated.
-  * `timestamp` time when metadata was discovered on the stream.
-* `onMetadataEnqueue(metadata, timestampOffset, timestamp)` Called when metadata is discovered on the stream.
-  * `metadata` ICY or Ogg metadata in an object of key value pairs
-    * ICY: `{ "StreamTitle: "The Stream Title" }`
-    * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
-  * `timestampOffset` time when is scheduled to be updated.
-  * `timestamp` time when metadata was discovered on the stream.
-
-#### Stream lifecycle
-* `onLoad()` Called when the fetch request is started.
-* `onStreamStart()` Called when fetch request begins to return data.
-* `onPlay()` Called when the audio element begins playing.
-* `onStream(streamData)` Called when stream data is sent to the audio element.
-* `onStreamEnd()` Called when the fetch request completes.
-* `onStop()` Called when the stream is completely stopped and all cleanup operations are complete.
-
-#### Reconnects
-* `onRetry()` Called when a retry / reconnect is attempted.
-* `onRetryTimeout()` Called when the retry / reconnect attempts have stopped because they have timed-out.
-
-#### Error / Warning
-* `onWarn(message, ...messages)` Called with message(s) when a warning condition is met.
-* `onError(message, ...messages)` Called with message(s) when a fallback or error condition is met.
-
-#### Informational
-* `onCodecUpdate({ ...codecInformation })` Called with audio codec information whenever there is a change
-  * Information such as `bitrate` and `samplingRate` are passed in as an object to this callback
-  * **Only called when [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper) is being used to wrap the response in ISOBMFF or WEBM**
-
-### Events
-
-Each callback is made available as an event. The parameters for each callback are passed into `event.details` as an array.
-
-```
-player.addEventListener('metadata', (event) => {
-  const [metadata, timestampOffset, timestamp] = event.details;
-})
-```
-
+### Callbacks
+* `onStats(stats)` (optional)
+  * Called when the automatic stats query is completed with the stats returned.
+  * Example:
+    ```
+    {
+      icestats: {admin: "icemaster@localhost" …}
+      icy: {StreamTitle: "Song name"}
+      nextsongs: undefined
+      ogg: undefined
+      sevenhtml: [{…}]
+      stats: undefined
+    }
+    ```
 ---
 
 ## Troubleshooting
@@ -357,41 +324,6 @@ player.addEventListener('metadata', (event) => {
 
 #### Source Map
 
-IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.1.1.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.1.1.min.js` in your website.
+IcecastMetadataStats builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
+* To enable the source map, simply copy `icecast-metadata-stats-0.0.1.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-stats-0.0.1.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
-
-### Error messages
-
-> Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.
-
-* The stream has been requested with ICY metadata, but the server did not respond with the `Icy-MetaInt` header. `IcecastMetadataPlayer` will attempt to detect the ICY metadata interval, and will timeout after a default of 2 seconds, or the value in milliseconds passed into the `icyDetectionTimeout` option.
-* If your stream contains ICY metadata, and it is not detected, audio errors will occur. Increase the detection timeout to search longer for ICY metadata.
-* This warning could also be displayed if the stream was requested with ICY metadata, but it does not contain ICY metadata. In this case, the ICY detection will timeout and the stream will play without ICY metadata. Please update your code to no longer request ICY metadata.
-
-> This stream is not an OGG stream. No OGG metadata will be returned.
-
-* IcecastMetadataPlayer has `"ogg"` passed into the `metadataTypes` options, but the stream response is not an ogg stream. ICY metadata and the stream will work without issues. Please remove the `"ogg"` option to remove this warning.
-
-> This stream was requested with ICY metadata. If there is a CORS preflight failure, try removing "icy" from the metadataTypes option.
-
-* A network error occurred while requesting the stream with the `Icy-MetaData: 1` header.
-  * IcecastMetadataPlayer will attempt to retry the request using the retry configuration.
-  * It's possible that this was caused by the Icecast server's CORS policy not allowing the `Icy-Metadata` header. If you want ICY metadata, your CORS policy must allow this header to be requested. See [CORS Troubleshooting](https://github.com/eshaz/icecast-metadata-js#cors) for more information.
-  * Additionally, attempting to access a HTTP from a HTTPS origin will be blocked by modern browsers
-
-> Media Source Extensions API in your browser is not supported. Using two requests, one for audio, and another for metadata.
-
-* Your browser doesn't support the Media Source API extensions. IcecastMetadataPlayer will use one request for audio through HTML5 audio, and another request to read the metadata. Both requests will be synchronized for real-time metadata updates.
-
-> Media Source Extensions API in your browser does not support `codec`, `audio/mp4; codec="codec"`
-
-* The Media Source API in your browser does not support the audio codec of the Icecast stream. This message should be followed up with the below message.
-
-> Falling back to HTML5 audio by using two requests: one for audio, and another for metadata. See the console for details on the error.
-
-* A general error occurred while playing the stream. This is likely due to an issue with the MediaSource api. The stream should recover using HTML5 audio and another request for real-time metadata.
-
-> The audio element encountered an error
-
-* An error occurred while the browser was playing or decoding the audio. This may occur if your browser doesn't support a codec.
