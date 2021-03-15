@@ -20,9 +20,13 @@
 
 import EventTargetPolyfill from "./EventTargetPolyfill";
 import { IcecastMetadataQueue } from "icecast-metadata-js";
+import {
+  IcecastMetadataQueue,
+} from "icecast-metadata-js";
+import IcecastMetadataStats from "icecast-metadata-stats";
+
 import MediaSourcePlayer from "./players/MediaSourcePlayer";
 import HTML5Player from "./players/HTML5Player";
-import MetadataGrabber from "./MetadataGrabber";
 
 let EventClass;
 
@@ -262,9 +266,8 @@ export default class IcecastMetadataPlayer extends EventClass {
       );
     }
 
-    this._metadataGrabber = new MetadataGrabber(p.get(this)[endpoint], {
+    this._metadataGrabber = new IcecastMetadataStats(p.get(this)[endpoint], {
       statsMethods: p.get(this)[metadataTypes],
-      statsEndpoint: "https://dsmrad.io/icecast/status-json.xsl",
     });
 
     this._metadataGrabber.start();

@@ -6,12 +6,12 @@ const STOPPED = "stopped";
 const RUNNING = "running";
 const FETCHING = "fetching";
 
-export default class MetadataGrabber {
+export default class IcecastMetadataStats {
   constructor(streamEndpoint, options = {}) {
     this._streamEndpoint = streamEndpoint;
 
     const url = this._streamEndpoint.split("/");
-    const mountpoint = url.pop();
+    url.pop(); // mountpoint
     const serverPath = url.join("/");
 
     this._icestatsEndpoint =
@@ -30,6 +30,7 @@ export default class MetadataGrabber {
       "icy",
       "ogg",
     ];
+
     this._interval = options.interval || 20000;
     this._onStats = options.onStats || console.log;
 
@@ -47,16 +48,16 @@ export default class MetadataGrabber {
     const deserialize = (xml) =>
       new DOMParser().parseFromString(xml, "application/xml");
 
-    const serialize = (dom) => {
-      if (!dom.children.length) {
-        return Number.isNaN(Number(dom.innerHTML))
-          ? dom.innerHTML
-          : Number(dom.innerHTML);
+    const serialize = (element) => {
+      if (!element.children.length) {
+        return Number.isNaN(Number(element.innerHTML))
+          ? element.innerHTML
+          : Number(element.innerHTML);
       }
 
       const json = {};
 
-      for (const child of dom.children) {
+      for (const child of element.children) {
         if (child.nodeName in json) {
           if (Array.isArray(json[child.nodeName])) {
             json[child.nodeName].push(serialize(child));
@@ -135,7 +136,7 @@ export default class MetadataGrabber {
       controller: this._icestatsController,
       mapper: (res) => res.json(),
     })
-      .then((stats) => ({ icestats: stats ? stats.icestats : {} }))
+      .then((stats) => ({ icestats: stats && stats.icestats }))
       .finally(() => {
         this._icestatsController = new AbortController();
       });
@@ -143,10 +144,10 @@ export default class MetadataGrabber {
 
   /*
   <HTML><meta http-equiv="Pragma" content="no-cache"></head><body>350,1,132,1000,41,128,Dj Mixes Sety</body></html>
-,141,1000,50,128,Gra AutoPilot audycje Energy 2000</body></html>
-,27,1000,8,128,Gra Wavelogic audycje Rave With The Wave</body></html>
-,578,1000,233,128,youtube.com/RadioPartyOfficial</body></html>
-,15,1000,5,64,youtube.com/RadioPartyOfficial</body></html>
+  ,141,1000,50,128,Gra AutoPilot audycje Energy 2000</body></html>
+  ,27,1000,8,128,Gra Wavelogic audycje Rave With The Wave</body></html>
+  ,578,1000,233,128,youtube.com/RadioPartyOfficial</body></html>
+  ,15,1000,5,64,youtube.com/RadioPartyOfficial</body></html>
   */
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Equivalent_of_7.html
@@ -164,12 +165,12 @@ export default class MetadataGrabber {
           return stats.length === 7
             ? {
                 StreamTitle: stats[6],
-                currentListeners: parseInt(stats[4]), // current listeners matches icestats page
+                currentListeners: parseInt(stats[4]),
                 peakListeners: parseInt(stats[2]),
                 maxListeners: parseInt(stats[3]),
                 bitrate: parseInt(stats[5]),
                 status: parseInt(stats[1]),
-                totalListeners: parseInt(stats[0]), // total listeners on the server
+                serverListeners: parseInt(stats[0]),
               }
             : {
                 StreamTitle: stats[4],
@@ -188,27 +189,29 @@ export default class MetadataGrabber {
       });
   }
 
+  // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#General_Server_Summary
   async getStats() {
     return this._fetch({
       endpoint: this._statsEndpoint,
       controller: this._statsController,
       mapper: async (res) =>
-        res.text().then((xml) => MetadataGrabber.xml2Json(xml)),
+        res.text().then((xml) => IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.STREAMSTATS),
     })
       .then((stats) => ({
-        stats: stats || "",
+        stats,
       }))
       .finally(() => {
         this._statsController = new AbortController();
       });
   }
 
+  // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Nextsongs
   async getNextsongs() {
     return this._fetch({
       endpoint: this._nextsongsEndpoint,
       controller: this._nextsongsController,
       mapper: async (res) =>
-        res.text().then((xml) => MetadataGrabber.xml2Json(xml)),
+        res.text().then((xml) => IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.NEXTSONGS),
     })
       .then((nextsongs) => ({
         nextsongs,
