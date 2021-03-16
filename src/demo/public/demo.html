@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
     <script src="/icecast-metadata-js/icecast-metadata-player-1.1.2.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-stats-0.0.1.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
       rel="stylesheet"
@@ -29,9 +30,6 @@
       }
       strong {
         font-family: sans-serif;
-      }
-      td {
-        padding-left: 10px;
       }
       input,
       label,
@@ -74,6 +72,7 @@
         text-align: right;
       }
       .metadata {
+        padding-left: 10px;
         text-align: left;
       }
       .metadata-info {
@@ -84,9 +83,103 @@
         text-align: left;
         padding-left: 10px;
       }
+      .query-endpoint {
+        min-width: 300px;
+      }
+      .stats-table {
+        text-align: center;
+      }
+      .stats-row-name {
+        text-align: left;
+      }
     </style>
+    <script>
+      let playerFormData, statsFormData;
+      const stations = fetch("/icecast-metadata-js/stations.json")
+        .then((res) => res.text())
+        .then((text) => JSON.parse(text));
+
+      const manualQuery = (button, promise) => {
+        button.disabled = true;
+        //button.innerHTML = "Fetching...";
+
+        promise.then((stats) => {
+          button.disabled = false;
+          //button.innerHTML = "Fetch";
+          console.log(stats);
+        });
+      };
+
+      // helper functions
+      const formatTime = (seconds) =>
+        new Date(seconds * 1000).toISOString().substr(14, 8);
+
+      const formatMetadata = (metadata) =>
+        JSON.stringify(metadata, null, 1)
+          .replace(/\{\n|\n\}/g, "")
+          .replace(/^ "|\n "/g, '\n"');
+
+      const bodyLoad = async () => {
+        document.playerForm.reset();
+        document.statsForm.reset();
+
+        document.playerForm.addEventListener("change", () => {
+          playerFormData = Object.fromEntries(
+            new FormData(playerForm).entries()
+          );
+
+          getIcecastMetadataStats();
+        });
+
+        document.statsForm.addEventListener("change", () => {
+          statsFormData = Object.fromEntries(new FormData(statsForm).entries());
+
+          getIcecastMetadataStats();
+        });
+
+        const stationsEl = document.getElementById("stations");
+
+        (await stations).forEach(
+          ({ name, codec, metadataTypes, endpoint }, idx) => {
+            const option = document.createElement("option");
+            option.text = `${name} - ${codec}`;
+            option.value = endpoint;
+            option.name = endpoint;
+            option.id = idx;
+            stationsEl.add(option);
+          }
+        );
+
+        stationsEl.addEventListener("change", async () => {
+          const station = (await stations)[stationsEl.selectedIndex];
+          // prettier-ignore
+          {
+            document.getElementById("endpoint").value = station.endpoint;
+            document.getElementById("icy").checked = station.metadataTypes.includes("icy");
+            document.getElementById("ogg").checked = station.metadataTypes.includes("ogg");
+  
+            document.getElementById("icy-auto-query").checked = station.statsSources.includes("icy");
+            document.getElementById("ogg-auto-query").checked = station.statsSources.includes("ogg");
+            document.getElementById("sevenhtml-auto-query").checked = station.statsSources.includes("sevenhtml");
+            document.getElementById("stats-auto-query").checked = station.statsSources.includes("stats");
+            document.getElementById("icestats-auto-query").checked = station.statsSources.includes("icestats");
+            document.getElementById("nextsongs-auto-query").checked = station.statsSources.includes("nextsongs");
+          }
+
+          playerFormData = Object.fromEntries(
+            new FormData(playerForm).entries()
+          );
+          statsFormData = Object.fromEntries(new FormData(statsForm).entries());
+
+          getIcecastMetadataStats();
+        });
+
+        stationsEl.selectedIndex = 0;
+        stationsEl.dispatchEvent(new Event("change"));
+      };
+    </script>
   </head>
-  <body onload="document.options.reset();">
+  <body onload="bodyLoad();">
     <header>
       <h1 style="margin-bottom: 0px">
         <a href="https://github.com/eshaz/icecast-metadata-js"
@@ -201,68 +294,266 @@
       <li>
         <b>ICY Detection Timeout</b> is the time in milliseconds to wait before
         giving up on detecting ICY metadata in the response. (Note: If a stream
-        actually contains ICY metadata and timesout, there will be errors in the
-        decoded audio.
+        actually contains ICY metadata and times out, there will be errors in
+        the decoded audio.
       </li>
     </ul>
     <div class="row options-group">
-      <fieldset class="column">
+      <fieldset name="audio-controls" class="column">
         <legend>Audio Controls</legend>
         <button id="play">Play</button>
         <button id="stop">Stop</button>
-        <button id="reset" onclick="document.options.reset();">Reset</button>
+        <button id="reset" onclick="document.playerForm.reset();">Reset</button>
       </fieldset>
-      <form name="options">
-        <fieldset>
+      <form name="playerForm" id="playerForm">
+        <fieldset name="stream-endpoint" class="column">
           <legend>Stream Endpoint</legend>
           <input
             class="stream-endpoint"
             name="endpoint"
             id="endpoint"
             type="url"
-            value="https://dsmrad.io/stream/isics-all"
           />
-          <select
-            id="stations"
-            name="stations"
-            onchange="document.getElementById('endpoint').value = event.target.value"
-          ></select>
+          <select id="stations" name="stations"></select>
         </fieldset>
         <div class="row">
-          <fieldset>
+          <fieldset name="metadata-types" class="column">
             <legend>Metadata Types</legend>
-            <div class="column">
-              <div class="row">
-                <label for="icy">ICY</label>
-                <input id="icy" name="icy" type="checkbox" checked />
-              </div>
-              <div class="row">
-                <label for="ogg">OGG</label>
-                <input id="ogg" name="ogg" type="checkbox" />
-              </div>
+            <div class="row">
+              <label for="icy">ICY</label>
+              <input id="icy" name="icy" type="checkbox" />
+            </div>
+            <div class="row">
+              <label for="ogg">OGG</label>
+              <input id="ogg" name="ogg" type="checkbox" />
             </div>
           </fieldset>
-          <fieldset>
+          <fieldset name="icy-metadata-options" class="row">
             <legend>ICY Metadata Options</legend>
-            <div class="row">
-              <div class="column">
-                <label for="icyMetaInt">ICY Metadata Interval</label>
-                <input name="icyMetaInt" id="icyMetaInt" disabled />
-              </div>
-              <div class="column">
-                <label for="icyDetectionTimeout"
-                  >ICY Detection Timeout (ms)</label
-                >
-                <input
-                  type="number"
-                  id="icyDetectionTimeout"
-                  name="icyDetectionTimeout"
-                  value="2000"
-                />
-              </div>
+            <div class="column">
+              <label for="icyMetaInt">ICY Metadata Interval</label>
+              <input name="icyMetaInt" id="icyMetaInt" disabled />
+            </div>
+            <div class="column">
+              <label for="icyDetectionTimeout"
+                >ICY Detection Timeout (ms)</label
+              >
+              <input
+                type="number"
+                id="icyDetectionTimeout"
+                name="icyDetectionTimeout"
+                value="2000"
+              />
             </div>
           </fieldset>
         </div>
+      </form>
+    </div>
+    <div class="row options-group">
+      <fieldset name="metadata-stats-controls" class="column">
+        <legend>Stats Controls</legend>
+        <button id="stats-start">Start</button>
+        <button id="stats-stop">Stop</button>
+        <button id="stats-reset" onclick="document.statsForm.reset();">
+          Reset
+        </button>
+      </fieldset>
+      <form name="statsForm" id="statsForm" onsubmit="return false;">
+        <fieldset>
+          <legend>Stats</legend>
+          <table class="stats-table">
+            <th>Type</th>
+            <th>Auto</th>
+            <th>Manual</th>
+            <th>Endpoint</th>
+            <tr>
+              <td class="stats-row-name">
+                <label for="icy-auto-query">ICY</label>
+              </td>
+              <td>
+                <input
+                  id="icy-auto-query"
+                  name="icy-auto-query"
+                  type="checkbox"
+                />
+              </td>
+              <td>
+                <button
+                  id="icy-manual-query"
+                  name="icy-manual-query"
+                  onclick="manualQuery(this, icecastMetadataStats.getIcyMetadata())"
+                >
+                  Fetch
+                </button>
+              </td>
+              <td>
+                <input
+                  class="query-endpoint"
+                  name="icy-query-endpoint"
+                  id="icy-query-endpoint"
+                  type="url"
+                  disabled
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="stats-row-name">
+                <label for="ogg-auto-query">Ogg</label>
+              </td>
+              <td>
+                <input
+                  id="ogg-auto-query"
+                  name="ogg-auto-query"
+                  type="checkbox"
+                />
+              </td>
+              <td>
+                <button
+                  id="ogg-manual-query"
+                  name="ogg-manual-query"
+                  onclick="manualQuery(this, icecastMetadataStats.getOggMetadata())"
+                >
+                  Fetch
+                </button>
+              </td>
+              <td>
+                <input
+                  class="query-endpoint"
+                  name="ogg-query-endpoint"
+                  id="ogg-query-endpoint"
+                  type="url"
+                  disabled
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="stats-row-name">
+                <label for="sevenhtml-auto-query">7.html</label>
+              </td>
+              <td>
+                <input
+                  id="sevenhtml-auto-query"
+                  name="sevenhtml-auto-query"
+                  type="checkbox"
+                />
+              </td>
+              <td>
+                <button
+                  id="sevenhtml-manual-query"
+                  name="sevenhtml-manual-query"
+                  onclick="manualQuery(this, icecastMetadataStats.getSevenhtml())"
+                >
+                  Fetch
+                </button>
+              </td>
+              <td>
+                <input
+                  class="query-endpoint"
+                  name="sevenhtml-query-endpoint"
+                  id="sevenhtml-query-endpoint"
+                  type="url"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="stats-row-name">
+                <label for="icestats-auto-query">status-json.xsl</label>
+              </td>
+              <td>
+                <input
+                  id="icestats-auto-query"
+                  name="icestats-auto-query"
+                  type="checkbox"
+                />
+              </td>
+              <td>
+                <button
+                  id="icestats-manual-query"
+                  name="icestats-manual-query"
+                  onclick="manualQuery(this, icecastMetadataStats.getIcestats())"
+                >
+                  Fetch
+                </button>
+              </td>
+              <td>
+                <input
+                  class="query-endpoint"
+                  name="icestats-query-endpoint"
+                  id="icestats-query-endpoint"
+                  type="url"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="stats-row-name">
+                <label for="stats-auto-query">stats</label>
+              </td>
+              <td>
+                <input
+                  id="stats-auto-query"
+                  name="stats-auto-query"
+                  type="checkbox"
+                />
+              </td>
+              <td>
+                <button
+                  id="stats-manual-query"
+                  name="stats-manual-query"
+                  onclick="manualQuery(this, icecastMetadataStats.getStats())"
+                >
+                  Fetch
+                </button>
+              </td>
+              <td>
+                <input
+                  class="query-endpoint"
+                  name="stats-query-endpoint"
+                  id="stats-query-endpoint"
+                  type="url"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="stats-row-name">
+                <label for="nextsongs-auto-query">nextsongs</label>
+              </td>
+              <td>
+                <input
+                  id="nextsongs-auto-query"
+                  name="nextsongs-auto-query"
+                  type="checkbox"
+                />
+              </td>
+              <td>
+                <button
+                  id="nextsongs-manual-query"
+                  name="nextsongs-manual-query"
+                  onclick="manualQuery(this, icecastMetadataStats.getNextsongs())"
+                >
+                  Fetch
+                </button>
+              </td>
+              <td>
+                <input
+                  class="query-endpoint"
+                  name="nextsongs-query-endpoint"
+                  id="nextsongs-query-endpoint"
+                  type="url"
+                />
+              </td>
+            </tr>
+          </table>
+          <div class="column">
+            <label for="interval">Stats Update Interval (S)</label>
+            <input
+              type="number"
+              id="interval"
+              name="interval"
+              min="1"
+              value="30"
+            />
+          </div>
+        </fieldset>
       </form>
     </div>
     <div id="audioInfo"></div>
@@ -281,9 +572,7 @@
     </div>
   </body>
   <script>
-    const form = document.querySelector("form");
     const icyMetaIntEl = document.getElementById("icyMetaInt");
-
     const metadataEl = document.getElementById("metadata");
     const metadataQueueEl = document.getElementById("metadataQueue");
 
@@ -292,7 +581,7 @@
     const audioInfoEl = document.getElementById("audioInfo");
     audioInfoEl.attachShadow({ mode: "open" });
 
-    let formData, icecastMetadataPlayer, timer;
+    let icecastMetadataPlayer, icecastMetadataStats, timer;
 
     const onMetadata = (metadata) => {
       metadataEl.innerHTML = `<pre>${formatMetadata(metadata)}</pre>`;
@@ -312,57 +601,109 @@
       );
     };
 
-    let count = 0;
-
     const onCodecUpdate = (audioCodecData) => {
       audioInfoEl.shadowRoot.innerHTML = `<pre>${formatMetadata(
         audioCodecData
       )}</pre>`;
     };
 
+    const getIcecastMetadataStats = () => {
+      if (icecastMetadataStats) icecastMetadataStats.stop();
+
+      const sources = [];
+      statsFormData["icy-auto-query"] && sources.push("icy");
+      statsFormData["ogg-auto-query"] && sources.push("ogg");
+      statsFormData["sevenhtml-auto-query"] && sources.push("sevenhtml");
+      statsFormData["icestats-auto-query"] && sources.push("icestats");
+      statsFormData["stats-auto-query"] && sources.push("stats");
+      statsFormData["nextsongs-auto-query"] && sources.push("nextsongs");
+
+      icecastMetadataStats = new IcecastMetadataStats(playerFormData.endpoint, {
+        onStats: (stats) => {
+          console.log(stats);
+        },
+        onStatsFetch: (sources) => {
+          console.log(sources);
+        },
+        sources,
+        interval: statsFormData.interval,
+        icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
+        icestatsEndpoint: statsFormData.icestatsEndpoint,
+        statsEndpoint: statsFormData.statsEndpoint,
+        nextsongsEndpoint: statsFormData.nextsongsEndpoint,
+        sevenhtmlEndpoint: statsFormData.sevenhtmlEndpoint,
+      });
+
+      document.getElementById("icy-query-endpoint").value =
+        playerFormData.endpoint;
+      document.getElementById("ogg-query-endpoint").value =
+        playerFormData.endpoint;
+      document.getElementById("icestats-query-endpoint").value =
+        icecastMetadataStats.icestatsEndpoint;
+      document.getElementById("stats-query-endpoint").value =
+        icecastMetadataStats.statsEndpoint;
+      document.getElementById("nextsongs-query-endpoint").value =
+        icecastMetadataStats.nextsongsEndpoint;
+      document.getElementById("sevenhtml-query-endpoint").value =
+        icecastMetadataStats.sevenhtmlEndpoint;
+    };
+
+    document.getElementById("stats-start").addEventListener("click", () => {
+      getIcecastMetadataStats();
+      icecastMetadataStats.start();
+    });
+
+    document.getElementById("stats-stop").addEventListener("click", () => {
+      icecastMetadataStats.stop();
+    });
+
     // gets a new instance of the IcecastMetadataPlayer and starts a timer
     const getIcecastMetadataPlayer = () => {
       const metadataTypes = [];
-      formData.icy && metadataTypes.push("icy");
-      formData.ogg && metadataTypes.push("ogg");
+      playerFormData.icy && metadataTypes.push("icy");
+      playerFormData.ogg && metadataTypes.push("ogg");
 
-      icecastMetadataPlayer = new IcecastMetadataPlayer(formData.endpoint, {
-        onMetadata,
-        onMetadataEnqueue,
-        onCodecUpdate,
-        metadataTypes,
-        icyDetectionTimeout: parseInt(formData.icyDetectionTimeout),
-        enableLogging: true,
-        onPlay: () => {
-          icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
+      icecastMetadataPlayer = new IcecastMetadataPlayer(
+        playerFormData.endpoint,
+        {
+          onMetadata,
+          onMetadataEnqueue,
+          onCodecUpdate,
+          metadataTypes,
+          icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
+          enableLogging: true,
+          onPlay: () => {
+            icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
 
-          let time = 0;
-          clearInterval(timer);
-          timer = setInterval(() => {
-            time += 0.1;
-            currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
-          }, 100);
-        },
-        onStop: () => {
-          clearInterval(timer);
-        },
-        onError: (message) => {
-          metadataEl.innerHTML = message;
-        },
-      });
+            let time = 0;
+            clearInterval(timer);
+            timer = setInterval(() => {
+              time += 0.1;
+              currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
+            }, 100);
+          },
+          onStop: () => {
+            clearInterval(timer);
+          },
+          onError: (message) => {
+            metadataEl.innerHTML = message;
+          },
+        }
+      );
 
       icecastMetadataPlayer.addEventListener("metadata", (...args) => {
         console.log(args);
       });
     };
 
-    form.addEventListener("change", () => {
-      formData = Object.fromEntries(new FormData(form).entries());
-    });
-
     document.getElementById("play").addEventListener("click", () => {
       if (icecastMetadataPlayer) icecastMetadataPlayer.stop();
-      init();
+
+      currentTimeEl.shadowRoot.innerHTML = "";
+      audioInfoEl.shadowRoot.innerHTML = "";
+      metadataEl.innerHTML = "Loading...";
+      metadataQueueEl.innerHTML = "";
+      currentTimeEl.innerHTML = "00:00.00";
 
       getIcecastMetadataPlayer();
       icecastMetadataPlayer.play();
@@ -370,81 +711,6 @@
 
     document.getElementById("stop").addEventListener("click", () => {
       icecastMetadataPlayer.stop();
-    });
-
-    // helper functions
-    const formatTime = (seconds) =>
-      new Date(seconds * 1000).toISOString().substr(14, 8);
-
-    const formatMetadata = (metadata) =>
-      JSON.stringify(metadata, null, 1)
-        .replace(/\{\n|\n\}/g, "")
-        .replace(/^ "|\n "/g, '\n"');
-
-    const init = () => {
-      formData = Object.fromEntries(new FormData(form).entries());
-      currentTimeEl.shadowRoot.innerHTML = "";
-      audioInfoEl.shadowRoot.innerHTML = "";
-      metadataEl.innerHTML = "Loading...";
-      metadataQueueEl.innerHTML = "";
-      currentTimeEl.innerHTML = "00:00.00";
-    };
-  </script>
-  <script>
-    // Stations Selector setup
-    // prettier-ignore
-    const stations = [
-    {"name":"DSMRad.io ISICS All","endpoint":"https://dsmrad.io/stream/isics-all","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"DSMRad.io SARA All","endpoint":"https://dsmrad.io/stream/sara-all","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Jazz4ever","endpoint":"https://streaming211.radionomy.com/Jazz4ever","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Darksynth Radio","endpoint": "https://stream.nightride.fm/darksynth.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"Nightride FM","endpoint": "https://stream.nightride.fm/nightride.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"EBSM","endpoint": "https://stream.nightride.fm/ebsm.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"REKT","endpoint": "https://stream.nightride.fm/rekt.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"Rektory","endpoint": "https://stream.nightride.fm/rektory.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"Rektify","endpoint": "https://stream.nightride.fm/rektify.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"90.9 Jazzy rádió - Jazzy Cool","endpoint":"https://s04.diazol.hu:9530/live.mp3","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"90.9 Jazzy rádió - Jazzy Groove","endpoint":"https://s04.diazol.hu:9510/live.mp3","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"90.9 Jazzy rádió - Jazzy Soul","endpoint":"https://s04.diazol.hu:9520/live.mp3","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"The Zen Lounge","endpoint": "https://server.thezenlounge.jp/radio/8000/radio_192.aac","codec":"AAC 192","metadataTypes":["ogg"]},
-    {"name":"The Zen Lounge","endpoint": "https://server.thezenlounge.jp/radio/8000/radio_192.ogg","codec":"Vorbis 192","metadataTypes":["ogg"]},
-    {"name":"The Zen Lounge","endpoint": "https://server.thezenlounge.jp/radio/8000/radio_320.ogg","codec":"Vorbis 320","metadataTypes":["ogg"]},
-    {"name":"Radio Paradise Main","endpoint":"https://stream.radioparadise.com/flacm","codec":"FLAC","metadataTypes":["icy"]},
-    {"name":"Radio BluesFlac","endpoint":"https://audio-edge-fp8o9.yyz.d.radiomast.io/radioblues-flac","codec":"FLAC","metadataTypes":["icy"]},
-    {"name":"Radio Paradise Mellow","endpoint":"https://stream.radioparadise.com/mellow-flacm","codec":"FLAC","metadataTypes":["icy","ogg"]},
-    {"name":"Radio Paradise Rock","endpoint":"https://stream.radioparadise.com/rock-flacm","codec":"FLAC","metadataTypes":["icy","ogg"]},
-    {"name":"Radio Paradise World/Etc","endpoint":"https://stream.radioparadise.com/world-etc-320","codec":"AAC","metadataTypes":["icy"]},
-    {"name":"Radioparty.pl - House","endpoint":"https://s1.radioparty.pl:8000/house","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Radioparty.pl - Trance","endpoint":"https://s2.radioparty.pl:8015/trance","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Radioparty.pl - Vocal Trance","endpoint":"https://s2.radioparty.pl:8015/vocaltrance","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Radioparty.pl - DJ Mixes","endpoint":"https://s1.radioparty.pl:8000/djmixes","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Radioparty.pl - Energy 2000","endpoint":"https://s2.radioparty.pl:8040/energy2000","codec":"AAC+","metadataTypes":["icy"]},
-    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.mp3","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.aac","codec":"AAC","metadataTypes":["icy"]},
-    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.ogg","codec":"Vorbis","metadataTypes":["ogg"]},
-    {"name":"Dance Wave!","endpoint":"https://dancewave.online/dance.opus","codec":"Opus","metadataTypes":["ogg"]},
-    {"name":"Dance Wave Retro!","endpoint":"https://retro.dancewave.online/retrodance.mp3","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Metro DANCE! Radio","endpoint":"http://eu1.reliastream.com:7017/MDR","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Sama Radio Senegal","endpoint":"https://streamingv2.shoutcast.com/SamaRadio","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"ABC Piano","endpoint":"https://streaming211.radionomy.com/ABC-Piano","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Atmospheres Radio","endpoint":"https://streaming.galaxywebsolutions.com:9040/stream","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"HAWK Radio - Hilbert College","endpoint":"https://streamingv2.shoutcast.com/HAWK-Radio-Hilbert-College?icy=http","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"TheIndieBlend","endpoint":"https://streaming307.radionomy.com/TheIndieBlend?icy=http","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Andean Music","endpoint":"https://streamingv2.shoutcast.com/andeanmusic?icy=http","codec":"MP3","metadataTypes":["icy"]},
-    {"name":"Pure Rock FM 89/WONC","endpoint":"http://webcast.wonc.org:8000/wonclive-160s-opus.ogg","codec":"Opus","metadataTypes":["ogg"]},
-    {"name":"TheRadio.CC","endpoint":"http://stream.theradio.cc:8000/trcc-stream.opus","codec":"Opus","metadataTypes":["ogg"]}
-  ];
-
-    const select = document.getElementById("stations");
-
-    stations.forEach(({ name, codec, metadataTypes, endpoint }, idx) => {
-      const option = document.createElement("option");
-      option.text = `${name} - (${codec} - ${metadataTypes
-        .join(", ")
-        .toUpperCase()})`;
-      option.value = endpoint;
-      option.name = endpoint;
-      select.add(option);
     });
   </script>
 </html>

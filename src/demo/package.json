@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "cp ./src/stations.json ./public/stations.json && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write '**/*.js' --write '**/*.jsx' --write '**/*.json' --write '**/*.html'",
@@ -28,7 +28,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "homepage": "http://eshaz.github.io/icecast-metadata-js",
+  "homepage": "https://eshaz.github.io/icecast-metadata-js",
   "browserslist": {
     "production": [
       ">0.2%",
