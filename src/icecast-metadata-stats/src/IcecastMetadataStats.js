@@ -55,7 +55,8 @@ export default class IcecastMetadataStats {
     this._icyDetectionTimeout = options.icyDetectionTimeout;
 
     this._interval = (options.interval || 30) * 1000;
-    this._onStats = options.onStats || console.log;
+    this._onStats = options.onStats || noOp;
+    this._onStatsFetch = options.onStatsFetch || noOp;
 
     this._icyController = new AbortController();
     this._oggController = new AbortController();
@@ -102,6 +103,22 @@ export default class IcecastMetadataStats {
     return this._state;
   }
 
+  get icestatsEndpoint() {
+    return this._icestatsEndpoint;
+  }
+
+  get statsEndpoint() {
+    return this._statsEndpoint;
+  }
+
+  get nextsongsEndpoint() {
+    return this._nextsongsEndpoint;
+  }
+
+  get sevenhtmlEndpoint() {
+    return this._sevenhtmlEndpoint;
+  }
+
   start() {
     if (this._state === STOPPED) {
       this._state = RUNNING;
@@ -129,20 +146,16 @@ export default class IcecastMetadataStats {
 
   async getMetadata() {
     if (this._state === RUNNING) {
-      console.log("fetching");
+      this._onStatsFetch(this._sources);
       const promises = [];
-      //if (this._sources.includes("icestats"))
-      promises.push(this.getIcestats());
-      //if (this._sources.includes("sevenhtml"))
-      promises.push(this.getSevenhtml());
-      //if (this._sources.includes("stats"))
-      promises.push(this.getStats());
-      //if (this._sources.includes("nextsongs"))
-      promises.push(this.getNextsongs());
-      //if (this._sources.includes("icy"))
-      promises.push(this.getIcyMetadata());
-      //if (this._sources.includes("ogg"))
-      promises.push(this.getOggMetadata());
+      if (this._sources.includes("icestats")) promises.push(this.getIcestats());
+      if (this._sources.includes("sevenhtml"))
+        promises.push(this.getSevenhtml());
+      if (this._sources.includes("stats")) promises.push(this.getStats());
+      if (this._sources.includes("nextsongs"))
+        promises.push(this.getNextsongs());
+      if (this._sources.includes("icy")) promises.push(this.getIcyMetadata());
+      if (this._sources.includes("ogg")) promises.push(this.getOggMetadata());
 
       const stats = await Promise.all(promises).then((stats) =>
         stats.reduce((acc, stat) => ({ ...acc, ...stat }), {})

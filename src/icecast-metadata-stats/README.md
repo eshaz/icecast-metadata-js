@@ -267,6 +267,14 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
 * `statsListener.state`
   * Returns the current state of the IcecastMetadataStats.
   * `"running", "fetching", "stopped"`
+* `statsListener.icestatsEndpoint`
+  * Returns the endpoint for the `icestats` source
+* `statsListener.statsEndpoint`
+  * Returns the endpoint for the `stats` source
+* `statsListener.nextsongsEndpoint`
+  * Returns the endpoint for the `nextsongs` source
+* `statsListener.sevenhtmlEndpoint`
+  * Returns the endpoint for the `sevenhtml` source
 
 ## Instantiating
 
@@ -280,6 +288,9 @@ const statsListener = new IcecastMetadataStats("https://example.com/stream", {
 ### Options
 * `endpoint` (required)
   * Stream HTTP(s) endpoint for the Icecast compatible stream.
+  * This endpoint is used to derive the source endpoints by removing the last path part
+    * i.e. For `icestats` https://example.com/stream.mp3 would be https://example.com/status-json.xsl
+  * This endpoint is used directly for ICY and Ogg metadata.
 * `sources` (optional) **Default** `["icestats"]`
   * The source(s) to query.
   * Values:
@@ -289,11 +300,16 @@ const statsListener = new IcecastMetadataStats("https://example.com/stream", {
     * `"sevenhtml"` - Shoutcast / Icecast `/7.html`
     * `"icy"` - ICY stream metadata
     * `"ogg"` - Ogg stream metadata
-* `interval` (optional) **Default** `30`
+* `interval` (optional) **Default** `30` Seconds
   * The frequency in seconds for queries
-* `icestatsEndpoint`
-* `nextsongsEndpoint`
-* `sevenhtmlEndpoint`
+* `icestatsEndpoint` (optional) **Default** `[stream endpoint]/status-json.xsl`
+  * The endpoint for the `icestats` source
+* `statsEndpoint` (optional) **Default** `[stream endpoint]/stats`
+  * The endpoint for the `stats` source
+* `nextsongsEndpoint` (optional) **Default** `[stream endpoint]/nextsongs`
+  * The endpoint for the `nextsongs` source
+* `sevenhtmlEndpoint` (optional) **Default** `[stream endpoint]/7.html`
+  * The endpoint for the `sevenhtml` source
 
 #### *Only used when `["icy"]` metadata type is enabled*
 * `icyMetaInt` (optional) **Default** *reads from the response header*
@@ -316,6 +332,9 @@ const statsListener = new IcecastMetadataStats("https://example.com/stream", {
       stats: undefined
     }
     ```
+* `onStatsFetch([sources])` (optional)
+  * Called when the automatic stats query is started.
+  * Called with the array or sources that are being queried.
 ---
 
 ## Troubleshooting

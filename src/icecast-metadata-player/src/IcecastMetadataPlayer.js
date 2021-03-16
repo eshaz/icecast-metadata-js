@@ -23,7 +23,6 @@ import { IcecastMetadataQueue } from "icecast-metadata-js";
 import {
   IcecastMetadataQueue,
 } from "icecast-metadata-js";
-import IcecastMetadataStats from "icecast-metadata-stats";
 
 import MediaSourcePlayer from "./players/MediaSourcePlayer";
 import HTML5Player from "./players/HTML5Player";
@@ -265,12 +264,6 @@ export default class IcecastMetadataPlayer extends EventClass {
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
     }
-
-    this._metadataGrabber = new IcecastMetadataStats(p.get(this)[endpoint], {
-      statsMethods: p.get(this)[metadataTypes],
-    });
-
-    this._metadataGrabber.start();
 
     p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
