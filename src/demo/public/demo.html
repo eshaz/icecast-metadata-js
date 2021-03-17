@@ -77,7 +77,6 @@
       }
       .metadata-info {
         font-size: 12px;
-        min-height: 500px;
       }
       .metadata-header {
         text-align: left;
@@ -205,59 +204,56 @@
       </div>
     </header>
     <hr />
-    <strong>Icecast Metadata Player HTML Demo</strong>
+    <strong>HTML Demo</strong>
     <a
       href="https://github.com/eshaz/icecast-metadata-js/blob/master/src/demo/public/demo.html"
       >Source for this demo</a
     >
     <p>
-      <b
-        ><a
-          >This module is a part of
-          <a href="https://github.com/eshaz/icecast-metadata-js"
-            >icecast-metadata-js</a
-          >. See the links in the header for more information.</a
-        ></b
-      >
-    </p>
-    <p>
-      This page demonstrates the IcecastMetadataPlayer module.
-      <i>IcecastMetadataPlayer</i> is designed to be as simple as possible to
-      use, as it handles all of the MSE logic, fetch logic, error handling,
-      audio functionality, metadata parsing, and metadata synchronization. See
-      the other packages available in
+      See each section below for a demo and test page for each module. The
+      source code for these modules and other Icecast compatible tools are
+      available at
       <a href="https://github.com/eshaz/icecast-metadata-js"
         >icecast-metadata-js</a
       >
-      for other Icecast compatible tools.
     </p>
-    <strong>Usage</strong>
-    <ol>
-      <li>
-        Download the
-        <a
-          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.2.min.js"
-          download
-          >latest build</a
-        >, or install via
-        <a href="https://www.npmjs.com/package/icecast-metadata-player">NPM</a>.
-      </li>
-      <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
-      <li>
-        <i>IcecastMetadataReader</i> is made available as a global variable in
-        your webpage to use wherever.
-      </li>
-      <li>
-        Checkout the
-        <a
-          href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme"
-          >README</a
-        >
-        for more information.
-      </li>
-    </ol>
-    <b>Example</b>
-    <pre>
+    <hr />
+    <details open>
+      <summary><strong>IcecastMetadataPlayer</strong>&nbsp;</summary>
+      <p>
+        <i>IcecastMetadataPlayer</i> is designed to be as simple as possible to
+        use, as it handles all of the MSE logic, fetch logic, error handling,
+        audio functionality, metadata parsing, and metadata synchronization.
+      </p>
+      <details>
+        <summary><b>Usage / Example</b></summary>
+        <ol>
+          <li>
+            Download the
+            <a
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.2.min.js"
+              >latest build</a
+            >, or install via
+            <a href="https://www.npmjs.com/package/icecast-metadata-player"
+              >NPM</a
+            >.
+          </li>
+          <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
+          <li>
+            <i>IcecastMetadataPlayer</i> is made available as a global variable
+            in your webpage to use wherever.
+          </li>
+          <li>
+            Checkout the
+            <a
+              href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme"
+              >README</a
+            >
+            for more information.
+          </li>
+        </ol>
+        <b>Example</b>
+        <pre>
       &lt;script src="icecast-metadata-player-1.1.2.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
@@ -274,302 +270,411 @@
         &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
         &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
       &lt;/body&gt;
-    </pre>
-    <hr />
-    <h3>Controls</h3>
-    <ul>
-      <li>
-        <b>Stream Endpoint</b> selects which URL to request by using the
-        pre-selected streams, or entered manually in the input field.
-      </li>
-      <li>
-        <b>Metadata Types</b> select which metadata types to read from the
-        response.
-      </li>
-      <li>
-        <b>ICY Metadata Interval</b> shows the detected metadata interval either
-        from the <i>Icy-MetaInt</i> header value or the value detected in the
-        stream.
-      </li>
-      <li>
-        <b>ICY Detection Timeout</b> is the time in milliseconds to wait before
-        giving up on detecting ICY metadata in the response. (Note: If a stream
-        actually contains ICY metadata and times out, there will be errors in
-        the decoded audio.
-      </li>
-    </ul>
-    <div class="row options-group">
-      <fieldset name="audio-controls" class="column">
-        <legend>Audio Controls</legend>
-        <button id="play">Play</button>
-        <button id="stop">Stop</button>
-        <button id="reset" onclick="document.playerForm.reset();">Reset</button>
-      </fieldset>
-      <form name="playerForm" id="playerForm">
-        <fieldset name="stream-endpoint" class="column">
-          <legend>Stream Endpoint</legend>
-          <input
-            class="stream-endpoint"
-            name="endpoint"
-            id="endpoint"
-            type="url"
-          />
-          <select id="stations" name="stations"></select>
+    </pre
+        >
+      </details>
+      <br />
+      <div>
+        Select a stream in the <b>Stream Endpoint</b> dropdown, or type in a url
+        and press <b>Play</b>.
+      </div>
+      <div>
+        Hover over each item in the fieldset for additional information.
+      </div>
+      <br />
+      <div class="row options-group">
+        <fieldset name="audio-controls" class="column">
+          <legend>Audio Controls</legend>
+          <button title="Click to play the stream." id="play">Play</button>
+          <button title="Click to stop the stream." id="stop">Stop</button>
         </fieldset>
-        <div class="row">
-          <fieldset name="metadata-types" class="column">
-            <legend>Metadata Types</legend>
-            <div class="row">
-              <label for="icy">ICY</label>
-              <input id="icy" name="icy" type="checkbox" />
-            </div>
-            <div class="row">
-              <label for="ogg">OGG</label>
-              <input id="ogg" name="ogg" type="checkbox" />
-            </div>
+        <form name="playerForm" id="playerForm">
+          <fieldset name="stream-endpoint" class="column">
+            <legend>Stream Endpoint</legend>
+            <input
+              class="stream-endpoint"
+              name="endpoint"
+              id="endpoint"
+              type="url"
+            />
+            <select id="stations" name="stations"></select>
           </fieldset>
-          <fieldset name="icy-metadata-options" class="row">
-            <legend>ICY Metadata Options</legend>
-            <div class="column">
-              <label for="icyMetaInt">ICY Metadata Interval</label>
-              <input name="icyMetaInt" id="icyMetaInt" disabled />
-            </div>
-            <div class="column">
-              <label for="icyDetectionTimeout"
-                >ICY Detection Timeout (ms)</label
+          <div class="row">
+            <fieldset
+              title="Select which metadata types to read from the response."
+              name="metadata-types"
+              class="column"
+            >
+              <legend>Metadata Types</legend>
+              <div title="Check to enable ICY metadata." class="row">
+                <label for="icy">ICY</label>
+                <input id="icy" name="icy" type="checkbox" />
+              </div>
+              <div title="Check to enable Ogg metadata." class="row">
+                <label for="ogg">Ogg</label>
+                <input id="ogg" name="ogg" type="checkbox" />
+              </div>
+            </fieldset>
+            <fieldset name="icy-metadata-options" class="row">
+              <legend>ICY Metadata Options</legend>
+              <div
+                title="The detected metadata interval either from the Icy-MetaInt header value or the value detected in the stream."
+                class="column"
               >
-              <input
-                type="number"
-                id="icyDetectionTimeout"
-                name="icyDetectionTimeout"
-                value="2000"
-              />
-            </div>
-          </fieldset>
-        </div>
-      </form>
-    </div>
-    <div class="row options-group">
-      <fieldset name="metadata-stats-controls" class="column">
-        <legend>Stats Controls</legend>
-        <button id="stats-start">Start</button>
-        <button id="stats-stop">Stop</button>
-        <button id="stats-reset" onclick="document.statsForm.reset();">
-          Reset
-        </button>
-      </fieldset>
-      <form name="statsForm" id="statsForm" onsubmit="return false;">
-        <fieldset>
-          <legend>Stats</legend>
-          <table class="stats-table">
-            <th>Type</th>
-            <th>Auto</th>
-            <th>Manual</th>
-            <th>Endpoint</th>
-            <tr>
-              <td class="stats-row-name">
-                <label for="icy-auto-query">ICY</label>
-              </td>
-              <td>
-                <input
-                  id="icy-auto-query"
-                  name="icy-auto-query"
-                  type="checkbox"
-                />
-              </td>
-              <td>
-                <button
-                  id="icy-manual-query"
-                  name="icy-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getIcyMetadata())"
+                <label for="icyMetaInt">ICY Metadata Interval</label>
+                <input name="icyMetaInt" id="icyMetaInt" disabled />
+              </div>
+              <div
+                title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response.
+Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
+                class="column"
+              >
+                <label for="icyDetectionTimeout"
+                  >ICY Detection Timeout (ms)</label
                 >
-                  Fetch
-                </button>
-              </td>
-              <td>
                 <input
-                  class="query-endpoint"
-                  name="icy-query-endpoint"
-                  id="icy-query-endpoint"
-                  type="url"
-                  disabled
+                  type="number"
+                  id="icyDetectionTimeout"
+                  name="icyDetectionTimeout"
+                  value="2000"
                 />
-              </td>
-            </tr>
+              </div>
+            </fieldset>
+          </div>
+        </form>
+      </div>
+      <br>
+      <details open><summary><b>Codec Information</b></summary>
+        <i>Displayed when <a href="https://github.com/eshaz/mse-audio-wrapper">mse-audio-wrapper</a> is in use.</i>
+      <div id="audioInfo"></div>
+      </details>
+      <br />
+      <details open>
+        <summary><b>Metadata</b></summary>
+        <div class="metadata-info">
+          <table>
+            <th>Current Time</th>
+            <th class="metadata-header">Now Playing</th>
             <tr>
-              <td class="stats-row-name">
-                <label for="ogg-auto-query">Ogg</label>
-              </td>
-              <td>
-                <input
-                  id="ogg-auto-query"
-                  name="ogg-auto-query"
-                  type="checkbox"
-                />
-              </td>
-              <td>
-                <button
-                  id="ogg-manual-query"
-                  name="ogg-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getOggMetadata())"
-                >
-                  Fetch
-                </button>
-              </td>
-              <td>
-                <input
-                  class="query-endpoint"
-                  name="ogg-query-endpoint"
-                  id="ogg-query-endpoint"
-                  type="url"
-                  disabled
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="stats-row-name">
-                <label for="sevenhtml-auto-query">7.html</label>
-              </td>
-              <td>
-                <input
-                  id="sevenhtml-auto-query"
-                  name="sevenhtml-auto-query"
-                  type="checkbox"
-                />
-              </td>
-              <td>
-                <button
-                  id="sevenhtml-manual-query"
-                  name="sevenhtml-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getSevenhtml())"
-                >
-                  Fetch
-                </button>
-              </td>
-              <td>
-                <input
-                  class="query-endpoint"
-                  name="sevenhtml-query-endpoint"
-                  id="sevenhtml-query-endpoint"
-                  type="url"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="stats-row-name">
-                <label for="icestats-auto-query">status-json.xsl</label>
-              </td>
-              <td>
-                <input
-                  id="icestats-auto-query"
-                  name="icestats-auto-query"
-                  type="checkbox"
-                />
-              </td>
-              <td>
-                <button
-                  id="icestats-manual-query"
-                  name="icestats-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getIcestats())"
-                >
-                  Fetch
-                </button>
-              </td>
-              <td>
-                <input
-                  class="query-endpoint"
-                  name="icestats-query-endpoint"
-                  id="icestats-query-endpoint"
-                  type="url"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="stats-row-name">
-                <label for="stats-auto-query">stats</label>
-              </td>
-              <td>
-                <input
-                  id="stats-auto-query"
-                  name="stats-auto-query"
-                  type="checkbox"
-                />
-              </td>
-              <td>
-                <button
-                  id="stats-manual-query"
-                  name="stats-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getStats())"
-                >
-                  Fetch
-                </button>
-              </td>
-              <td>
-                <input
-                  class="query-endpoint"
-                  name="stats-query-endpoint"
-                  id="stats-query-endpoint"
-                  type="url"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="stats-row-name">
-                <label for="nextsongs-auto-query">nextsongs</label>
-              </td>
-              <td>
-                <input
-                  id="nextsongs-auto-query"
-                  name="nextsongs-auto-query"
-                  type="checkbox"
-                />
-              </td>
-              <td>
-                <button
-                  id="nextsongs-manual-query"
-                  name="nextsongs-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getNextsongs())"
-                >
-                  Fetch
-                </button>
-              </td>
-              <td>
-                <input
-                  class="query-endpoint"
-                  name="nextsongs-query-endpoint"
-                  id="nextsongs-query-endpoint"
-                  type="url"
-                />
-              </td>
+              <td class="time"><div id="currentTime"></div></td>
+              <td class="metadata"><div id="metadata"></div></td>
             </tr>
           </table>
-          <div class="column">
-            <label for="interval">Stats Update Interval (S)</label>
-            <input
-              type="number"
-              id="interval"
-              name="interval"
-              min="1"
-              value="30"
-            />
-          </div>
-        </fieldset>
-      </form>
-    </div>
-    <div id="audioInfo"></div>
+          <table id="metadataQueue"></table>
+        </div>
+      </details>
+    </details>
     <hr />
-    <strong>Metadata</strong>
-    <div class="metadata-info">
-      <table>
-        <th>Current Time</th>
-        <th class="metadata-header">Now Playing</th>
-        <tr>
-          <td class="time"><div id="currentTime"></div></td>
-          <td class="metadata"><div id="metadata"></div></td>
-        </tr>
-      </table>
-      <table id="metadataQueue"></table>
-    </div>
+    <details open>
+      <summary>
+        <strong>IcecastMetadataStats</strong>&nbsp;<i
+          >see the browser console for the results for each query</i
+        >
+      </summary>
+      <p>
+        <i>IcecastMetadataStats</i> is used for querying an Icecast stream for
+        "Now Playing" information or other server statistics while the stream is
+        not playing. <i>IcecastMetadataStats</i>  can be used in conjunction with
+        <i>IcecastMetadataPlayer</i>
+        so that the stream metadata can be periodically updated when the stream
+        is not playing.
+      </p>
+      <details>
+        <summary><b>Usage / Example</b></summary>
+        <ol>
+          <li>
+            Download the
+            <a
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.0.1.min.js"
+              >latest build</a
+            >, or install via
+            <a href="https://www.npmjs.com/package/icecast-metadata-stats"
+              >NPM</a
+            >.
+          </li>
+          <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
+          <li>
+            <i>IcecastMetadataStats</i> is made available as a global variable
+            in your webpage to use wherever.
+          </li>
+          <li>
+            Checkout the
+            <a
+              href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-stats#readme"
+              >README</a
+            >
+            for more information.
+          </li>
+        </ol>
+        <b>Example</b>
+        <pre>
+      &lt;script src="icecast-metadata-stats-0.0.1.min.js"&gt;&lt;/script&gt;
+      &lt;script&gt;
+        const onStats = (stats) =&gt; {
+          document.getElementById("stats").innerHTML = stats.icy.StreamTitle;
+        };
+        const stats = 
+          new IcecastMetadataStats(
+            "https://dsmrad.io/stream/isics-all", // stream endpoint
+            { onStats, sources: ["icy"] }         // options (stats callback, stats sources)
+          );
+        stats.start();
+      &lt;/script&gt;
+      &lt;body&gt;
+        &lt;p&gt; Now Playing: &lt;span id="stats"&gt;&lt;/span&gt; &lt;/p&gt;
+      &lt;/body&gt;
+    </pre
+        >
+      </details>
+      <br />
+      <div>
+        The URL selected in the <b>Stream Endpoint</b> input above will update
+        the URL for <i>IcecastMetadataStats</i>.
+      </div>
+      <div>
+        Hover over each item in the fieldset for additional information.
+      </div>
+      <br />
+      <div class="row options-group">
+        <form name="statsForm" id="statsForm" onsubmit="return false;">
+          <div class="row">
+            <fieldset
+              name="metadata-stats-controls"
+              style="flex-grow: 1"
+              class="row"
+            >
+              <legend>Controls</legend>
+              <div style="flex-grow: 1" class="row">
+                <button
+                  id="stats-start"
+                  title="Starts automatic fetching for all checked sources."
+                >
+                  Start
+                </button>
+                <button id="stats-stop" title="Stops automatic fetching.">
+                  Stop
+                </button>
+                <button
+                  id="stats-fetch"
+                  title="Fetches all checked sources."
+                  onclick="manualQuery(this, icecastMetadataStats.fetch());"
+                >
+                  Fetch All
+                </button>
+              </div>
+            </fieldset>
+            <fieldset name="metadata-stats-controls" class="row">
+              <legend>Options</legend>
+              <div class="column">
+                <label for="interval">Update Interval (S)</label>
+                <input
+                  title="Refresh interval for automatic fetching"
+                  type="number"
+                  id="interval"
+                  name="interval"
+                  min="1"
+                  value="30"
+                />
+              </div>
+            </fieldset>
+          </div>
+          <fieldset>
+            <legend>Sources</legend>
+            <table class="stats-table">
+              <tr>
+                <th title="The source to use when querying stats / metadata.">
+                  Source
+                </th>
+                <th title="Check to query the source during automatic updates.">
+                  Auto
+                </th>
+                <th title="Click to manually query a source.">Manual</th>
+                <th title="Endpoint that will be used to query for a source.">
+                  Source Endpoint
+                </th>
+              </tr>
+              <tr>
+                <td class="stats-row-name">
+                  <label for="icy-auto-query">ICY</label>
+                </td>
+                <td>
+                  <input
+                    id="icy-auto-query"
+                    name="icy-auto-query"
+                    type="checkbox"
+                  />
+                </td>
+                <td>
+                  <button
+                    id="icy-manual-query"
+                    name="icy-manual-query"
+                    onclick="manualQuery(this, icecastMetadataStats.getIcyMetadata())"
+                  >
+                    Fetch
+                  </button>
+                </td>
+                <td>
+                  <input
+                    class="query-endpoint"
+                    name="icy-query-endpoint"
+                    id="icy-query-endpoint"
+                    type="url"
+                    disabled
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="stats-row-name">
+                  <label for="ogg-auto-query">Ogg</label>
+                </td>
+                <td>
+                  <input
+                    id="ogg-auto-query"
+                    name="ogg-auto-query"
+                    type="checkbox"
+                  />
+                </td>
+                <td>
+                  <button
+                    id="ogg-manual-query"
+                    name="ogg-manual-query"
+                    onclick="manualQuery(this, icecastMetadataStats.getOggMetadata())"
+                  >
+                    Fetch
+                  </button>
+                </td>
+                <td>
+                  <input
+                    class="query-endpoint"
+                    name="ogg-query-endpoint"
+                    id="ogg-query-endpoint"
+                    type="url"
+                    disabled
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="stats-row-name">
+                  <label for="sevenhtml-auto-query">7.html</label>
+                </td>
+                <td>
+                  <input
+                    id="sevenhtml-auto-query"
+                    name="sevenhtml-auto-query"
+                    type="checkbox"
+                  />
+                </td>
+                <td>
+                  <button
+                    id="sevenhtml-manual-query"
+                    name="sevenhtml-manual-query"
+                    onclick="manualQuery(this, icecastMetadataStats.getSevenhtml())"
+                  >
+                    Fetch
+                  </button>
+                </td>
+                <td>
+                  <input
+                    class="query-endpoint"
+                    name="sevenhtml-query-endpoint"
+                    id="sevenhtml-query-endpoint"
+                    type="url"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="stats-row-name">
+                  <label for="icestats-auto-query">status-json.xsl</label>
+                </td>
+                <td>
+                  <input
+                    id="icestats-auto-query"
+                    name="icestats-auto-query"
+                    type="checkbox"
+                  />
+                </td>
+                <td>
+                  <button
+                    id="icestats-manual-query"
+                    name="icestats-manual-query"
+                    onclick="manualQuery(this, icecastMetadataStats.getIcestats())"
+                  >
+                    Fetch
+                  </button>
+                </td>
+                <td>
+                  <input
+                    class="query-endpoint"
+                    name="icestats-query-endpoint"
+                    id="icestats-query-endpoint"
+                    type="url"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="stats-row-name">
+                  <label for="stats-auto-query">stats</label>
+                </td>
+                <td>
+                  <input
+                    id="stats-auto-query"
+                    name="stats-auto-query"
+                    type="checkbox"
+                  />
+                </td>
+                <td>
+                  <button
+                    id="stats-manual-query"
+                    name="stats-manual-query"
+                    onclick="manualQuery(this, icecastMetadataStats.getStats())"
+                  >
+                    Fetch
+                  </button>
+                </td>
+                <td>
+                  <input
+                    class="query-endpoint"
+                    name="stats-query-endpoint"
+                    id="stats-query-endpoint"
+                    type="url"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="stats-row-name">
+                  <label for="nextsongs-auto-query">nextsongs</label>
+                </td>
+                <td>
+                  <input
+                    id="nextsongs-auto-query"
+                    name="nextsongs-auto-query"
+                    type="checkbox"
+                  />
+                </td>
+                <td>
+                  <button
+                    id="nextsongs-manual-query"
+                    name="nextsongs-manual-query"
+                    onclick="manualQuery(this, icecastMetadataStats.getNextsongs())"
+                  >
+                    Fetch
+                  </button>
+                </td>
+                <td>
+                  <input
+                    class="query-endpoint"
+                    name="nextsongs-query-endpoint"
+                    id="nextsongs-query-endpoint"
+                    type="url"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+        </form>
+      </div>
+    </details>
+    <hr />
   </body>
   <script>
     const icyMetaIntEl = document.getElementById("icyMetaInt");

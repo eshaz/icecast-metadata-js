@@ -20,10 +20,6 @@
 
 import EventTargetPolyfill from "./EventTargetPolyfill";
 import { IcecastMetadataQueue } from "icecast-metadata-js";
-import {
-  IcecastMetadataQueue,
-} from "icecast-metadata-js";
-
 import MediaSourcePlayer from "./players/MediaSourcePlayer";
 import HTML5Player from "./players/HTML5Player";
 
@@ -264,8 +260,6 @@ export default class IcecastMetadataPlayer extends EventClass {
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
     }
-
-    p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
 
   /**

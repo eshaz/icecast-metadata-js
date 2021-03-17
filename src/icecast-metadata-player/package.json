@@ -41,7 +41,6 @@
   "dependencies": {
     "codec-parser": "0.0.4",
     "icecast-metadata-js": "file:../icecast-metadata-js",
-    "icecast-metadata-stats": "file:../icecast-metadata-stats",
     "mse-audio-wrapper": "1.2.1"
   }
 }

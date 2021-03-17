@@ -123,10 +123,10 @@ export default class IcecastMetadataStats {
     if (this._state === STOPPED) {
       this._state = RUNNING;
 
-      this.getMetadata();
+      this.fetch().then((stats) => this._onStats(stats));
 
       this._intervalId = setInterval(() => {
-        this.getMetadata();
+        this.fetch().then((stats) => this._onStats(stats));
       }, this._interval);
     }
   }
@@ -144,8 +144,8 @@ export default class IcecastMetadataStats {
     }
   }
 
-  async getMetadata() {
-    if (this._state === RUNNING) {
+  async fetch() {
+    if (this._state !== FETCHING) {
       this._onStatsFetch(this._sources);
       const promises = [];
       if (this._sources.includes("icestats")) promises.push(this.getIcestats());
@@ -160,8 +160,6 @@ export default class IcecastMetadataStats {
       const stats = await Promise.all(promises).then((stats) =>
         stats.reduce((acc, stat) => ({ ...acc, ...stat }), {})
       );
-      this._state = RUNNING;
-      this._onStats(stats);
       return stats;
     }
   }
@@ -313,6 +311,7 @@ export default class IcecastMetadataStats {
   }
 
   async _fetch({ endpoint, controller, mapper, headers = {} }) {
+    let oldState = this._state;
     this._state = FETCHING;
 
     return fetch(endpoint, {
@@ -321,6 +320,7 @@ export default class IcecastMetadataStats {
       signal: controller.signal,
     })
       .then((res) => {
+        this._state = oldState;
         if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
         return res;
       })
