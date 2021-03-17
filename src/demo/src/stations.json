@@ -186,7 +186,7 @@
     "endpoint": "https://play.global.audio/nrj.opus",
     "codec": "Opus",
     "metadataTypes": ["ogg"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "statsSources": ["ogg"]
   },
   {
     "name": "Radioparty.pl",
@@ -365,7 +365,8 @@
     "link": "https://www.radiocumbernauld.uk/",
     "endpoint": "https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
     "codec": "AAC",
-    "metadataTypes": ["icy"]
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy"]
   },
   {
     "name": "AIFR Alverno Inferno Free Radio",
