@@ -1,3 +1,5 @@
+import { IcecastReadableStream } from "icecast-metadata-js";
+
 export default class Player {
   constructor(options) {
     this._icecast = options.icecast;
@@ -6,9 +8,19 @@ export default class Player {
     this._hasIcy = options.hasIcy;
     this._enableLogging = options.enableLogging;
     this._icecastMetadataQueue = options.icecastMetadataQueue;
-    this._fireEvent = options.fireEvent;
     this._state = options.state;
+    this._metadataTypes = options.metadataTypes;
+    this._icyMetaInt = options.icyMetaInt;
+    this._icyDetectionTimeout = options.icyDetectionTimeout;
+
+    this._fireEvent = options.fireEvent;
     this._events = options.events;
+  }
+
+  get icyMetaInt() {
+    return (
+      this._icecastReadableStream && this._icecastReadableStream.icyMetaInt
+    );
   }
 
   async fetchStream(abortController) {
@@ -25,6 +37,25 @@ export default class Player {
     }
 
     return res;
+  }
+
+  async playResponse(res) {
+    this._fireEvent(this._events.STREAM_START);
+
+    try {
+      this._icecastReadableStream = new IcecastReadableStream(res, {
+        onMetadata: this.getOnMetadata(),
+        onStream: this.getOnStream(res),
+        onError: (...args) => this._fireEvent(this._events.WARN, ...args),
+        metadataTypes: this._metadataTypes,
+        icyMetaInt: this._icyMetaInt,
+        icyDetectionTimeout: this._icyDetectionTimeout,
+      });
+
+      await this._icecastReadableStream.startReading();
+    } finally {
+      this._fireEvent(this._events.STREAM_END);
+    }
   }
 
   getOnMetadata() {
