@@ -91,6 +91,9 @@
       .stats-row-name {
         text-align: left;
       }
+      .stats-info {
+        min-height: 100px;
+      }
     </style>
     <script>
       let playerFormData, statsFormData;
@@ -98,23 +101,12 @@
         .then((res) => res.text())
         .then((text) => JSON.parse(text));
 
-      const manualQuery = (button, promise) => {
-        button.disabled = true;
-        //button.innerHTML = "Fetching...";
-
-        promise.then((stats) => {
-          button.disabled = false;
-          //button.innerHTML = "Fetch";
-          console.log(stats);
-        });
-      };
-
       // helper functions
       const formatTime = (seconds) =>
         new Date(seconds * 1000).toISOString().substr(14, 8);
 
-      const formatMetadata = (metadata) =>
-        JSON.stringify(metadata, null, 1)
+      const formatMetadata = (json) =>
+        JSON.stringify(json, null, 1)
           .replace(/\{\n|\n\}/g, "")
           .replace(/^ "|\n "/g, '\n"');
 
@@ -343,10 +335,17 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           </div>
         </form>
       </div>
-      <br>
-      <details open><summary><b>Codec Information</b></summary>
-        <i>Displayed when <a href="https://github.com/eshaz/mse-audio-wrapper">mse-audio-wrapper</a> is in use.</i>
-      <div id="audioInfo"></div>
+      <br />
+      <details open>
+        <summary><b>Codec Information</b></summary>
+        <i
+          >Displayed when
+          <a href="https://github.com/eshaz/mse-audio-wrapper"
+            >mse-audio-wrapper</a
+          >
+          is in use.</i
+        >
+        <div id="audioInfo"></div>
       </details>
       <br />
       <details open>
@@ -367,14 +366,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
     <hr />
     <details open>
       <summary>
-        <strong>IcecastMetadataStats</strong>&nbsp;<i
-          >see the browser console for the results for each query</i
-        >
+        <strong>IcecastMetadataStats</strong>&nbsp;
       </summary>
       <p>
         <i>IcecastMetadataStats</i> is used for querying an Icecast stream for
         "Now Playing" information or other server statistics while the stream is
-        not playing. <i>IcecastMetadataStats</i>  can be used in conjunction with
+        not playing. <i>IcecastMetadataStats</i> can be used in conjunction with
         <i>IcecastMetadataPlayer</i>
         so that the stream metadata can be periodically updated when the stream
         is not playing.
@@ -465,10 +462,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
             </fieldset>
             <fieldset name="metadata-stats-controls" class="row">
               <legend>Options</legend>
-              <div class="column">
+              <div
+                title="Refresh interval for automatic fetching"
+                class="column"
+              >
                 <label for="interval">Update Interval (S)</label>
                 <input
-                  title="Refresh interval for automatic fetching"
                   type="number"
                   id="interval"
                   name="interval"
@@ -673,6 +672,10 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           </fieldset>
         </form>
       </div>
+      <details open>
+        <summary><b>Stats</b></summary>
+        <div id="stats" class="stats-info"></div>
+      </details>
     </details>
     <hr />
   </body>
@@ -680,6 +683,8 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
     const icyMetaIntEl = document.getElementById("icyMetaInt");
     const metadataEl = document.getElementById("metadata");
     const metadataQueueEl = document.getElementById("metadataQueue");
+
+    const statsEl = document.getElementById("stats");
 
     const currentTimeEl = document.getElementById("currentTime");
     currentTimeEl.attachShadow({ mode: "open" });
@@ -712,6 +717,20 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       )}</pre>`;
     };
 
+    const onStats = (stats) => {
+      statsEl.innerHTML = `<pre>${JSON.stringify(stats, null, 2)}</pre>`;
+    };
+
+    const manualQuery = (button, promise) => {
+      button.disabled = true;
+
+      promise.then((stats) => {
+        button.disabled = false;
+        onStats(stats);
+        console.log(stats);
+      });
+    };
+
     const getIcecastMetadataStats = () => {
       if (icecastMetadataStats) icecastMetadataStats.stop();
 
@@ -724,9 +743,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       statsFormData["nextsongs-auto-query"] && sources.push("nextsongs");
 
       icecastMetadataStats = new IcecastMetadataStats(playerFormData.endpoint, {
-        onStats: (stats) => {
-          console.log(stats);
-        },
+        onStats: onStats,
         onStatsFetch: (sources) => {
           console.log(sources);
         },

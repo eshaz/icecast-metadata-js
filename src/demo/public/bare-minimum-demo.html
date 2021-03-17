@@ -119,50 +119,54 @@
       IcecastMetadataPlayer module. See the other demo links in the header for
       more detailed examples.
     </p>
-    <strong>Usage</strong>
-    <ol>
-      <li>
-        Download the
-        <a
-          href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.2.min.js"
-          download
-          >latest build</a
-        >, or install via
-        <a href="https://www.npmjs.com/package/icecast-metadata-player">NPM</a>.
-      </li>
-      <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
-      <li>
-        <i>IcecastMetadataReader</i> is made available as a global variable in
-        your webpage to use wherever.
-      </li>
-      <li>
-        Checkout the
-        <a
-          href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme"
-          >README</a
-        >
-        for more information.
-      </li>
-    </ol>
-    <b>Example</b>
-    <pre>
-      &lt;script src="icecast-metadata-player-1.1.2.min.js"&gt;&lt;/script&gt;
-      &lt;script&gt;
-        const onMetadata = (metadata) =&gt; {
-          document.getElementById("metadata").innerHTML = metadata.StreamTitle;
-        };
-        const player = 
-          new IcecastMetadataPlayer(
-            "https://dsmrad.io/stream/isics-all", // stream endpoint
-            { onMetadata }                        // options (onMetadata callback)
-          );
-      &lt;/script&gt;
-      &lt;body&gt;
-        &lt;button onclick="player.play();"&gt; Play &lt;/button&gt;
-        &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
-        &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
-      &lt;/body&gt;
-    </pre>
+
+    <details>
+      <summary><b>Usage / Example</b></summary>
+      <ol>
+        <li>
+          Download the
+          <a
+            href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.2.min.js"
+            >latest build</a
+          >, or install via
+          <a href="https://www.npmjs.com/package/icecast-metadata-player">NPM</a
+          >.
+        </li>
+        <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
+        <li>
+          <i>IcecastMetadataPlayer</i> is made available as a global variable in
+          your webpage to use wherever.
+        </li>
+        <li>
+          Checkout the
+          <a
+            href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme"
+            >README</a
+          >
+          for more information.
+        </li>
+      </ol>
+      <b>Example</b>
+      <pre>
+    &lt;script src="icecast-metadata-player-1.1.2.min.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+      const onMetadata = (metadata) =&gt; {
+        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
+      };
+      const player = 
+        new IcecastMetadataPlayer(
+          "https://dsmrad.io/stream/isics-all", // stream endpoint
+          { onMetadata }                        // options (onMetadata callback)
+        );
+    &lt;/script&gt;
+    &lt;body&gt;
+      &lt;button onclick="player.play();"&gt; Play &lt;/button&gt;
+      &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
+      &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
+    &lt;/body&gt;
+  </pre
+      >
+    </details>
     <hr />
     <ul>
       <li>Press Play on the <code>audio</code> element to play the stream.</li>
