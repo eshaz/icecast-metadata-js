@@ -25,7 +25,7 @@ export default class HTML5Player extends Player {
     }
   }
 
-  async fetchStream(abortController) {
+  async play(abortController) {
     const audioPromise = new Promise((resolve, reject) => {
       this._icecast.addEventListener("stopping", resolve, { once: true }); // short circuit when user has stopped the stream
       this._audioElement.addEventListener("playing", resolve, { once: true });
@@ -35,13 +35,24 @@ export default class HTML5Player extends Player {
     this._audioElement.src = this._endpoint;
     this._audioElement.load();
 
-    return audioPromise.then(async () => {
-      const audioLoaded = performance.now();
+    if (this._metadataTypes.length) {
+      return audioPromise.then(async () => {
+        const audioLoaded = performance.now();
 
-      const res = await super.fetchStream(abortController);
-      this._offset = performance.now() - audioLoaded;
+        const res = await super.play(abortController);
+        this._offset = performance.now() - audioLoaded;
 
-      return res;
+        return res;
+      });
+    }
+
+    // don't fetch metadata if there are no metadata types
+    return new Promise((_, reject) => {
+      const abort = () => reject(new DOMException("Aborted", "AbortError"));
+
+      abortController.aborted
+        ? abort()
+        : abortController.signal.addEventListener("abort", abort);
     });
   }
 

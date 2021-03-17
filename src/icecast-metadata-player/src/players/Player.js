@@ -23,6 +23,16 @@ export default class Player {
     );
   }
 
+  async play(abortController) {
+    return this.fetchStream(abortController).then(async (res) => {
+      this._fireEvent(this._events.STREAM_START);
+
+      return this.playResponse(res).finally(() => {
+        this._fireEvent(this._events.STREAM_END);
+      });
+    });
+  }
+
   async fetchStream(abortController) {
     const res = await fetch(this._endpoint, {
       method: "GET",
@@ -40,22 +50,16 @@ export default class Player {
   }
 
   async playResponse(res) {
-    this._fireEvent(this._events.STREAM_START);
+    this._icecastReadableStream = new IcecastReadableStream(res, {
+      onMetadata: this.getOnMetadata(),
+      onStream: this.getOnStream(res),
+      onError: (...args) => this._fireEvent(this._events.WARN, ...args),
+      metadataTypes: this._metadataTypes,
+      icyMetaInt: this._icyMetaInt,
+      icyDetectionTimeout: this._icyDetectionTimeout,
+    });
 
-    try {
-      this._icecastReadableStream = new IcecastReadableStream(res, {
-        onMetadata: this.getOnMetadata(),
-        onStream: this.getOnStream(res),
-        onError: (...args) => this._fireEvent(this._events.WARN, ...args),
-        metadataTypes: this._metadataTypes,
-        icyMetaInt: this._icyMetaInt,
-        icyDetectionTimeout: this._icyDetectionTimeout,
-      });
-
-      await this._icecastReadableStream.startReading();
-    } finally {
-      this._fireEvent(this._events.STREAM_END);
-    }
+    await this._icecastReadableStream.startReading();
   }
 
   getOnMetadata() {

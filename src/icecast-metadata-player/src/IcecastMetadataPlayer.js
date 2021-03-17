@@ -330,8 +330,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       const tryFetching = () =>
         p
           .get(this)
-          [player].fetchStream(p.get(this)[abortController])
-          .then((res) => p.get(this)[player].playResponse(res))
+          [player].play(p.get(this)[abortController])
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
