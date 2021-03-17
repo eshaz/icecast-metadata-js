@@ -19,10 +19,7 @@
  */
 
 import EventTargetPolyfill from "./EventTargetPolyfill";
-import {
-  IcecastReadableStream,
-  IcecastMetadataQueue,
-} from "icecast-metadata-js";
+import { IcecastMetadataQueue } from "icecast-metadata-js";
 import MediaSourcePlayer from "./players/MediaSourcePlayer";
 import HTML5Player from "./players/HTML5Player";
 
@@ -75,7 +72,6 @@ const retryTimeout = Symbol();
 
 // variables
 const hasIcy = Symbol();
-const icecastReadableStream = Symbol();
 const icecastMetadataQueue = Symbol();
 const abortController = Symbol();
 const player = Symbol();
@@ -238,11 +234,17 @@ export default class IcecastMetadataPlayer extends EventClass {
       audioElement: p.get(this)[audioElement],
       enableLogging: p.get(this)[enableLogging],
       icecastMetadataQueue: p.get(this)[icecastMetadataQueue],
+      metadataTypes: p.get(this)[metadataTypes],
       fireEvent: this[fireEvent].bind(this),
+      icyMetaInt: p.get(this)[icyMetaInt],
+      icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
       state: () => this.state,
       events: {
+        STREAM_START: STREAM_START,
         STREAM: STREAM,
+        STREAM_END: STREAM_END,
         CODEC_UPDATE: CODEC_UPDATE,
+        WARN: WARN,
         ERROR: ERROR,
       },
     };
@@ -258,8 +260,6 @@ export default class IcecastMetadataPlayer extends EventClass {
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
     }
-
-    p.get(this)[icecastReadableStream] = {}; // prevents getters from erroring when in a fallback state
   }
 
   /**
@@ -273,7 +273,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @returns {number} The ICY metadata interval in number of bytes for this instance
    */
   get icyMetaInt() {
-    return p.get(this)[icecastReadableStream].icyMetaInt;
+    return p.get(this)[player].icyMetaInt;
   }
 
   /**
@@ -330,14 +330,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       const tryFetching = () =>
         p
           .get(this)
-          [player].fetchStream(p.get(this)[abortController])
-          .then(async (res) => {
-            this[fireEvent](STREAM_START);
-
-            return this[playResponse](res).finally(() => {
-              this[fireEvent](STREAM_END);
-            });
-          })
+          [player].play(p.get(this)[abortController])
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
@@ -459,19 +452,6 @@ export default class IcecastMetadataPlayer extends EventClass {
     }
 
     return false;
-  }
-
-  async [playResponse](res) {
-    p.get(this)[icecastReadableStream] = new IcecastReadableStream(res, {
-      onMetadata: p.get(this)[player].getOnMetadata(),
-      onStream: p.get(this)[player].getOnStream(res),
-      onError: (...args) => this[fireEvent](WARN, ...args),
-      metadataTypes: p.get(this)[metadataTypes],
-      icyMetaInt: p.get(this)[icyMetaInt],
-      icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
-    });
-
-    await p.get(this)[icecastReadableStream].startReading();
   }
 
   [fireEvent](event, ...args) {
