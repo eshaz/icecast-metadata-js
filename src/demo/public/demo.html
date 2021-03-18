@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Icecast Metadata Player Demo</title>
+    <title>Icecast Metadata JS Demo</title>
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
     <script src="/icecast-metadata-js/icecast-metadata-player-1.1.2.min.js"></script>
@@ -129,6 +129,14 @@
         });
 
         const stationsEl = document.getElementById("stations");
+        const endpointEl = document.getElementById("endpoint");
+
+        const resetIcecastMetadataStatsEndpoints = () => {
+          document.getElementById("icestats-query-endpoint").value = "";
+          document.getElementById("stats-query-endpoint").value = "";
+          document.getElementById("nextsongs-query-endpoint").value = "";
+          document.getElementById("sevenhtml-query-endpoint").value = "";
+        };
 
         (await stations).forEach(
           ({ name, codec, metadataTypes, endpoint }, idx) => {
@@ -140,6 +148,14 @@
             stationsEl.add(option);
           }
         );
+
+        endpointEl.addEventListener("change", () => {
+          resetIcecastMetadataStatsEndpoints();
+
+          statsFormData = Object.fromEntries(new FormData(statsForm).entries());
+
+          getIcecastMetadataStats();
+        });
 
         stationsEl.addEventListener("change", async () => {
           const station = (await stations)[stationsEl.selectedIndex];
@@ -155,6 +171,8 @@
             document.getElementById("stats-auto-query").checked = station.statsSources.includes("stats");
             document.getElementById("icestats-auto-query").checked = station.statsSources.includes("icestats");
             document.getElementById("nextsongs-auto-query").checked = station.statsSources.includes("nextsongs");
+
+            resetIcecastMetadataStatsEndpoints();
           }
 
           playerFormData = Object.fromEntries(
@@ -365,9 +383,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
     </details>
     <hr />
     <details open>
-      <summary>
-        <strong>IcecastMetadataStats</strong>&nbsp;
-      </summary>
+      <summary><strong>IcecastMetadataStats</strong>&nbsp;</summary>
       <p>
         <i>IcecastMetadataStats</i> is used for querying an Icecast stream for
         "Now Playing" information or other server statistics while the stream is
@@ -680,18 +696,17 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
     <hr />
   </body>
   <script>
+    // IcecastMetadataPlayer
     const icyMetaIntEl = document.getElementById("icyMetaInt");
     const metadataEl = document.getElementById("metadata");
     const metadataQueueEl = document.getElementById("metadataQueue");
-
-    const statsEl = document.getElementById("stats");
-
     const currentTimeEl = document.getElementById("currentTime");
-    currentTimeEl.attachShadow({ mode: "open" });
     const audioInfoEl = document.getElementById("audioInfo");
+
+    currentTimeEl.attachShadow({ mode: "open" });
     audioInfoEl.attachShadow({ mode: "open" });
 
-    let icecastMetadataPlayer, icecastMetadataStats, timer;
+    let icecastMetadataPlayer, timer;
 
     const onMetadata = (metadata) => {
       metadataEl.innerHTML = `<pre>${formatMetadata(metadata)}</pre>`;
@@ -717,8 +732,86 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       )}</pre>`;
     };
 
+    const onStreamStart = () => {
+      metadataEl.innerHTML = "";
+    };
+
+    const onPlay = () => {
+      icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
+
+      let time = 0;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        time += 0.1;
+        currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
+      }, 100);
+    };
+
+    const onStop = () => {
+      clearInterval(timer);
+    };
+
+    const onError = () => {
+      (message) => {
+        metadataEl.innerHTML = message;
+      };
+    };
+
+    // gets a new instance of the IcecastMetadataPlayer and starts a timer
+    const getIcecastMetadataPlayer = () => {
+      const metadataTypes = [];
+      playerFormData.icy && metadataTypes.push("icy");
+      playerFormData.ogg && metadataTypes.push("ogg");
+
+      icecastMetadataPlayer = new IcecastMetadataPlayer(
+        playerFormData.endpoint,
+        {
+          metadataTypes,
+          icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
+          enableLogging: true,
+          onStreamStart,
+          onPlay,
+          onMetadata,
+          onMetadataEnqueue,
+          onCodecUpdate,
+          onError,
+        }
+      );
+
+      icecastMetadataPlayer.addEventListener("metadata", (...args) => {
+        console.log(args);
+      });
+    };
+
+    document.getElementById("play").addEventListener("click", () => {
+      if (icecastMetadataPlayer) icecastMetadataPlayer.stop();
+
+      currentTimeEl.shadowRoot.innerHTML = "";
+      audioInfoEl.shadowRoot.innerHTML = "";
+      metadataEl.innerHTML = "Loading...";
+      metadataQueueEl.innerHTML = "";
+      currentTimeEl.innerHTML = "00:00.00";
+
+      getIcecastMetadataPlayer();
+      icecastMetadataPlayer.play();
+    });
+
+    document.getElementById("stop").addEventListener("click", () => {
+      icecastMetadataPlayer.stop();
+    });
+  </script>
+  <script>
+    // IcecastMetadataStats
+    let icecastMetadataStats;
+    const statsEl = document.getElementById("stats");
+
     const onStats = (stats) => {
       statsEl.innerHTML = `<pre>${JSON.stringify(stats, null, 2)}</pre>`;
+      console.log("Updated Stats", stats);
+    };
+
+    const onStatsFetch = (sources) => {
+      console.log(sources);
     };
 
     const manualQuery = (button, promise) => {
@@ -743,17 +836,15 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       statsFormData["nextsongs-auto-query"] && sources.push("nextsongs");
 
       icecastMetadataStats = new IcecastMetadataStats(playerFormData.endpoint, {
-        onStats: onStats,
-        onStatsFetch: (sources) => {
-          console.log(sources);
-        },
+        onStats,
+        onStatsFetch,
         sources,
         interval: statsFormData.interval,
         icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
-        icestatsEndpoint: statsFormData.icestatsEndpoint,
-        statsEndpoint: statsFormData.statsEndpoint,
-        nextsongsEndpoint: statsFormData.nextsongsEndpoint,
-        sevenhtmlEndpoint: statsFormData.sevenhtmlEndpoint,
+        icestatsEndpoint: statsFormData["icestats-query-endpoint"],
+        statsEndpoint: statsFormData["stats-query-endpoint"],
+        nextsongsEndpoint: statsFormData["nextsongs-query-endpoint"],
+        sevenhtmlEndpoint: statsFormData["sevenhtml-query-endpoint"],
       });
 
       document.getElementById("icy-query-endpoint").value =
@@ -777,62 +868,6 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
 
     document.getElementById("stats-stop").addEventListener("click", () => {
       icecastMetadataStats.stop();
-    });
-
-    // gets a new instance of the IcecastMetadataPlayer and starts a timer
-    const getIcecastMetadataPlayer = () => {
-      const metadataTypes = [];
-      playerFormData.icy && metadataTypes.push("icy");
-      playerFormData.ogg && metadataTypes.push("ogg");
-
-      icecastMetadataPlayer = new IcecastMetadataPlayer(
-        playerFormData.endpoint,
-        {
-          onMetadata,
-          onMetadataEnqueue,
-          onCodecUpdate,
-          metadataTypes,
-          icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
-          enableLogging: true,
-          onPlay: () => {
-            icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
-
-            let time = 0;
-            clearInterval(timer);
-            timer = setInterval(() => {
-              time += 0.1;
-              currentTimeEl.shadowRoot.innerHTML = formatTime(time.toFixed(2));
-            }, 100);
-          },
-          onStop: () => {
-            clearInterval(timer);
-          },
-          onError: (message) => {
-            metadataEl.innerHTML = message;
-          },
-        }
-      );
-
-      icecastMetadataPlayer.addEventListener("metadata", (...args) => {
-        console.log(args);
-      });
-    };
-
-    document.getElementById("play").addEventListener("click", () => {
-      if (icecastMetadataPlayer) icecastMetadataPlayer.stop();
-
-      currentTimeEl.shadowRoot.innerHTML = "";
-      audioInfoEl.shadowRoot.innerHTML = "";
-      metadataEl.innerHTML = "Loading...";
-      metadataQueueEl.innerHTML = "";
-      currentTimeEl.innerHTML = "00:00.00";
-
-      getIcecastMetadataPlayer();
-      icecastMetadataPlayer.play();
-    });
-
-    document.getElementById("stop").addEventListener("click", () => {
-      icecastMetadataPlayer.stop();
     });
   </script>
 </html>
