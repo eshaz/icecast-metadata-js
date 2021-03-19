@@ -68,43 +68,29 @@ const getStreamMetadata = Symbol();
 
 export default class IcecastMetadataStats {
   constructor(endpoint, options = {}) {
-    p.set(this, {});
+    const serverPath = endpoint.split("/").slice(0, -1).join("/");
 
-    p.get(this)[streamEndpoint] = endpoint;
-
-    const url = p.get(this)[streamEndpoint].split("/");
-    url.pop(); // mountpoint
-    const serverPath = url.join("/");
-
-    p.get(this)[icestatsEndpoint] =
-      options.icestatsEndpoint || `${serverPath}/status-json.xsl`;
-    p.get(this)[statsEndpoint] = options.statsEndpoint || `${serverPath}/stats`;
-    p.get(this)[nextsongsEndpoint] =
-      options.nextsongsEndpoint || `${serverPath}/nextsongs`;
-    p.get(this)[sevenhtmlEndpoint] =
-      options.sevenhtmlEndpoint || `${serverPath}/7.html`;
-
-    p.get(this)[sources] = options.sources || [
-      "icestats",
-      "stats",
-      "nextsongs",
-      "sevenhtml",
-      "icy",
-      "ogg",
-    ];
-
-    p.get(this)[icyMetaInt] = options.icyMetaInt;
-    p.get(this)[icyDetectionTimeout] = options.icyDetectionTimeout;
-    p.get(this)[interval] = (options.interval || 30) * 1000;
-    p.get(this)[onStats] = options.onStats || noOp;
-    p.get(this)[onStatsFetch] = options.onStatsFetch || noOp;
-    p.get(this)[icyController] = new AbortController();
-    p.get(this)[oggController] = new AbortController();
-    p.get(this)[icestatsController] = new AbortController();
-    p.get(this)[statsController] = new AbortController();
-    p.get(this)[nextsongsController] = new AbortController();
-    p.get(this)[sevenhtmlController] = new AbortController();
-    p.get(this)[state] = STOPPED;
+    // prettier-ignore
+    p.set(this, {
+      [streamEndpoint]: endpoint,
+      [icestatsEndpoint]: options.icestatsEndpoint || `${serverPath}/status-json.xsl`,
+      [statsEndpoint] : options.statsEndpoint || `${serverPath}/stats`,
+      [nextsongsEndpoint] : options.nextsongsEndpoint || `${serverPath}/nextsongs`,
+      [sevenhtmlEndpoint] : options.sevenhtmlEndpoint || `${serverPath}/7.html`,
+      [sources]: options.sources || [],
+      [interval]: (options.interval || 30) * 1000,
+      [onStats]: options.onStats || noOp,
+      [onStatsFetch]: options.onStatsFetch || noOp,
+      [icyMetaInt]: options.icyMetaInt,
+      [icyDetectionTimeout]: options.icyDetectionTimeout,
+      [icyController]: new AbortController(),
+      [oggController]: new AbortController(),
+      [icestatsController]: new AbortController(),
+      [statsController]: new AbortController(),
+      [nextsongsController]: new AbortController(),
+      [sevenhtmlController]: new AbortController(),
+      [state]: STOPPED,
+    });
   }
 
   static xml2Json(xml) {
@@ -218,14 +204,10 @@ export default class IcecastMetadataStats {
   async getIcestats() {
     return this[fetchStats]({
       status: icestatsFetchStatus,
-      endpoint: p.get(this)[icestatsEndpoint],
-      controller: p.get(this)[icestatsController],
+      endpoint: icestatsEndpoint,
+      controller: icestatsController,
       mapper: (res) => res.json(),
-    })
-      .then((stats) => ({ icestats: stats && stats.icestats }))
-      .finally(() => {
-        p.get(this)[icestatsController] = new AbortController();
-      });
+    }).then((stats) => ({ icestats: stats && stats.icestats }));
   }
 
   /*
@@ -241,8 +223,8 @@ export default class IcecastMetadataStats {
   async getSevenhtml() {
     return this[fetchStats]({
       status: sevenhtmlFetchStatus,
-      endpoint: p.get(this)[sevenhtmlEndpoint],
-      controller: p.get(this)[sevenhtmlController],
+      endpoint: sevenhtmlEndpoint,
+      controller: sevenhtmlController,
       mapper: async (res) =>
         (await res.text()).match(/(.*?)<\/body>/gi).map((s) => {
           const stats = s
@@ -267,79 +249,55 @@ export default class IcecastMetadataStats {
                 bitrate: parseInt(stats[3]),
               };
         }),
-    })
-      .then((sevenhtml) => ({
-        sevenhtml,
-      }))
-      .finally(() => {
-        p.get(this)[sevenhtmlController] = new AbortController();
-      });
+    }).then((sevenhtml) => ({
+      sevenhtml,
+    }));
   }
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#General_Server_Summary
   async getStats() {
     return this[fetchStats]({
       status: statsFetchStatus,
-      endpoint: p.get(this)[statsEndpoint],
-      controller: p.get(this)[statsController],
+      endpoint: statsEndpoint,
+      controller: statsController,
       mapper: async (res) =>
-        res
-          .text()
-          .then(
-            (xml) =>
-              IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.STREAMSTATS
-          ),
-    })
-      .then((stats) => ({
-        stats,
-      }))
-      .finally(() => {
-        p.get(this)[statsController] = new AbortController();
-      });
+        IcecastMetadataStats.xml2Json(await res.text()).SHOUTCASTSERVER
+          .STREAMSTATS,
+    }).then((stats) => ({
+      stats,
+    }));
   }
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Nextsongs
   async getNextsongs() {
     return this[fetchStats]({
       status: nextsongsFetchStatus,
-      endpoint: p.get(this)[nextsongsEndpoint],
-      controller: p.get(this)[nextsongsController],
+      endpoint: nextsongsEndpoint,
+      controller: nextsongsController,
       mapper: async (res) =>
-        res
-          .text()
-          .then(
-            (xml) =>
-              IcecastMetadataStats.xml2Json(xml).SHOUTCASTSERVER.NEXTSONGS
-          ),
-    })
-      .then((nextsongs) => ({
-        nextsongs,
-      }))
-      .finally(() => {
-        p.get(this)[nextsongsController] = new AbortController();
-      });
+        IcecastMetadataStats.xml2Json(await res.text()).SHOUTCASTSERVER
+          .NEXTSONGS,
+    }).then((nextsongs) => ({
+      nextsongs,
+    }));
   }
 
   async getIcyMetadata() {
     return this[getStreamMetadata]({
       status: icyFetchStatus,
-      endpoint: p.get(this)[streamEndpoint],
-      controller: p.get(this)[icyController],
+      endpoint: streamEndpoint,
+      controller: icyController,
       metadataType: "icy",
       headers: { "Icy-MetaData": 1 },
-    }).finally(() => {
-      p.get(this)[icyController] = new AbortController();
     });
   }
 
   async getOggMetadata() {
     return this[getStreamMetadata]({
       status: oggFetchStatus,
-      endpoint: p.get(this)[streamEndpoint],
-      controller: p.get(this)[oggController],
+      endpoint: streamEndpoint,
+      controller: oggController,
       metadataType: "ogg",
-    }).finally(() => {
-      p.get(this)[oggController] = new AbortController();
     });
   }
 
@@ -359,11 +317,11 @@ export default class IcecastMetadataStats {
         new Promise((resolve) => {
           new IcecastReadableStream(res, {
             onMetadata: ({ metadata }) => {
-              controller.abort();
+              p.get(this)[controller].abort();
               resolve(metadata);
             },
             onMetadataFailed: () => {
-              controller.abort();
+              p.get(this)[controller].abort();
               resolve();
             },
             metadataTypes: metadataType,
@@ -377,21 +335,24 @@ export default class IcecastMetadataStats {
   async [fetchStats]({ status, endpoint, controller, mapper, headers = {} }) {
     if (!p.get(this)[status]) {
       p.get(this)[status] = true;
-      return fetch(endpoint, {
+      return fetch(p.get(this)[endpoint], {
         method: "GET",
         headers,
-        signal: controller.signal,
+        signal: p.get(this)[controller].signal,
       })
         .then((res) => {
-          p.get(this)[status] = false;
           if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
           return res;
         })
         .then(mapper)
         .catch((e) => {
           if (e.name !== "AbortError") {
-            console.warn(`Failed to fetch ${endpoint}`, e);
+            console.warn(`Failed to fetch ${p.get(this)[endpoint]}`, e);
           }
+        })
+        .finally(() => {
+          p.get(this)[status] = false;
+          p.get(this)[controller] = new AbortController();
         });
     }
   }
