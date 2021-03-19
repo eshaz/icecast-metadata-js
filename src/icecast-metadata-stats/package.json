@@ -35,6 +35,6 @@
     "webpack-cli": "^4.3.0"
   },
   "dependencies": {
-    "icecast-metadata-js": "file:../icecast-metadata-js"
+    "icecast-metadata-js": "0.5.2"
   }
 }

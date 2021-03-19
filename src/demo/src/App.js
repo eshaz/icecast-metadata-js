@@ -42,6 +42,9 @@ const App = () => {
           setPlaying(true);
           setMetadata(LOADING);
         },
+        onError: (error) => {
+          setMetadata(error?.message || error);
+        },
         icyDetectionTimeout: 5000,
         enableLogging: true,
         metadataTypes: station.metadataTypes,
