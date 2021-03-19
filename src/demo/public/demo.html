@@ -751,10 +751,8 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       clearInterval(timer);
     };
 
-    const onError = () => {
-      (message) => {
-        metadataEl.innerHTML = message;
-      };
+    const onError = (message) => {
+      metadataEl.innerHTML = message;
     };
 
     // gets a new instance of the IcecastMetadataPlayer and starts a timer
@@ -771,6 +769,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           enableLogging: true,
           onStreamStart,
           onPlay,
+          onStop,
           onMetadata,
           onMetadataEnqueue,
           onCodecUpdate,
@@ -786,6 +785,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
     document.getElementById("play").addEventListener("click", () => {
       if (icecastMetadataPlayer) icecastMetadataPlayer.stop();
 
+      clearInterval(timer);
       currentTimeEl.shadowRoot.innerHTML = "";
       audioInfoEl.shadowRoot.innerHTML = "";
       metadataEl.innerHTML = "Loading...";

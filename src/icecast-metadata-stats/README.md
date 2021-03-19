@@ -1,6 +1,6 @@
 # Icecast Metadata Stats
 
-Icecast Metadata Stats is a simple to use Javascript class that queries an Icecast compatible server for metadata and statistics.
+Icecast Metadata Stats is a simple to use Javascript class that queries an Icecast compatible server for metadata and statistics. `IcecastMetadataStats` can be using along with [`IcecastMetadataPlayer`](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player) to show the "Now Playing" information while the stream is stopped.
 
   * Shows "Now Playing" information without playing audio.
   * Configurable metadata / statistics refresh interval.
@@ -35,7 +35,6 @@ Icecast Metadata Stats is a simple to use Javascript class that queries an Iceca
   * [Callbacks](#callbacks)
 * [Troubleshooting](#troubleshooting)
   * [Debugging](#debugging)
-  * [Error Messages](#error-messages)
 
 See the main page of this repo for other Icecast JS tools:
 https://github.com/eshaz/icecast-metadata-js
@@ -199,6 +198,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
     {
       stats: {
         // see the Shoutcast docs
+        // XML response is converted to JSON
       }
     }
     ```
@@ -236,8 +236,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
     * Available on Shoutcast versions
     * Unavailable on Icecast
   * **Data Usage**: low
-    * The simplicity of this source makes it the lowest in data usage
-    * Data usage is usually less than 500 bytes.
+    * Contains a list of next songs in XML format
   * **Information Provided**: n/a
     * Provides information on upcoming songs.
     * This is the only api that provides this information.
@@ -246,6 +245,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
     {
       nextsongs: {
         // see the Shoutcast docs
+        // XML response is converted to JSON
       }
     }
     ```
@@ -255,7 +255,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
 ### Methods
 * `start()` Start querying for metadata / stats once every *n* seconds where *n* is `options.interval`
 * `stop()` Stops querying for metadata / stats
-* `getMetadata()` *async* Manually queries for metadata using the sources passed into `options.sources`
+* `fetch()` *async* Manually queries for metadata using the sources passed into `options.sources`
 * `getIcestats()` *async* Manually queries for the Icecast JSON api `/status-json.xsl`
 * `getSevenhtml()` *async* Manually queries for the `/7.html` page
 * `getStats()` *async* Manually queries for the `/stats` page
