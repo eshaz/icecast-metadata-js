@@ -67,6 +67,22 @@ const fetchStats = Symbol();
 const getStreamMetadata = Symbol();
 
 export default class IcecastMetadataStats {
+  /**
+   * @constructor
+   * @param {URL} endpoint Stream endpoint
+   * @param {object} [options] Options object
+   *
+   * @callback [options.onStats] Called when the automatic query completes
+   * @callback [options.onStatsFetch] Called when the automatic query begins
+   * @param {Array} [options.sources] List of sources to automatically query ["icy", "ogg", "icestats", "stats", "sevenhtml", "nextsongs"]
+   * @param {number} [options.interval] Time in seconds to wait between automatically queries
+   * @param {URL} [options.icestatsEndpoint] Endpoint for the `status-json.xsl` source
+   * @param {URL} [options.statsEndpoint] Endpoint for the `stats` source
+   * @param {URL} [options.nextsongsEndpoint] Endpoint for the `nextsongs` source
+   * @param {URL} [options.sevenhtmlEndpoint] Endpoint for the `7.html` source
+   * @param {number} [options.icyMetaInt] Manually sets the ICY metadata interval
+   * @param {number} [options.icyDetectionTimeout] Time in milliseconds to search for ICY metadata
+   */
   constructor(endpoint, options = {}) {
     const serverPath = endpoint.split("/").slice(0, -1).join("/");
 
@@ -124,26 +140,44 @@ export default class IcecastMetadataStats {
     return serialize(deserialize(xml));
   }
 
+  /**
+   * @returns The current state ["stopped", "running", "fetching"]
+   */
   get state() {
     return p.get(this)[state];
   }
 
+  /**
+   * @returns The generated `status-json.xsl` endpoint
+   */
   get icestatsEndpoint() {
     return p.get(this)[icestatsEndpoint];
   }
 
+  /**
+   * @returns The generated `stats` endpoint
+   */
   get statsEndpoint() {
     return p.get(this)[statsEndpoint];
   }
 
+  /**
+   * @returns The generated `nextsongs` endpoint
+   */
   get nextsongsEndpoint() {
     return p.get(this)[nextsongsEndpoint];
   }
 
+  /**
+   * @returns The generated `7.html` endpoint
+   */
   get sevenhtmlEndpoint() {
     return p.get(this)[sevenhtmlEndpoint];
   }
 
+  /**
+   * @description Starts automatically fetching stats
+   */
   start() {
     if (p.get(this)[state] === STOPPED) {
       p.get(this)[state] = RUNNING;
@@ -156,6 +190,9 @@ export default class IcecastMetadataStats {
     }
   }
 
+  /**
+   * @description Stops automatically fetching stats and cancels any inprogress stats
+   */
   stop() {
     if (p.get(this)[state] !== STOPPED) {
       p.get(this)[state] = STOPPED;
@@ -169,6 +206,11 @@ export default class IcecastMetadataStats {
     }
   }
 
+  /**
+   * @description Manually fetches stats from the sources passed in to the `options.sources` parameter
+   * @async
+   * @returns {object} Object containing the stats from the sources
+   */
   async fetch() {
     if (p.get(this)[state] !== FETCHING) {
       const oldState = p.get(this)[state];
@@ -201,6 +243,11 @@ export default class IcecastMetadataStats {
     }
   }
 
+  /**
+   * @description Fetches the data from the `/status-json.xsl` endpoint
+   * @async
+   * @returns {object} Object containing results of `/status-json.xsl`
+   */
   async getIcestats() {
     return this[fetchStats]({
       status: icestatsFetchStatus,
@@ -220,6 +267,12 @@ export default class IcecastMetadataStats {
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Equivalent_of_7.html
   // CURRENTLISTENERS STREAMSTATUS PEAKLISTENERS MAXLISTENERS UNIQUELISTENERS BITRATE SONGTITLE
+
+  /**
+   * @description Fetches the data from the `/7.html` endpoint
+   * @async
+   * @returns {object} Object containing results of `/7.html`
+   */
   async getSevenhtml() {
     return this[fetchStats]({
       status: sevenhtmlFetchStatus,
@@ -255,6 +308,11 @@ export default class IcecastMetadataStats {
   }
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#General_Server_Summary
+  /**
+   * @description Fetches the data from the `/stats` endpoint
+   * @async
+   * @returns {object} Object containing results of `/stats`
+   */
   async getStats() {
     return this[fetchStats]({
       status: statsFetchStatus,
@@ -269,6 +327,11 @@ export default class IcecastMetadataStats {
   }
 
   // http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Nextsongs
+  /**
+   * @description Fetches the data from the `/nextsongs` endpoint
+   * @async
+   * @returns {object} Object containing results of `/nextsongs`
+   */
   async getNextsongs() {
     return this[fetchStats]({
       status: nextsongsFetchStatus,
@@ -282,6 +345,11 @@ export default class IcecastMetadataStats {
     }));
   }
 
+  /**
+   * @description Fetches the first ICY metadata update from the stream
+   * @async
+   * @returns {object} Object containing ICY metadata
+   */
   async getIcyMetadata() {
     return this[getStreamMetadata]({
       status: icyFetchStatus,
@@ -292,6 +360,11 @@ export default class IcecastMetadataStats {
     });
   }
 
+  /**
+   * @description Fetches the first Ogg metadata update from the stream
+   * @async
+   * @returns {object} Object containing Ogg metadata
+   */
   async getOggMetadata() {
     return this[getStreamMetadata]({
       status: oggFetchStatus,
