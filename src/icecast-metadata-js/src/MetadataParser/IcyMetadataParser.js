@@ -121,6 +121,8 @@ class IcyMetadataParser extends MetadataParser {
       `Searched ${this._buffer.length} bytes for ${(Date.now() - startTime) / 1000} seconds.`,
       "Try increasing the `icyDetectionTimeout` value if ICY metadata is present in the stream."
     );
+    this._onMetadataFailed("icy");
+
     return false;
   }
 

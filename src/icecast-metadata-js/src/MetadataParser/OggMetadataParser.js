@@ -91,6 +91,7 @@ class OggMetadataParser extends MetadataParser {
         "This stream is not an OGG stream. No OGG metadata will be returned.",
         "See https://github.com/eshaz/icecast-metadata-js for information on OGG metadata."
       );
+      this._onMetadataFailed("ogg");
       return false;
     }
 

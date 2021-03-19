@@ -36,6 +36,7 @@ class MetadataParser {
 
     this._onStream = params.onStream || noOp;
     this._onMetadata = params.onMetadata || noOp;
+    this._onMetadataFailed = params.onMetadataFailed || noOp;
     this._onError = params.onError || noOp;
     this._enableLogging = params.enableLogging || false;
 

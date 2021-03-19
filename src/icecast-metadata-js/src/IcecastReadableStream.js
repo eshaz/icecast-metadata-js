@@ -74,9 +74,13 @@ class IcecastReadableStream {
    * @description Starts reading from the response and processing stream and metadata.
    */
   async startReading() {
-    for await (const i of IcecastReadableStream.asyncIterator(
-      this._readableStream
-    )) {
+    try {
+      for await (const i of IcecastReadableStream.asyncIterator(
+        this._readableStream
+      )) {
+      }
+    } catch (e) {
+      if (e.name !== "AbortError") throw e;
     }
   }
 

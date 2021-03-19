@@ -39,6 +39,12 @@ class IcecastMetadataReader {
    * @param {object} value Object containing Stream data and Statistics
    * @param {Uint8Array} stream Object containing the stream buffer.
    * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
+   *
+   * @callback onMetadataFailed Called when metadata detection has failed and no metadata will be returned
+   * @param {string} metadataType Metadata type that failed ("icy" or "ogg")
+   *
+   * @callback onError Called when an error is encounted
+   * @param {string} message Error message
    */
   constructor({ metadataTypes = ["icy"], ...rest } = {}) {
     const hasIcy = metadataTypes.includes("icy");

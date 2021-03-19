@@ -193,6 +193,9 @@ const options = {
   * Async callback when stream data is returned
 * `onMetadata`
   * Async callback when stream data is returned
+* `onMetadataFailed(metadataType)`
+  * Callback when there was a problem detecting metadata. Metadata will not be returned after this function is called.
+  * Parameters `"icy"` or `"ogg"`
 * `onError(message)`
   * Callback when a warning / error occurs
 
