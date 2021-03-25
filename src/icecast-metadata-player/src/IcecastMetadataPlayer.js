@@ -92,7 +92,6 @@ const onAudioWaiting = Symbol();
 const fireEvent = Symbol();
 const fallbackToHTML5 = Symbol();
 
-const playResponse = Symbol();
 const attachAudioElement = Symbol();
 const shouldRetry = Symbol();
 
@@ -260,6 +259,13 @@ export default class IcecastMetadataPlayer extends EventClass {
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
     }
+  }
+
+  static canPlayType(type) {
+    return {
+      mediasource: MediaSourcePlayer.canPlayType(type),
+      html5: HTML5Player.canPlayType(type),
+    };
   }
 
   /**

@@ -21,6 +21,48 @@ export default class MediaSourcePlayer extends Player {
     return true;
   }
 
+  static canPlayType(mimeType) {
+    const mapping = {
+      mpeg: ['audio/mp4;codecs="mp3"'],
+      aac: ['audio/mp4;codecs="mp4a.40.2"'],
+      aacp: ['audio/mp4;codecs="mp4a.40.2"'],
+      ogg: {
+        flac: ['audio/mp4;codecs="flac"'],
+        opus: ['audio/mp4;codecs="opus"', 'audio/webm;codecs="opus"'],
+        vorbis: ['audio/webm;codecs="vorbis"'],
+      },
+    };
+
+    if (!MediaSourcePlayer.isSupported()) return "";
+    if (MediaSource.isTypeSupported(mimeType)) return "probably";
+
+    const matches = mimeType.match(
+      /^(?:application\/|audio\/|)(?<mime>[a-zA-Z]+)(?:$|;[ ]*codecs=(?:\'|\")(?<codecs>[a-zA-Z,]+)(?:\'|\"))/
+    );
+
+    if (matches) {
+      const { mime, codecs } = matches.groups;
+
+      if (mapping[mime]) {
+        return (Array.isArray(mapping[mime])
+          ? mapping[mime] // test codec without a container
+          : codecs
+          ? codecs.split(",").flatMap((codec) => mapping[mime][codec]) // test multiple codecs
+          : Object.values(mapping[mime]).flat()
+        ) // test all codecs within a container
+          .reduce((acc, codec) => {
+            if (MediaSource.isTypeSupported(codec)) {
+              return acc === "" ? "maybe" : "probably";
+            } else {
+              return !acc ? "" : "maybe";
+            }
+          }, null);
+      }
+    }
+
+    return "";
+  }
+
   async reset() {
     await this._createMediaSource();
   }

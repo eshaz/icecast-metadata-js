@@ -14,6 +14,10 @@ export default class HTML5Player extends Player {
     this._audioElement.src = this._endpoint;
   }
 
+  static canPlayType(mimeType) {
+    return new Audio().canPlayType(mimeType);
+  }
+
   async reset() {
     if (this._state() !== "playing") {
       this._frame = null;
