@@ -71,6 +71,26 @@
       .time {
         text-align: right;
       }
+      .codec-table,
+      .codec-info,
+      .codec-type {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+        padding: 0 5px;
+      }
+      .codec-type {
+        text-align: left;
+      }
+      .codec-no {
+        background-color: red;
+      }
+      .codec-maybe {
+        background-color: yellow;
+      }
+      .codec-probably {
+        background-color: green;
+      }
       .metadata {
         padding-left: 10px;
         text-align: left;
@@ -93,6 +113,9 @@
       }
       .stats-info {
         min-height: 100px;
+      }
+      .sub-section {
+        margin-left: 20px;
       }
     </style>
     <script>
@@ -128,15 +151,48 @@
           getIcecastMetadataStats();
         });
 
-        const stationsEl = document.getElementById("stations");
-        const endpointEl = document.getElementById("endpoint");
-
         const resetIcecastMetadataStatsEndpoints = () => {
           document.getElementById("icestats-query-endpoint").value = "";
           document.getElementById("stats-query-endpoint").value = "";
           document.getElementById("nextsongs-query-endpoint").value = "";
           document.getElementById("sevenhtml-query-endpoint").value = "";
         };
+
+        const stationsEl = document.getElementById("stations");
+        const supportedTypesEl = document.getElementById("supported-types");
+        const endpointEl = document.getElementById("endpoint");
+
+        supportedTypesEl.innerHTML = [
+          "audio/mpeg",
+          "audio/aac",
+          "audio/aacp",
+          "audio/flac",
+          'audio/mp4; codecs="mp3"',
+          'audio/mp4; codecs="mp4a.40.2"',
+          'audio/mp4; codecs="flac"',
+          'audio/mp4; codecs="opus"',
+          'audio/webm; codecs="vorbis"',
+          'audio/webm; codecs="opus"',
+          "application/ogg",
+          'application/ogg; codecs="flac"',
+          'application/ogg; codecs="opus"',
+          'application/ogg; codecs="vorbis"',
+        ].reduce((acc, type) => {
+          const { mediasource, html5 } = IcecastMetadataPlayer.canPlayType(
+            type
+          );
+
+          return (
+            acc +
+            `<tr><td class="codec-type">${type}</td><td class="codec-info codec-${
+              mediasource || "no"
+            }">${
+              mediasource || "not supported"
+            }</td><td class="codec-info codec-${html5 || "no"}">${
+              html5 || "not supported"
+            }</td></tr>`
+          );
+        }, ``);
 
         (await stations).forEach(
           ({ name, codec, metadataTypes, endpoint }, idx) => {
@@ -229,61 +285,12 @@
     </p>
     <hr />
     <details open>
-      <summary><strong>IcecastMetadataPlayer</strong>&nbsp;</summary>
+      <summary><strong>IcecastMetadataPlayer</strong></summary>
       <p>
         <i>IcecastMetadataPlayer</i> is designed to be as simple as possible to
         use, as it handles all of the MSE logic, fetch logic, error handling,
         audio functionality, metadata parsing, and metadata synchronization.
       </p>
-      <details>
-        <summary><b>Usage / Example</b></summary>
-        <ol>
-          <li>
-            Download the
-            <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.3.min.js"
-              >latest build</a
-            >, or install via
-            <a href="https://www.npmjs.com/package/icecast-metadata-player"
-              >NPM</a
-            >.
-          </li>
-          <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
-          <li>
-            <i>IcecastMetadataPlayer</i> is made available as a global variable
-            in your webpage to use wherever.
-          </li>
-          <li>
-            Checkout the
-            <a
-              href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme"
-              >README</a
-            >
-            for more information.
-          </li>
-        </ol>
-        <b>Example</b>
-        <pre>
-      &lt;script src="icecast-metadata-player-1.1.3.min.js"&gt;&lt;/script&gt;
-      &lt;script&gt;
-        const onMetadata = (metadata) =&gt; {
-          document.getElementById("metadata").innerHTML = metadata.StreamTitle;
-        };
-        const player = 
-          new IcecastMetadataPlayer(
-            "https://dsmrad.io/stream/isics-all", // stream endpoint
-            { onMetadata }                        // options (onMetadata callback)
-          );
-      &lt;/script&gt;
-      &lt;body&gt;
-        &lt;button onclick="player.play();"&gt; Play &lt;/button&gt;
-        &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
-        &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
-      &lt;/body&gt;
-    </pre
-        >
-      </details>
-      <br />
       <div>
         Select a stream in the <b>Stream Endpoint</b> dropdown, or type in a url
         and press <b>Play</b>.
@@ -354,19 +361,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         </form>
       </div>
       <br />
-      <details open>
-        <summary><b>Codec Information</b></summary>
-        <i
-          >Displayed when
-          <a href="https://github.com/eshaz/mse-audio-wrapper"
-            >mse-audio-wrapper</a
-          >
-          is in use.</i
-        >
-        <div id="audioInfo"></div>
-      </details>
-      <br />
-      <details open>
+      <details class="sub-section" open>
         <summary><b>Metadata</b></summary>
         <div class="metadata-info">
           <table>
@@ -380,10 +375,112 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <table id="metadataQueue"></table>
         </div>
       </details>
+      <br />
+      <details class="sub-section" open>
+        <summary><b>Codec Information</b></summary>
+        <i
+          >Displayed when
+          <a href="https://github.com/eshaz/mse-audio-wrapper"
+            >mse-audio-wrapper</a
+          >
+          is in use.</i
+        >
+        <div id="audioInfo"></div>
+      </details>
+      <br />
+      <details>
+        <summary><b>Supported Codecs</b></summary>
+        <p>
+          IcecastMetadataPlayer will automatically select the playback method
+          depending on browser compatibility.
+        </p>
+        <ul>
+          <li>
+            <b>MediaSource</b> <i>Preferred</i>
+            <div>Uses one request to read metadata and play audio.</div>
+            <div>
+              MediaSource compatibility is extended to include MPEG, AAC, and
+              Ogg formats by using
+              <a href="https://github.com/eshaz/mse-audio-wrapper"
+                >mse-audio-wrapper</a
+              >
+            </div>
+          </li>
+          <li>
+            <b>HTML5 Audio</b> <i>Fallback when MediaSource is unsupported</i>
+            <div>
+              Uses two requests, one for HTML5 audio, and another to read
+              metadata.
+            </div>
+          </li>
+        </ul>
+        <div style="display: flex; justify-content: center">
+          <table class="codec-table">
+            <tr>
+              <th rowspan="2" class="codec-info">Codec</th>
+              <th colspan="2">Playback Method</th>
+            </tr>
+            <tr>
+              <th class="codec-info">MediaSource</th>
+              <th class="codec-info">HTML5 Audio</th>
+            </tr>
+            <tbody id="supported-types"></tbody>
+          </table>
+        </div>
+      </details>
+      <br />
+      <details>
+        <summary><b>Usage / Example</b></summary>
+        <ol>
+          <li>
+            Download the
+            <a
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.3.min.js"
+              >latest build</a
+            >, or install via
+            <a href="https://www.npmjs.com/package/icecast-metadata-player"
+              >NPM</a
+            >.
+          </li>
+          <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
+          <li>
+            <i>IcecastMetadataPlayer</i> is made available as a global variable
+            in your webpage to use wherever.
+          </li>
+          <li>
+            Checkout the
+            <a
+              href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme"
+              >README</a
+            >
+            for more information.
+          </li>
+        </ol>
+        <b>Example</b>
+        <pre>
+      &lt;script src="icecast-metadata-player-1.1.3.min.js"&gt;&lt;/script&gt;
+      &lt;script&gt;
+        const onMetadata = (metadata) =&gt; {
+          document.getElementById("metadata").innerHTML = metadata.StreamTitle;
+        };
+        const player = 
+          new IcecastMetadataPlayer(
+            "https://dsmrad.io/stream/isics-all", // stream endpoint
+            { onMetadata }                        // options (onMetadata callback)
+          );
+      &lt;/script&gt;
+      &lt;body&gt;
+        &lt;button onclick="player.play();"&gt; Play &lt;/button&gt;
+        &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
+        &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
+      &lt;/body&gt;
+    </pre
+        >
+      </details>
     </details>
     <hr />
     <details open>
-      <summary><strong>IcecastMetadataStats</strong>&nbsp;</summary>
+      <summary><strong>IcecastMetadataStats</strong></summary>
       <p>
         <i>IcecastMetadataStats</i> is used for querying an Icecast stream for
         "Now Playing" information or other server statistics while the stream is
@@ -392,57 +489,10 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         so that the stream metadata can be periodically updated when the stream
         is not playing.
       </p>
-      <details>
-        <summary><b>Usage / Example</b></summary>
-        <ol>
-          <li>
-            Download the
-            <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.0.1.min.js"
-              >latest build</a
-            >, or install via
-            <a href="https://www.npmjs.com/package/icecast-metadata-stats"
-              >NPM</a
-            >.
-          </li>
-          <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
-          <li>
-            <i>IcecastMetadataStats</i> is made available as a global variable
-            in your webpage to use wherever.
-          </li>
-          <li>
-            Checkout the
-            <a
-              href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-stats#readme"
-              >README</a
-            >
-            for more information.
-          </li>
-        </ol>
-        <b>Example</b>
-        <pre>
-      &lt;script src="icecast-metadata-stats-0.0.1.min.js"&gt;&lt;/script&gt;
-      &lt;script&gt;
-        const onStats = (stats) =&gt; {
-          document.getElementById("stats").innerHTML = stats.icy.StreamTitle;
-        };
-        const stats = 
-          new IcecastMetadataStats(
-            "https://dsmrad.io/stream/isics-all", // stream endpoint
-            { onStats, sources: ["icy"] }         // options (stats callback, stats sources)
-          );
-        stats.start();
-      &lt;/script&gt;
-      &lt;body&gt;
-        &lt;p&gt; Now Playing: &lt;span id="stats"&gt;&lt;/span&gt; &lt;/p&gt;
-      &lt;/body&gt;
-    </pre
-        >
-      </details>
-      <br />
       <div>
-        The URL selected in the <b>Stream Endpoint</b> input above will update
-        the URL for <i>IcecastMetadataStats</i>.
+        The URL selected in the <b>Stream Endpoint</b> input in the
+        <i>IcecastMetadataPlayer</i> demo will update the URL for
+        <i>IcecastMetadataStats</i>.
       </div>
       <div>
         Hover over each item in the fieldset for additional information.
@@ -688,9 +738,56 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           </fieldset>
         </form>
       </div>
-      <details open>
+      <details class="sub-section" open>
         <summary><b>Stats</b></summary>
         <div id="stats" class="stats-info"></div>
+      </details>
+      <details>
+        <summary><b>Usage / Example</b></summary>
+        <ol>
+          <li>
+            Download the
+            <a
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.0.1.min.js"
+              >latest build</a
+            >, or install via
+            <a href="https://www.npmjs.com/package/icecast-metadata-stats"
+              >NPM</a
+            >.
+          </li>
+          <li>Include the file in a <i>&lt;script&gt;</i> tag in your html.</li>
+          <li>
+            <i>IcecastMetadataStats</i> is made available as a global variable
+            in your webpage to use wherever.
+          </li>
+          <li>
+            Checkout the
+            <a
+              href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-stats#readme"
+              >README</a
+            >
+            for more information.
+          </li>
+        </ol>
+        <b>Example</b>
+        <pre>
+      &lt;script src="icecast-metadata-stats-0.0.1.min.js"&gt;&lt;/script&gt;
+      &lt;script&gt;
+        const onStats = (stats) =&gt; {
+          document.getElementById("stats").innerHTML = stats.icy.StreamTitle;
+        };
+        const stats = 
+          new IcecastMetadataStats(
+            "https://dsmrad.io/stream/isics-all", // stream endpoint
+            { onStats, sources: ["icy"] }         // options (stats callback, stats sources)
+          );
+        stats.start();
+      &lt;/script&gt;
+      &lt;body&gt;
+        &lt;p&gt; Now Playing: &lt;span id="stats"&gt;&lt;/span&gt; &lt;/p&gt;
+      &lt;/body&gt;
+    </pre
+        >
       </details>
     </details>
     <hr />
