@@ -27,6 +27,15 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
+.playerText {
+    padding-bottom: calc(1px + .5vmin);
+}
+
+.playPause {
+    padding: calc(5px + 1vmin);
+    padding-left: calc(10px + 1vmin);
+}
+
 .link {
     text-decoration: none;
     color: yellow
@@ -38,7 +47,5 @@
 }
 
 svg {
-    height: calc(40px + 2vmin);
-    padding: calc(4px + 2vmin);
-    padding-left: calc(8px + 2vmin);
+    width: calc(40px + 2vmin);
 }
