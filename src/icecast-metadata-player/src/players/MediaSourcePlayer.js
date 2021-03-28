@@ -1,3 +1,4 @@
+import { state, event, fireEvent } from "../global";
 import Player from "./Player";
 import MSEAudioWrapper from "mse-audio-wrapper";
 
@@ -5,8 +6,8 @@ const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
 export default class MediaSourcePlayer extends Player {
-  constructor(options) {
-    super(options);
+  constructor(icecast) {
+    super(icecast);
 
     this._createMediaSource();
   }
@@ -88,7 +89,7 @@ export default class MediaSourcePlayer extends Player {
     ).then((mimeType) => this._createSourceBuffer(mimeType));
 
     const onStream = async ({ stream }) => {
-      this._fireEvent(this._events.STREAM, stream);
+      this._icecast[fireEvent](event.STREAM, stream);
       await sourceBufferPromise;
       await this._appendSourceBuffer(stream);
     };
@@ -109,14 +110,14 @@ export default class MediaSourcePlayer extends Player {
       const mimeType = await new Promise((onMimeType) => {
         this._mseAudioWrapper = new MSEAudioWrapper(inputMimeType, {
           onCodecUpdate: (...args) =>
-            this._fireEvent(this._events.CODEC_UPDATE, ...args),
+            this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
           onMimeType,
         });
       });
 
       if (!MediaSource.isTypeSupported(mimeType)) {
-        this._fireEvent(
-          this._events.ERROR,
+        this._icecast[fireEvent](
+          event.ERROR,
           `Media Source Extensions API in your browser does not support ${inputMimeType} or ${mimeType}`,
           "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
         );
@@ -161,7 +162,7 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async _appendSourceBuffer(chunk) {
-    if (this._state() !== "stopping") {
+    if (this._icecast.state !== state.STOPPING) {
       this._mediaSource.sourceBuffers[0].appendBuffer(chunk);
       await this._waitForSourceBuffer();
 

@@ -1,9 +1,10 @@
+import { state, event, fireEvent } from "../global";
 import Player from "./Player";
 import CodecParser from "codec-parser";
 
 export default class HTML5Player extends Player {
-  constructor(options) {
-    super(options);
+  constructor(icecast) {
+    super(icecast);
 
     this._frame = null;
     this._audioLoaded = 0;
@@ -19,7 +20,7 @@ export default class HTML5Player extends Player {
   }
 
   async reset() {
-    if (this._state() !== "playing") {
+    if (this._icecast.state !== state.PLAYING) {
       this._frame = null;
       this._audioLoaded = 0;
       this._offset = 0;
@@ -31,7 +32,7 @@ export default class HTML5Player extends Player {
 
   async play(abortController) {
     const audioPromise = new Promise((resolve, reject) => {
-      this._icecast.addEventListener("stopping", resolve, { once: true }); // short circuit when user has stopped the stream
+      this._icecast.addEventListener(state.STOPPING, resolve, { once: true }); // short circuit when user has stopped the stream
       this._audioElement.addEventListener("playing", resolve, { once: true });
       this._audioElement.addEventListener("error", reject, { once: true });
     });
@@ -67,11 +68,11 @@ export default class HTML5Player extends Player {
   getOnStream(res) {
     this._codecParser = new CodecParser(res.headers.get("content-type"), {
       onCodecUpdate: (...args) =>
-        this._fireEvent(this._events.CODEC_UPDATE, ...args),
+        this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
     });
 
     return ({ stream }) => {
-      this._fireEvent(this._events.STREAM, stream);
+      this._icecast[fireEvent](event.STREAM, stream);
 
       for (const frame of this._codecParser.iterator(stream)) {
         this._frame = frame;
