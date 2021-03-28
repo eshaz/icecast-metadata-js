@@ -42,6 +42,7 @@ import {
   // variables
   hasIcy,
   icecastMetadataQueue,
+  abortController,
 } from "./global";
 
 import { IcecastMetadataQueue } from "icecast-metadata-js";
@@ -58,7 +59,6 @@ try {
   EventClass = EventTargetPolyfill;
 }
 
-const abortController = Symbol();
 const player = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
@@ -295,7 +295,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       const tryFetching = () =>
         p
           .get(this)
-          [player].play(p.get(this)[abortController])
+          [player].play()
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {

@@ -9,6 +9,7 @@ import {
   fireEvent,
   hasIcy,
   icecastMetadataQueue,
+  abortController,
 } from "../global";
 import { IcecastReadableStream } from "icecast-metadata-js";
 
@@ -33,8 +34,8 @@ export default class Player {
     );
   }
 
-  async play(abortController) {
-    return this.fetchStream(abortController).then(async (res) => {
+  async play() {
+    return this.fetchStream().then(async (res) => {
       this._icecast[fireEvent](event.STREAM_START);
 
       return this.playResponse(res).finally(() => {
@@ -43,11 +44,11 @@ export default class Player {
     });
   }
 
-  async fetchStream(abortController) {
+  async fetchStream() {
     const res = await fetch(this._endpoint, {
       method: "GET",
       headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: abortController.signal,
+      signal: p.get(this._icecast)[abortController].signal,
     });
 
     if (!res.ok) {

@@ -46,3 +46,4 @@ export const shouldRetry = Symbol();
 // variables
 export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
+export const abortController = Symbol();

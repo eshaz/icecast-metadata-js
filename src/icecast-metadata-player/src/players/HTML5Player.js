@@ -1,4 +1,4 @@
-import { state, event, fireEvent } from "../global";
+import { p, state, event, fireEvent, abortController } from "../global";
 import Player from "./Player";
 import CodecParser from "codec-parser";
 
@@ -30,7 +30,7 @@ export default class HTML5Player extends Player {
     }
   }
 
-  async play(abortController) {
+  async play() {
     const audioPromise = new Promise((resolve, reject) => {
       this._icecast.addEventListener(state.STOPPING, resolve, { once: true }); // short circuit when user has stopped the stream
       this._audioElement.addEventListener("playing", resolve, { once: true });
@@ -44,7 +44,7 @@ export default class HTML5Player extends Player {
       return audioPromise.then(async () => {
         const audioLoaded = performance.now();
 
-        const res = await super.play(abortController);
+        const res = await super.play();
         this._offset = performance.now() - audioLoaded;
 
         return res;
@@ -55,9 +55,11 @@ export default class HTML5Player extends Player {
     return new Promise((_, reject) => {
       const abort = () => reject(new DOMException("Aborted", "AbortError"));
 
-      abortController.aborted
+      const controller = p.get(this._icecast)[abortController];
+
+      controller.aborted
         ? abort()
-        : abortController.signal.addEventListener("abort", abort);
+        : controller.signal.addEventListener("abort", abort, { once: true });
     });
   }
 
