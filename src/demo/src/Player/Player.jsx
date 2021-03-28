@@ -1,13 +1,20 @@
-import React, { useLayoutEffect, useState } from "react";
-import AudioSpectrum from "react-audio-spectrum";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import AudioMotionAnalyzer from "audiomotion-analyzer";
 import styles from "./Player.module.css";
 
 const VISIT_STATION = "Visit this station at ";
 const ICECAST_METADATA_JS_DEMO = "Icecast Metadata JS Demo";
 
 const Player = ({ station, playing, toggle, audioElement, metadata }) => {
-  const [[audioHeight, audioWidth], setSpectrumSize] = useState([0, 0]);
-  const [meters, setMeters] = useState(0);
+  const [audioMotion, setAudioMotion] = useState();
+  const analyzer = useRef();
+  const player = useRef();
 
   // update metadata in title
   const title = metadata.StreamTitle || metadata.TITLE;
@@ -15,37 +22,35 @@ const Player = ({ station, playing, toggle, audioElement, metadata }) => {
     ? `${title} | ${ICECAST_METADATA_JS_DEMO}`
     : ICECAST_METADATA_JS_DEMO;
 
+  useEffect(() => {
+    setAudioMotion(
+      new AudioMotionAnalyzer(analyzer.current, {
+        source: audioElement,
+        showScaleX: false,
+        fftSize: 32768,
+        mode: 1,
+        gradient: "rainbow",
+        lumiBars: true,
+      })
+    );
+  }, [audioElement]);
+
   // adjust canvas size for audio spectrum
   useLayoutEffect(() => {
-    const updateSize = () => {
-      const player = document.getElementById("player");
-      setMeters(Math.floor(player.clientWidth / 32));
-      setSpectrumSize([player.clientHeight + 6, player.clientWidth]);
-    };
-    window.addEventListener("resize", updateSize);
-    updateSize();
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
+    const resizeObserver = new ResizeObserver(() => {
+      audioMotion &&
+        audioMotion.setCanvasSize(
+          player.current.clientWidth,
+          player.current.clientHeight
+        );
+    });
+    resizeObserver.observe(player.current);
+    return () => resizeObserver.disconnect();
+  }, [audioMotion]);
 
   return (
-    <div id={"player"} className={styles.player}>
-      <div className={styles.spectrum}>
-        <AudioSpectrum
-          height={audioHeight}
-          width={audioWidth}
-          audioEle={audioElement}
-          capColor={"red"}
-          capHeight={1}
-          meterWidth={2}
-          meterCount={(meters + 1) * 32}
-          meterColor={[
-            { stop: 0, color: "#f00" },
-            { stop: 0.3, color: "#0CD7FD" },
-            { stop: 1, color: "red" },
-          ]}
-          gap={1}
-        />
-      </div>
+    <div ref={player} className={styles.player}>
+      <div ref={analyzer} className={styles.spectrum}></div>
       <button disabled={!station} className={styles.button} onClick={toggle}>
         {playing ? (
           <svg className={styles.playPause} viewBox="0 0 450 525">

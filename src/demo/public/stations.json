@@ -75,10 +75,10 @@
     "name": "Jazz4ever",
     "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
     "link": "http://jazz4ever.net/",
-    "endpoint": "https://streaming211.radionomy.com/Jazz4ever",
+    "endpoint": "https://streamingv2.shoutcast.com/Jazz4ever",
     "codec": "MP3",
     "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
+    "statsSources": ["icy", "icestats"]
   },
   {
     "name": "Smooth Jazz Smooth Wave",
@@ -327,10 +327,10 @@
     "name": "ABC Piano",
     "description": "Only Piano Classical Music with Bach, Mozart, Beethoven, Rachmaninov, Debussy, Chopin, ...",
     "link": "https://www.radionomy.com/en/radio/abc-Piano",
-    "endpoint": "https://streaming211.radionomy.com/ABC-Piano",
+    "endpoint": "https://streamingv2.shoutcast.com/ABC-Piano",
     "codec": "MP3",
     "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
+    "statsSources": ["icy", "icestats"]
   },
   {
     "name": "Atmospheres Radio",

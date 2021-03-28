@@ -1,6 +1,7 @@
 .spectrum {
     position: absolute;
     z-index: -5;
+    height: 100%;
 }
 
 .player {
