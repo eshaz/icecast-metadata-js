@@ -222,6 +222,13 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
   * Removes all internal event listeners from the audio element
   * **Must be called if the audio element is going to be re-used outside of the current instance**
 
+* `IcecastMetadataPlayer.canPlayType(mimeType)` *static*
+  * Returns an object `{mediasource, html5}` containing a string value indicating if passed in mime-type can be played.
+  * Follows the [HTML5MediaElement canPlayType()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType) API:
+    * `""` - Cannot be played the codec
+    * `"maybe"` - Might be able to play the codec
+    * `"probably"` - Should be able to play the codec
+
 ### Getters
 * `player.audioElement`
   * Returns the HTML5 Audio element.

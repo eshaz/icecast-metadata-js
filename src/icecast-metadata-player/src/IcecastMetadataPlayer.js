@@ -220,6 +220,11 @@ export default class IcecastMetadataPlayer extends EventClass {
     }
   }
 
+  /**
+   * @description Checks for MediaSource and HTML5 support for a given codec
+   * @param {string} type Codec / mime-type to check
+   * @returns {mediasource: string, html5: string} Object indicating if the codec is supported by MediaSource or HTML5 audio
+   */
   static canPlayType(type) {
     return {
       mediasource: MediaSourcePlayer.canPlayType(type),
