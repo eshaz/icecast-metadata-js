@@ -1,50 +1,51 @@
 .station {
-    display: flex;
-    border-top: 2px solid black;
+  display: flex;
 }
 
 .stationRadio {
-    position: fixed;
-    opacity: 0;
-    pointer-events: none;
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .stationRadio:checked ~ label {
-    transition: background-color 1.5s ease;
-    background-color: #00ad2b;
+  transition: background-color 1.5s ease, color 0.5s ease;
+  background-color: rgba(0, 255, 0, 0.7);
+  color: #000;
 }
 
 .stationRadio:not(checked) ~ label {
-    transition: background-color 1.5s ease;
-    background-color: #c2d1cd;
+  transition: background-color 1.5s ease, color 0.5s ease;
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
 }
 
 .stationLabel {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: center;
-    padding: calc(1px + 1vmin);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(1px + 1vmin);
 }
 
 .stationName {
-    display: flex;
-    font-weight: bold;
-    font-size: calc(16px + 2vmin);
-    text-align: center;
+  display: flex;
+  font-weight: bold;
+  font-size: calc(16px + 2vmin);
+  text-align: center;
 }
 
 .stationDescription {
-    display: flex;
-    font-size: calc(5px + 2vmin);
-    text-align: center;
+  display: flex;
+  font-size: calc(5px + 2vmin);
+  text-align: center;
 }
 
 .codecInfo {
-    display: flex;
-    flex-direction: row;
-    font-weight: bold;
-    font-size: calc(6px + 1vmin);
-    font-family: monospace;
-    text-align: center;
+  display: flex;
+  flex-direction: row;
+  font-weight: bold;
+  font-size: calc(6px + 1vmin);
+  font-family: monospace;
+  text-align: center;
 }
