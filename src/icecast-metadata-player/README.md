@@ -25,7 +25,6 @@ https://github.com/eshaz/icecast-metadata-js
 ## Supported Browsers:
  * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
  * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`
-   * *unsupported* `application/ogg` (FLAC, Opus, Vorbis)
  * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
@@ -71,14 +70,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.3.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.2.2.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```
-   <script src="icecast-metadata-player-1.1.3.min.js"></script>
+   <script src="icecast-metadata-player-1.2.2.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -228,7 +227,7 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 * `IcecastMetadataPlayer.canPlayType(mimeType)` *static*
   * Returns an object `{mediasource, html5}` containing a string value indicating if passed in mime-type can be played.
   * Follows the [HTML5MediaElement canPlayType()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType) API:
-    * `""` - Cannot be played the codec
+    * `""` - Cannot play the codec
     * `"maybe"` - Might be able to play the codec
     * `"probably"` - Should be able to play the codec
 
@@ -368,7 +367,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.1.3.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.1.3.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.2.2.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.2.2.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Error messages
