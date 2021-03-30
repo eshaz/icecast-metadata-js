@@ -5,26 +5,31 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
   * Plays an Icecast stream using the Media Source Extensions API and HTML5 audio.
   * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
   * Seamless playback during network changes (i.e. Wifi to Cell network).
+  * Small bundle size: *50KB minified, 17KB gziped*
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
+## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
+
+See the main page of this repo for other Icecast JS tools:
+https://github.com/eshaz/icecast-metadata-js
+
 ## Supported codecs:
-* **MP3** `audio/mpeg`
-* **AAC, AAC+, AAC-HE** `audio/aac`
-* **FLAC, OPUS, Vorbis** `application/ogg`
+* **MP3** `audio/mpeg`, `audio/mp4`
+* **AAC** `audio/aac`, `audio/mp4`
+* **FLAC** `application/ogg`, `audio/mp4`
+* **Opus** `application/ogg`, `audio/mp4`, `audio/webm`
+* **Vorbis** `application/ogg`, `audio/webm`
+* All other browser supported MediaSource and HTML5 Audio codecs
 
 ## Supported Browsers:
- * **Chrome, Firefox** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **Safari Desktop** `audio/mpeg`, `audio/aac`
-   * *unsupported* `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS, Edge, others...** *support unknown* - Let me know if it works!
+ * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
+ * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`
+ * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
 
-Checkout this link to see which codecs your browser supports.
-https://cconcolato.github.io/media-mime-support/#audio_codecs
 
-## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
 
 * [Installing](#installing)
 * [Usage](#usage)
@@ -46,9 +51,6 @@ https://cconcolato.github.io/media-mime-support/#audio_codecs
   * [Debugging](#debugging)
   * [Error Messages](#error-messages)
 
-See the main page of this repo for other Icecast JS tools:
-https://github.com/eshaz/icecast-metadata-js
-
 ---
 
 ## Installing
@@ -68,14 +70,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.1.3.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.2.2.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```
-   <script src="icecast-metadata-player-1.1.3.min.js"></script>
+   <script src="icecast-metadata-player-1.2.2.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -222,6 +224,13 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
   * Removes all internal event listeners from the audio element
   * **Must be called if the audio element is going to be re-used outside of the current instance**
 
+* `IcecastMetadataPlayer.canPlayType(mimeType)` *static*
+  * Returns an object `{mediasource, html5}` containing a string value indicating if passed in mime-type can be played.
+  * Follows the [HTML5MediaElement canPlayType()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType) API:
+    * `""` - Cannot play the codec
+    * `"maybe"` - Might be able to play the codec
+    * `"probably"` - Should be able to play the codec
+
 ### Getters
 * `player.audioElement`
   * Returns the HTML5 Audio element.
@@ -358,7 +367,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.1.3.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.1.3.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.2.2.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.2.2.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Error messages

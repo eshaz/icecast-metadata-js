@@ -15,14 +15,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const IcecastMetadataReader = require("./IcecastMetadataReader");
+import IcecastMetadataReader from "./IcecastMetadataReader";
 
 const noOp = () => {};
 
 /**
  * @description Browser ReadableStream wrapper for IcecastMetadataReader
  */
-class IcecastReadableStream {
+export default class IcecastReadableStream {
   /**
    * @param {ReadableStream} response ReadableStream for raw Icecast response data
    * @param {object} options Configuration options for IcecastMetadataReader
@@ -98,5 +98,3 @@ class IcecastReadableStream {
     };
   }
 }
-
-module.exports = IcecastReadableStream;

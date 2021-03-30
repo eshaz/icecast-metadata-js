@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "icecast-metadata-player": "1.1.3",
+    "audiomotion-analyzer": "^3.1.0",
+    "icecast-metadata-player": "1.2.2",
     "react": "^16.13.1",
-    "react-audio-spectrum": "^0.1.0",
     "react-dom": "^16.13.1",
     "react-scripts": "^4.0.1"
   },
@@ -21,7 +21,7 @@
     "build": "cp ./src/stations.json ./public/stations.json && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write '**/*.js' --write '**/*.jsx' --write '**/*.json' --write '**/*.html'",
+    "format": "prettier --write '**/*.js' --write '**/*.jsx' --write '**/*.json' --write '**/*.html' --write '**/*.css'",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },

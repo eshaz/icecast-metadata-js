@@ -1,20 +1,31 @@
+import {
+  p,
+  event,
+  audioElement,
+  endpoint,
+  metadataTypes,
+  icyMetaInt,
+  icyDetectionTimeout,
+  fireEvent,
+  hasIcy,
+  icecastMetadataQueue,
+  abortController,
+} from "../global";
 import { IcecastReadableStream } from "icecast-metadata-js";
 
 export default class Player {
-  constructor(options) {
-    this._icecast = options.icecast;
-    this._audioElement = options.audioElement;
-    this._endpoint = options.endpoint;
-    this._hasIcy = options.hasIcy;
-    this._enableLogging = options.enableLogging;
-    this._icecastMetadataQueue = options.icecastMetadataQueue;
-    this._state = options.state;
-    this._metadataTypes = options.metadataTypes;
-    this._icyMetaInt = options.icyMetaInt;
-    this._icyDetectionTimeout = options.icyDetectionTimeout;
+  constructor(icecast) {
+    const instanceVariables = p.get(icecast);
 
-    this._fireEvent = options.fireEvent;
-    this._events = options.events;
+    this._icecast = icecast;
+    this._audioElement = instanceVariables[audioElement];
+    this._endpoint = instanceVariables[endpoint];
+    this._metadataTypes = instanceVariables[metadataTypes];
+    this._icyMetaInt = instanceVariables[icyMetaInt];
+    this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
+
+    this._hasIcy = instanceVariables[hasIcy];
+    this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
   }
 
   get icyMetaInt() {
@@ -23,21 +34,21 @@ export default class Player {
     );
   }
 
-  async play(abortController) {
-    return this.fetchStream(abortController).then(async (res) => {
-      this._fireEvent(this._events.STREAM_START);
+  async play() {
+    return this.fetchStream().then(async (res) => {
+      this._icecast[fireEvent](event.STREAM_START);
 
       return this.playResponse(res).finally(() => {
-        this._fireEvent(this._events.STREAM_END);
+        this._icecast[fireEvent](event.STREAM_END);
       });
     });
   }
 
-  async fetchStream(abortController) {
+  async fetchStream() {
     const res = await fetch(this._endpoint, {
       method: "GET",
       headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: abortController.signal,
+      signal: p.get(this._icecast)[abortController].signal,
     });
 
     if (!res.ok) {
@@ -53,7 +64,7 @@ export default class Player {
     this._icecastReadableStream = new IcecastReadableStream(res, {
       onMetadata: this.getOnMetadata(),
       onStream: this.getOnStream(res),
-      onError: (...args) => this._fireEvent(this._events.WARN, ...args),
+      onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
       metadataTypes: this._metadataTypes,
       icyMetaInt: this._icyMetaInt,
       icyDetectionTimeout: this._icyDetectionTimeout,

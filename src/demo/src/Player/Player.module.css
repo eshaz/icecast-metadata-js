@@ -1,44 +1,73 @@
-.spectrum {
-    position: absolute;
-    z-index: -5;
+.visitStation,
+.playerText,
+.metadata,
+.playPause {
+  pointer-events: initial;
 }
 
 .player {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding-bottom: calc(1px + .5vmin);
+  filter: drop-shadow(1px 1px 2px #000) drop-shadow(-1px 1px 2px #000)
+    drop-shadow(1px -1px 2px #000) drop-shadow(-1px -1px 2px #000)
+    drop-shadow(2px 2px 2px #000) drop-shadow(-2px 2px 2px #000)
+    drop-shadow(2px -2px 2px #000) drop-shadow(-2px -2px 2px #000);
+}
+
+.stationRadio:checked ~ .player {
+  transition: background-color 1.5s ease, color 0.5s ease;
+  background-color: rgba(35, 252, 39, 0.7);
+  color: #000;
+}
+
+.stationRadio:not(checked) ~ .player {
+  transition: background-color 1.5s ease, color 0.5s ease;
+  background-color: rgba(0, 0, 0, 0);
+  transition: color 1.5s ease;
+  color: #fff;
+}
+
+.playerText {
+  padding-bottom: calc(1px + 0.5vmin);
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-bottom: calc(1px + 0.5vmin);
 }
 
 .metadata {
-    color: white;
-    font-size: calc(10px + 2vmin);
-    margin: 0;
+  color: #fff;
+  font-size: calc(12px + 2vmin);
+  margin-bottom: 3px;
 }
 
 .button {
-    background: none;
-	color: inherit;
-	border: none;
-    padding: 0;
-	cursor: pointer;
-    outline: none;
-    user-select: none;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.playPause {
+  padding: calc(5px + 1vmin);
+  padding-left: calc(10px + 1vmin);
 }
 
 .link {
-    text-decoration: none;
-    color: yellow
+  text-decoration: none;
+  color: #ff0;
 }
 
 .visitStation {
-    color: white;
-    font-size: calc(1px + 2vmin);
+  color: #fff;
+  font-size: calc(1px + 2vmin);
 }
 
 svg {
-    height: calc(40px + 2vmin);
-    padding: calc(4px + 2vmin);
-    padding-left: calc(8px + 2vmin);
+  width: calc(40px + 2vmin);
 }

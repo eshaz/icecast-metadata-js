@@ -1,4 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
+import AudioMotionAnalyzer from "audiomotion-analyzer";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
@@ -18,6 +25,9 @@ const App = () => {
 
   const [metadata, setMetadata] = useState(SELECT_STATION);
   const [icecast, setIcecast] = useState();
+
+  const analyzer = useRef();
+  const [audioMotion, setAudioMotion] = useState();
 
   const changeStation = useCallback(
     async (station) => {
@@ -63,19 +73,46 @@ const App = () => {
     playing ? icecast.stop() : icecast.play();
   }, [icecast, playing]);
 
+  useEffect(() => {
+    setAudioMotion(
+      new AudioMotionAnalyzer(analyzer.current, {
+        source: audioElement,
+        showScaleX: false,
+        fftSize: 32768,
+        mode: 1,
+        gradient: "prism",
+        showBgColor: false,
+        barSpace: 0,
+        lumiBars: true,
+      })
+    );
+  }, [audioElement]);
+
+  // adjust canvas size for audio spectrum
+  useLayoutEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      audioMotion &&
+        audioMotion.setCanvasSize(window.innerWidth, window.innerHeight + 100);
+    });
+    resizeObserver.observe(analyzer.current);
+    return () => resizeObserver.disconnect();
+  }, [audioMotion]);
+
   return (
     <>
+      <div className={styles.spectrum} ref={analyzer}></div>
       <header className={styles.header}>
         <About />
       </header>
-      <StationSelector stations={stations} changeStation={changeStation} />
+      <main>
+        <StationSelector stations={stations} changeStation={changeStation} />
+      </main>
       <footer className={styles.footer}>
         <Player
           station={station}
           toggle={toggle}
           playing={playing}
           metadata={metadata}
-          audioElement={audioElement}
         ></Player>
       </footer>
     </>
