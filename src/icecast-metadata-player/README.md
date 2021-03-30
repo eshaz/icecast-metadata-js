@@ -5,26 +5,32 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
   * Plays an Icecast stream using the Media Source Extensions API and HTML5 audio.
   * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
   * Seamless playback during network changes (i.e. Wifi to Cell network).
+  * Small bundle size: *50KB minified, 17KB gziped*
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
+## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
+
+See the main page of this repo for other Icecast JS tools:
+https://github.com/eshaz/icecast-metadata-js
+
 ## Supported codecs:
-* **MP3** `audio/mpeg`
-* **AAC, AAC+, AAC-HE** `audio/aac`
-* **FLAC, OPUS, Vorbis** `application/ogg`
+* **MP3** `audio/mpeg`, `audio/mp4`
+* **AAC** `audio/aac`, `audio/mp4`
+* **FLAC** `application/ogg`, `audio/mp4`
+* **Opus** `application/ogg`, `audio/mp4`, `audio/webm`
+* **Vorbis** `application/ogg`, `audio/webm`
+* All other browser supported MediaSource and HTML5 Audio codecs
 
 ## Supported Browsers:
- * **Chrome, Firefox** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **Safari Desktop** `audio/mpeg`, `audio/aac`
+ * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
+ * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`
    * *unsupported* `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS, Edge, others...** *support unknown* - Let me know if it works!
+ * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
 
-Checkout this link to see which codecs your browser supports.
-https://cconcolato.github.io/media-mime-support/#audio_codecs
 
-## Checkout the demos [here](https://eshaz.github.io/icecast-metadata-js/)!
 
 * [Installing](#installing)
 * [Usage](#usage)
@@ -45,9 +51,6 @@ https://cconcolato.github.io/media-mime-support/#audio_codecs
 * [Troubleshooting](#troubleshooting)
   * [Debugging](#debugging)
   * [Error Messages](#error-messages)
-
-See the main page of this repo for other Icecast JS tools:
-https://github.com/eshaz/icecast-metadata-js
 
 ---
 
