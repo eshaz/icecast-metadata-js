@@ -106,7 +106,7 @@ https://github.com/eshaz/icecast-metadata-js
     ```
 1. To stop querying, call `stop()`
     ```
-    statsListener.start();
+    statsListener.stop();
     ```
 
 ## Sources
