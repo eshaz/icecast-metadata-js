@@ -18,6 +18,7 @@
     "build": "rm -f ./build/* && webpack && npm run update-version"
   },
   "browser": "./src/IcecastMetadataPlayer.js",
+  "main": "./src/IcecastMetadataPlayer.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eshaz/icecast-metadata-js.git"

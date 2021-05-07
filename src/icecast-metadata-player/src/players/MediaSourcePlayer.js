@@ -1,8 +1,8 @@
-import { state, event, fireEvent } from "../global";
-import Player from "./Player";
-import FrameQueue from "../FrameQueue";
 import MSEAudioWrapper from "mse-audio-wrapper";
 import CodecParser from "codec-parser";
+import { state, event, fireEvent } from "../global.js";
+import Player from "./Player.js";
+import FrameQueue from "../FrameQueue.js";
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer

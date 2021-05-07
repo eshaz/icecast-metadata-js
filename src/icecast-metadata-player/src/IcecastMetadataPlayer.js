@@ -46,9 +46,9 @@ import {
 } from "./global";
 
 import { IcecastMetadataQueue } from "icecast-metadata-js";
-import EventTargetPolyfill from "./EventTargetPolyfill";
-import MediaSourcePlayer from "./players/MediaSourcePlayer";
-import HTML5Player from "./players/HTML5Player";
+import EventTargetPolyfill from "./EventTargetPolyfill.js";
+import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
+import HTML5Player from "./players/HTML5Player.js";
 
 let EventClass;
 

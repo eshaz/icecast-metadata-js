@@ -1,3 +1,4 @@
+import { IcecastReadableStream } from "icecast-metadata-js";
 import {
   p,
   event,
@@ -10,8 +11,7 @@ import {
   hasIcy,
   icecastMetadataQueue,
   abortController,
-} from "../global";
-import { IcecastReadableStream } from "icecast-metadata-js";
+} from "../global.js";
 
 export default class Player {
   constructor(icecast) {
