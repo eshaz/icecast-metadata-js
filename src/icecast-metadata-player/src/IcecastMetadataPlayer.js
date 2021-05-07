@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
+import { IcecastMetadataQueue } from "icecast-metadata-js";
 import {
   p,
   noOp,
@@ -43,9 +44,8 @@ import {
   hasIcy,
   icecastMetadataQueue,
   abortController,
-} from "./global";
+} from "./global.js";
 
-import { IcecastMetadataQueue } from "icecast-metadata-js";
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
 import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import HTML5Player from "./players/HTML5Player.js";

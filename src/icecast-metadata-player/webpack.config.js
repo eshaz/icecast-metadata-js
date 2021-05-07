@@ -1,7 +1,8 @@
-const path = require("path");
-const webpack = require("webpack");
-const TerserPlugin = require("terser-webpack-plugin");
-const package = require("./package.json");
+import webpack from "webpack";
+import TerserPlugin from "terser-webpack-plugin";
+import fs from "fs";
+
+const packageJson = JSON.parse(fs.readFileSync("./package.json"));
 
 const license = `
  * Copyright 2021 Ethan Halsall
@@ -23,13 +24,13 @@ const license = `
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
 `;
 
-module.exports = {
+export default {
   mode: "production",
   devtool: "source-map",
   entry: "/src/IcecastMetadataPlayer.js",
   output: {
-    path: __dirname + "/build",
-    filename: `${package.name}-${package.version}.min.js`,
+    path: new URL("build", import.meta.url).pathname,
+    filename: `${packageJson.name}-${packageJson.version}.min.js`,
     library: "IcecastMetadataPlayer",
     libraryExport: "default",
     libraryTarget: "var",

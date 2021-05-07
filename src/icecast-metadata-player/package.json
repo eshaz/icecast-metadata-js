@@ -19,6 +19,7 @@
   },
   "browser": "./src/IcecastMetadataPlayer.js",
   "main": "./src/IcecastMetadataPlayer.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eshaz/icecast-metadata-js.git"
