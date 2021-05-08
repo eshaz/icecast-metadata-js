@@ -1,6 +1,7 @@
 import { state, event, fireEvent } from "../global";
 import Player from "./Player";
 import MSEAudioWrapper from "mse-audio-wrapper";
+import CodecParser from "codec-parser";
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
@@ -84,49 +85,65 @@ export default class MediaSourcePlayer extends Player {
   }
 
   getOnStream(res) {
-    const sourceBufferPromise = this._getMimeType(
-      res.headers.get("content-type")
-    ).then((mimeType) => this._createSourceBuffer(mimeType));
+    const inputMimeType = res.headers.get("content-type");
 
-    const onStream = async ({ stream }) => {
-      this._icecast[fireEvent](event.STREAM, stream);
-      await sourceBufferPromise;
-      await this._appendSourceBuffer(stream);
+    // set up the codec parser and source buffer asynchronously
+    const appendFramesSourceBuffer = this._prepareMediaSource(inputMimeType);
+
+    return async ({ stream }) => {
+      const frames = [...this._codecParser.iterator(stream)];
+
+      if (frames.length) {
+        // when frames are present, we should already know the codec and have the mse audio mimetype determined
+        await (await appendFramesSourceBuffer)(frames); // wait for the source buffer to be created
+      }
     };
-
-    return this._mseAudioWrapper
-      ? async ({ stream }) => {
-          for await (const fragment of this._mseAudioWrapper.iterator(stream)) {
-            await onStream({ stream: fragment });
-          }
-        }
-      : onStream;
   }
 
-  async _getMimeType(inputMimeType) {
+  async _prepareMediaSource(inputMimeType) {
+    const codec = new Promise((onCodec) => {
+      this._codecParser = new CodecParser(inputMimeType, {
+        onCodecUpdate: (...args) =>
+          this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
+        onCodec,
+      });
+    });
+
     if (MediaSource.isTypeSupported(inputMimeType)) {
-      return inputMimeType;
+      // pass the audio directly to MSE
+      await this._createSourceBuffer(inputMimeType);
+
+      return async (frames) => {
+        for await (const { data } of frames) {
+          await this._appendSourceBuffer(data);
+        }
+      };
     } else {
-      const mimeType = await new Promise((onMimeType) => {
-        this._mseAudioWrapper = new MSEAudioWrapper(inputMimeType, {
-          onCodecUpdate: (...args) =>
-            this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
-          onMimeType,
-        });
+      // wrap the audio into fragments before passing to MSE
+      const wrapper = new MSEAudioWrapper(inputMimeType, {
+        codec: await codec,
       });
 
-      if (!MediaSource.isTypeSupported(mimeType)) {
+      if (!MediaSource.isTypeSupported(wrapper.mimeType)) {
         this._icecast[fireEvent](
           event.ERROR,
-          `Media Source Extensions API in your browser does not support ${inputMimeType} or ${mimeType}`,
+          `Media Source Extensions API in your browser does not support ${inputMimeType} or ${wrapper.mimeType}`,
           "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
         );
-        const error = new Error(`Unsupported Media Source Codec ${mimeType}`);
+        const error = new Error(
+          `Unsupported Media Source Codec ${wrapper.mimeType}`
+        );
         error.name = "CodecError";
         throw error;
       }
 
-      return mimeType;
+      await this._createSourceBuffer(wrapper.mimeType);
+
+      return async (frames) => {
+        for await (const fragment of wrapper.iterator(frames)) {
+          await this._appendSourceBuffer(fragment);
+        }
+      };
     }
   }
 
@@ -162,6 +179,8 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async _appendSourceBuffer(chunk) {
+    this._icecast[fireEvent](event.STREAM, chunk);
+
     if (this._icecast.state !== state.STOPPING) {
       this._mediaSource.sourceBuffers[0].appendBuffer(chunk);
       await this._waitForSourceBuffer();
