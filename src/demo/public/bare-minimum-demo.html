@@ -181,8 +181,6 @@
     <div class="row">
       <audio
         id="audio"
-        onplay="icecastMetadataPlayer.play();"
-        onpause="icecastMetadataPlayer.stop();"
         controls
       >
         Your browser does not support HTML5 audio.
@@ -229,8 +227,8 @@
 
     getIcecastMetadataPlayer();
 
-    endpoint.addEventListener("change", () => {
-      audioElement.pause();
+    endpoint.addEventListener("change", async () => {
+      await icecastMetadataPlayer.detachAudioElement();
       getIcecastMetadataPlayer();
     });
   </script>

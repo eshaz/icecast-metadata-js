@@ -222,6 +222,7 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 
 * `player.detachAudioElement()`
   * Removes all internal event listeners from the audio element
+  * Stops audio playback
   * **Must be called if the audio element is going to be re-used outside of the current instance**
 
 * `IcecastMetadataPlayer.canPlayType(mimeType)` *static*

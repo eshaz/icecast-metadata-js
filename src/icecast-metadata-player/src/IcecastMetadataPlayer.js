@@ -277,14 +277,16 @@ export default class IcecastMetadataPlayer extends EventClass {
   }
 
   /**
-   * @description Remove event listeners from the audio element and this instance
+   * @description Remove event listeners from the audio element and this instance and stops playback
    */
-  detachAudioElement() {
+  async detachAudioElement() {
     const audio = p.get(this)[audioElement];
     audio.removeEventListener("pause", p.get(this)[onAudioPause]);
     audio.removeEventListener("play", p.get(this)[onAudioPlay]);
     audio.removeEventListener("canplay", p.get(this)[onAudioCanPlay]);
     audio.removeEventListener("error", p.get(this)[onAudioError]);
+
+    await this.stop();
   }
 
   /**
