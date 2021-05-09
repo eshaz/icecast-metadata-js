@@ -8,93 +8,80 @@ const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
 class FrameQueue {
   constructor() {
-    this._cacheDuration = 10000; //seconds
+    this.CACHE_DURATION = 60000; // milliseconds of burst on connect data
+    this.SYNC_SIZE = 4; // frames
     this._queue = [];
-    this._syncQueue = [];
-    this._matchingIndex = -1;
+
+    this.initSync();
   }
 
-  push(frame) {
-    this._queue.push(frame);
+  initSync() {
+    this._syncQueue = [];
+    this._syncIndex = null;
+    this._syncPosition = null;
+  }
 
-    if (
-      this._queue[0].totalDuration + this._cacheDuration <
-      frame.totalDuration
-    ) {
+  push({ crc32, totalDuration }) {
+    this._queue.push({ crc32, totalDuration });
+
+    if (this._queue[0].totalDuration + this.CACHE_DURATION < totalDuration) {
       this._queue.pop();
     }
   }
 
-  // aligns the previous connection crc32 queue with 
-
   /*
-
-  sync size is a function of how large the old connection queue is
-  Sync size increases as queue bytes increase to reach a desired probability of collision
+  Aligns the queue with a new incoming data by searching for the
+  first matching set of 4 crc32 hashes and then returning only the
+  frames that do not existing on the queue.
 
                     old data|common data|new data
-  (old connection) |--------------------|
-  (new connection)          |---------------
-                   ^        ^           ^ (sync)
-                   (queue)  (new connection)
-    */
+  (old connection) |--------[--]--------|
+  (new connection)         |[--]--------[----->
+                            ^ (sync)    ^ (frames to return)
+  */
   sync(frames) {
-    const SYNC_SIZE = 4;
-    this._syncQueue.push(...frames);
+    if (this._syncIndex === null) {
+      this._syncQueue.push(...frames.slice(0, this.SYNC_SIZE));
 
-    // look for matches
-    if (this._matchingIndex === -1) {
-      if (this._syncQueue.length < SYNC_SIZE) {
+      // need more data before we can search
+      if (this._syncQueue.length < this.SYNC_SIZE) {
         return [];
       }
 
-      console.log("searching");
-
+      // search for matching hashes
       for (
-        this._matchingIndex = 0;
-        this._matchingIndex < this._queue.length - this._syncQueue.length;
-        this._matchingIndex++
+        this._syncIndex = 0;
+        this._syncIndex < this._queue.length - this._syncQueue.length;
+        this._syncIndex++
       ) {
         if (
           this._syncQueue.every(
-            (frame, idx) =>
-              frame.crc32 === this._queue[this._matchingIndex + idx]
+            (frame, i) => frame.crc32 === this._queue[this._syncIndex + i].crc32
           )
         ) {
+          this._syncPosition = this._syncIndex - this._queue.length;
           break;
         }
       }
 
-      if (this._matchingIndex > this._queue.length - this._syncQueue.length) {
-        console.log("no match");
-        const framesToReturn = this._syncQueue;
-
-        this._queue = [];
-        this._syncQueue = [];
-        this._matchingIndex = -1;
-        return framesToReturn; // no matches in queue
+      // no match
+      if (this._syncPosition === null) {
+        this.initSync();
+        return frames;
       }
     }
 
-    const newFrames = this._syncQueue.slice(
-      this._queue.length - this._matchingIndex
-    ); // some matching and some new data
+    this._syncPosition += frames.length;
 
-    console.log(
-      "syncing",
-      this._matchingIndex,
-      this._queue.length,
-      this._syncQueue.length,
-      newFrames.length
-    );
+    if (this._syncPosition > 0) {
+      const newFrames = frames.slice(-this._syncPosition);
 
-    if (newFrames.length) {
-      //this._queue = [];
-      this._syncQueue = [];
-      this._matchingIndex = -1;
+      this.initSync();
+
+      return newFrames;
+    } else {
+      return [];
     }
-
-    return newFrames;
   }
 }
 
@@ -201,7 +188,7 @@ export default class MediaSourcePlayer extends Player {
           }
         }
 
-        frames.map((frame) => this._frameQueue.push(frame.crc32));
+        frames.map((frame) => this._frameQueue.push(frame));
 
         // when frames are present, we should already know the codec and have the mse audio mimetype determined
         await (await appendFramesSourceBuffer)(frames); // wait for the source buffer to be created
