@@ -1,111 +1,16 @@
 import { state, event, fireEvent } from "../global";
 import Player from "./Player";
+import FrameQueue from "../FrameQueue";
 import MSEAudioWrapper from "mse-audio-wrapper";
 import CodecParser from "codec-parser";
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
-class FrameQueue {
-  constructor(icecast) {
-    this.CACHE_DURATION = 60000; // milliseconds of burst on connect data
-    this.SYNC_SIZE = 4; // frames
-    this._queue = [];
-    this._icecast = icecast;
-
-    this.initSync();
-  }
-
-  initSync() {
-    this._syncQueue = [];
-    this._syncIndex = null;
-    this._syncPosition = null;
-  }
-
-  push({ crc32, totalDuration, duration }) {
-    this._queue.push({ crc32, totalDuration, duration });
-
-    if (this._queue[0].totalDuration + this.CACHE_DURATION < totalDuration) {
-      this._queue.pop();
-    }
-  }
-
-  /*
-  Aligns the queue with a new incoming data by searching for the
-  first matching set of 4 crc32 hashes and then returning only the
-  frames that do not existing on the queue.
-
-                    old data|common data|new data
-  (old connection) |--------[--]--------|
-  (new connection)         |[--]--------[----->
-                            ^ (sync)    ^ (frames to return)
-  */
-  sync(frames) {
-    if (this._syncIndex === null) {
-      this._syncQueue.push(...frames.slice(0, this.SYNC_SIZE));
-
-      // need more data before we can search
-      if (this._syncQueue.length < this.SYNC_SIZE) {
-        return [];
-      }
-
-      // search for matching hashes
-      for (
-        this._syncIndex = 0;
-        this._syncIndex < this._queue.length - this._syncQueue.length;
-        this._syncIndex++
-      ) {
-        if (
-          this._syncQueue.every(
-            (frame, i) => frame.crc32 === this._queue[this._syncIndex + i].crc32
-          )
-        ) {
-          // match
-          this._syncPosition = this._syncIndex - this._queue.length;
-          const duration =
-            this._queue
-              .slice(this._syncIndex)
-              .reduce((acc, { duration }) => acc + duration, 0) / 1000;
-
-          // prettier-ignore
-          this._icecast[fireEvent](
-            event.WARN,
-            "Reconnected successfully after retry event.",
-            `Found ${-this._syncPosition} frames (${duration.toFixed(3)} seconds) of overlapping audio data in new request.`,
-            "Syncing new request with audio."
-          );
-
-          break;
-        }
-      }
-
-      // no match
-      if (this._syncPosition === null) {
-        this._icecast[fireEvent](
-          event.WARN,
-          "Reconnected successfully after retry event.",
-          "Found no overlapping frames from previous request"
-        );
-
-        this.initSync();
-        return frames;
-      }
-    }
-
-    this._syncPosition += frames.length;
-
-    // gather new frames until there is at least one new frame
-    if (this._syncPosition > 0) {
-      const newFrames = frames.slice(-this._syncPosition);
-
-      this.initSync();
-
-      return newFrames;
-    } else {
-      return [];
-    }
-  }
-}
+// sync state
+const NOT_SYNCED = Symbol();
+const SYNCING = Symbol();
+const SYNCED = Symbol();
 
 export default class MediaSourcePlayer extends Player {
   constructor(icecast) {
@@ -114,7 +19,7 @@ export default class MediaSourcePlayer extends Player {
     this.reset();
 
     this._icecast.addEventListener(event.RETRY, () => {
-      this._synced = false;
+      this._syncState = NOT_SYNCED;
     });
   }
 
@@ -171,7 +76,7 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async reset() {
-    this._synced = true;
+    this._syncState = SYNCED;
     this._frameQueue = new FrameQueue(this._icecast);
     await this._createMediaSource();
   }
@@ -201,12 +106,13 @@ export default class MediaSourcePlayer extends Player {
       let frames = [...this._codecParser.iterator(stream)];
 
       if (frames.length) {
-        if (!this._synced) {
-          frames = this._frameQueue.sync(frames);
-
-          if (frames.length) {
-            this._synced = true;
-          }
+        switch (this._syncState) {
+          case NOT_SYNCED:
+            this._frameQueue.initSync();
+            this._syncState = SYNCING;
+          case SYNCING:
+            frames = this._frameQueue.sync(frames);
+            if (frames.length) this._syncState = SYNCED;
         }
 
         frames.map((frame) => this._frameQueue.push(frame));
