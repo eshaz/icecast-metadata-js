@@ -6,11 +6,110 @@ import CodecParser from "codec-parser";
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
 
+class FrameQueue {
+  constructor() {
+    this._cacheDuration = 10000; //seconds
+    this._queue = [];
+    this._syncQueue = [];
+    this._matchingIndex = -1;
+  }
+
+  push(frame) {
+    this._queue.push(frame);
+
+    if (
+      this._queue[0].totalDuration + this._cacheDuration <
+      frame.totalDuration
+    ) {
+      this._queue.pop();
+    }
+  }
+
+  // aligns the previous connection crc32 queue with 
+
+  /*
+
+  sync size is a function of how large the old connection queue is
+  Sync size increases as queue bytes increase to reach a desired probability of collision
+
+                    old data|common data|new data
+  (old connection) |--------------------|
+  (new connection)          |---------------
+                   ^        ^           ^ (sync)
+                   (queue)  (new connection)
+    */
+  sync(frames) {
+    const SYNC_SIZE = 4;
+    this._syncQueue.push(...frames);
+
+    // look for matches
+    if (this._matchingIndex === -1) {
+      if (this._syncQueue.length < SYNC_SIZE) {
+        return [];
+      }
+
+      console.log("searching");
+
+      for (
+        this._matchingIndex = 0;
+        this._matchingIndex < this._queue.length - this._syncQueue.length;
+        this._matchingIndex++
+      ) {
+        if (
+          this._syncQueue.every(
+            (frame, idx) =>
+              frame.crc32 === this._queue[this._matchingIndex + idx]
+          )
+        ) {
+          break;
+        }
+      }
+
+      if (this._matchingIndex > this._queue.length - this._syncQueue.length) {
+        console.log("no match");
+        const framesToReturn = this._syncQueue;
+
+        this._queue = [];
+        this._syncQueue = [];
+        this._matchingIndex = -1;
+        return framesToReturn; // no matches in queue
+      }
+    }
+
+    const newFrames = this._syncQueue.slice(
+      this._queue.length - this._matchingIndex
+    ); // some matching and some new data
+
+    console.log(
+      "syncing",
+      this._matchingIndex,
+      this._queue.length,
+      this._syncQueue.length,
+      newFrames.length
+    );
+
+    if (newFrames.length) {
+      //this._queue = [];
+      this._syncQueue = [];
+      this._matchingIndex = -1;
+    }
+
+    return newFrames;
+  }
+}
+
 export default class MediaSourcePlayer extends Player {
   constructor(icecast) {
     super(icecast);
 
     this._createMediaSource();
+    this._synced = true;
+
+    icecast.addEventListener("retry", (event) => {
+      this._synced = false;
+    });
+
+    this._frameQueue = new FrameQueue();
   }
 
   static isSupported() {
@@ -91,9 +190,19 @@ export default class MediaSourcePlayer extends Player {
     const appendFramesSourceBuffer = this._prepareMediaSource(inputMimeType);
 
     return async ({ stream }) => {
-      const frames = [...this._codecParser.iterator(stream)];
+      let frames = [...this._codecParser.iterator(stream)];
 
       if (frames.length) {
+        if (!this._synced) {
+          frames = this._frameQueue.sync(frames);
+          if (frames.length) {
+            this._synced = true;
+            console.log("successfully synced");
+          }
+        }
+
+        frames.map((frame) => this._frameQueue.push(frame.crc32));
+
         // when frames are present, we should already know the codec and have the mse audio mimetype determined
         await (await appendFramesSourceBuffer)(frames); // wait for the source buffer to be created
       }
@@ -150,8 +259,10 @@ export default class MediaSourcePlayer extends Player {
   async _createSourceBuffer(mimeType) {
     await this._mediaSourcePromise;
 
-    this._sourceBufferRemoved = 0;
-    this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
+    if (!this._mediaSource.sourceBuffers.length) {
+      this._sourceBufferRemoved = 0;
+      this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
+    }
   }
 
   async _createMediaSource() {

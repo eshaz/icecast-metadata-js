@@ -163,9 +163,11 @@ export default class IcecastMetadataPlayer extends EventClass {
           p.get(this)[onAudioWaiting]
         );
 
-        p.get(this)[audioElement].pause();
-        p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-        p.get(this)[playerResetPromise] = p.get(this)[player].reset();
+        if (this.state !== state.RETRYING) {
+          p.get(this)[audioElement].pause();
+          p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
+          p.get(this)[playerResetPromise] = p.get(this)[player].reset();
+        }
       },
       // audio element event handlers
       [onAudioPlay]: () => {
@@ -352,6 +354,7 @@ export default class IcecastMetadataPlayer extends EventClass {
   }
 
   async [shouldRetry](error) {
+    console.log(error);
     if (p.get(this)[retryTimeout] === 0) return false;
 
     if (p.get(this)[playerState] === state.RETRYING) {
