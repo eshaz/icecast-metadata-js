@@ -356,7 +356,6 @@ export default class IcecastMetadataPlayer extends EventClass {
   }
 
   async [shouldRetry](error) {
-    console.log(error);
     if (p.get(this)[retryTimeout] === 0) return false;
 
     if (p.get(this)[playerState] === state.RETRYING) {

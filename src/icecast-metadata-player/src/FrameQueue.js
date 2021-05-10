@@ -12,9 +12,8 @@ export default class FrameQueue {
 
   initSync() {
     this._syncQueue = [];
-    this._matchIndex = 0;
-    this._syncPosition = 0;
-    this._syncQueueIndex = 0;
+    this._alignIndex = 0;
+    this._syncIndex = 0;
   }
 
   initQueue() {
@@ -45,34 +44,33 @@ export default class FrameQueue {
   sync(frames) {
     this._syncQueue.push(...frames);
 
-    // search from sync index until end of queue or sync queue
-    match: for (; this._matchIndex < this._queue.length; this._matchIndex++) {
-      for (
-        ;
-        this._syncQueueIndex < this._syncQueue.length &&
-        this._matchIndex + this._syncQueueIndex < this._queue.length;
-        this._syncQueueIndex++
+    // find the index of the element in the queue that aligns with the sync queue
+    align_queues: while (this._alignIndex < this._queue.length) {
+      while (
+        this._syncIndex < this._syncQueue.length &&
+        this._alignIndex + this._syncIndex < this._queue.length
       ) {
         if (
-          this._syncQueue[this._syncQueueIndex].crc32 !==
-          this._queue[this._matchIndex + this._syncQueueIndex].crc32 // failed to match
+          this._syncQueue[this._syncIndex].crc32 !==
+          this._queue[this._alignIndex + this._syncIndex].crc32 // failed to match
         ) {
-          this._syncQueueIndex = 0; // reset sync queue index and start over
-          continue match;
+          this._syncIndex = 0; // reset sync queue index and start over
+          this._alignIndex++;
+          continue align_queues;
         }
+        this._syncIndex++;
       }
-
-      // matched all data in sync queue
-      break;
+      break; // full match, queues are aligned
     }
 
-    // no matches
-    if (this._matchIndex === this._queue.length) {
+    // no matching data
+    if (this._alignIndex === this._queue.length) {
       // prettier-ignore
       this._icecast[fireEvent](
         event.WARN,
         "Reconnected successfully after retry event.",
-        "Found no overlapping frames from previous request."
+        "Found no overlapping frames from previous request.",
+        "Unable to sync old and new request."
       );
 
       const syncQueue = this._syncQueue;
@@ -81,27 +79,26 @@ export default class FrameQueue {
       return syncQueue;
     }
 
-    const sliceIndex = this._queue.length - this._matchIndex;
+    const sliceIndex = this._queue.length - this._alignIndex;
 
+    // new frames
     if (this._syncQueue.length > sliceIndex) {
-      const newFrames = this._syncQueue.slice(sliceIndex);
-
-      const overlappingDuration =
-        this._queue
-          .slice(this._matchIndex)
-          .reduce((acc, { duration }) => acc + duration, 0) / 1000;
-
       // prettier-ignore
       this._icecast[fireEvent](
           event.WARN,
           "Reconnected successfully after retry event.",
-          `Found ${sliceIndex} frames (${overlappingDuration.toFixed(3)} seconds) of overlapping audio data in new request.`,
+          `Found ${sliceIndex} frames (${(this._queue
+            .slice(this._alignIndex)
+            .reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds) of overlapping audio data in new request.`,
+          "Synchronized old and new request."
         );
 
+      const newFrames = this._syncQueue.slice(sliceIndex);
       this.initSync();
       return newFrames;
     }
 
+    // no new frames yet
     return [];
   }
 }
