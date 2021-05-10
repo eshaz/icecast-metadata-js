@@ -12,9 +12,9 @@ export default class FrameQueue {
 
   initSync() {
     this._syncQueue = [];
-    this._matchIndex = null;
-    this._syncPosition = null;
-    this._syncQueueIndex = null;
+    this._matchIndex = 0;
+    this._syncPosition = 0;
+    this._syncQueueIndex = 0;
   }
 
   initQueue() {
@@ -33,23 +33,17 @@ export default class FrameQueue {
   }
 
   /*
-  Aligns the queue with a new incoming data by searching for the
-  first matching set crc32 hashes based on audio duration and then returning only the
-  frames that do not existing on the queue.
+  Aligns the queue with a new incoming data by aligning the crc32 hashes 
+  and then returning only the frames that do not existing on the queue.
   
-                    old data|common data|new data
-  (old connection) |--------[--]--------|
-  (new connection)         |[--]--------[----->
-                            ^ (sync)    ^ (frames to return)
+                   old data | common data  | new data
+  (old connection) ------------------------|
+  (new connection)          |------------------>
+                             ^^^^^^^^^^^^^^ ^^^^
+                              (sync)         (frames to return)
   */
   sync(frames) {
     this._syncQueue.push(...frames);
-
-    // gather min data for sync
-    if (this._matchIndex === null) {
-      this._matchIndex = 0;
-      this._syncQueueIndex = 0;
-    }
 
     // search from sync index until end of queue or sync queue
     match: for (; this._matchIndex < this._queue.length; this._matchIndex++) {
