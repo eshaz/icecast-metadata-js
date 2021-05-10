@@ -2,25 +2,33 @@ import { event, fireEvent } from "./global";
 
 export default class FrameQueue {
   constructor(icecast) {
-    this.CACHE_DURATION = 30000; // milliseconds of burst on connect data
-    this.SYNC_SIZE = 300; // milliseconds to match
-    this._queue = [];
+    this.CACHE_DURATION = 60000; // milliseconds of burst on connect data
+
     this._icecast = icecast;
 
     this.initSync();
+    this.initQueue();
   }
 
   initSync() {
     this._syncQueue = [];
-    this._syncIndex = null;
+    this._matchIndex = null;
     this._syncPosition = null;
+    this._syncQueueIndex = null;
   }
 
-  push({ crc32, totalDuration, duration }) {
-    this._queue.push({ crc32, totalDuration, duration });
+  initQueue() {
+    this._queue = [];
+    this._queueDuration = 0;
+  }
 
-    if (this._queue[0].totalDuration + this.CACHE_DURATION < totalDuration) {
-      this._queue.pop();
+  push({ crc32, duration }) {
+    this._queue.push({ crc32, duration });
+    this._queueDuration += duration;
+
+    if (this._queueDuration >= this.CACHE_DURATION) {
+      const { duration } = this._queue.shift();
+      this._queueDuration -= duration;
     }
   }
 
@@ -35,73 +43,71 @@ export default class FrameQueue {
                             ^ (sync)    ^ (frames to return)
   */
   sync(frames) {
-    if (this._syncIndex === null) {
-      let syncQueueDuration = this._syncQueue.reduce(
-        (acc, { duration }) => acc + duration,
-        0
-      );
+    this._syncQueue.push(...frames);
 
-      for (const frame of frames) {
-        this._syncQueue.push(frame);
-        syncQueueDuration += frame.duration;
+    // gather min data for sync
+    if (this._matchIndex === null) {
+      this._matchIndex = 0;
+      this._syncQueueIndex = 0;
+    }
 
-        if (syncQueueDuration > this.SYNC_SIZE) break;
-      }
-
-      // need more data before we can search
-      if (syncQueueDuration < this.SYNC_SIZE) return [];
-
-      // search for matching hashes
+    // search from sync index until end of queue or sync queue
+    match: for (; this._matchIndex < this._queue.length; this._matchIndex++) {
       for (
-        this._syncIndex = 0;
-        this._syncIndex < this._queue.length - this._syncQueue.length;
-        this._syncIndex++
+        ;
+        this._syncQueueIndex < this._syncQueue.length &&
+        this._matchIndex + this._syncQueueIndex < this._queue.length;
+        this._syncQueueIndex++
       ) {
         if (
-          this._syncQueue.every(
-            (frame, i) => frame.crc32 === this._queue[this._syncIndex + i].crc32
-          )
+          this._syncQueue[this._syncQueueIndex].crc32 !==
+          this._queue[this._matchIndex + this._syncQueueIndex].crc32 // failed to match
         ) {
-          // match
-          this._syncPosition = this._syncIndex - this._queue.length;
-          const overlappingDuration =
-            this._queue
-              .slice(this._syncIndex)
-              .reduce((acc, { duration }) => acc + duration, 0) / 1000;
-
-          // prettier-ignore
-          this._icecast[fireEvent](
-              event.WARN,
-              "Reconnected successfully after retry event.",
-              `Syncing on ${this._syncQueue.length} frames (${(syncQueueDuration / 1000).toFixed(3)} seconds) of audio.`,
-              `Found ${-this._syncPosition} frames (${overlappingDuration.toFixed(3)} seconds) of overlapping audio data in new request.`,
-            );
-          break;
+          this._syncQueueIndex = 0; // reset sync queue index and start over
+          continue match;
         }
       }
 
-      // no match
-      if (this._syncPosition === null) {
-        // prettier-ignore
-        this._icecast[fireEvent](
-          event.WARN,
-          "Reconnected successfully after retry event.",
-          `Syncing on ${this._syncQueue.length} frames (${(syncQueueDuration / 1000).toFixed(3)} seconds) of audio.`,
-          "Found no overlapping frames from previous request."
-        );
-
-        this.initSync();
-        return frames;
-      }
+      // matched all data in sync queue
+      break;
     }
 
-    this._syncPosition += frames.length;
+    // no matches
+    if (this._matchIndex === this._queue.length) {
+      // prettier-ignore
+      this._icecast[fireEvent](
+        event.WARN,
+        "Reconnected successfully after retry event.",
+        "Found no overlapping frames from previous request."
+      );
 
-    // gather new frames until there is at least one new frame
-    if (this._syncPosition < 1) return [];
+      const syncQueue = this._syncQueue;
+      this.initSync();
+      this.initQueue(); // clear queue since there is a gap in data
+      return syncQueue;
+    }
 
-    const newFrames = frames.slice(-this._syncPosition);
-    this.initSync();
-    return newFrames;
+    const sliceIndex = this._queue.length - this._matchIndex;
+
+    if (this._syncQueue.length > sliceIndex) {
+      const newFrames = this._syncQueue.slice(sliceIndex);
+
+      const overlappingDuration =
+        this._queue
+          .slice(this._matchIndex)
+          .reduce((acc, { duration }) => acc + duration, 0) / 1000;
+
+      // prettier-ignore
+      this._icecast[fireEvent](
+          event.WARN,
+          "Reconnected successfully after retry event.",
+          `Found ${sliceIndex} frames (${overlappingDuration.toFixed(3)} seconds) of overlapping audio data in new request.`,
+        );
+
+      this.initSync();
+      return newFrames;
+    }
+
+    return [];
   }
 }
