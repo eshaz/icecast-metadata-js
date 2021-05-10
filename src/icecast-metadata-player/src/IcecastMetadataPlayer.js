@@ -191,14 +191,15 @@ export default class IcecastMetadataPlayer extends EventClass {
           4: "MEDIA_ERR_SRC_NOT_SUPPORTED The associated resource or media provider object (such as a MediaStream) has been found to be unsuitable.",
           5: "MEDIA_ERR_ENCRYPTED",
         };
-        this[fireEvent](
-          event.ERROR,
-          "The audio element encountered an error",
-          errors[e.target.error.code] || `Code: ${e.target.error.code}`,
-          `Message: ${e.target.error.message}`
-        );
 
         if (this.state !== state.RETRYING) {
+          this[fireEvent](
+            event.ERROR,
+            "The audio element encountered an error",
+            errors[e.target.error.code] || `Code: ${e.target.error.code}`,
+            `Message: ${e.target.error.message}`
+          );
+
           this.stop();
         } else {
           p.get(this)[resetPlayback]();

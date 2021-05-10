@@ -4,7 +4,7 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
 
   * Plays an Icecast stream using the Media Source Extensions API and HTML5 audio.
   * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
-  * Seamless frame synchronized playback during network changes (i.e. Wifi to Cell network).
+  * Seamless playback during network changes (i.e. Wifi to Cell network).
   * Small bundle size: *50KB minified, 17KB gziped*
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
@@ -207,7 +207,7 @@ See [Retry Options](#Retry-Options) to configure or disable reconnects.
 
 ### Seamless audio playback:
 
-The audio will continue to play until the buffer runs out while reconnecting. If the reconnect is successful before the buffer runs out, there will only be a minimal blip in playback after a network change.
+The audio will continue to play until the buffer runs out while reconnecting. If the reconnect is successful before the buffer runs out, there will be no gap in playback.
 
 To increase the amount of audio that is buffered by clients, increase the `<burst-size>` setting in your Icecast server.
 
