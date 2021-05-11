@@ -29,7 +29,9 @@ https://github.com/eshaz/icecast-metadata-js
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
 
+---
 
+## Contents
 
 * [Installing](#installing)
 * [Usage](#usage)
@@ -49,6 +51,7 @@ https://github.com/eshaz/icecast-metadata-js
   * [Callbacks](#callbacks)
 * [Troubleshooting](#troubleshooting)
   * [Debugging](#debugging)
+  * [Warning Messages](#warning-messages)
   * [Error Messages](#error-messages)
 
 ---
@@ -70,14 +73,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.2.3.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.3.0.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```
-   <script src="icecast-metadata-player-1.2.3.min.js"></script>
+   <script src="icecast-metadata-player-1.3.0.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -195,15 +198,16 @@ See [Retry Options](#Retry-Options) to configure or disable reconnects.
 1. IcecastMetadataPlayer will retry the initial fetch request periodically using an exponential back-off strategy configurable in the `options` object.
    * Each retry attempt will fire a `retry` / `onRetry` event.
 1. Retries will stop when either of the below conditions are met:
-   * The fetch request succeeds. ***or***
-   * The audio element is paused or `stop()` is called. ***or***
+   * The fetch request succeeds.
+   * The audio element is paused / `stop()` is called.
    * The audio element buffer is empty **and** the retry timeout is met.
 1. When the retry is successful, a `streamstart` / `onStreamStart` event will be fired and the audio will restart playing from the new request.
+   * When using the MediaSource API, the old and new request will be synchronized together on a frame basis for seamless playback.
 1. When the retry times out, a `retrytimeout` / `onRetryTimeout` event will be fired and the stream will stop.
 
 ### Seamless audio playback:
 
-The audio will continue to play until the buffer runs out while reconnecting. If the reconnect is successful before the buffer runs out, there will only be a minimal blip in playback after a network change.
+The audio will continue to play until the buffer runs out while reconnecting. If the reconnect is successful before the buffer runs out, there will be no gap in playback.
 
 To increase the amount of audio that is buffered by clients, increase the `<burst-size>` setting in your Icecast server.
 
@@ -222,6 +226,7 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 
 * `player.detachAudioElement()`
   * Removes all internal event listeners from the audio element
+  * Stops audio playback
   * **Must be called if the audio element is going to be re-used outside of the current instance**
 
 * `IcecastMetadataPlayer.canPlayType(mimeType)` *static*
@@ -367,10 +372,22 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.2.3.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.2.3.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.3.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.3.0.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
-### Error messages
+### Warning messages
+
+*Note: Warning messages are be enabled by setting `options.enableLogging = true`*
+
+> Reconnected successfully after retry event. Found 145 frames (3.788 seconds) of overlapping audio data in new request. Synchronized old and new request.
+
+* The stream successfully reconnected after a disconnect, and the old request was synchronized with the new request for seamless playback.
+* This usually happens when switching networks, or if there was a brief interruption in your internet connection. (i.e. cell to WiFi, WiFi to ethernet, temporary loss of cell connection, etc.)
+
+> Reconnected successfully after retry event. Found no overlapping frames from previous request. Unable to sync old and new request.
+
+* The stream successfully reconnected after a disconnect, but there wasn't enough data in the buffer to synchronize the old request with new request.
+* If this happens frequently, try increasing the [`burst-size` option](https://www.icecast.org/docs/icecast-trunk/config_file/#limits) (or equivalent) in your Icecast configuration to increase the client's buffered data.
 
 > Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.
 
@@ -381,6 +398,8 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 > This stream is not an OGG stream. No OGG metadata will be returned.
 
 * IcecastMetadataPlayer has `"ogg"` passed into the `metadataTypes` options, but the stream response is not an ogg stream. ICY metadata and the stream will work without issues. Please remove the `"ogg"` option to remove this warning.
+
+### Error messages
 
 > This stream was requested with ICY metadata. If there is a CORS preflight failure, try removing "icy" from the metadataTypes option.
 

@@ -163,9 +163,11 @@ export default class IcecastMetadataPlayer extends EventClass {
           p.get(this)[onAudioWaiting]
         );
 
-        p.get(this)[audioElement].pause();
-        p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-        p.get(this)[playerResetPromise] = p.get(this)[player].reset();
+        if (this.state !== state.RETRYING) {
+          p.get(this)[audioElement].pause();
+          p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
+          p.get(this)[playerResetPromise] = p.get(this)[player].reset();
+        }
       },
       // audio element event handlers
       [onAudioPlay]: () => {
@@ -189,14 +191,15 @@ export default class IcecastMetadataPlayer extends EventClass {
           4: "MEDIA_ERR_SRC_NOT_SUPPORTED The associated resource or media provider object (such as a MediaStream) has been found to be unsuitable.",
           5: "MEDIA_ERR_ENCRYPTED",
         };
-        this[fireEvent](
-          event.ERROR,
-          "The audio element encountered an error",
-          errors[e.target.error.code] || `Code: ${e.target.error.code}`,
-          `Message: ${e.target.error.message}`
-        );
 
         if (this.state !== state.RETRYING) {
+          this[fireEvent](
+            event.ERROR,
+            "The audio element encountered an error",
+            errors[e.target.error.code] || `Code: ${e.target.error.code}`,
+            `Message: ${e.target.error.message}`
+          );
+
           this.stop();
         } else {
           p.get(this)[resetPlayback]();
@@ -275,14 +278,16 @@ export default class IcecastMetadataPlayer extends EventClass {
   }
 
   /**
-   * @description Remove event listeners from the audio element and this instance
+   * @description Remove event listeners from the audio element and this instance and stops playback
    */
-  detachAudioElement() {
+  async detachAudioElement() {
     const audio = p.get(this)[audioElement];
     audio.removeEventListener("pause", p.get(this)[onAudioPause]);
     audio.removeEventListener("play", p.get(this)[onAudioPlay]);
     audio.removeEventListener("canplay", p.get(this)[onAudioCanPlay]);
     audio.removeEventListener("error", p.get(this)[onAudioError]);
+
+    await this.stop();
   }
 
   /**

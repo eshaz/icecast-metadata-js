@@ -17,6 +17,8 @@ import IcecastMetadataPlayer from "icecast-metadata-player";
 const SELECT_STATION = "Select a station";
 const SELECT_OR_PLAY = "Select a station or press play";
 const LOADING = "Loading...";
+const RECONNECTING = "Lost Connection. Reconnecting...";
+const CONNECTED = "Waiting for metadata...";
 
 const App = () => {
   const [station, setStation] = useState();
@@ -54,6 +56,12 @@ const App = () => {
         },
         onError: (error) => {
           setMetadata(error?.message || error);
+        },
+        onRetry: () => {
+          setMetadata(RECONNECTING)
+        },
+        onStreamStart: () => {
+          setMetadata(CONNECTED)
         },
         icyDetectionTimeout: 5000,
         enableLogging: true,
