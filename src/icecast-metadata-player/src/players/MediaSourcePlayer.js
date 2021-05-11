@@ -56,11 +56,12 @@ export default class MediaSourcePlayer extends Player {
       const { mime, codecs } = matches.groups;
 
       if (mapping[mime]) {
-        return (Array.isArray(mapping[mime])
-          ? mapping[mime] // test codec without a container
-          : codecs
-          ? codecs.split(",").flatMap((codec) => mapping[mime][codec]) // test multiple codecs
-          : Object.values(mapping[mime]).flat()
+        return (
+          Array.isArray(mapping[mime])
+            ? mapping[mime] // test codec without a container
+            : codecs
+            ? codecs.split(",").flatMap((codec) => mapping[mime][codec]) // test multiple codecs
+            : Object.values(mapping[mime]).flat()
         ) // test all codecs within a container
           .reduce((acc, codec) => {
             if (MediaSource.isTypeSupported(codec)) {
@@ -118,7 +119,9 @@ export default class MediaSourcePlayer extends Player {
         frames.map((frame) => this._frameQueue.push(frame));
 
         // when frames are present, we should already know the codec and have the mse audio mimetype determined
-        await (await appendFramesSourceBuffer)(frames); // wait for the source buffer to be created
+        await (
+          await appendFramesSourceBuffer
+        )(frames); // wait for the source buffer to be created
       }
     };
   }

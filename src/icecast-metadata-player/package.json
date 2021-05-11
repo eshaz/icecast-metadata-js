@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -33,14 +33,14 @@
   "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player",
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "terser-webpack-plugin": "^5.0.3",
     "webpack": "^5.36.2",
     "webpack-cli": "^4.7.0"
   },
   "dependencies": {
-    "codec-parser": "0.1.1",
+    "codec-parser": "0.2.0",
     "icecast-metadata-js": "0.5.3",
-    "mse-audio-wrapper": "1.2.3"
+    "mse-audio-wrapper": "1.3.0"
   }
 }
