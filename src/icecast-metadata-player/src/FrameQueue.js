@@ -1,4 +1,4 @@
-import { event, fireEvent } from "./global";
+import { event, fireEvent } from "./global.js";
 
 export default class FrameQueue {
   constructor(icecast) {
