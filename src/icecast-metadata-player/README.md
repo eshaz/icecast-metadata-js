@@ -242,7 +242,7 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 * `player.icyMetaInt`
   * Returns the ICY Metadata Interval of this instance.
 * `player.metadataQueue`
-  * Returns the array of `metadata` objects in FIFO order.
+  * Returns the array of enqueued `metadata` in FIFO order.
     ```
     [
       {
@@ -294,11 +294,11 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 
   *(advanced retry logic)*
   * `retryDelayMin` (optional) - **Default** `0.5` seconds
-    * Minimum number of seconds between retries (start of the   exponential back-off curve)
+    * Minimum number of seconds between retries (start of the exponential back-off curve)
   * `retryDelayMax` (optional) - **Default** `2` seconds
-    * Maximum number of seconds between retries (start of the   exponential back-off curve)
+    * Maximum number of seconds between retries (end of the exponential back-off curve)
   * `retryDelayRate` (optional) - **Default** `0.1` i.e. 10%
-    * Percentage of seconds to increment after each retry (how   quickly to increase the back-off)
+    * Percentage of seconds to increment after each retry (how quickly to increase the back-off)
 
 #### Metadata Options
 * `metadataTypes` (optional) - **Default** `["icy"]`
@@ -359,7 +359,7 @@ Each callback is made available as an event. The parameters for each callback ar
 
 ```
 player.addEventListener('metadata', (event) => {
-  const [metadata, timestampOffset, timestamp] = event.details;
+  const [metadata, timestampOffset, timestamp] = event.detail;
 })
 ```
 
