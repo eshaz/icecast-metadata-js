@@ -100,8 +100,8 @@ node StreamRecorder.js archive \
 <pre>node StreamRecorder.js archive --config config.json</pre>
   * Records and archives the stream(s) using JSON configuration
 
-     ```
      ./config.json:
+     ```json
      {
          "cue-rollover": 999,
          "output-path": "/out",
