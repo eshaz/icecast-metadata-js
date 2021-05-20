@@ -1,6 +1,6 @@
-import { p, state, event, fireEvent, abortController } from "../global";
-import Player from "./Player";
 import CodecParser from "codec-parser";
+import { p, state, event, fireEvent, abortController } from "../global.js";
+import Player from "./Player.js";
 
 export default class HTML5Player extends Player {
   constructor(icecast) {

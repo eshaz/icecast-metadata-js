@@ -63,7 +63,7 @@ https://github.com/eshaz/icecast-metadata-js
 
   **Example**
 
-  ```
+  ```javascript
   import IcecastMetadataPlayer from "icecast-metadata-player";
 
   const player = new IcecastMetadataPlayer(
@@ -73,14 +73,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.3.0.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.3.1.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
-   ```
-   <script src="icecast-metadata-player-1.3.0.min.js"></script>
+   ```html
+   <script src="icecast-metadata-player-1.3.1.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -103,7 +103,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 * To use `IcecastMetadataPlayer`, create a new instance by passing in the stream endpoint, and the options object (optional). See the [Options](#options) and [Callbacks](#callback) sections for more information.
 
-   ```
+   ```javascript
    const player = new IcecastMetadataPlayer("https://stream.example.com", {
      onMetadata: (metadata) => {console.log(metadata)},
      ...options
@@ -115,7 +115,7 @@ https://github.com/eshaz/icecast-metadata-js
 
   * When reading ICY metadata, the client should be able to read the `Icy-MetaInt` header value on the response. If the CORS policy does not allow clients to read the `Icy-MetaInt` header, then `IcecastMetadataPlayer` will attempt to detect the metadata interval based on the incoming request data.
 
-    ```
+    ```javascript
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.mp3", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["icy"]
@@ -127,7 +127,7 @@ https://github.com/eshaz/icecast-metadata-js
 
   * OGG (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
 
-    ```
+    ```javascript
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.opus", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["ogg"]
@@ -139,7 +139,7 @@ https://github.com/eshaz/icecast-metadata-js
 
   * ICY and OGG metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
 
-    ```
+    ```javascript
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["icy", "ogg"]
@@ -153,7 +153,7 @@ https://github.com/eshaz/icecast-metadata-js
 
     *Note:* IcecastMetadataPlayer will use either the MediaSource api or, if that is not available, HTML5 audio with a second request for metadata.
 
-    ```
+    ```javascript
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
       onMetadata: (metadata) => {console.log(metadata)},
       metadataTypes: ["icy"]
@@ -166,7 +166,7 @@ https://github.com/eshaz/icecast-metadata-js
 1. Metadata will be sent as soon as it is discovered via the `onMetadataEnqueue` callback and when the metadata is synchronized with the audio via the `onMetadata` callback. See the [Methods](#methods) section below for additional callbacks.
     
     #### Metadata
-    ```
+    ```javascript
     { 
       StreamTitle: "The stream's title", // ICY
       StreamUrl: "The stream's url", //     ICY
@@ -178,7 +178,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 1. To stop playing the stream, call the `stop()` method on the instance.
 
-    ```
+    ```javascript
     player.stop();
     ```
 
@@ -242,8 +242,8 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 * `player.icyMetaInt`
   * Returns the ICY Metadata Interval of this instance.
 * `player.metadataQueue`
-  * Returns the array of `metadata` objects in FIFO order.
-    ```
+  * Returns the array of enqueued `metadata` in FIFO order.
+    ```javascript
     [
       {
         metadata: { StreamTitle: "Title 1" },
@@ -267,7 +267,7 @@ You can create any number of instances of IcecastMetadataPlayer on your webpage.
 
 **Each instance must have it's own audio element.**
 
-```
+```javascript
 const player_1 = new IcecastMetadataPlayer("https://example.com/stream_1", {
   ...options,
   ...callbacks
@@ -294,11 +294,11 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 
   *(advanced retry logic)*
   * `retryDelayMin` (optional) - **Default** `0.5` seconds
-    * Minimum number of seconds between retries (start of the   exponential back-off curve)
+    * Minimum number of seconds between retries (start of the exponential back-off curve)
   * `retryDelayMax` (optional) - **Default** `2` seconds
-    * Maximum number of seconds between retries (start of the   exponential back-off curve)
+    * Maximum number of seconds between retries (end of the exponential back-off curve)
   * `retryDelayRate` (optional) - **Default** `0.1` i.e. 10%
-    * Percentage of seconds to increment after each retry (how   quickly to increase the back-off)
+    * Percentage of seconds to increment after each retry (how quickly to increase the back-off)
 
 #### Metadata Options
 * `metadataTypes` (optional) - **Default** `["icy"]`
@@ -357,9 +357,9 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 
 Each callback is made available as an event. The parameters for each callback are passed into `event.details` as an array.
 
-```
+```javascript
 player.addEventListener('metadata', (event) => {
-  const [metadata, timestampOffset, timestamp] = event.details;
+  const [metadata, timestampOffset, timestamp] = event.detail;
 })
 ```
 
@@ -372,7 +372,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.3.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.3.0.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.3.1.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.3.1.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Warning messages

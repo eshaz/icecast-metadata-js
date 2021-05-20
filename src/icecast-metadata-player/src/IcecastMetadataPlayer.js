@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
+import { IcecastMetadataQueue } from "icecast-metadata-js";
 import {
   p,
   noOp,
@@ -43,12 +44,11 @@ import {
   hasIcy,
   icecastMetadataQueue,
   abortController,
-} from "./global";
+} from "./global.js";
 
-import { IcecastMetadataQueue } from "icecast-metadata-js";
-import EventTargetPolyfill from "./EventTargetPolyfill";
-import MediaSourcePlayer from "./players/MediaSourcePlayer";
-import HTML5Player from "./players/HTML5Player";
+import EventTargetPolyfill from "./EventTargetPolyfill.js";
+import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
+import HTML5Player from "./players/HTML5Player.js";
 
 let EventClass;
 
@@ -83,6 +83,11 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {Array} options.metadataTypes Array of metadata types to parse
    * @param {number} options.icyMetaInt ICY metadata interval
    * @param {number} options.icyDetectionTimeout ICY metadata detection timeout
+   * @param {number} options.retryTimeout Number of seconds to wait before giving up on retries
+   * @param {number} options.retryDelayRate Percentage of seconds to increment after each retry (how quickly to increase the back-off)
+   * @param {number} options.retryDelayMin Minimum number of seconds between retries (start of the exponential back-off curve)
+   * @param {number} options.retryDelayMax Maximum number of seconds between retries (end of the exponential back-off curve)
+   * @param {number} options.enableLogging Set to `true` to enable warning and error logging to the console
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response

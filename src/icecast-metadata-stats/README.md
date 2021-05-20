@@ -48,7 +48,7 @@ https://github.com/eshaz/icecast-metadata-js
 
   **Example**
 
-  ```
+  ```javascript
   import IcecastMetadataStats from "icecast-metadata-stats";
 
   const statsListener = new IcecastMetadataStats(
@@ -66,7 +66,7 @@ https://github.com/eshaz/icecast-metadata-js
 
    **Example**
 
-   ```
+   ```html
    <script src="icecast-metadata-stats-0.0.1.min.js"></script>
    <script>
      const onStats = (stats) => {
@@ -90,7 +90,7 @@ https://github.com/eshaz/icecast-metadata-js
 
     IcecastMetadataStats supports reading metadata and statistics from multiple sources. Each source has it's own use case. See [Sources](#sources) for more information on which source(s) to choose.
 
-    ```
+    ```javascript
     const statsListener = new IcecastMetadataStats("https://stream.example.com", {
       onStats: (stats) => { console.log(stats) },
       interval: 30,
@@ -101,11 +101,11 @@ https://github.com/eshaz/icecast-metadata-js
 
 1. Metadata and statistics can be manually queried at any time using the methods listed in [Methods](#methods)
 1. To start querying once every *n* seconds for metadata and statistics, call `start()`.
-    ```
+    ```javascript
     statsListener.start();
     ```
 1. To stop querying, call `stop()`
-    ```
+    ```javascript
     statsListener.stop();
     ```
 
@@ -126,7 +126,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
   * **Information Provided**: low
     * ICY metadata only provides `StreamTitle` and sometimes `StreamUrl` and `StreamNext`
   * Example:
-    ```
+    ```javascript
     {
       icy: {
         StreamTitle: "Jeff Bennets Lounge Experience - Let's Come Together",
@@ -146,7 +146,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
   * **Information Provided**: low - high
     * Ogg metadata can contain anywhere from only title / artist to detailed information on a track.
   * Example
-    ```
+    ```javascript
     {
       ogg: {
         ALBUM: "La Sanpa",
@@ -174,7 +174,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
   * **Information Provided**: high
     * Almost all information about a stream and the Icecast server is provided.
   * Example: See [Icecast Docs](https://icecast.org/docs/icecast-latest/server-stats.html)
-    ```
+    ```javascript
     {
       icestats: {
         // see the Icecast docs
@@ -194,7 +194,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
   * **Information Provided**: high
     * Almost all information about a stream and the server is provided.
   * Example: See [Shoutcast Docs](http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#General_Server_Summary)
-    ```
+    ```javascript
     {
       stats: {
         // see the Shoutcast docs
@@ -216,7 +216,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
   * **Information Provided**: medium
     * Provides minimal information on listeners and titles for each stream hosted on a server.
   * Example:
-    ```
+    ```javascript
     {
       sevenhtml: {
         StreamTitle: "Jeff Bennets Lounge Experience - Let's Come Together",
@@ -241,7 +241,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
     * Provides information on upcoming songs.
     * This is the only api that provides this information.
   * Example: See [Shoutcast Docs](http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Nextsongs)
-    ```
+    ```javascript
     {
       nextsongs: {
         // see the Shoutcast docs
@@ -279,7 +279,7 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
 ## Instantiating
 
 You can create any number of instances of IcecastMetadataStats on your webpage. If you have a single Icecast server, you can create one instance and use it to get information on all of your streams.
-```
+```javascript
 const statsListener = new IcecastMetadataStats("https://example.com/stream", {
   ...options,
   ...callbacks
@@ -322,7 +322,7 @@ const statsListener = new IcecastMetadataStats("https://example.com/stream", {
 * `onStats(stats)` (optional)
   * Called when the automatic stats query is completed with the stats returned.
   * Example:
-    ```
+    ```javascript
     {
       icestats: {admin: "icemaster@localhost" …}
       icy: {StreamTitle: "Song name"}

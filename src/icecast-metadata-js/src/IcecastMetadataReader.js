@@ -43,7 +43,7 @@ class IcecastMetadataReader {
    * @callback onMetadataFailed Called when metadata detection has failed and no metadata will be returned
    * @param {string} metadataType Metadata type that failed ("icy" or "ogg")
    *
-   * @callback onError Called when an error is encounted
+   * @callback onError Called when an error is encountered
    * @param {string} message Error message
    */
   constructor({ metadataTypes = ["icy"], ...rest } = {}) {
