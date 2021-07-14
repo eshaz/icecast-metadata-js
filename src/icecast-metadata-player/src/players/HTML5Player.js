@@ -76,9 +76,11 @@ export default class HTML5Player extends Player {
     return ({ stream }) => {
       this._icecast[fireEvent](event.STREAM, stream);
 
-      for (const frame of this._codecParser.iterator(stream)) {
-        this._frame = frame;
-      }
+      const frames = [...this._codecParser.iterator(stream)].flatMap(
+        (frame) => frame.codecFrames || frame
+      );
+
+      this._frame = frames[frames.length - 1];
     };
   }
 }

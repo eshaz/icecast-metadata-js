@@ -104,7 +104,9 @@ export default class MediaSourcePlayer extends Player {
     const appendFramesSourceBuffer = this._prepareMediaSource(inputMimeType);
 
     return async ({ stream }) => {
-      let frames = [...this._codecParser.iterator(stream)];
+      let frames = [...this._codecParser.iterator(stream)].flatMap(
+        (frame) => frame.codecFrames || frame
+      );
 
       if (frames.length) {
         switch (this._syncState) {
@@ -165,8 +167,8 @@ export default class MediaSourcePlayer extends Player {
 
       await this._createSourceBuffer(wrapper.mimeType);
 
-      return async (frames) => {
-        for await (const fragment of wrapper.iterator(frames)) {
+      return async (codecFrames) => {
+        for await (const fragment of wrapper.iterator(codecFrames)) {
           await this._appendSourceBuffer(fragment);
         }
       };

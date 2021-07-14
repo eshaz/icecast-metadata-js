@@ -34,6 +34,14 @@ export default class Player {
     );
   }
 
+  /**
+   * @interface
+   */
+  async reset() {}
+
+  /**
+   * @interface
+   */
   async play() {
     return this.fetchStream().then(async (res) => {
       this._icecast[fireEvent](event.STREAM_START);
@@ -73,6 +81,14 @@ export default class Player {
     await this._icecastReadableStream.startReading();
   }
 
+  /**
+   * @interface
+   */
+  getOnStream() {}
+
+  /**
+   * @interface
+   */
   getOnMetadata() {
     return (value) => {
       this._icecastMetadataQueue.addMetadata(
