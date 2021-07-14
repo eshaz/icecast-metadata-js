@@ -37,10 +37,15 @@ export default class Player {
   /**
    * @interface
    */
-  async reset() {}
+  get metadataTimestamp() {}
 
   /**
    * @interface
+   */
+  async reset() {}
+
+  /**
+   * @abstract
    */
   async play() {
     return this.fetchStream().then(async (res) => {
@@ -50,6 +55,24 @@ export default class Player {
         this._icecast[fireEvent](event.STREAM_END);
       });
     });
+  }
+
+  /**
+   * @interface
+   */
+  getOnStream() {}
+
+  /**
+   * @abstract
+   */
+  getOnMetadata() {
+    return (value) => {
+      this._icecastMetadataQueue.addMetadata(
+        value,
+        this.metadataTimestamp,
+        this._audioElement.currentTime
+      );
+    };
   }
 
   async fetchStream() {
@@ -79,23 +102,5 @@ export default class Player {
     });
 
     await this._icecastReadableStream.startReading();
-  }
-
-  /**
-   * @interface
-   */
-  getOnStream() {}
-
-  /**
-   * @interface
-   */
-  getOnMetadata() {
-    return (value) => {
-      this._icecastMetadataQueue.addMetadata(
-        value,
-        this.metadataTimestamp,
-        this._audioElement.currentTime
-      );
-    };
   }
 }
