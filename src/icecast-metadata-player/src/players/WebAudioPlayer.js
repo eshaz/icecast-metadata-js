@@ -18,12 +18,6 @@ export default class WebAudioPlayer extends Player {
       this._syncState = NOT_SYNCED;
     });
 
-    this._opusDecoder = new OpusStreamDecoder({
-      onDecodeAll: (decodedAudio) => {
-        this._onDecode(decodedAudio);
-      },
-    });
-
     this.reset();
   }
 
@@ -33,7 +27,7 @@ export default class WebAudioPlayer extends Player {
 
   async reset() {
     this._syncState = SYNCED;
-    this._recoveredFromSync = false;
+    this._syncSuccessful = false;
     this._frameQueue = new FrameQueue(this._icecast);
 
     this._currentSample = 0;
@@ -41,28 +35,23 @@ export default class WebAudioPlayer extends Player {
     this._sampleRate = 48000; // opus
     this._startTime = undefined;
 
+    // reset audio context
     if (this._audioContext) this._audioContext.close();
 
     this._audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
 
+    // reset opus decoder
     if (this._opusDecoder) {
-      await this._opusDecoder.ready
-        .then(() => this._opusDecoder.free())
-        .then(() => {
-          this._opusDecoder = new OpusStreamDecoder({
-            onDecodeAll: (decodedAudio) => {
-              this._onDecode(decodedAudio);
-            },
-          });
-        });
+      await this._opusDecoder.ready;
+      this._opusDecoder.free();
     }
-  }
 
-  _initOggPageBuffer() {
-    // store any non audio ogg pages
-    this._oggPageBuffers = [];
-    this._oggPageBuffersLength = 0;
+    this._opusDecoder = new OpusStreamDecoder({
+      onDecodeAll: (decodedAudio) => {
+        this._onDecode(decodedAudio);
+      },
+    });
   }
 
   getOnStream(res) {
@@ -72,15 +61,15 @@ export default class WebAudioPlayer extends Player {
         this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
     });
 
-    this._initOggPageBuffer();
+    this._resetOggPageBuffer();
 
     return async ({ stream }) => {
       for await (const oggPage of this._codecParser.iterator(stream)) {
-        let raw = oggPage.rawData;
+        let oggPageData = oggPage.rawData;
 
         if (oggPage.codecFrames.length === 0) {
-          this._oggPageBuffers.push(raw);
-          this._oggPageBuffersLength += raw.length;
+          // store any initialization pages
+          this._addOggPageBuffer(oggPageData);
         } else {
           let frames = [oggPage];
 
@@ -89,39 +78,33 @@ export default class WebAudioPlayer extends Player {
               this._frameQueue.initSync();
               this._syncState = SYNCING;
             case SYNCING:
-              [frames, this._recoveredFromSync] = this._frameQueue.sync(frames);
+              [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
 
               if (frames.length) {
                 this._syncState = SYNCED;
 
-                if (!this._recoveredFromSync) {
-                  await this.reset();
+                if (this._syncSuccessful) {
+                  // don't append the initial ogg pages when recovering from sync
+                  this._resetOggPageBuffer();
                 } else {
-                  // don't append the initial ogg pages
-                  this._initOggPageBuffer();
+                  // there is a gap in the old and new frames so reset everything and start over decoding
+                  await this.reset();
                 }
               } else {
                 break;
               }
             case SYNCED:
-              if (this._oggPageBuffersLength) {
-                this._oggPageBuffers.push(raw);
-                this._oggPageBuffersLength += raw.length;
+              if (this._oggPageBufferLength) {
+                // add the first audio page to the buffer
+                this._addOggPageBuffer(oggPageData);
+                // get the initialization pages along with the first audio page to be sent to the decoder
+                oggPageData = this._getOggPageBuffer();
 
-                raw = new Uint8Array(this._oggPageBuffersLength);
-                let offset = 0;
-
-                for (const buf of this._oggPageBuffers) {
-                  raw.set(buf, offset);
-                  offset += buf.length;
-                }
-
-                this._oggPageBuffers = [];
-                this._oggPageBuffersLength = 0;
+                this._resetOggPageBuffer();
               }
 
               await this._opusDecoder.ready;
-              this._opusDecoder.decode(raw);
+              this._opusDecoder.decode(oggPageData);
             default:
               this._frameQueue.addAll(frames); // always add frames
           }
@@ -172,5 +155,28 @@ export default class WebAudioPlayer extends Player {
 
       this._currentSample += samplesDecoded;
     }
+  }
+
+  _addOggPageBuffer(oggPageData) {
+    this._oggPageBuffer.push(oggPageData);
+    this._oggPageBufferLength += oggPageData.length;
+  }
+
+  _getOggPageBuffer() {
+    const data = new Uint8Array(this._oggPageBufferLength);
+
+    let offset = 0;
+    for (const buf of this._oggPageBuffer) {
+      data.set(buf, offset);
+      offset += buf.length;
+    }
+
+    return data;
+  }
+
+  _resetOggPageBuffer() {
+    // store any non audio ogg pages
+    this._oggPageBuffer = [];
+    this._oggPageBufferLength = 0;
   }
 }
