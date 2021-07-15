@@ -114,11 +114,11 @@ export default class MediaSourcePlayer extends Player {
             this._frameQueue.initSync();
             this._syncState = SYNCING;
           case SYNCING:
-            frames = this._frameQueue.sync(frames);
+            [frames] = this._frameQueue.sync(frames);
             if (frames.length) this._syncState = SYNCED;
         }
 
-        frames.map((frame) => this._frameQueue.push(frame));
+        this._frameQueue.addAll(frames);
 
         // when frames are present, we should already know the codec and have the mse audio mimetype determined
         await (

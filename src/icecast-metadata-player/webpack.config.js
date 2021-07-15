@@ -37,7 +37,7 @@ export default {
   },
   plugins: [new webpack.ProgressPlugin()],
   resolve: {
-    fallback: { util: false },
+    fallback: { util: false, path: false, fs: false },
   },
   module: {
     rules: [],

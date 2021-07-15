@@ -2,7 +2,7 @@ import { event, fireEvent } from "./global.js";
 
 export default class FrameQueue {
   constructor(icecast) {
-    this.CACHE_DURATION = 60000; // milliseconds of burst on connect data
+    this.CACHE_DURATION = 300000; // milliseconds of burst on connect data
 
     this._icecast = icecast;
 
@@ -21,7 +21,7 @@ export default class FrameQueue {
     this._queueDuration = 0;
   }
 
-  push({ crc32, duration }) {
+  add({ crc32, duration }) {
     this._queue.push({ crc32, duration });
     this._queueDuration += duration;
 
@@ -29,6 +29,10 @@ export default class FrameQueue {
       const { duration } = this._queue.shift();
       this._queueDuration -= duration;
     }
+  }
+
+  addAll(frames) {
+    frames.forEach((frame) => this.add(frame));
   }
 
   /*
@@ -41,6 +45,12 @@ export default class FrameQueue {
                              ^^^^^^^^^^^^^^ ^^^^
                               (sync)         (frames to return)
   */
+
+  /**
+   *
+   * @param {Array<CodecFrame|OggPage>} frames
+   * @returns Array with frames as first element, boolean indicating if the sync was successful as the second element
+   */
   sync(frames) {
     this._syncQueue.push(...frames);
 
@@ -63,7 +73,7 @@ export default class FrameQueue {
       break; // full match, queues are aligned
     }
 
-    // no matching data
+    // no matching data (not synced)
     if (this._alignIndex === this._queue.length) {
       // prettier-ignore
       this._icecast[fireEvent](
@@ -76,12 +86,12 @@ export default class FrameQueue {
       const syncQueue = this._syncQueue;
       this.initSync();
       this.initQueue(); // clear queue since there is a gap in data
-      return syncQueue;
+      return [syncQueue, false];
     }
 
     const sliceIndex = this._queue.length - this._alignIndex;
 
-    // new frames
+    // new frames (synced)
     if (this._syncQueue.length > sliceIndex) {
       // prettier-ignore
       this._icecast[fireEvent](
@@ -95,10 +105,10 @@ export default class FrameQueue {
 
       const newFrames = this._syncQueue.slice(sliceIndex);
       this.initSync();
-      return newFrames;
+      return [newFrames, true];
     }
 
     // no new frames yet
-    return [];
+    return [[], false];
   }
 }
