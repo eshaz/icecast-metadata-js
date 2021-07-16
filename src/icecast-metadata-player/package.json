@@ -43,9 +43,9 @@
     "webpack-cli": "^4.7.0"
   },
   "dependencies": {
-    "codec-parser": "1.0.0",
+    "codec-parser": "1.0.1",
     "icecast-metadata-js": "0.5.3",
-    "mse-audio-wrapper": "1.3.2",
+    "mse-audio-wrapper": "1.3.3",
     "opus-stream-decoder": "file:../../../opus-stream-decoder"
   }
 }

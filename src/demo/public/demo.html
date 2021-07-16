@@ -144,7 +144,7 @@
         .then((text) => JSON.parse(text));
 
       // helper functions
-      const formatTime = (seconds) =>
+      const formatTime = (seconds = 0) =>
         new Date(seconds * 1000).toISOString().substr(14, 8);
 
       const formatMetadata = (json) =>
