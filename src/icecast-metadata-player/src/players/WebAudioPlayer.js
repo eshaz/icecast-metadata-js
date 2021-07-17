@@ -11,27 +11,27 @@ const SYNCING = Symbol("syncing");
 const SYNCED = Symbol("synced");
 
 export default class WebAudioPlayer extends Player {
-  constructor(icecast) {
-    super(icecast);
+  constructor(icecast, inputMimeType, codec) {
+    super(icecast, inputMimeType, codec);
 
     this._icecast.addEventListener(event.RETRY, () => {
       this._syncState = NOT_SYNCED;
     });
 
-    // mp3 32kbs silence
-    this._audioElement.src =
-      "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
-      "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
-      "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
-      "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
-
-    this._audioElement.loop = true;
-
     this.reset();
+    this._resetOggPageBuffer();
+  }
+
+  get isAudioPlayer() {
+    return true;
   }
 
   get metadataTimestamp() {
     return (this._currentSample + this._currentSampleOffset) / this._sampleRate;
+  }
+
+  get currentTime() {
+    return (Date.now() - this._startTime) / 1000 || 0;
   }
 
   async reset() {
@@ -63,73 +63,53 @@ export default class WebAudioPlayer extends Player {
     });
   }
 
-  getOnStream(res) {
-    const inputMimeType = res.headers.get("content-type");
-    this._codecParser = new CodecParser(inputMimeType, {
-      onCodecUpdate: (...args) =>
-        this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
-    });
+  async onStream(oggPages) {
+    for await (const oggPage of oggPages) {
+      let oggPageData = oggPage.rawData;
 
-    this._resetOggPageBuffer();
+      if (oggPage.codecFrames.length === 0) {
+        // store any initialization pages
+        this._addOggPageBuffer(oggPageData);
+      } else {
+        let frames = [oggPage];
 
-    return async ({ stream }) => {
-      for await (const oggPage of this._codecParser.iterator(stream)) {
-        let oggPageData = oggPage.rawData;
+        switch (this._syncState) {
+          case NOT_SYNCED:
+            this._frameQueue.initSync();
+            this._syncState = SYNCING;
+          case SYNCING:
+            [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
 
-        if (oggPage.codecFrames.length === 0) {
-          // store any initialization pages
-          this._addOggPageBuffer(oggPageData);
-        } else {
-          let frames = [oggPage];
+            if (frames.length) {
+              this._syncState = SYNCED;
 
-          switch (this._syncState) {
-            case NOT_SYNCED:
-              this._frameQueue.initSync();
-              this._syncState = SYNCING;
-            case SYNCING:
-              [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
-
-              if (frames.length) {
-                this._syncState = SYNCED;
-
-                if (this._syncSuccessful) {
-                  // don't append the initial ogg pages when recovering from sync
-                  this._resetOggPageBuffer();
-                } else {
-                  // there is a gap in the old and new frames so reset everything and start over decoding
-                  await this.reset();
-                }
-              } else {
-                break;
-              }
-            case SYNCED:
-              if (this._oggPageBufferLength) {
-                // add the first audio page to the buffer
-                this._addOggPageBuffer(oggPageData);
-                // get the initialization pages along with the first audio page to be sent to the decoder
-                oggPageData = this._getOggPageBuffer();
-
+              if (this._syncSuccessful) {
+                // don't append the initial ogg pages when recovering from sync
                 this._resetOggPageBuffer();
+              } else {
+                // there is a gap in the old and new frames so reset everything and start over decoding
+                await this.reset();
               }
+            } else {
+              break;
+            }
+          case SYNCED:
+            if (this._oggPageBufferLength) {
+              // add the first audio page to the buffer
+              this._addOggPageBuffer(oggPageData);
+              // get the initialization pages along with the first audio page to be sent to the decoder
+              oggPageData = this._getOggPageBuffer();
 
-              await this._opusDecoder.ready;
-              this._opusDecoder.decode(oggPageData);
-            default:
-              this._frameQueue.addAll(frames); // always add frames
-          }
+              this._resetOggPageBuffer();
+            }
+
+            await this._opusDecoder.ready;
+            this._opusDecoder.decode(oggPageData);
+          default:
+            this._frameQueue.addAll(frames); // always add frames
         }
       }
-    };
-  }
-
-  getOnMetadata() {
-    return (value) => {
-      this._icecastMetadataQueue.addMetadata(
-        value,
-        this.metadataTimestamp,
-        (Date.now() - this._startTime) / 1000 || 0
-      );
-    };
+    }
   }
 
   _onDecode({ channelData, samplesDecoded }) {

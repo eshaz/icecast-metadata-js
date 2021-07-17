@@ -13,8 +13,8 @@ const SYNCING = Symbol();
 const SYNCED = Symbol();
 
 export default class MediaSourcePlayer extends Player {
-  constructor(icecast) {
-    super(icecast);
+  constructor(icecast, inputMimeType, codec) {
+    super(icecast, inputMimeType, codec);
 
     this.reset();
 
@@ -79,7 +79,17 @@ export default class MediaSourcePlayer extends Player {
   async reset() {
     this._syncState = SYNCED;
     this._frameQueue = new FrameQueue(this._icecast);
-    await this._createMediaSource();
+
+    this._mediaSourcePromise = this._prepareMediaSource(
+      this._inputMimeType,
+      this._codec
+    );
+
+    await this._mediaSourcePromise;
+  }
+
+  get isAudioPlayer() {
+    return true;
   }
 
   get metadataTimestamp() {
@@ -97,49 +107,37 @@ export default class MediaSourcePlayer extends Player {
     );
   }
 
-  getOnStream(res) {
-    const inputMimeType = res.headers.get("content-type");
-
-    // set up the codec parser and source buffer asynchronously
-    const appendFramesSourceBuffer = this._prepareMediaSource(inputMimeType);
-
-    return async ({ stream }) => {
-      let frames = [...this._codecParser.iterator(stream)].flatMap(
-        (frame) => frame.codecFrames || frame
-      );
-
-      if (frames.length) {
-        switch (this._syncState) {
-          case NOT_SYNCED:
-            this._frameQueue.initSync();
-            this._syncState = SYNCING;
-          case SYNCING:
-            [frames] = this._frameQueue.sync(frames);
-            if (frames.length) this._syncState = SYNCED;
-        }
-
-        this._frameQueue.addAll(frames);
-
-        // when frames are present, we should already know the codec and have the mse audio mimetype determined
-        await (
-          await appendFramesSourceBuffer
-        )(frames); // wait for the source buffer to be created
-      }
-    };
+  get currentTime() {
+    return this._audioElement.currentTime;
   }
 
-  async _prepareMediaSource(inputMimeType) {
-    const codec = new Promise((onCodec) => {
-      this._codecParser = new CodecParser(inputMimeType, {
-        onCodecUpdate: (...args) =>
-          this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
-        onCodec,
-      });
-    });
+  async onStream(frames) {
+    frames = frames.flatMap((frame) => frame.codecFrames || frame);
 
+    if (frames.length) {
+      switch (this._syncState) {
+        case NOT_SYNCED:
+          this._frameQueue.initSync();
+          this._syncState = SYNCING;
+        case SYNCING:
+          [frames] = this._frameQueue.sync(frames);
+          if (frames.length) this._syncState = SYNCED;
+      }
+
+      this._frameQueue.addAll(frames);
+
+      // when frames are present, we should already know the codec and have the mse audio mimetype determined
+      await (
+        await this._mediaSourcePromise
+      )(frames); // wait for the source buffer to be created
+    }
+  }
+
+  async _prepareMediaSource(inputMimeType, codec) {
     if (MediaSource.isTypeSupported(inputMimeType)) {
       // pass the audio directly to MSE
-      await this._createSourceBuffer(inputMimeType);
+
+      await this._createMediaSource(inputMimeType);
 
       return async (frames) => {
         for await (const { data } of frames) {
@@ -149,7 +147,7 @@ export default class MediaSourcePlayer extends Player {
     } else {
       // wrap the audio into fragments before passing to MSE
       const wrapper = new MSEAudioWrapper(inputMimeType, {
-        codec: await codec,
+        codec,
       });
 
       if (!MediaSource.isTypeSupported(wrapper.mimeType)) {
@@ -158,14 +156,10 @@ export default class MediaSourcePlayer extends Player {
           `Media Source Extensions API in your browser does not support ${inputMimeType} or ${wrapper.mimeType}`,
           "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
         );
-        const error = new Error(
-          `Unsupported Media Source Codec ${wrapper.mimeType}`
-        );
-        error.name = "CodecError";
-        throw error;
+        throw new Error(`Unsupported Media Source Codec ${wrapper.mimeType}`);
       }
 
-      await this._createSourceBuffer(wrapper.mimeType);
+      await this._createMediaSource(wrapper.mimeType);
 
       return async (codecFrames) => {
         for await (const fragment of wrapper.iterator(codecFrames)) {
@@ -175,25 +169,19 @@ export default class MediaSourcePlayer extends Player {
     }
   }
 
-  async _createSourceBuffer(mimeType) {
-    await this._mediaSourcePromise;
-
-    if (!this._mediaSource.sourceBuffers.length) {
-      this._sourceBufferRemoved = 0;
-      this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
-    }
-  }
-
-  async _createMediaSource() {
-    this._mediaSourcePromise = new Promise((resolve) => {
+  async _createMediaSource(mimeType) {
+    await new Promise(async (resolve) => {
       this._mediaSource = new MediaSource();
+      this._audioElement.loop = false;
       this._audioElement.src = URL.createObjectURL(this._mediaSource);
 
       this._mediaSource.addEventListener("sourceopen", resolve, {
         once: true,
       });
     });
-    return this._mediaSourcePromise;
+
+    this._sourceBufferRemoved = 0;
+    this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
   }
 
   async _waitForSourceBuffer() {

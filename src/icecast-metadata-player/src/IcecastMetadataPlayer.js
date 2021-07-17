@@ -47,6 +47,7 @@ import {
 } from "./global.js";
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
+import PlayerFactory from "./PlayerFactory.js";
 import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import HTML5Player from "./players/HTML5Player.js";
 
@@ -60,6 +61,7 @@ try {
 }
 
 const player = Symbol();
+const playerFactory = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
 const playerState = Symbol();
@@ -171,7 +173,9 @@ export default class IcecastMetadataPlayer extends EventClass {
         if (this.state !== state.RETRYING) {
           p.get(this)[audioElement].pause();
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-          p.get(this)[playerResetPromise] = p.get(this)[player].reset();
+          p.get(this)[playerResetPromise] = p
+            .get(this)
+            [playerFactory].player.reset();
         }
       },
       // audio element event handlers
@@ -182,8 +186,16 @@ export default class IcecastMetadataPlayer extends EventClass {
         this.stop();
       },
       [onAudioCanPlay]: () => {
-        if (this.state === state.LOADING || this.state === state.RETRYING) {
-          p.get(this)[audioElement].play();
+        const audio = p.get(this)[audioElement];
+        console.log("can play", this.state, p.get(this)[playerFactory].player);
+
+        if (
+          this.state === state.LOADING ||
+          (!audio.loop &&
+            this.state !== state.STOPPING &&
+            this.state !== state.STOPPING)
+        ) {
+          audio.play();
           this[playerState] = state.PLAYING;
           this[fireEvent](event.PLAY);
         }
@@ -215,7 +227,11 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[attachAudioElement]();
     this[playerState] = state.STOPPED;
 
-    if (MediaSourcePlayer.isSupported()) {
+    p.get(this)[playerFactory] = new PlayerFactory(this);
+
+    // p.get(this)[player] = new WebAudioPlayer(this);
+
+    /*if (MediaSourcePlayer.isSupported()) {
       p.get(this)[player] = new MediaSourcePlayer(this);
     } else {
       p.get(this)[player] = new HTML5Player(this);
@@ -225,7 +241,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         `Media Source Extensions API in your browser is not supported. Using two requests, one for audio, and another for metadata.`,
         "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
       );
-    }
+    }*/
   }
 
   /**
@@ -251,7 +267,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @returns {number} The ICY metadata interval in number of bytes for this instance
    */
   get icyMetaInt() {
-    return p.get(this)[player].icyMetaInt;
+    return p.get(this)[playerFactory].player.icyMetaInt;
   }
 
   /**
@@ -307,10 +323,9 @@ export default class IcecastMetadataPlayer extends EventClass {
 
       let error;
 
-      const tryFetching = () =>
-        p
-          .get(this)
-          [player].play()
+      // prettier-ignore
+      const tryFetching = async () => {
+        return p.get(this)[playerFactory].playStream()
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
@@ -329,6 +344,7 @@ export default class IcecastMetadataPlayer extends EventClass {
               }
             }
           });
+      };
 
       tryFetching().finally(() => {
         p.get(this)[resetPlayback]();
@@ -446,7 +462,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       "See the console for details on the error."
     );
 
-    p.get(this)[player] = new HTML5Player(this);
+    //p.get(this)[player] = new HTML5Player(this);
     p.get(this)[playerResetPromise].then(() => this.play());
   }
 }

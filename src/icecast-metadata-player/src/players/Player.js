@@ -1,20 +1,16 @@
-import { IcecastReadableStream } from "icecast-metadata-js";
 import {
   p,
-  event,
   audioElement,
   endpoint,
   metadataTypes,
   icyMetaInt,
   icyDetectionTimeout,
-  fireEvent,
   hasIcy,
   icecastMetadataQueue,
-  abortController,
 } from "../global.js";
 
 export default class Player {
-  constructor(icecast) {
+  constructor(icecast, inputMimeType, codec) {
     const instanceVariables = p.get(icecast);
 
     this._icecast = icecast;
@@ -26,6 +22,22 @@ export default class Player {
 
     this._hasIcy = instanceVariables[hasIcy];
     this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
+
+    this._inputMimeType = inputMimeType;
+    this._codec = codec;
+
+    // mp3 32kbs silence
+    this._audioElement.src =
+      "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
+      "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
+      "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
+      "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
+
+    this._audioElement.loop = true;
+  }
+
+  get isAudioPlayer() {
+    return false;
   }
 
   get icyMetaInt() {
@@ -37,7 +49,16 @@ export default class Player {
   /**
    * @interface
    */
-  get metadataTimestamp() {}
+  get metadataTimestamp() {
+    return 0;
+  }
+
+  /**
+   * @interface
+   */
+  get currentTime() {
+    return 0;
+  }
 
   /**
    * @interface
@@ -47,60 +68,20 @@ export default class Player {
   /**
    * @abstract
    */
-  async play() {
-    return this.fetchStream().then(async (res) => {
-      this._icecast[fireEvent](event.STREAM_START);
-
-      return this.playResponse(res).finally(() => {
-        this._icecast[fireEvent](event.STREAM_END);
-      });
-    });
-  }
-
-  /**
-   * @interface
-   */
-  getOnStream() {}
+  async play() {}
 
   /**
    * @abstract
    */
-  getOnMetadata() {
-    return (value) => {
-      this._icecastMetadataQueue.addMetadata(
-        value,
-        this.metadataTimestamp,
-        this._audioElement.currentTime
-      );
-    };
+  onStream(frames) {
+    return frames;
   }
 
-  async fetchStream() {
-    const res = await fetch(this._endpoint, {
-      method: "GET",
-      headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: p.get(this._icecast)[abortController].signal,
-    });
-
-    if (!res.ok) {
-      const error = new Error(`${res.status} received from ${res.url}`);
-      error.name = "HTTP Response Error";
-      throw error;
-    }
-
-    return res;
-  }
-
-  async playResponse(res) {
-    this._icecastReadableStream = new IcecastReadableStream(res, {
-      onMetadata: this.getOnMetadata(),
-      onStream: this.getOnStream(res),
-      onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
-      metadataTypes: this._metadataTypes,
-      icyMetaInt: this._icyMetaInt,
-      icyDetectionTimeout: this._icyDetectionTimeout,
-    });
-
-    await this._icecastReadableStream.startReading();
+  onMetadata(metadata) {
+    this._icecastMetadataQueue.addMetadata(
+      metadata,
+      this.metadataTimestamp,
+      this.currentTime
+    );
   }
 }

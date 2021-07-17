@@ -19,6 +19,10 @@ export default class HTML5Player extends Player {
     return new Audio().canPlayType(mimeType);
   }
 
+  get isAudioPlayer() {
+    return true;
+  }
+
   async reset() {
     if (this._icecast.state !== state.PLAYING) {
       this._frame = null;
@@ -67,20 +71,13 @@ export default class HTML5Player extends Player {
     return this._frame ? (this._frame.totalDuration + this._offset) / 1000 : 0;
   }
 
-  getOnStream(res) {
-    this._codecParser = new CodecParser(res.headers.get("content-type"), {
-      onCodecUpdate: (...args) =>
-        this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
-    });
+  get currentTime() {
+    return this._audioElement.currentTime;
+  }
 
-    return ({ stream }) => {
-      this._icecast[fireEvent](event.STREAM, stream);
-
-      const frames = [...this._codecParser.iterator(stream)].flatMap(
-        (frame) => frame.codecFrames || frame
-      );
-
-      this._frame = frames[frames.length - 1];
-    };
+  onStream(frames) {
+    this._frame = frames.flatMap((frame) => frame.codecFrames || frame)[
+      frames.length - 1
+    ];
   }
 }
