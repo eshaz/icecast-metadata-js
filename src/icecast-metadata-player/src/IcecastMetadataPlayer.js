@@ -187,13 +187,12 @@ export default class IcecastMetadataPlayer extends EventClass {
       },
       [onAudioCanPlay]: () => {
         const audio = p.get(this)[audioElement];
-        console.log("can play", this.state, p.get(this)[playerFactory].player);
 
         if (
           this.state === state.LOADING ||
           (!audio.loop &&
             this.state !== state.STOPPING &&
-            this.state !== state.STOPPING)
+            this.state !== state.STOPPED)
         ) {
           audio.play();
           this[playerState] = state.PLAYING;
@@ -267,7 +266,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @returns {number} The ICY metadata interval in number of bytes for this instance
    */
   get icyMetaInt() {
-    return p.get(this)[playerFactory].player.icyMetaInt;
+    return p.get(this)[playerFactory].icyMetaInt;
   }
 
   /**

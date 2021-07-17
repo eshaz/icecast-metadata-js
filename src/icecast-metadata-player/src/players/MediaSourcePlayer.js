@@ -76,18 +76,6 @@ export default class MediaSourcePlayer extends Player {
     return "";
   }
 
-  async reset() {
-    this._syncState = SYNCED;
-    this._frameQueue = new FrameQueue(this._icecast);
-
-    this._mediaSourcePromise = this._prepareMediaSource(
-      this._inputMimeType,
-      this._codec
-    );
-
-    await this._mediaSourcePromise;
-  }
-
   get isAudioPlayer() {
     return true;
   }
@@ -109,6 +97,18 @@ export default class MediaSourcePlayer extends Player {
 
   get currentTime() {
     return this._audioElement.currentTime;
+  }
+
+  async reset() {
+    this._syncState = SYNCED;
+    this._frameQueue = new FrameQueue(this._icecast);
+
+    this._mediaSourcePromise = this._prepareMediaSource(
+      this._inputMimeType,
+      this._codec
+    );
+
+    await this._mediaSourcePromise;
   }
 
   async onStream(frames) {

@@ -44,6 +44,12 @@ export default class PlayerFactory {
     return this._player;
   }
 
+  get icyMetaInt() {
+    return (
+      this._icecastReadableStream && this._icecastReadableStream.icyMetaInt
+    );
+  }
+
   async playStream() {
     return this.fetchStream().then(async (res) => {
       this._icecast[fireEvent](event.STREAM_START);
@@ -71,7 +77,7 @@ export default class PlayerFactory {
   }
 
   _buildPlayer(codec) {
-    if (codec === "opus") {
+    /*if (codec === "opus") {
       this._player = new WebAudioPlayer(this._icecast);
     } else {
       this._player = new MediaSourcePlayer(
@@ -79,7 +85,9 @@ export default class PlayerFactory {
         this._inputMimeType,
         codec
       );
-    }
+    }*/
+
+    this._player = new HTML5Player(this._icecast);
   }
 
   async readIcecastResponse(res) {

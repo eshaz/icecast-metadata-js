@@ -36,14 +36,25 @@ export default class Player {
     this._audioElement.loop = true;
   }
 
-  get isAudioPlayer() {
-    return false;
+  /**
+   * @abstract
+   */
+  static isSupported() {
+    return true;
   }
 
-  get icyMetaInt() {
-    return (
-      this._icecastReadableStream && this._icecastReadableStream.icyMetaInt
-    );
+  /**
+   * @interface
+   */
+  static canPlayType(mimeType) {
+    return "";
+  }
+
+  /**
+   * @abstract
+   */
+  get isAudioPlayer() {
+    return false;
   }
 
   /**
@@ -68,15 +79,13 @@ export default class Player {
   /**
    * @abstract
    */
-  async play() {}
-
-  /**
-   * @abstract
-   */
   onStream(frames) {
     return frames;
   }
 
+  /**
+   * @abstract
+   */
   onMetadata(metadata) {
     this._icecastMetadataQueue.addMetadata(
       metadata,
