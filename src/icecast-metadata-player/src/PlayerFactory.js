@@ -10,7 +10,6 @@ import {
   icyDetectionTimeout,
   fireEvent,
   hasIcy,
-  icecastMetadataQueue,
   abortController,
 } from "./global.js";
 
@@ -31,7 +30,6 @@ export default class PlayerFactory {
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
 
     this._hasIcy = instanceVariables[hasIcy];
-    this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
 
     this._player = new Player(this._icecast);
     this._unprocessedFrames = [];
@@ -76,25 +74,37 @@ export default class PlayerFactory {
     return res;
   }
 
-  _buildPlayer(codec) {
-    /*if (codec === "opus") {
-      this._player = new WebAudioPlayer(this._icecast);
-    } else {
-      this._player = new MediaSourcePlayer(
-        this._icecast,
-        this._inputMimeType,
-        codec
-      );
-    }*/
+  _buildPlayer(inputMimeType, codec) {
+    // in order of preference
+    const players = [MediaSourcePlayer, WebAudioPlayer, HTML5Player];
 
-    this._player = new HTML5Player(this._icecast);
+    for (const player of players) {
+      const support = player.canPlayType(`${inputMimeType};codecs="${codec}"`);
+
+      if (support === "probably" || support === "maybe") {
+        this._icecast[fireEvent](
+          event.WARN,
+          `Playing stream with ${player.name}`
+        );
+        this._player = new player(this._icecast, inputMimeType, codec);
+        break;
+      }
+    }
+
+    if (!this._player) {
+      throw new Error(
+        `Your browser does not support this audio codec ${inputMimeType}${
+          codec && `;codecs="${codec}"`
+        }`
+      );
+    }
   }
 
   async readIcecastResponse(res) {
-    this._inputMimeType = res.headers.get("content-type");
+    const inputMimeType = res.headers.get("content-type");
 
     const codecPromise = new Promise((onCodec) => {
-      this._codecParser = new CodecParser(this._inputMimeType, {
+      this._codecParser = new CodecParser(inputMimeType, {
         onCodecUpdate: (...args) =>
           this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
         onCodec,
@@ -127,7 +137,7 @@ export default class PlayerFactory {
     const icecastPromise = this._icecastReadableStream.startReading();
 
     if (!this._player.isAudioPlayer) {
-      this._buildPlayer(await codecPromise);
+      this._buildPlayer(inputMimeType, await codecPromise);
     }
 
     await icecastPromise;

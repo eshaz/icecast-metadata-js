@@ -37,7 +37,6 @@ import {
   retryTimeout,
   // methods
   fireEvent,
-  fallbackToHTML5,
   attachAudioElement,
   shouldRetry,
   // variables
@@ -50,6 +49,7 @@ import EventTargetPolyfill from "./EventTargetPolyfill.js";
 import PlayerFactory from "./PlayerFactory.js";
 import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import HTML5Player from "./players/HTML5Player.js";
+import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 let EventClass;
 
@@ -227,20 +227,6 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[playerState] = state.STOPPED;
 
     p.get(this)[playerFactory] = new PlayerFactory(this);
-
-    // p.get(this)[player] = new WebAudioPlayer(this);
-
-    /*if (MediaSourcePlayer.isSupported()) {
-      p.get(this)[player] = new MediaSourcePlayer(this);
-    } else {
-      p.get(this)[player] = new HTML5Player(this);
-
-      this[fireEvent](
-        event.WARN,
-        `Media Source Extensions API in your browser is not supported. Using two requests, one for audio, and another for metadata.`,
-        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-      );
-    }*/
   }
 
   /**
@@ -252,6 +238,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     return {
       mediasource: MediaSourcePlayer.canPlayType(type),
       html5: HTML5Player.canPlayType(type),
+      webaudio: WebAudioPlayer.canPlayType(type),
     };
   }
 
@@ -348,8 +335,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       tryFetching().finally(() => {
         p.get(this)[resetPlayback]();
 
-        if (error && !error.message.match(/network|fetch|offline/))
-          this[fallbackToHTML5]();
+        if (error && !error.message.match(/network|fetch|offline/)) throw error;
 
         this[fireEvent](event.STOP);
         this[playerState] = state.STOPPED;
@@ -452,16 +438,5 @@ export default class IcecastMetadataPlayer extends EventClass {
   [fireEvent](event, ...args) {
     this.dispatchEvent(new CustomEvent(event, { detail: args }));
     p.get(this)[events][event](...args);
-  }
-
-  [fallbackToHTML5]() {
-    this[fireEvent](
-      event.ERROR,
-      "Falling back to HTML5 audio by using two requests: one for audio, and another for metadata.",
-      "See the console for details on the error."
-    );
-
-    //p.get(this)[player] = new HTML5Player(this);
-    p.get(this)[playerResetPromise].then(() => this.play());
   }
 }

@@ -58,10 +58,10 @@ const App = () => {
           setMetadata(error?.message || error);
         },
         onRetry: () => {
-          setMetadata(RECONNECTING)
+          setMetadata(RECONNECTING);
         },
         onStreamStart: () => {
-          setMetadata(CONNECTED)
+          setMetadata(CONNECTED);
         },
         icyDetectionTimeout: 5000,
         enableLogging: true,

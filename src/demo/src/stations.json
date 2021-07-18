@@ -63,15 +63,6 @@
     "statsSources": ["ogg"]
   },
   {
-    "name": "Rektify",
-    "description": "LoFi / Chill / HipHop",
-    "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/rektify.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
-  },
-  {
     "name": "Jazz4ever",
     "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
     "link": "http://jazz4ever.net/",
@@ -178,6 +169,15 @@
     "codec": "MP3",
     "metadataTypes": ["icy"],
     "statsSources": ["icy", "icestats"]
+  },
+  {
+    "name": "Dance Wave Retro!",
+    "description": "All Dance before 2000!",
+    "link": "https://retro.dancewave.online/",
+    "endpoint": "https://retro.dancewave.online/retrodance.opus",
+    "codec": "Opus",
+    "metadataTypes": ["ogg"],
+    "statsSources": ["ogg", "icestats"]
   },
   {
     "name": "Radio Energy",

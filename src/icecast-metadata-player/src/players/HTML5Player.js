@@ -13,7 +13,11 @@ export default class HTML5Player extends Player {
   }
 
   static canPlayType(mimeType) {
-    return new Audio().canPlayType(mimeType);
+    return super.canPlayType((type) => new Audio().canPlayType(type), mimeType);
+  }
+
+  get name() {
+    return "HTML5Player";
   }
 
   get isAudioPlayer() {
@@ -21,18 +25,23 @@ export default class HTML5Player extends Player {
   }
 
   get metadataTimestamp() {
-    return this._frame ? (this._frame.totalDuration + this._offset) / 1000 : 0;
+    return this._frame
+      ? (this._frame.totalDuration + this._metadataTimestampOffset) / 1000
+      : 0;
   }
 
   get currentTime() {
-    return this._audioLoaded && (performance.now() - this._audioLoaded) / 1000;
+    return (
+      this._audioLoadedTimestamp &&
+      (performance.now() - this._audioLoadedTimestamp) / 1000
+    );
   }
 
   async reset() {
     this._frame = null;
-    this._metadataLoaded = performance.now();
-    this._audioLoaded = 0;
-    this._offset = 0;
+    this._metadataLoadedTimestamp = performance.now();
+    this._audioLoadedTimestamp = 0;
+    this._metadataTimestampOffset = 0;
 
     this._audioElement.removeAttribute("src");
     this._audioElement.src = this._endpoint;
@@ -44,8 +53,9 @@ export default class HTML5Player extends Player {
       this._audioElement.addEventListener(
         "playing",
         () => {
-          this._audioLoaded = performance.now();
-          this._offset = performance.now() - this._metadataLoaded;
+          this._audioLoadedTimestamp = performance.now();
+          this._metadataTimestampOffset =
+            performance.now() - this._metadataLoadedTimestamp;
         },
         { once: true }
       );

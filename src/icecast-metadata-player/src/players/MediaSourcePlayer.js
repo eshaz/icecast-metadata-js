@@ -1,16 +1,18 @@
 import MSEAudioWrapper from "mse-audio-wrapper";
-import CodecParser from "codec-parser";
-import { state, event, fireEvent } from "../global.js";
+
+import {
+  state,
+  event,
+  fireEvent,
+  SYNCED,
+  SYNCING,
+  NOT_SYNCED,
+} from "../global.js";
 import Player from "./Player.js";
 import FrameQueue from "../FrameQueue.js";
 
 const BUFFER = 10; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
-
-// sync state
-const NOT_SYNCED = Symbol();
-const SYNCING = Symbol();
-const SYNCED = Symbol();
 
 export default class MediaSourcePlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
@@ -48,32 +50,11 @@ export default class MediaSourcePlayer extends Player {
     if (!MediaSourcePlayer.isSupported()) return "";
     if (MediaSource.isTypeSupported(mimeType)) return "probably";
 
-    const matches = mimeType.match(
-      /^(?:application\/|audio\/|)(?<mime>[a-zA-Z]+)(?:$|;[ ]*codecs=(?:\'|\")(?<codecs>[a-zA-Z,]+)(?:\'|\"))/
-    );
+    return super.canPlayType(MediaSource.isTypeSupported, mimeType, mapping);
+  }
 
-    if (matches) {
-      const { mime, codecs } = matches.groups;
-
-      if (mapping[mime]) {
-        return (
-          Array.isArray(mapping[mime])
-            ? mapping[mime] // test codec without a container
-            : codecs
-            ? codecs.split(",").flatMap((codec) => mapping[mime][codec]) // test multiple codecs
-            : Object.values(mapping[mime]).flat()
-        ) // test all codecs within a container
-          .reduce((acc, codec) => {
-            if (MediaSource.isTypeSupported(codec)) {
-              return acc === "" ? "maybe" : "probably";
-            } else {
-              return !acc ? "" : "maybe";
-            }
-          }, null);
-      }
-    }
-
-    return "";
+  get name() {
+    return "MediaSourcePlayer";
   }
 
   get isAudioPlayer() {

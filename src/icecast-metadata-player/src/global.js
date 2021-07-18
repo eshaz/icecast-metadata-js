@@ -47,3 +47,8 @@ export const shouldRetry = Symbol();
 export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
 export const abortController = Symbol();
+
+// sync state
+export const SYNCED = Symbol();
+export const SYNCING = Symbol();
+export const NOT_SYNCED = Symbol();

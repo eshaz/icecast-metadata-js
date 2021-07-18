@@ -1,14 +1,8 @@
 import { OpusStreamDecoder } from "opus-stream-decoder";
-import CodecParser from "codec-parser";
 
 import FrameQueue from "../FrameQueue.js";
-import { state, event, fireEvent } from "../global.js";
+import { state, event, SYNCED, SYNCING, NOT_SYNCED } from "../global.js";
 import Player from "./Player.js";
-
-// sync state
-const NOT_SYNCED = Symbol("not_synced");
-const SYNCING = Symbol("syncing");
-const SYNCED = Symbol("synced");
 
 export default class WebAudioPlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
@@ -20,6 +14,26 @@ export default class WebAudioPlayer extends Player {
 
     this.reset();
     this._resetOggPageBuffer();
+  }
+
+  static canPlayType(mimeType) {
+    const mapping = {
+      ogg: {
+        opus: ['audio/ogg;codecs="opus"'],
+      },
+    };
+
+    if (!window.WebAssembly) return "";
+
+    return super.canPlayType(
+      (codec) => codec === 'audio/ogg;codecs="opus"',
+      mimeType,
+      mapping
+    );
+  }
+
+  get name() {
+    return "WebAudioPlayer";
   }
 
   get isAudioPlayer() {

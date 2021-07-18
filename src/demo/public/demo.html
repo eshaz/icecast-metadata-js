@@ -186,6 +186,7 @@
           "audio/aac",
           "audio/aacp",
           "audio/flac",
+          'audio/mpeg; codecs="mpeg"',
           'audio/mp4; codecs="mp3"',
           'audio/mp4; codecs="mp4a.40.2"',
           'audio/mp4; codecs="flac"',
@@ -197,9 +198,8 @@
           'application/ogg; codecs="opus"',
           'application/ogg; codecs="vorbis"',
         ].reduce((acc, type) => {
-          const { mediasource, html5 } = IcecastMetadataPlayer.canPlayType(
-            type
-          );
+          const { mediasource, html5, webaudio } =
+            IcecastMetadataPlayer.canPlayType(type);
 
           return (
             acc +
@@ -209,6 +209,8 @@
               mediasource || "not supported"
             }</td><td class="codec-info codec-${html5 || "no"}">${
               html5 || "not supported"
+            }</td><td class="codec-info codec-${webaudio || "no"}">${
+              webaudio || "not supported"
             }</td></tr>`
           );
         }, ``);
@@ -474,11 +476,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <table class="codec-table">
             <tr>
               <th rowspan="2" class="codec-info">Codec</th>
-              <th colspan="2">Playback Method</th>
+              <th colspan="3">Playback Method</th>
             </tr>
             <tr>
               <th class="codec-info">MediaSource</th>
               <th class="codec-info">HTML5 Audio</th>
+              <th class="codec-info">Web Audio</th>
             </tr>
             <tbody id="supported-types"></tbody>
           </table>
