@@ -60,7 +60,7 @@ try {
   EventClass = EventTargetPolyfill;
 }
 
-const player = Symbol();
+const playbackMethod = Symbol();
 const playerFactory = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
@@ -90,6 +90,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {number} options.retryDelayMin Minimum number of seconds between retries (start of the exponential back-off curve)
    * @param {number} options.retryDelayMax Maximum number of seconds between retries (end of the exponential back-off curve)
    * @param {number} options.enableLogging Set to `true` to enable warning and error logging to the console
+   * @param {string} options.playbackMethod Sets the preferred playback method (mediasource (default), html5, webaudio)
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
@@ -121,6 +122,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryDelayMin]: (options.retryDelayMin || 0.5) * 1000,
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
       [retryTimeout]: (options.retryTimeout || 30) * 1000,
+      [playbackMethod]: options.playbackMethod,
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -196,7 +198,6 @@ export default class IcecastMetadataPlayer extends EventClass {
         ) {
           audio.play();
           this[playerState] = state.PLAYING;
-          this[fireEvent](event.PLAY);
         }
       },
       [onAudioError]: (e) => {
@@ -226,7 +227,10 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[attachAudioElement]();
     this[playerState] = state.STOPPED;
 
-    p.get(this)[playerFactory] = new PlayerFactory(this);
+    p.get(this)[playerFactory] = new PlayerFactory(
+      this,
+      p.get(this)[playbackMethod]
+    );
   }
 
   /**
@@ -268,6 +272,13 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   get state() {
     return p.get(this)[playerState];
+  }
+
+  /**
+   * @returns {string} The playback method ("mediasource", "webaudio", "html5")
+   */
+  get playbackMethod() {
+    return p.get(this)[playerFactory].playbackMethod;
   }
 
   set [playerState](_state) {

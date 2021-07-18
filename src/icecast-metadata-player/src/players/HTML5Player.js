@@ -1,4 +1,4 @@
-import { state } from "../global.js";
+import { state, event, fireEvent } from "../global.js";
 import Player from "./Player.js";
 
 export default class HTML5Player extends Player {
@@ -16,8 +16,8 @@ export default class HTML5Player extends Player {
     return super.canPlayType((type) => new Audio().canPlayType(type), mimeType);
   }
 
-  get name() {
-    return "HTML5Player";
+  static get name() {
+    return "html5";
   }
 
   get isAudioPlayer() {
@@ -42,6 +42,7 @@ export default class HTML5Player extends Player {
     this._metadataLoadedTimestamp = performance.now();
     this._audioLoadedTimestamp = 0;
     this._metadataTimestampOffset = 0;
+    this._firedPlay = false;
 
     this._audioElement.removeAttribute("src");
     this._audioElement.src = this._endpoint;
@@ -61,6 +62,11 @@ export default class HTML5Player extends Player {
       );
 
       this._audioElement.play();
+
+      if (!this._firedPlay) {
+        this._icecast[fireEvent](event.PLAY);
+        this._firedPlay = true;
+      }
     }
   }
 

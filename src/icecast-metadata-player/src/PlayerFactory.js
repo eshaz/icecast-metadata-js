@@ -19,7 +19,7 @@ import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 export default class PlayerFactory {
-  constructor(icecast) {
+  constructor(icecast, preferredPlaybackMethod) {
     const instanceVariables = p.get(icecast);
 
     this._icecast = icecast;
@@ -31,6 +31,8 @@ export default class PlayerFactory {
 
     this._hasIcy = instanceVariables[hasIcy];
 
+    this._preferredPlaybackMethod = preferredPlaybackMethod || "mediasource";
+    this._playbackMethod = "";
     this._player = new Player(this._icecast);
     this._unprocessedFrames = [];
     this._codecParser = undefined;
@@ -40,6 +42,10 @@ export default class PlayerFactory {
 
   get player() {
     return this._player;
+  }
+
+  get playbackMethod() {
+    return this._playbackMethod;
   }
 
   get icyMetaInt() {
@@ -76,9 +82,13 @@ export default class PlayerFactory {
 
   _buildPlayer(inputMimeType, codec) {
     // in order of preference
-    const players = [MediaSourcePlayer, WebAudioPlayer, HTML5Player];
+    const { [this._preferredPlaybackMethod]: firstMethod, ...rest } = {
+      mediasource: MediaSourcePlayer,
+      webaudio: WebAudioPlayer,
+      html5: HTML5Player,
+    };
 
-    for (const player of players) {
+    for (const player of Object.values({ firstMethod, ...rest })) {
       const support = player.canPlayType(`${inputMimeType};codecs="${codec}"`);
 
       if (support === "probably" || support === "maybe") {
@@ -86,6 +96,7 @@ export default class PlayerFactory {
           event.WARN,
           `Playing stream with ${player.name}`
         );
+        this._playbackMethod = player.name;
         this._player = new player(this._icecast, inputMimeType, codec);
         break;
       }

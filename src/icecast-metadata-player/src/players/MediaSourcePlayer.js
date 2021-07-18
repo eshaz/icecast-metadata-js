@@ -53,8 +53,8 @@ export default class MediaSourcePlayer extends Player {
     return super.canPlayType(MediaSource.isTypeSupported, mimeType, mapping);
   }
 
-  get name() {
-    return "MediaSourcePlayer";
+  static get name() {
+    return "mediasource";
   }
 
   get isAudioPlayer() {
@@ -83,6 +83,7 @@ export default class MediaSourcePlayer extends Player {
   async reset() {
     this._syncState = SYNCED;
     this._frameQueue = new FrameQueue(this._icecast);
+    this._firedPlay = false;
 
     this._mediaSourcePromise = this._prepareMediaSource(
       this._inputMimeType,
@@ -192,6 +193,11 @@ export default class MediaSourcePlayer extends Player {
       this._icecast.state !== state.STOPPING &&
       this._mediaSource.sourceBuffers.length
     ) {
+      if (!this._firedPlay) {
+        this._icecast[fireEvent](event.PLAY);
+        this._firedPlay = true;
+      }
+
       this._mediaSource.sourceBuffers[0].appendBuffer(chunk);
       await this._waitForSourceBuffer();
 

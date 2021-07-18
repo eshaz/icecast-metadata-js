@@ -1,7 +1,14 @@
 import { OpusStreamDecoder } from "opus-stream-decoder";
 
 import FrameQueue from "../FrameQueue.js";
-import { state, event, SYNCED, SYNCING, NOT_SYNCED } from "../global.js";
+import {
+  state,
+  event,
+  SYNCED,
+  SYNCING,
+  NOT_SYNCED,
+  fireEvent,
+} from "../global.js";
 import Player from "./Player.js";
 
 export default class WebAudioPlayer extends Player {
@@ -32,8 +39,8 @@ export default class WebAudioPlayer extends Player {
     );
   }
 
-  get name() {
-    return "WebAudioPlayer";
+  static get name() {
+    return "webaudio";
   }
 
   get isAudioPlayer() {
@@ -57,6 +64,7 @@ export default class WebAudioPlayer extends Player {
     this._currentSampleOffset = 0;
     this._sampleRate = 48000; // opus
     this._startTime = undefined;
+    this._firedPlay = false;
 
     // reset audio context
     if (this._audioContext) this._audioContext.close();
@@ -155,6 +163,11 @@ export default class WebAudioPlayer extends Player {
       source.buffer = audioBuffer;
       source.connect(this._audioContext.destination);
       source.start(this.metadataTimestamp);
+
+      if (!this._firedPlay) {
+        this._icecast[fireEvent](event.PLAY);
+        this._firedPlay = true;
+      }
 
       this._currentSample += samplesDecoded;
     }
