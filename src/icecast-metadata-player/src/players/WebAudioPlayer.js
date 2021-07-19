@@ -1,4 +1,4 @@
-import { OpusStreamDecoder } from "opus-stream-decoder";
+import { OpusDecoder } from "opus-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
@@ -78,7 +78,7 @@ export default class WebAudioPlayer extends Player {
       this._opusDecoder.free();
     }
 
-    this._opusDecoder = new OpusStreamDecoder({
+    this._opusDecoder = new OpusDecoder({
       onDecodeAll: (decodedAudio) => {
         this._onDecode(decodedAudio);
       },
