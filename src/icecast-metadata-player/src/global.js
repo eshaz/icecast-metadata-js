@@ -39,11 +39,16 @@ export const retryTimeout = Symbol();
 
 // methods
 export const fireEvent = Symbol();
-export const fallbackToHTML5 = Symbol();
 export const attachAudioElement = Symbol();
 export const shouldRetry = Symbol();
+export const logError = Symbol();
 
 // variables
 export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
 export const abortController = Symbol();
+
+// sync state
+export const SYNCED = Symbol();
+export const SYNCING = Symbol();
+export const NOT_SYNCED = Symbol();

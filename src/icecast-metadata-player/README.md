@@ -2,10 +2,9 @@
 
 Icecast Metadata Player is a simple to use Javascript class that plays an Icecast stream with real-time metadata updates.
 
-  * Plays an Icecast stream using the Media Source Extensions API and HTML5 audio.
+  * Plays an Icecast stream using the Media Source Extensions API, HTML5 audio, and Web Assembly decoder (Ogg Opus).
   * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
   * Seamless playback during network changes (i.e. Wifi to Cell network).
-  * Small bundle size: *50KB minified, 17KB gziped*
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
@@ -24,7 +23,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Supported Browsers:
  * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`
+ * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg` (Opus via [`opus-decoder`](https://github.com/eshaz/opus-decoder))
  * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
@@ -230,7 +229,7 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
   * **Must be called if the audio element is going to be re-used outside of the current instance**
 
 * `IcecastMetadataPlayer.canPlayType(mimeType)` *static*
-  * Returns an object `{mediasource, html5}` containing a string value indicating if passed in mime-type can be played.
+  * Returns an object `{mediasource, html5, webaudio}` containing a string value indicating if passed in mime-type can be played.
   * Follows the [HTML5MediaElement canPlayType()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType) API:
     * `""` - Cannot play the codec
     * `"maybe"` - Might be able to play the codec
@@ -260,6 +259,10 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 * `player.state`
   * Returns the current state of the IcecastMetadataPlayer.
   * `"loading", "playing", "stopping", "stopped", "retrying"`
+* `player.playbackMethod`
+  * Returns the playback method in use to play the stream.
+  * The playback method is chosen after the codec of the incoming stream is determined.
+  * `"mediasource", "webaudio", "html5"`
 
 ## Instantiating
 
@@ -285,6 +288,10 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * HTML5 Audio Element to use to play the Icecast stream.
 * `enableLogging` (optional) **Default** `false`
   * Set to `true` to enable warning and error logging to the console
+* `playbackMethod` (optional) **Default** `mediasource`
+  * Sets the preferred playback method. `"mediasource", "webaudio", "html5"`
+  * IcecastMetadataPlayer will attempt to use this playback method first before other methods.
+  * The playback method is automatically chosen depending on browser support for the codec of the Icecast stream.
 
 #### Retry Options
 * `retryTimeout` (optional) - **Default** `30` seconds
@@ -351,7 +358,6 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 #### Informational
 * `onCodecUpdate({ ...codecInformation })` Called with audio codec information whenever there is a change
   * Information such as `bitrate` and `samplingRate` are passed in as an object to this callback
-  * **Only called when [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper) is being used to wrap the response in ISOBMFF or WEBM**
 
 ### Events
 
@@ -408,17 +414,11 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
   * It's possible that this was caused by the Icecast server's CORS policy not allowing the `Icy-Metadata` header. If you want ICY metadata, your CORS policy must allow this header to be requested. See [CORS Troubleshooting](https://github.com/eshaz/icecast-metadata-js#cors) for more information.
   * Additionally, attempting to access a HTTP from a HTTPS origin will be blocked by modern browsers
 
-> Media Source Extensions API in your browser is not supported. Using two requests, one for audio, and another for metadata.
+> Your browser does not support this audio codec *mime-type*
 
-* Your browser doesn't support the Media Source API extensions. IcecastMetadataPlayer will use one request for audio through HTML5 audio, and another request to read the metadata. Both requests will be synchronized for real-time metadata updates.
+> Unsupported Codec *mime-type*
 
-> Media Source Extensions API in your browser does not support `codec`, `audio/mp4; codec="codec"`
-
-* The Media Source API in your browser does not support the audio codec of the Icecast stream. This message should be followed up with the below message.
-
-> Falling back to HTML5 audio by using two requests: one for audio, and another for metadata. See the console for details on the error.
-
-* A general error occurred while playing the stream. This is likely due to an issue with the MediaSource api. The stream should recover using HTML5 audio and another request for real-time metadata.
+* No playback methods are able to play the audio codec being streamed from the Icecast stream. Check the URL that was passed in. If the URL is correct, this stream cannot be played on your browser.
 
 > The audio element encountered an error
 

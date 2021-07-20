@@ -1,85 +1,133 @@
-import { IcecastReadableStream } from "icecast-metadata-js";
-import {
-  p,
-  event,
-  audioElement,
-  endpoint,
-  metadataTypes,
-  icyMetaInt,
-  icyDetectionTimeout,
-  fireEvent,
-  hasIcy,
-  icecastMetadataQueue,
-  abortController,
-} from "../global.js";
+import { p, audioElement, icecastMetadataQueue, endpoint } from "../global.js";
 
 export default class Player {
-  constructor(icecast) {
+  constructor(icecast, inputMimeType, codec) {
     const instanceVariables = p.get(icecast);
 
     this._icecast = icecast;
-    this._audioElement = instanceVariables[audioElement];
-    this._endpoint = instanceVariables[endpoint];
-    this._metadataTypes = instanceVariables[metadataTypes];
-    this._icyMetaInt = instanceVariables[icyMetaInt];
-    this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
+    this._inputMimeType = inputMimeType;
+    this._codec = codec;
 
-    this._hasIcy = instanceVariables[hasIcy];
+    this._audioElement = instanceVariables[audioElement];
     this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
+    this._endpoint = instanceVariables[endpoint];
+
+    // set the audio element an empty source to enable the play button
+    try {
+      this._audioElement.removeAttribute("src");
+      this._audioElement.srcObject = null;
+
+      if (window.MediaSource) {
+        this._audioElement.src = URL.createObjectURL(new MediaSource());
+      } else {
+        this._audioElement.srcObject = new MediaStream();
+      }
+    } catch {
+      // mp3 32kbs silence
+      this._audioElement.src =
+        "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
+        "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
+        "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
+        "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
+
+      this._audioElement.loop = true;
+    }
   }
 
-  get icyMetaInt() {
-    return (
-      this._icecastReadableStream && this._icecastReadableStream.icyMetaInt
+  static parseMimeType(mimeType) {
+    return mimeType.match(
+      /^(?:application\/|audio\/|)(?<mime>[a-zA-Z]+)(?:$|;[ ]*codecs=(?:\'|\")(?<codecs>[a-zA-Z,]+)(?:\'|\"))/
     );
   }
 
-  async play() {
-    return this.fetchStream().then(async (res) => {
-      this._icecast[fireEvent](event.STREAM_START);
+  static canPlayType(codecChecker, mimeType, mapping) {
+    const matches = Player.parseMimeType(mimeType);
 
-      return this.playResponse(res).finally(() => {
-        this._icecast[fireEvent](event.STREAM_END);
-      });
-    });
-  }
+    const checkCodecs = (codecs) =>
+      codecs.reduce((acc, codec) => {
+        if (acc === "") return "";
 
-  async fetchStream() {
-    const res = await fetch(this._endpoint, {
-      method: "GET",
-      headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: p.get(this._icecast)[abortController].signal,
-    });
+        const result = codecChecker(codec);
 
-    if (!res.ok) {
-      const error = new Error(`${res.status} received from ${res.url}`);
-      error.name = "HTTP Response Error";
-      throw error;
+        if (!result) return "";
+        if (result === "maybe" || acc === "maybe") return "maybe";
+        if (result === true || result === "probably") return "probably";
+      }, null);
+
+    if (matches) {
+      const { mime, codecs } = matches.groups;
+
+      const mimeMapping = mapping && mapping[mime];
+
+      // mapping is a raw codec
+      if (!mimeMapping || Array.isArray(mimeMapping)) {
+        return (
+          checkCodecs(mimeMapping || [mimeType]) || // check with the codec
+          checkCodecs([`audio/${mime}`]) // check as a raw mimetype
+        );
+      }
+
+      // mapping ia a container
+      if (typeof mimeMapping === "object") {
+        if (codecs) {
+          const mimeCodecs = codecs.split(",");
+
+          // multiple codecs are not supported
+          if (mimeCodecs.length > 1) return "";
+          if (!mimeMapping[mimeCodecs[0]]) return "";
+
+          return checkCodecs(mimeMapping[mimeCodecs[0]]);
+        }
+        // container exists in list but no codecs were specified
+        return "maybe";
+      }
     }
 
-    return res;
+    // codec not in the list
+    return "";
   }
 
-  async playResponse(res) {
-    this._icecastReadableStream = new IcecastReadableStream(res, {
-      onMetadata: this.getOnMetadata(),
-      onStream: this.getOnStream(res),
-      onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
-      metadataTypes: this._metadataTypes,
-      icyMetaInt: this._icyMetaInt,
-      icyDetectionTimeout: this._icyDetectionTimeout,
-    });
-
-    await this._icecastReadableStream.startReading();
+  /**
+   * @abstract
+   */
+  get isAudioPlayer() {
+    return false;
   }
 
-  getOnMetadata() {
-    return (value) => {
-      this._icecastMetadataQueue.addMetadata(
-        value,
-        this.metadataTimestamp,
-        this._audioElement.currentTime
-      );
-    };
+  /**
+   * @interface
+   */
+  get metadataTimestamp() {
+    return 0;
+  }
+
+  /**
+   * @interface
+   */
+  get currentTime() {
+    return 0;
+  }
+
+  /**
+   * @interface
+   */
+  async reset() {}
+
+  /**
+   * @abstract
+   */
+  onStream(frames) {
+    return frames;
+  }
+
+  /**
+   * @abstract
+   */
+  onMetadata(metadata) {
+    this._icecastMetadataQueue.addMetadata(
+      metadata,
+      this.metadataTimestamp,
+      this.currentTime
+    );
   }
 }

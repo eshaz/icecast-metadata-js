@@ -37,9 +37,9 @@ import {
   retryTimeout,
   // methods
   fireEvent,
-  fallbackToHTML5,
   attachAudioElement,
   shouldRetry,
+  logError,
   // variables
   hasIcy,
   icecastMetadataQueue,
@@ -47,8 +47,10 @@ import {
 } from "./global.js";
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
+import PlayerFactory from "./PlayerFactory.js";
 import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import HTML5Player from "./players/HTML5Player.js";
+import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 let EventClass;
 
@@ -59,7 +61,8 @@ try {
   EventClass = EventTargetPolyfill;
 }
 
-const player = Symbol();
+const playbackMethod = Symbol();
+const playerFactory = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
 const playerState = Symbol();
@@ -88,6 +91,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {number} options.retryDelayMin Minimum number of seconds between retries (start of the exponential back-off curve)
    * @param {number} options.retryDelayMax Maximum number of seconds between retries (end of the exponential back-off curve)
    * @param {number} options.enableLogging Set to `true` to enable warning and error logging to the console
+   * @param {string} options.playbackMethod Sets the preferred playback method (mediasource (default), html5, webaudio)
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
@@ -119,6 +123,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryDelayMin]: (options.retryDelayMin || 0.5) * 1000,
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
       [retryTimeout]: (options.retryTimeout || 30) * 1000,
+      [playbackMethod]: options.playbackMethod,
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -133,22 +138,10 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.RETRY]: options.onRetry || noOp,
         [event.RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
         [event.WARN]: (...messages) => {
-          if (p.get(this)[enableLogging]) {
-            console.warn(
-              "icecast-metadata-js",
-              messages.reduce((acc, message) => acc + "\n  " + message, "")
-            );
-          }
-          if (options.onWarn) options.onWarn(...messages);
+          this[logError](console.warn, options.onWarn, messages);
         },
         [event.ERROR]: (...messages) => {
-          if (p.get(this)[enableLogging]) {
-            console.error(
-              "icecast-metadata-js",
-              messages.reduce((acc, message) => acc + "\n  " + message, "")
-            );
-          }
-          if (options.onError) options.onError(...messages);
+          this[logError](console.error, options.onError, messages);
         },
       },
       // variables
@@ -171,7 +164,9 @@ export default class IcecastMetadataPlayer extends EventClass {
         if (this.state !== state.RETRYING) {
           p.get(this)[audioElement].pause();
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-          p.get(this)[playerResetPromise] = p.get(this)[player].reset();
+          p.get(this)[playerResetPromise] = p
+            .get(this)
+            [playerFactory].player.reset();
         }
       },
       // audio element event handlers
@@ -182,10 +177,16 @@ export default class IcecastMetadataPlayer extends EventClass {
         this.stop();
       },
       [onAudioCanPlay]: () => {
-        if (this.state === state.LOADING || this.state === state.RETRYING) {
-          p.get(this)[audioElement].play();
+        const audio = p.get(this)[audioElement];
+
+        if (
+          this.state === state.LOADING ||
+          (!audio.loop &&
+            this.state !== state.STOPPING &&
+            this.state !== state.STOPPED)
+        ) {
+          audio.play();
           this[playerState] = state.PLAYING;
-          this[fireEvent](event.PLAY);
         }
       },
       [onAudioError]: (e) => {
@@ -215,17 +216,10 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[attachAudioElement]();
     this[playerState] = state.STOPPED;
 
-    if (MediaSourcePlayer.isSupported()) {
-      p.get(this)[player] = new MediaSourcePlayer(this);
-    } else {
-      p.get(this)[player] = new HTML5Player(this);
-
-      this[fireEvent](
-        event.WARN,
-        `Media Source Extensions API in your browser is not supported. Using two requests, one for audio, and another for metadata.`,
-        "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-      );
-    }
+    p.get(this)[playerFactory] = new PlayerFactory(
+      this,
+      p.get(this)[playbackMethod]
+    );
   }
 
   /**
@@ -237,6 +231,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     return {
       mediasource: MediaSourcePlayer.canPlayType(type),
       html5: HTML5Player.canPlayType(type),
+      webaudio: WebAudioPlayer.canPlayType(type),
     };
   }
 
@@ -251,7 +246,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @returns {number} The ICY metadata interval in number of bytes for this instance
    */
   get icyMetaInt() {
-    return p.get(this)[player].icyMetaInt;
+    return p.get(this)[playerFactory].icyMetaInt;
   }
 
   /**
@@ -266,6 +261,13 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   get state() {
     return p.get(this)[playerState];
+  }
+
+  /**
+   * @returns {string} The playback method ("mediasource", "webaudio", "html5")
+   */
+  get playbackMethod() {
+    return p.get(this)[playerFactory].playbackMethod;
   }
 
   set [playerState](_state) {
@@ -305,12 +307,9 @@ export default class IcecastMetadataPlayer extends EventClass {
       this[playerState] = state.LOADING;
       this[fireEvent](event.LOAD);
 
-      let error;
-
-      const tryFetching = () =>
-        p
-          .get(this)
-          [player].play()
+      // prettier-ignore
+      const tryFetching = async () =>
+        p.get(this)[playerFactory].playStream()
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
@@ -324,17 +323,16 @@ export default class IcecastMetadataPlayer extends EventClass {
                 p.get(this)[playerState] !== state.STOPPING &&
                 p.get(this)[playerState] !== state.STOPPED
               ) {
-                this[fireEvent](event.ERROR, e);
-                error = e;
+                this[fireEvent](
+                  event.ERROR,
+                  e.message.match(/network|fetch|offline|codec/i) ? e : e.stack
+                );
               }
             }
           });
 
       tryFetching().finally(() => {
         p.get(this)[resetPlayback]();
-
-        if (error && !error.message.match(/network|fetch|offline/))
-          this[fallbackToHTML5]();
 
         this[fireEvent](event.STOP);
         this[playerState] = state.STOPPED;
@@ -439,14 +437,13 @@ export default class IcecastMetadataPlayer extends EventClass {
     p.get(this)[events][event](...args);
   }
 
-  [fallbackToHTML5]() {
-    this[fireEvent](
-      event.ERROR,
-      "Falling back to HTML5 audio by using two requests: one for audio, and another for metadata.",
-      "See the console for details on the error."
-    );
-
-    p.get(this)[player] = new HTML5Player(this);
-    p.get(this)[playerResetPromise].then(() => this.play());
+  [logError](consoleFunction, callback, messages) {
+    if (p.get(this)[enableLogging]) {
+      consoleFunction(
+        "icecast-metadata-js",
+        messages.reduce((acc, message) => acc + "\n  " + message, "")
+      );
+    }
+    if (callback) callback(...messages);
   }
 }

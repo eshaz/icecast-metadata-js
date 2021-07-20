@@ -115,6 +115,12 @@ declare module "icecast-metadata-player" {
      */
     enableLogging?: boolean;
 
+    /**
+     * Sets the preferred playback method.
+     * @default "mediasource"
+     */
+    playbackMethod?: "mediasource" | "webaudio" | "html5";
+
     /** Called when the audio element begins playing */
     onPlay?: () => void;
 
@@ -314,6 +320,9 @@ declare module "icecast-metadata-player" {
 
     /** Returns the current state of the IcecastMetadataPlayer */
     get state(): "loading" | "playing" | "stopping" | "stopped" | "retrying";
+
+    /** Returns the audio playback method being used */
+    get playbackMethod(): "mediasource" | "webaudio" | "html5" | "";
 
     /** Returns the array of enqueued `metadata` in FIFO order */
     get metadataQueue(): {
