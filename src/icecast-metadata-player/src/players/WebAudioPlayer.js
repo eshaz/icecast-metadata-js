@@ -31,6 +31,8 @@ export default class WebAudioPlayer extends Player {
     };
 
     if (!window.WebAssembly) return "";
+    if (!(window.AudioContext || window.webkitAudioContext)) return "";
+    if (!window.MediaStream) return "";
 
     return super.canPlayType(
       (codec) => codec === 'audio/ogg;codecs="opus"',
@@ -71,6 +73,9 @@ export default class WebAudioPlayer extends Player {
 
     this._audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
+
+    this._mediaStream = this._audioContext.createMediaStreamDestination();
+    this._audioElement.srcObject = this._mediaStream.stream;
 
     // reset opus decoder
     if (this._opusDecoder) {
@@ -161,7 +166,7 @@ export default class WebAudioPlayer extends Player {
 
       const source = this._audioContext.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(this._audioContext.destination);
+      source.connect(this._mediaStream);
       source.start(this.metadataTimestamp);
 
       if (!this._firedPlay) {

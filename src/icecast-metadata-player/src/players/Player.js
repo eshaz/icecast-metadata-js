@@ -12,21 +12,26 @@ export default class Player {
     this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
     this._endpoint = instanceVariables[endpoint];
 
-    // mp3 32kbs silence
-    this._audioElement.src =
-      "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
-      "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
-      "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
-      "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
+    // set the audio element an empty source to enable the play button
+    try {
+      this._audioElement.removeAttribute("src");
+      this._audioElement.srcObject = null;
 
-    this._audioElement.loop = true;
-  }
+      if (window.MediaSource) {
+        this._audioElement.src = URL.createObjectURL(new MediaSource());
+      } else {
+        this._audioElement.srcObject = new MediaStream();
+      }
+    } catch {
+      // mp3 32kbs silence
+      this._audioElement.src =
+        "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
+        "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
+        "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
+        "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
 
-  /**
-   * @abstract
-   */
-  static isSupported() {
-    return true;
+      this._audioElement.loop = true;
+    }
   }
 
   static parseMimeType(mimeType) {

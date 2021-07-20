@@ -25,16 +25,6 @@ export default class MediaSourcePlayer extends Player {
     });
   }
 
-  static isSupported() {
-    try {
-      new MediaSource();
-    } catch {
-      return false;
-    }
-
-    return true;
-  }
-
   static canPlayType(mimeType) {
     const mapping = {
       mpeg: ['audio/mp4;codecs="mp3"'],
@@ -47,7 +37,11 @@ export default class MediaSourcePlayer extends Player {
       },
     };
 
-    if (!MediaSourcePlayer.isSupported()) return "";
+    try {
+      new MediaSource();
+    } catch {
+      return "";
+    }
     if (MediaSource.isTypeSupported(mimeType)) return "probably";
 
     return super.canPlayType(MediaSource.isTypeSupported, mimeType, mapping);
