@@ -80,37 +80,6 @@ export default class PlayerFactory {
     return res;
   }
 
-  _buildPlayer(inputMimeType, codec) {
-    // in order of preference
-    const { [this._preferredPlaybackMethod]: firstMethod, ...rest } = {
-      mediasource: MediaSourcePlayer,
-      webaudio: WebAudioPlayer,
-      html5: HTML5Player,
-    };
-
-    for (const player of Object.values({ firstMethod, ...rest })) {
-      const support = player.canPlayType(`${inputMimeType};codecs="${codec}"`);
-
-      if (support === "probably" || support === "maybe") {
-        this._icecast[fireEvent](
-          event.WARN,
-          `Playing stream with ${player.name}`
-        );
-        this._playbackMethod = player.name;
-        this._player = new player(this._icecast, inputMimeType, codec);
-        break;
-      }
-    }
-
-    if (!this._player) {
-      throw new Error(
-        `Your browser does not support this audio codec ${inputMimeType}${
-          codec && `;codecs="${codec}"`
-        }`
-      );
-    }
-  }
-
   async readIcecastResponse(res) {
     const inputMimeType = res.headers.get("content-type");
 
@@ -152,5 +121,32 @@ export default class PlayerFactory {
     }
 
     await icecastPromise;
+  }
+
+  _buildPlayer(inputMimeType, codec) {
+    // in order of preference
+    const { [this._preferredPlaybackMethod]: firstMethod, ...rest } = {
+      mediasource: MediaSourcePlayer,
+      webaudio: WebAudioPlayer,
+      html5: HTML5Player,
+    };
+
+    for (const player of Object.values({ firstMethod, ...rest })) {
+      const support = player.canPlayType(`${inputMimeType};codecs="${codec}"`);
+
+      if (support === "probably" || support === "maybe") {
+        this._playbackMethod = player.name;
+        this._player = new player(this._icecast, inputMimeType, codec);
+        break;
+      }
+    }
+
+    if (!this._player) {
+      throw new Error(
+        `Your browser does not support this audio codec ${inputMimeType}${
+          codec && `;codecs="${codec}"`
+        }`
+      );
+    }
   }
 }

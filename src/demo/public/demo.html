@@ -521,7 +521,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
                 method depending on browser compatibility.
               </p>
               <li>
-                <b>MediaSource</b> <i>Preferred</i>
+                <b>MediaSource</b>
                 <div>Uses one request to read metadata and play audio.</div>
                 <div>
                   MediaSource compatibility is extended to include MPEG, AAC,
@@ -533,10 +533,16 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
               </li>
               <li>
                 <b>HTML5 Audio</b>
-                <i>Fallback when MediaSource is unsupported</i>
                 <div>
                   Uses two requests, one for HTML5 audio, and another to read
                   metadata.
+                </div>
+              </li>
+              <li>
+                <b>Web Audio</b>
+                <div>
+                  Uses <a href="https://github.com/eshaz/opus-decoder"
+                    >opus-decoder</a> to decode Ogg Opus and plays the audio using the Web Audio API.
                 </div>
               </li>
             </ul>

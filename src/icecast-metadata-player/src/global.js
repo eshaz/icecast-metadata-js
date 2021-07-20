@@ -39,9 +39,9 @@ export const retryTimeout = Symbol();
 
 // methods
 export const fireEvent = Symbol();
-export const fallbackToHTML5 = Symbol();
 export const attachAudioElement = Symbol();
 export const shouldRetry = Symbol();
+export const errorLog = Symbol();
 
 // variables
 export const hasIcy = Symbol();

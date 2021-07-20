@@ -39,6 +39,7 @@ import {
   fireEvent,
   attachAudioElement,
   shouldRetry,
+  errorLog,
   // variables
   hasIcy,
   icecastMetadataQueue,
@@ -137,22 +138,10 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.RETRY]: options.onRetry || noOp,
         [event.RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
         [event.WARN]: (...messages) => {
-          if (p.get(this)[enableLogging]) {
-            console.warn(
-              "icecast-metadata-js",
-              messages.reduce((acc, message) => acc + "\n  " + message, "")
-            );
-          }
-          if (options.onWarn) options.onWarn(...messages);
+          this[errorLog](console.warn, options.onWarn, messages);
         },
         [event.ERROR]: (...messages) => {
-          if (p.get(this)[enableLogging]) {
-            console.error(
-              "icecast-metadata-js",
-              messages.reduce((acc, message) => acc + "\n  " + message, "")
-            );
-          }
-          if (options.onError) options.onError(...messages);
+          this[errorLog](console.error, options.onError, messages);
         },
       },
       // variables
@@ -318,11 +307,9 @@ export default class IcecastMetadataPlayer extends EventClass {
       this[playerState] = state.LOADING;
       this[fireEvent](event.LOAD);
 
-      let error;
-
       // prettier-ignore
-      const tryFetching = async () => {
-        return p.get(this)[playerFactory].playStream()
+      const tryFetching = async () =>
+        p.get(this)[playerFactory].playStream()
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
@@ -336,17 +323,16 @@ export default class IcecastMetadataPlayer extends EventClass {
                 p.get(this)[playerState] !== state.STOPPING &&
                 p.get(this)[playerState] !== state.STOPPED
               ) {
-                this[fireEvent](event.ERROR, e);
-                error = e;
+                this[fireEvent](
+                  event.ERROR,
+                  e.message.match(/network|fetch|offline|codec/i) ? e : e.stack
+                );
               }
             }
           });
-      };
 
       tryFetching().finally(() => {
         p.get(this)[resetPlayback]();
-
-        if (error && !error.message.match(/network|fetch|offline/)) throw error;
 
         this[fireEvent](event.STOP);
         this[playerState] = state.STOPPED;
@@ -449,5 +435,15 @@ export default class IcecastMetadataPlayer extends EventClass {
   [fireEvent](event, ...args) {
     this.dispatchEvent(new CustomEvent(event, { detail: args }));
     p.get(this)[events][event](...args);
+  }
+
+  [errorLog](consoleFunction, callback, messages) {
+    if (p.get(this)[enableLogging]) {
+      consoleFunction(
+        "icecast-metadata-js",
+        messages.reduce((acc, message) => acc + "\n  " + message, "")
+      );
+    }
+    if (callback) callback(...messages);
   }
 }
