@@ -10,7 +10,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.3.1.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.3.2.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.0.1.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
@@ -144,7 +144,7 @@
         .then((text) => JSON.parse(text));
 
       // helper functions
-      const formatTime = (seconds) =>
+      const formatTime = (seconds = 0) =>
         new Date(seconds * 1000).toISOString().substr(14, 8);
 
       const formatMetadata = (json) =>
@@ -186,6 +186,7 @@
           "audio/aac",
           "audio/aacp",
           "audio/flac",
+          'audio/mpeg; codecs="mpeg"',
           'audio/mp4; codecs="mp3"',
           'audio/mp4; codecs="mp4a.40.2"',
           'audio/mp4; codecs="flac"',
@@ -197,9 +198,8 @@
           'application/ogg; codecs="opus"',
           'application/ogg; codecs="vorbis"',
         ].reduce((acc, type) => {
-          const { mediasource, html5 } = IcecastMetadataPlayer.canPlayType(
-            type
-          );
+          const { mediasource, html5, webaudio } =
+            IcecastMetadataPlayer.canPlayType(type);
 
           return (
             acc +
@@ -209,6 +209,8 @@
               mediasource || "not supported"
             }</td><td class="codec-info codec-${html5 || "no"}">${
               html5 || "not supported"
+            }</td><td class="codec-info codec-${webaudio || "no"}">${
+              webaudio || "not supported"
             }</td></tr>`
           );
         }, ``);
@@ -383,8 +385,8 @@
                   </fieldset>
                   <div class="row">
                     <fieldset
-                      title="Select which metadata types to read from the response."
                       name="metadata-types"
+                      title="Select which metadata types to read from the response."
                       class="column"
                     >
                       <legend>Metadata Types</legend>
@@ -397,15 +399,42 @@
                         <input id="ogg" name="ogg" type="checkbox" />
                       </div>
                     </fieldset>
-                    <fieldset name="icy-metadata-options" class="row">
-                      <legend>ICY Metadata Options</legend>
+                    <fieldset
+                      name="preferred-playback-method"
+                      class="row"
+                      style="flex-grow: 1; justify-content: space-evenly"
+                      title="Select the first playback method to try when instantiating IcecastMetadataPlayer. See the below table for playback method compatibility. If the selected playback method does not work, the next working method will be automatically chosen."
+                    >
+                      <legend>Playback Method</legend>
                       <div
-                        title="The detected metadata interval either from the Icy-MetaInt header value or the value detected in the stream."
+                        title="The preferred playback method to use."
                         class="column"
                       >
-                        <label for="icyMetaInt">ICY Metadata Interval</label>
-                        <input name="icyMetaInt" id="icyMetaInt" disabled />
+                        <label for="playbackMethod">Preferred</label>
+                        <select id="playbackMethod" name="playbackMethod">
+                          <option value="mediasource">mediasource</option>
+                          <option value="webaudio">webaudio</option>
+                          <option value="html5">html5</option>
+                        </select>
                       </div>
+                      <div
+                        title="The actual playback method being used."
+                        class="column"
+                      >
+                        <label for="actualPlaybackMethod">Actual</label>
+                        <input
+                          size="9"
+                          name="actualPlaybackMethod"
+                          id="actualPlaybackMethod"
+                          disabled
+                        />
+                      </div>
+                    </fieldset>
+                  </div>
+                  <div class="row">
+                    <fieldset name="icy-metadata-options" class="row">
+                      <legend>ICY Metadata Options</legend>
+
                       <div
                         title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response.
 Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
@@ -421,22 +450,24 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
                           value="2000"
                         />
                       </div>
+                      <div
+                        title="The detected metadata interval either from the Icy-MetaInt header value or the value detected in the stream."
+                        class="column"
+                      >
+                        <label for="icyMetaInt">ICY Metadata Interval</label>
+                        <input name="icyMetaInt" id="icyMetaInt" disabled />
+                      </div>
                     </fieldset>
                   </div>
                 </div>
               </form>
             </div>
             <div style="white-space: nowrap; margin-left: 15px">
-              <b>Codec Information</b>
-              <div>
-                <i style="font-size: 11px"
-                  >Displayed when
-                  <a href="https://github.com/eshaz/codec-parser"
-                    >codec-parser</a
-                  >
-                  is in use.</i
-                >
-              </div>
+              <a
+                title="Codec information is returned from the `codec-parser` npm package."
+                href="https://github.com/eshaz/codec-parser"
+                ><b>Codec Information</b></a
+              >
               <div
                 style="white-space: normal; font-size: 10px"
                 id="audioInfo"
@@ -474,11 +505,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <table class="codec-table">
             <tr>
               <th rowspan="2" class="codec-info">Codec</th>
-              <th colspan="2">Playback Method</th>
+              <th colspan="3">Playback Method</th>
             </tr>
             <tr>
               <th class="codec-info">MediaSource</th>
               <th class="codec-info">HTML5 Audio</th>
+              <th class="codec-info">Web Audio</th>
             </tr>
             <tbody id="supported-types"></tbody>
           </table>
@@ -489,7 +521,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
                 method depending on browser compatibility.
               </p>
               <li>
-                <b>MediaSource</b> <i>Preferred</i>
+                <b>MediaSource</b>
                 <div>Uses one request to read metadata and play audio.</div>
                 <div>
                   MediaSource compatibility is extended to include MPEG, AAC,
@@ -501,10 +533,20 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
               </li>
               <li>
                 <b>HTML5 Audio</b>
-                <i>Fallback when MediaSource is unsupported</i>
                 <div>
                   Uses two requests, one for HTML5 audio, and another to read
                   metadata.
+                </div>
+              </li>
+              <li>
+                <b>Web Audio</b>
+                <div>
+                  Uses
+                  <a href="https://github.com/eshaz/opus-decoder"
+                    >opus-decoder</a
+                  >
+                  to decode Ogg Opus and plays the audio using the Web Audio
+                  API.
                 </div>
               </li>
             </ul>
@@ -518,7 +560,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <li>
             Download the
             <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.3.1.min.js"
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.3.2.min.js"
               >latest build</a
             >, or install via
             <a href="https://www.npmjs.com/package/icecast-metadata-player"
@@ -541,7 +583,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.3.1.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.3.2.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -870,6 +912,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
   <script>
     // IcecastMetadataPlayer
     const icyMetaIntEl = document.getElementById("icyMetaInt");
+    const playbackMethodEl = document.getElementById("actualPlaybackMethod");
     const metadataEl = document.getElementById("metadata");
     const metadataQueueEl = document.getElementById("metadataQueue");
     const currentTimeEl = document.getElementById("currentTime");
@@ -917,6 +960,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
 
     const onPlay = () => {
       icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
+      playbackMethodEl.value = icecastMetadataPlayer.playbackMethod;
 
       let time = 0;
       clearInterval(timer);
@@ -953,6 +997,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           onMetadataEnqueue,
           onCodecUpdate,
           onError,
+          playbackMethod: playerFormData.playbackMethod,
         }
       );
 

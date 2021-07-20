@@ -18,6 +18,87 @@
     "statsSources": ["icy"]
   },
   {
+    "name": "Dance Wave!",
+    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
+    "link": "https://dancewave.online/",
+    "endpoint": "https://dancewave.online/dance.mp3",
+    "codec": "MP3",
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy", "icestats"]
+  },
+  {
+    "name": "Dance Wave!",
+    "description": "",
+    "link": "https://dancewave.online/",
+    "endpoint": "https://dancewave.online/dance.aac",
+    "codec": "AAC+",
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy", "icestats"]
+  },
+  {
+    "name": "Dance Wave!",
+    "description": "",
+    "link": "https://dancewave.online/",
+    "endpoint": "https://dancewave.online/dance.ogg",
+    "codec": "Vorbis",
+    "metadataTypes": ["ogg"],
+    "statsSources": ["ogg", "icestats"]
+  },
+  {
+    "name": "Dance Wave!",
+    "description": "",
+    "link": "https://dancewave.online/",
+    "endpoint": "https://dancewave.online/dance.opus",
+    "codec": "Opus",
+    "metadataTypes": ["ogg"],
+    "statsSources": ["ogg", "icestats"]
+  },
+  {
+    "name": "Dance Wave Retro!",
+    "description": "All Dance before 2000!",
+    "link": "https://retro.dancewave.online/",
+    "endpoint": "https://retro.dancewave.online/retrodance.mp3",
+    "codec": "MP3",
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy", "icestats"]
+  },
+  {
+    "name": "Dance Wave Retro!",
+    "description": "All Dance before 2000!",
+    "link": "https://retro.dancewave.online/",
+    "endpoint": "https://retro.dancewave.online/retrodance.opus",
+    "codec": "Opus",
+    "metadataTypes": ["ogg"],
+    "statsSources": ["ogg", "icestats"]
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Cool",
+    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
+    "link": "https://jazzy.hu/",
+    "endpoint": "https://s04.diazol.hu:9530/live.mp3",
+    "codec": "MP3",
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy", "icestats", "sevenhtml"]
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Groove",
+    "description": "",
+    "link": "https://jazzy.hu/",
+    "endpoint": "https://s04.diazol.hu:9510/live.mp3",
+    "codec": "MP3",
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy", "icestats", "sevenhtml"]
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Soul",
+    "description": "",
+    "link": "https://jazzy.hu/",
+    "endpoint": "https://s04.diazol.hu:9520/live.mp3",
+    "codec": "MP3",
+    "metadataTypes": ["icy"],
+    "statsSources": ["icy", "icestats", "sevenhtml"]
+  },
+  {
     "name": "Nightride FM",
     "description": "Synthwave / Retrowave / Outrun",
     "link": "https://nightride.fm",
@@ -63,15 +144,6 @@
     "statsSources": ["ogg"]
   },
   {
-    "name": "Rektify",
-    "description": "LoFi / Chill / HipHop",
-    "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/rektify.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
-  },
-  {
     "name": "Jazz4ever",
     "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
     "link": "http://jazz4ever.net/",
@@ -103,78 +175,6 @@
     "description": "Añoranzas por la melodias de el radio de los 40 s. 50 s y 60 s.",
     "link": "http://bolerosparaenamorarse.playtheradio.com",
     "endpoint": "https://streaming510.radionomy.com/boleros-para-enamorarse",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "90.9 Jazzy rádió - Jazzy Cool",
-    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
-    "link": "https://jazzy.hu/",
-    "endpoint": "https://s04.diazol.hu:9530/live.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "sevenhtml"]
-  },
-  {
-    "name": "90.9 Jazzy rádió - Jazzy Groove",
-    "description": "",
-    "link": "https://jazzy.hu/",
-    "endpoint": "https://s04.diazol.hu:9510/live.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "sevenhtml"]
-  },
-  {
-    "name": "90.9 Jazzy rádió - Jazzy Soul",
-    "description": "",
-    "link": "https://jazzy.hu/",
-    "endpoint": "https://s04.diazol.hu:9520/live.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "sevenhtml"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.aac",
-    "codec": "AAC+",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.opus",
-    "codec": "Opus",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
-  },
-  {
-    "name": "Dance Wave Retro!",
-    "description": "All Dance before 2000!",
-    "link": "https://retro.dancewave.online/",
-    "endpoint": "https://retro.dancewave.online/retrodance.mp3",
     "codec": "MP3",
     "metadataTypes": ["icy"],
     "statsSources": ["icy", "icestats"]
