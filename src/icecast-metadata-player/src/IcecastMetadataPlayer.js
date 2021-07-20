@@ -39,7 +39,7 @@ import {
   fireEvent,
   attachAudioElement,
   shouldRetry,
-  errorLog,
+  logError,
   // variables
   hasIcy,
   icecastMetadataQueue,
@@ -138,10 +138,10 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.RETRY]: options.onRetry || noOp,
         [event.RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
         [event.WARN]: (...messages) => {
-          this[errorLog](console.warn, options.onWarn, messages);
+          this[logError](console.warn, options.onWarn, messages);
         },
         [event.ERROR]: (...messages) => {
-          this[errorLog](console.error, options.onError, messages);
+          this[logError](console.error, options.onError, messages);
         },
       },
       // variables
@@ -437,7 +437,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     p.get(this)[events][event](...args);
   }
 
-  [errorLog](consoleFunction, callback, messages) {
+  [logError](consoleFunction, callback, messages) {
     if (p.get(this)[enableLogging]) {
       consoleFunction(
         "icecast-metadata-js",

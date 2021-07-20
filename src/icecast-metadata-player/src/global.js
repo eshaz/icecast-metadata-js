@@ -41,7 +41,7 @@ export const retryTimeout = Symbol();
 export const fireEvent = Symbol();
 export const attachAudioElement = Symbol();
 export const shouldRetry = Symbol();
-export const errorLog = Symbol();
+export const logError = Symbol();
 
 // variables
 export const hasIcy = Symbol();
