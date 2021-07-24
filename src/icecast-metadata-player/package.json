@@ -45,6 +45,6 @@
     "codec-parser": "1.0.1",
     "icecast-metadata-js": "0.5.4",
     "mse-audio-wrapper": "1.3.3",
-    "opus-decoder": "0.0.1"
+    "opus-decoder": "file:../../../opus-stream-decoder/src/opus-frame-decoder"
   }
 }
