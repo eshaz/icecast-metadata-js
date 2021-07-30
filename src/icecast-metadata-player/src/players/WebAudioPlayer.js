@@ -1,4 +1,5 @@
 import { OpusDecoder } from "opus-decoder";
+import { MPEGDecoder } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
@@ -20,11 +21,11 @@ export default class WebAudioPlayer extends Player {
     });
 
     this.reset();
-    this._resetOggPageBuffer();
   }
 
   static canPlayType(mimeType) {
     const mapping = {
+      mpeg: ["audio/mpeg"],
       ogg: {
         opus: ['audio/ogg;codecs="opus"'],
       },
@@ -35,7 +36,7 @@ export default class WebAudioPlayer extends Player {
     if (!window.MediaStream) return "";
 
     return super.canPlayType(
-      (codec) => codec === 'audio/ogg;codecs="opus"',
+      (codec) => codec === 'audio/ogg;codecs="opus"' || codec === "audio/mpeg",
       mimeType,
       mapping
     );
@@ -50,7 +51,9 @@ export default class WebAudioPlayer extends Player {
   }
 
   get metadataTimestamp() {
-    return (this._currentSample + this._currentSampleOffset) / this._sampleRate;
+    return (
+      (this._currentSample + this._currentSampleOffset) / this._sampleRate || 0
+    );
   }
 
   get currentTime() {
@@ -64,7 +67,7 @@ export default class WebAudioPlayer extends Player {
 
     this._currentSample = 0;
     this._currentSampleOffset = 0;
-    this._sampleRate = 48000; // opus
+    this._sampleRate = 0;
     this._startTime = undefined;
     this._firedPlay = false;
 
@@ -74,76 +77,68 @@ export default class WebAudioPlayer extends Player {
     this._audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
 
+    // hack for safari to continue playing while locked
+    this._scriptProcessor = this._audioContext.createScriptProcessor(
+      2 ** 14,
+      2,
+      2
+    );
+    this._scriptProcessor.connect(this._audioContext.destination);
+
     this._mediaStream = this._audioContext.createMediaStreamDestination();
     this._audioElement.srcObject = this._mediaStream.stream;
 
     // reset opus decoder
-    if (this._opusDecoder) {
-      await this._opusDecoder.ready;
-      this._opusDecoder.free();
+    if (this._wasmDecoder) {
+      await this._wasmDecoder.ready;
+      this._wasmDecoder.free();
     }
 
-    this._opusDecoder = new OpusDecoder({
-      onDecodeAll: (decodedAudio) => {
-        this._onDecode(decodedAudio);
-      },
-    });
+    switch (this._codec) {
+      case "mpeg":
+        this._wasmDecoder = new MPEGDecoder();
+        break;
+      case "opus":
+        this._wasmDecoder = new OpusDecoder();
+        break;
+    }
   }
 
   async onStream(oggPages) {
-    for await (const oggPage of oggPages) {
-      let oggPageData = oggPage.rawData;
+    let frames = oggPages.flatMap((oggPage) => oggPage.codecFrames || oggPage);
 
-      if (oggPage.codecFrames.length === 0) {
-        // store any initialization pages
-        this._addOggPageBuffer(oggPageData);
-      } else {
-        let frames = [oggPage];
+    switch (this._syncState) {
+      case NOT_SYNCED:
+        this._frameQueue.initSync();
+        this._syncState = SYNCING;
+      case SYNCING:
+        [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
 
-        switch (this._syncState) {
-          case NOT_SYNCED:
-            this._frameQueue.initSync();
-            this._syncState = SYNCING;
-          case SYNCING:
-            [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
+        if (frames.length) {
+          this._syncState = SYNCED;
 
-            if (frames.length) {
-              this._syncState = SYNCED;
-
-              if (this._syncSuccessful) {
-                // don't append the initial ogg pages when recovering from sync
-                this._resetOggPageBuffer();
-              } else {
-                // there is a gap in the old and new frames so reset everything and start over decoding
-                await this.reset();
-              }
-            } else {
-              break;
-            }
-          case SYNCED:
-            if (this._oggPageBufferLength) {
-              // add the first audio page to the buffer
-              this._addOggPageBuffer(oggPageData);
-              // get the initialization pages along with the first audio page to be sent to the decoder
-              oggPageData = this._getOggPageBuffer();
-
-              this._resetOggPageBuffer();
-            }
-
-            await this._opusDecoder.ready;
-            this._opusDecoder.decode(oggPageData);
-          default:
-            this._frameQueue.addAll(frames); // always add frames
+          if (!this._syncSuccessful) await this.reset();
         }
-      }
+      case SYNCED:
+        if (frames.length) {
+          await this._wasmDecoder.ready;
+          const decoded = this._wasmDecoder.decodeFrames(
+            frames.map((f) => f.data)
+          );
+          this.playDecodedAudio(decoded);
+        }
+      default:
+        this._frameQueue.addAll(frames); // always add frames
     }
   }
 
-  _onDecode({ channelData, samplesDecoded }) {
+  playDecodedAudio({ channelData, samplesDecoded, sampleRate }) {
     if (
       this._icecast.state !== state.STOPPING &&
-      this._icecast.state !== state.STOPPED
+      this._icecast.state !== state.STOPPED &&
+      samplesDecoded
     ) {
+      if (!this._sampleRate) this._sampleRate = sampleRate;
       if (!this._startTime) this._startTime = Date.now();
 
       if (this.metadataTimestamp < this._audioContext.currentTime) {
@@ -176,28 +171,5 @@ export default class WebAudioPlayer extends Player {
 
       this._currentSample += samplesDecoded;
     }
-  }
-
-  _addOggPageBuffer(oggPageData) {
-    this._oggPageBuffer.push(oggPageData);
-    this._oggPageBufferLength += oggPageData.length;
-  }
-
-  _getOggPageBuffer() {
-    const data = new Uint8Array(this._oggPageBufferLength);
-
-    let offset = 0;
-    for (const buf of this._oggPageBuffer) {
-      data.set(buf, offset);
-      offset += buf.length;
-    }
-
-    return data;
-  }
-
-  _resetOggPageBuffer() {
-    // store any non audio ogg pages
-    this._oggPageBuffer = [];
-    this._oggPageBufferLength = 0;
   }
 }
