@@ -1,4 +1,5 @@
-import { OpusFrameDecoder } from "opus-decoder";
+import { OpusDecoder } from "opus-decoder";
+import { MPEGDecoder } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
@@ -24,6 +25,7 @@ export default class WebAudioPlayer extends Player {
 
   static canPlayType(mimeType) {
     const mapping = {
+      mpeg: ["audio/mpeg"],
       ogg: {
         opus: ['audio/ogg;codecs="opus"'],
       },
@@ -34,7 +36,7 @@ export default class WebAudioPlayer extends Player {
     if (!window.MediaStream) return "";
 
     return super.canPlayType(
-      (codec) => codec === 'audio/ogg;codecs="opus"',
+      (codec) => codec === 'audio/ogg;codecs="opus"' || codec === "audio/mpeg",
       mimeType,
       mapping
     );
@@ -49,7 +51,9 @@ export default class WebAudioPlayer extends Player {
   }
 
   get metadataTimestamp() {
-    return (this._currentSample + this._currentSampleOffset) / this._sampleRate;
+    return (
+      (this._currentSample + this._currentSampleOffset) / this._sampleRate || 0
+    );
   }
 
   get currentTime() {
@@ -63,7 +67,7 @@ export default class WebAudioPlayer extends Player {
 
     this._currentSample = 0;
     this._currentSampleOffset = 0;
-    this._sampleRate = 48000; // opus
+    this._sampleRate = 0;
     this._startTime = undefined;
     this._firedPlay = false;
 
@@ -73,20 +77,35 @@ export default class WebAudioPlayer extends Player {
     this._audioContext = new (window.AudioContext ||
       window.webkitAudioContext)();
 
+    // hack for safari to continue playing while locked
+    this._scriptProcessor = this._audioContext.createScriptProcessor(
+      2 ** 14,
+      2,
+      2
+    );
+    this._scriptProcessor.connect(this._audioContext.destination);
+
     this._mediaStream = this._audioContext.createMediaStreamDestination();
     this._audioElement.srcObject = this._mediaStream.stream;
 
     // reset opus decoder
-    if (this._opusDecoder) {
-      await this._opusDecoder.ready;
-      this._opusDecoder.free();
+    if (this._wasmDecoder) {
+      await this._wasmDecoder.ready;
+      this._wasmDecoder.free();
     }
 
-    this._opusDecoder = new OpusFrameDecoder();
+    switch (this._codec) {
+      case "mpeg":
+        this._wasmDecoder = new MPEGDecoder();
+        break;
+      case "opus":
+        this._wasmDecoder = new OpusDecoder();
+        break;
+    }
   }
 
   async onStream(oggPages) {
-    let frames = oggPages.flatMap((oggPage) => oggPage.codecFrames);
+    let frames = oggPages.flatMap((oggPage) => oggPage.codecFrames || oggPage);
 
     switch (this._syncState) {
       case NOT_SYNCED:
@@ -102,8 +121,8 @@ export default class WebAudioPlayer extends Player {
         }
       case SYNCED:
         if (frames.length) {
-          await this._opusDecoder.ready;
-          const decoded = this._opusDecoder.decodeAll(
+          await this._wasmDecoder.ready;
+          const decoded = this._wasmDecoder.decodeFrames(
             frames.map((f) => f.data)
           );
           this.playDecodedAudio(decoded);
@@ -113,11 +132,13 @@ export default class WebAudioPlayer extends Player {
     }
   }
 
-  playDecodedAudio({ channelData, samplesDecoded }) {
+  playDecodedAudio({ channelData, samplesDecoded, sampleRate }) {
     if (
       this._icecast.state !== state.STOPPING &&
-      this._icecast.state !== state.STOPPED
+      this._icecast.state !== state.STOPPED &&
+      samplesDecoded
     ) {
+      if (!this._sampleRate) this._sampleRate = sampleRate;
       if (!this._startTime) this._startTime = Date.now();
 
       if (this.metadataTimestamp < this._audioContext.currentTime) {
