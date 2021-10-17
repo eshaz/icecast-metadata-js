@@ -5,6 +5,7 @@ import {
   event,
   audioElement,
   endpoint,
+  enableLogging,
   metadataTypes,
   icyMetaInt,
   icyDetectionTimeout,
@@ -23,6 +24,7 @@ export default class PlayerFactory {
     const instanceVariables = p.get(icecast);
 
     this._icecast = icecast;
+    this._enableLogging = instanceVariables[enableLogging];
     this._audioElement = instanceVariables[audioElement];
     this._endpoint = instanceVariables[endpoint];
     this._metadataTypes = instanceVariables[metadataTypes];
@@ -88,6 +90,7 @@ export default class PlayerFactory {
         onCodecUpdate: (...args) =>
           this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
         onCodec,
+        enableLogging: this._enableLogging,
       });
     });
 

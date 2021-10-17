@@ -16,13 +16,13 @@ https://github.com/eshaz/icecast-metadata-js
 ## Supported codecs:
 * **MP3** `audio/mpeg`, `audio/mp4`
 * **AAC** `audio/aac`, `audio/mp4`
-* **FLAC** `application/ogg`, `audio/mp4`
+* **FLAC** `audio/flac, application/ogg`, `audio/mp4`
 * **Opus** `application/ogg`, `audio/mp4`, `audio/webm`
 * **Vorbis** `application/ogg`, `audio/webm`
 * All other browser supported MediaSource and HTML5 Audio codecs
 
 ## Supported Browsers:
- * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `application/ogg` (FLAC, Opus, Vorbis)
+ * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `audio/flac`, `application/ogg` (FLAC, Opus, Vorbis)
  * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg` (Opus via [`opus-decoder`](https://github.com/eshaz/opus-decoder))
  * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
