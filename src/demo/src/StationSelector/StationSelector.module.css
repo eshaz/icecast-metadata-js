@@ -2,30 +2,24 @@
   display: flex;
 }
 
-.stationRadio {
-  position: fixed;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.stationRadio:checked ~ label {
-  transition: background-color 1.5s ease, color 0.5s ease;
-  background-color: rgba(0, 255, 0, 0.7);
-  color: #000;
-}
-
-.stationRadio:not(checked) ~ label {
-  transition: background-color 1.5s ease, color 0.5s ease;
-  background-color: rgba(0, 0, 0, 0);
-  color: #fff;
-}
-
 .stationLabel {
+  transition: background-color 1.5s ease, color 0.5s ease;
   display: flex;
   flex: 1;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   padding: calc(1px + 1vmin);
+}
+
+.selected {
+  background-color: rgba(0, 255, 0, 0.7);
+  color: #000;
+}
+
+.notSelected {
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
 }
 
 .stationName {
@@ -37,15 +31,49 @@
 
 .stationDescription {
   display: flex;
-  font-size: calc(5px + 2vmin);
+  font-size: calc(2px + 2vmin);
   text-align: center;
 }
 
-.codecInfo {
+.stationRadio {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.codecs {
   display: flex;
   flex-direction: row;
   font-weight: bold;
-  font-size: calc(6px + 1vmin);
+  font-size: calc(1px + 1.5vmin);
   font-family: monospace;
+}
+
+.codecLabel {
+  user-select: none;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  box-sizing: border-box;
+  width: calc(5px + 20vmin);
+  padding: calc(1px + 1vmin);
+  margin: calc(1px + 1vmin) calc(1px + 1vmin) 0;
+  border-radius: calc(1px + 1vmin);
+}
+
+.codecSelected {
+  transition: background-color 1.5s ease, border-color 0.5s ease;
+  border: calc(1px + 0.5vmin) solid rgb(0, 0, 0);
+}
+
+.codecNotSelected {
+  transition: background-color 1.5s ease, border-color 0.5s ease;
+  border: calc(1px + 0.5vmin) solid rgba(0, 0, 0, 0.357);
+}
+
+.codecNotSelectedNotPlaying {
+  transition: background-color 1.5s ease, border-color 0.5s ease;
+  border: calc(1px + 0.5vmin) solid rgba(255, 255, 255, 0.357);
 }

@@ -61,7 +61,7 @@ const App = () => {
           setMetadata(RECONNECTING);
         },
         onStreamStart: () => {
-          setMetadata(CONNECTED);
+          setMetadata(station.metadataTypes.length ? CONNECTED : "");
         },
         icyDetectionTimeout: 5000,
         enableLogging: true,
@@ -113,7 +113,11 @@ const App = () => {
         <About />
       </header>
       <main>
-        <StationSelector stations={stations} changeStation={changeStation} />
+        <StationSelector
+          stations={stations}
+          changeStation={changeStation}
+          selectedStation={station}
+        />
       </main>
       <footer className={styles.footer}>
         <Player

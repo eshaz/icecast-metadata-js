@@ -139,7 +139,7 @@
     </style>
     <script>
       let playerFormData, statsFormData;
-      const stations = fetch("/icecast-metadata-js/stations.json")
+      const stationsJson = fetch("/icecast-metadata-js/stations.json")
         .then((res) => res.text())
         .then((text) => JSON.parse(text));
 
@@ -215,16 +215,27 @@
           );
         }, ``);
 
-        (await stations).forEach(
-          ({ name, codec, metadataTypes, endpoint }, idx) => {
+        let index = 0;
+
+        const stations = [];
+
+        for (const station of await stationsJson) {
+          const { endpoints, ...rest } = station;
+
+          for (const endpoint of endpoints) {
             const option = document.createElement("option");
-            option.text = `${name} - ${codec}`;
-            option.value = endpoint;
-            option.name = endpoint;
-            option.id = idx;
+            option.text = `${station.name} - ${endpoint.codec}`;
+            option.value = endpoint.endpoint;
+            option.name = endpoint.endpoint;
+            option.id = index++;
             stationsEl.add(option);
+
+            stations.push({
+              ...endpoint,
+              ...rest,
+            });
           }
-        );
+        }
 
         endpointEl.addEventListener("change", () => {
           resetIcecastMetadataStatsEndpoints();
@@ -235,7 +246,7 @@
         });
 
         stationsEl.addEventListener("change", async () => {
-          const station = (await stations)[stationsEl.selectedIndex];
+          const station = stations[stationsEl.selectedIndex];
           // prettier-ignore
           {
             document.getElementById("endpoint").value = station.endpoint;

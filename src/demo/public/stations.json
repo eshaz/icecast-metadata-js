@@ -3,449 +3,1066 @@
     "name": "DSMRad.io ISICS All",
     "description": "Des Moines IA, Police Scanner",
     "link": "https://dsmrad.io",
-    "endpoint": "https://dsmrad.io/stream/isics-all",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
+    "endpoints": [
+      {
+        "endpoint": "https://dsmrad.io/stream/isics-all",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "DSMRad.io SARA All",
     "description": "Des Moines IA, Police Scanner",
     "link": "https://dsmrad.io",
-    "endpoint": "https://dsmrad.io/stream/sara-all",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
+    "endpoints": [
+      {
+        "endpoint": "https://dsmrad.io/stream/sara-all",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Dance Wave!",
     "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
     "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.aac",
-    "codec": "AAC+",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
-  },
-  {
-    "name": "Dance Wave!",
-    "description": "",
-    "link": "https://dancewave.online/",
-    "endpoint": "https://dancewave.online/dance.opus",
-    "codec": "Opus",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://dancewave.online/dance.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://dancewave.online/dance.aac",
+        "codec": "AAC+",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://dancewave.online/dance.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://dancewave.online/dance.opus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
   },
   {
     "name": "Dance Wave Retro!",
     "description": "All Dance before 2000!",
     "link": "https://retro.dancewave.online/",
-    "endpoint": "https://retro.dancewave.online/retrodance.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Dance Wave Retro!",
-    "description": "All Dance before 2000!",
-    "link": "https://retro.dancewave.online/",
-    "endpoint": "https://retro.dancewave.online/retrodance.opus",
-    "codec": "Opus",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://retro.dancewave.online/retrodance.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://retro.dancewave.online/retrodance.aac",
+        "codec": "AAC+",
+        "metadataTypes": ["icy"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://retro.dancewave.online/retrodance.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://retro.dancewave.online/retrodance.opus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
   },
   {
     "name": "90.9 Jazzy rádió - Jazzy Cool",
     "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
     "link": "https://jazzy.hu/",
-    "endpoint": "https://s04.diazol.hu:9530/live.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s04.diazol.hu:9530/live.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "90.9 Jazzy rádió - Jazzy Groove",
     "description": "",
     "link": "https://jazzy.hu/",
-    "endpoint": "https://s04.diazol.hu:9510/live.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s04.diazol.hu:9510/live.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "90.9 Jazzy rádió - Jazzy Soul",
     "description": "",
     "link": "https://jazzy.hu/",
-    "endpoint": "https://s04.diazol.hu:9520/live.mp3",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s04.diazol.hu:9520/live.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "Nightride FM",
     "description": "Synthwave / Retrowave / Outrun",
     "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/nightride.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/nightride.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/nightride.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
   },
   {
     "name": "Darksynth Radio",
     "description": "Darksynth / Cyberpunk / Horror",
     "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/darksynth.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/darksynth.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/darksynth.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
   },
   {
     "name": "EBSM",
     "description": "EBSM / Industrial / Clubbing",
     "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/ebsm.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/ebsm.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/ebsm.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
   },
   {
     "name": "REKT",
     "description": "DnB / Dubstep / Electronic",
     "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/rekt.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/rekt.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/rekt.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
   },
   {
     "name": "Rektory",
     "description": "Fallout / 1930s / Reefer Jazz",
     "link": "https://nightride.fm",
-    "endpoint": "https://stream.nightride.fm/rektory.ogg",
-    "codec": "Vorbis",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/rektory.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/rektory.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
   },
   {
     "name": "Jazz4ever",
     "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
     "link": "http://jazz4ever.net/",
-    "endpoint": "https://streamingv2.shoutcast.com/Jazz4ever",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/Jazz4ever",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Smooth Jazz Smooth Wave",
     "description": "",
-    "link": "http://www.smoothazzwavesarasota.com",
-    "endpoint": "https://streaming510.radionomy.com/SmoothJazzSmoothWave",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "link": "http://www.smoothazzwavesarasota.com",
+        "endpoint": "https://streaming510.radionomy.com/SmoothJazzSmoothWave",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Smooth Jazz Zone",
     "description": "",
     "link": "",
-    "endpoint": "https://streaming510.radionomy.com/SmoothJazzZone",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streaming510.radionomy.com/SmoothJazzZone",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Bolerospara Enamorarse",
     "description": "Añoranzas por la melodias de el radio de los 40 s. 50 s y 60 s.",
     "link": "http://bolerosparaenamorarse.playtheradio.com",
-    "endpoint": "https://streaming510.radionomy.com/boleros-para-enamorarse",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Radio Energy",
-    "description": "",
-    "link": "https://www.radioenergy.bg/",
-    "endpoint": "https://play.global.audio/nrj.opus",
-    "codec": "Opus",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://streaming510.radionomy.com/boleros-para-enamorarse",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Radioparty.pl",
     "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
     "link": "https://radioparty.pl/kanalglowny.html",
-    "endpoint": "https://s2.radioparty.pl:8000/stream",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s2.radioparty.pl:8000/stream",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://s2.radioparty.pl:8000/stream64aac",
+        "codec": "AAC+",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "Radioparty.pl - House",
     "description": "",
     "link": "https://radioparty.pl/kanalhouse.html",
-    "endpoint": "https://s1.radioparty.pl:8000/house",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s1.radioparty.pl:8000/house",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "Radioparty.pl - Trance",
     "description": "",
     "link": "https://radioparty.pl/kanaltrance.html",
-    "endpoint": "https://s2.radioparty.pl:8015/trance",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s2.radioparty.pl:8015/trance",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "Radioparty.pl - Vocal Trance",
     "description": "",
     "link": "https://radioparty.pl/kanalvtrance.html",
-    "endpoint": "https://s2.radioparty.pl:8015/vocaltrance",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s2.radioparty.pl:8015/vocaltrance",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "Radioparty.pl - DJ Mixes",
     "description": "",
     "link": "https://radioparty.pl/kanaldjmixes.html",
-    "endpoint": "https://s1.radioparty.pl:8000/djmixes",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s1.radioparty.pl:8000/djmixes",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      }
+    ]
   },
   {
     "name": "Radioparty.pl - Energy 2000",
     "description": "",
     "link": "https://radioparty.pl/kanalenergy2000.html",
-    "endpoint": "https://s1.radioparty.pl:8000/energy2000",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "endpoints": [
+      {
+        "endpoint": "https://s1.radioparty.pl:8000/energy2000",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://s2.radioparty.pl:8040/energy2000",
+        "codec": "AAC+",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+      }
+    ]
   },
   {
-    "name": "Radioparty.pl - Energy 2000",
+    "name": "Kaaosradio 24/7",
     "description": "",
-    "link": "https://radioparty.pl/kanalenergy2000.html",
-    "endpoint": "https://s2.radioparty.pl:8040/energy2000",
-    "codec": "AAC+",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
+    "link": "https://kaaosradio.fi/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.kaaosradio.fi/stream2",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
   },
   {
-    "name": "Metro DANCE! Radio",
-    "description": "Metro Dance Radio - home station of the morning show BODRA SMYANA (Cool Shift) broadcasted live every weekday morning 7 - 11 am and rebroadcasted through all Metro Cast Stations as well as on the major local FM outlets in Bulgaria.",
-    "link": "https://dab.bg/radiochannel/metro/",
-    "endpoint": "http://eu1.reliastream.com:7017/MDR",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "name": "Kaaosradio 24/7 Chillout",
+    "description": "",
+    "link": "https://kaaosradio.fi/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.kaaosradio.fi/chill",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Kaaosradio 24/7 Chiptunes",
+    "description": "",
+    "link": "https://kaaosradio.fi/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.kaaosradio.fi/chip",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Zog Radio",
+    "description": "Zog Radio is a new ICECAST Internet radio station being trialled during the COVID-19 downtime. The station is run by DJ Zog who is a Techno, Ambient, Dub Techno DJ and occasional producer from Melbourne Australia.",
+    "link": "https://www.zog.net.au/",
+    "endpoints": [
+      {
+        "endpoint": "https://icecast.zog.net.au:8443/source",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      }
+    ]
+  },
+  {
+    "name": "Naim Radio",
+    "description": "Naim Radio brings you an eclectic mix of superbly recorded music from the Naim Records roster. Established in 1993 it offers a diverse music mix, from contemporary singer-songwriters to classical.",
+    "link": "https://www.naimaudio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8362/flac.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8362/high.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8362/low.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Naim Classical",
+    "description": "The all-new Naim Classical station bring you an exclusive mix of superbly recorded classical music from the Naim Records roster. There are playlists from a diverse range of classical artists, ensembles and orchestras.",
+    "link": "https://www.naimaudio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8252/class-flac.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8252/class-high.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8252/class-low.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Naim Jazz",
+    "description": "The all-new Naim Jazz station bring you an exclusive mix of superbly recorded jazz cuts from the Naim Records roster. There are playlists from a diverse range of jazz soloists, bands and collaborations.",
+    "link": "https://www.naimaudio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-flac.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-high.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-low.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Magic-Radio",
+    "description": "Oldies Hits 24 hours a day. Magic Radio has been broadcasting since 2002 ‘mainly titles of the Eighties but also sometimes of other decades.’ The station is his personal non-profit project and he says, “The programming is completely subjective but I try to keep an overall coherence. I have always been passionate about radio and sound techniques since my childhood. I experienced the beginning of FM in France, ear glued to the transistor, fascinated by the new medium! My goal is to recreate this “atmosphere” that existed on FM in the 80s in terms of musical programming and jingles.",
+    "link": "https://magic-radio.net",
+    "endpoints": [
+      {
+        "endpoint": "https://mp3.magic-radio.net/flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://aac.magic-radio.net/vorbis",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mp3.magic-radio.net/320",
+        "codec": "MP3 320",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mp3.magic-radio.net",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://aac.magic-radio.net",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Chillout Zone",
+    "description": "",
+    "link": "https://chillout.zone",
+    "endpoints": [
+      {
+        "endpoint": "https://chillout.zone/chillout_plus",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      }
+    ]
+  },
+  {
+    "name": "Radio Sputnik",
+    "description": "RadioSputnik.nl started somewhere in 2002 as a pirate radio station on the FM band (24/7) with a low power transmitter (10 Watts) and its main focus was to transmit underground house/club music. Now it’s a non profit internet radio station.",
+    "link": "https://radiosputnik.nl",
+    "endpoints": [
+      {
+        "endpoint": "https://radiosputnik.nl:8443/flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://radiosputnik.nl:8443",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Czech Radio in D major (Český rozhlas D-dur)",
+    "description": "A public radio broadcaster in the Czech Republic broadcasting classical music of all genres",
+    "link": "https://radiosputnik.nl",
+    "endpoints": [
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur-256.ogg",
+        "codec": "Vorbis 256",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur.ogg",
+        "codec": "Vorbis 128",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      }
+    ]
+  },
+  {
+    "name": "Czech Radio Jazz (Český rozhlas Jazz)",
+    "description": "Broadcasting jazz 24 hours a day in a wide range of genres from its beginnings to the current fusion",
+    "link": "https://radiosputnik.nl",
+    "endpoints": [
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz-256.ogg",
+        "codec": "Vorbis 256",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz.ogg",
+        "codec": "Vorbis 128",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      }
+    ]
+  },
+  {
+    "name": "Fréquence 3",
+    "description": "Boadcasting an eclectic program, between pop-rock, urban hits and house from Paris, France",
+    "link": "https://www.frequence3.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://master.net-radio.fr/frequence3.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://master.net-radio.fr/frequence3-256.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": "https://master.net-radio.fr/frequence3-64.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Fréquence 3 Urban",
+    "description": "Boadcasting Hip Hop, Rap and R’n’B from Paris, France",
+    "link": "https://www.frequence3.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://master.net-radio.fr/frequence3urban.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://master.net-radio.fr/frequence3urban-256.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": "https://master.net-radio.fr/frequence3urban-64.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
   },
   {
     "name": "Radio Paradise Main",
     "description": "RP is a blend of many styles and genres of music, carefully selected and mixed by two real human beings.",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/flacm",
-    "codec": "FLAC",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/flacm",
+        "codec": "FLAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rp_192m.ogg",
+        "codec": "Vorbis 192",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rp_96m.ogg",
+        "codec": "Vorbis 96",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rp_32.ogg",
+        "codec": "Vorbis 32",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mp3-320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mp3-192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mp3-128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mp3-32",
+        "codec": "MP3 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/aac-320",
+        "codec": "AAC 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/aac-128",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/aac-64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/aac-32",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Radio Paradise Mellow",
     "description": "",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/mellow-flacm",
-    "codec": "FLAC",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-flacm",
+        "codec": "FLAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-96m.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-192",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-320",
+        "codec": "AAC 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-128",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/mellow-32",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Radio Paradise Rock",
     "description": "",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/rock-flacm",
-    "codec": "FLAC",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "ogg"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-flacm",
+        "codec": "FLAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-96m.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-192",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-320",
+        "codec": "AAC 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-128",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/rock-32",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Radio Paradise World/Etc",
     "description": "",
     "link": "https://radioparadise.com/",
-    "endpoint": "https://stream.radioparadise.com/world-etc-320",
-    "codec": "AAC",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-flacm",
+        "codec": "FLAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-96m.ogg",
+        "codec": "Vorbis 96",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-192",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-320",
+        "codec": "AAC 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-128",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/world-etc-32",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Sama Radio Senegal",
     "description": "Good Vibes from Senegal West Africa! Sama Radio Dakar Senegal créée en Août 2013. Avec un groupe de jeunes ambitieux Sénégalais elle est aujourd hui la première chaîne indépendante et qui résume l ensemble du Paysage médiatique Sénégalais.",
     "link": "https://www.sunufm.com/samaradio/",
-    "endpoint": "https://streamingv2.shoutcast.com/SamaRadio",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/SamaRadio",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/SamaRadio_64.aac",
+        "codec": "AAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
+  },
+  {
+    "name": "SeneEthiopia",
+    "description": "World Reggae and african music www.africanmusic.nl Radio SeneEthiopia wish all his listeners a Happy and blessed 2",
+    "link": "www.africanmusic.nl",
+    "endpoints": [
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/SeneEthiopia",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/SeneEthiopia_64.aac",
+        "codec": "AAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "BFC Classique",
     "description": "L'autre climat musical en Bourgogne-Franche-Comté",
     "link": "https://bfc-classique.fr/",
-    "endpoint": "https://streaming510.radionomy.com/BFC-CLASSIQUE",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streaming510.radionomy.com/BFC-CLASSIQUE",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Radio-Mozart",
     "description": "All Mozart all the time / Ce n est pas de la radio c est du Mozart !",
     "link": "http://www.radiomozart.com",
-    "endpoint": "https://streaming510.radionomy.com/Radio-Mozart",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streaming510.radionomy.com/Radio-Mozart",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://streaming510.radionomy.com/Radio-Mozart_64.aac",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
-    "name": "ABC Piano",
-    "description": "Only Piano Classical Music with Bach, Mozart, Beethoven, Rachmaninov, Debussy, Chopin, ...",
-    "link": "https://www.radionomy.com/en/radio/abc-Piano",
-    "endpoint": "https://streamingv2.shoutcast.com/ABC-Piano",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "name": "Beethoven Radio",
+    "description": "Only Beethoven",
+    "link": "http://beethoven-radio.playtheradio.com",
+    "endpoints": [
+      {
+        "endpoint": "https://streaming510.radionomy.com/Beethoven-Radio",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://streaming510.radionomy.com/Beethoven-Radio_64.aac",
+        "codec": "AAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Atmospheres Radio",
     "description": "Music by students, staff and friends of the Royal Welsh College of Music and Drama",
     "link": "https://streaming.galaxywebsolutions.com/AudioPlayer/9040",
-    "endpoint": "https://streaming.galaxywebsolutions.com:9040/stream",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
-  },
-  {
-    "name": "HAWK Radio - Hilbert College",
-    "description": "Modern Music from Hip Hop to Rock!",
-    "link": "https://www.hilbert.edu/academics/undergraduate-programs/dmac/hawk-radio",
-    "endpoint": "https://streamingv2.shoutcast.com/HAWK-Radio-Hilbert-College?icy=http",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streaming.galaxywebsolutions.com:9040/stream",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Jive Nation Radio",
     "description": "Dance Rock / Disco / Dance - Clubbing",
     "link": "http://www.jivenation.be/",
-    "endpoint": "https://streamingv2.shoutcast.com/jive-nation-radio",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/jive-nation-radio",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "Radio Cumbernauld",
     "description": "Broadcasting local news and music from Cumbernauld Scotland",
     "link": "https://www.radiocumbernauld.uk/",
-    "endpoint": "https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
-    "codec": "AAC",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy"]
-  },
-  {
-    "name": "AIFR Alverno Inferno Free Radio",
-    "description": "Alverno College On-Line Radio Station",
-    "link": "http://www-staging.alverno.edu/technology/mediahub/aifr.php",
-    "endpoint": "https://pavo.prostreaming.net:8022/stream",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "TheIndieBlend",
-    "description": "Music. Discovery. Unleashed. Here's an Indie station that mixes it up -- pulling only the best songs played by KCRW-FM Los Angeles DJ Sticky/past WVUM-FM Miami DJ Tom Jackson Radio Eins 95.8 FM Berlin",
-    "link": "http://theindieblend.playtheradio.com/",
-    "endpoint": "https://streaming307.radionomy.com/TheIndieBlend?icy=http",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "CiTR Live",
-    "description": "CiTR 101.9FM/Discorder Magazine is the campus radio station and magazine of the University of British Columbia-Vancouver, broadcasting from traditional unceded Musqueam territory and streaming online",
-    "link": "https://www.citr.ca/",
-    "endpoint": "https://stream.kanefm.com:1037/listen",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
+        "codec": "AAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
   },
   {
     "name": "Lo Nuestro 102.1",
     "description": "La mejor música típica de Panamá.",
     "link": "https://www.fmlonuestro.com/",
-    "endpoint": "https://www.streaming507.net:8136/stream",
-    "codec": "AAC",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://www.streaming507.net:8136/stream",
+        "codec": "AAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "CineMusik",
     "description": "",
     "link": "https://cinemusik.playtheradio.com",
-    "endpoint": "https://streamingv2.shoutcast.com/CineMusik",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streamingv2.shoutcast.com/CineMusik",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "ChillOutWorld",
     "description": "Best Chill-Out Radio.",
     "link": "http://radioworld66.com",
-    "endpoint": "https://streaming510.radionomy.com/ChillOutWorld",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Andean Music",
-    "description": "Folklore Andean Acoustic Electronic Underground",
-    "endpoint": "https://streamingv2.shoutcast.com/andeanmusic?icy=http",
-    "codec": "MP3",
-    "metadataTypes": ["icy"],
-    "statsSources": ["icy", "icestats"]
-  },
-  {
-    "name": "Pure Rock FM 89/WONC",
-    "description": "Student-run radio from North Central College, Naperville, IL, USA",
-    "link": "https://www.wonc.org/",
-    "endpoint": "http://webcast.wonc.org:8000/wonclive-160s-opus.ogg",
-    "codec": "Opus",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "https://streaming510.radionomy.com/ChillOutWorld",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
   },
   {
     "name": "TheRadio.CC",
     "description": "The Radio CC - Euer Creative Commons-Webradio",
     "link": "https://theradio.cc",
-    "endpoint": "http://stream.theradio.cc:8000/trcc-stream.opus",
-    "codec": "Opus",
-    "metadataTypes": ["ogg"],
-    "statsSources": ["ogg", "icestats"]
+    "endpoints": [
+      {
+        "endpoint": "http://stream.theradio.cc:8000/trcc-stream.opus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
   }
 ]
