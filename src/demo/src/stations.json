@@ -274,96 +274,6 @@
     ]
   },
   {
-    "name": "Radioparty.pl",
-    "description": "Techno, Dance, Club, Hands Up, House, Trance. Najlepsza klubowa muzyka w sieci. The best radio with club music.",
-    "link": "https://radioparty.pl/kanalglowny.html",
-    "endpoints": [
-      {
-        "endpoint": "https://s2.radioparty.pl:8000/stream",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      },
-      {
-        "endpoint": "https://s2.radioparty.pl:8000/stream64aac",
-        "codec": "AAC+",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      }
-    ]
-  },
-  {
-    "name": "Radioparty.pl - House",
-    "description": "",
-    "link": "https://radioparty.pl/kanalhouse.html",
-    "endpoints": [
-      {
-        "endpoint": "https://s1.radioparty.pl:8000/house",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      }
-    ]
-  },
-  {
-    "name": "Radioparty.pl - Trance",
-    "description": "",
-    "link": "https://radioparty.pl/kanaltrance.html",
-    "endpoints": [
-      {
-        "endpoint": "https://s2.radioparty.pl:8015/trance",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      }
-    ]
-  },
-  {
-    "name": "Radioparty.pl - Vocal Trance",
-    "description": "",
-    "link": "https://radioparty.pl/kanalvtrance.html",
-    "endpoints": [
-      {
-        "endpoint": "https://s2.radioparty.pl:8015/vocaltrance",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      }
-    ]
-  },
-  {
-    "name": "Radioparty.pl - DJ Mixes",
-    "description": "",
-    "link": "https://radioparty.pl/kanaldjmixes.html",
-    "endpoints": [
-      {
-        "endpoint": "https://s1.radioparty.pl:8000/djmixes",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      }
-    ]
-  },
-  {
-    "name": "Radioparty.pl - Energy 2000",
-    "description": "",
-    "link": "https://radioparty.pl/kanalenergy2000.html",
-    "endpoints": [
-      {
-        "endpoint": "https://s1.radioparty.pl:8000/energy2000",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      },
-      {
-        "endpoint": "https://s2.radioparty.pl:8040/energy2000",
-        "codec": "AAC+",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "stats", "sevenhtml"]
-      }
-    ]
-  },
-  {
     "name": "Kaaosradio 24/7",
     "description": "",
     "link": "https://kaaosradio.fi/",
@@ -611,7 +521,7 @@
   },
   {
     "name": "Fréquence 3",
-    "description": "Boadcasting an eclectic program, between pop-rock, urban hits and house from Paris, France",
+    "description": "Broadcasting an eclectic program, between pop-rock, urban hits and house from Paris, France",
     "link": "https://www.frequence3.com/",
     "endpoints": [
       {
@@ -636,7 +546,7 @@
   },
   {
     "name": "Fréquence 3 Urban",
-    "description": "Boadcasting Hip Hop, Rap and R’n’B from Paris, France",
+    "description": "Broadcasting Hip Hop, Rap and R’n’B from Paris, France",
     "link": "https://www.frequence3.com/",
     "endpoints": [
       {
