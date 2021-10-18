@@ -90,7 +90,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {number} options.retryDelayRate Percentage of seconds to increment after each retry (how quickly to increase the back-off)
    * @param {number} options.retryDelayMin Minimum number of seconds between retries (start of the exponential back-off curve)
    * @param {number} options.retryDelayMax Maximum number of seconds between retries (end of the exponential back-off curve)
-   * @param {number} options.enableLogging Set to `true` to enable warning and error logging to the console
+   * @param {boolean} options.enableLogging Set to `true` to enable warning and error logging to the console
    * @param {string} options.playbackMethod Sets the preferred playback method (mediasource (default), html5, webaudio)
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio

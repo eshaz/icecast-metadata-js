@@ -10,7 +10,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.5.4.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.6.0.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.0.2.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
@@ -139,7 +139,7 @@
     </style>
     <script>
       let playerFormData, statsFormData;
-      const stations = fetch("/icecast-metadata-js/stations.json")
+      const stationsJson = fetch("/icecast-metadata-js/stations.json")
         .then((res) => res.text())
         .then((text) => JSON.parse(text));
 
@@ -215,16 +215,27 @@
           );
         }, ``);
 
-        (await stations).forEach(
-          ({ name, codec, metadataTypes, endpoint }, idx) => {
+        let index = 0;
+
+        const stations = [];
+
+        for (const station of await stationsJson) {
+          const { endpoints, ...rest } = station;
+
+          for (const endpoint of endpoints) {
             const option = document.createElement("option");
-            option.text = `${name} - ${codec}`;
-            option.value = endpoint;
-            option.name = endpoint;
-            option.id = idx;
+            option.text = `${station.name} - ${endpoint.codec}`;
+            option.value = endpoint.endpoint;
+            option.name = endpoint.endpoint;
+            option.id = index++;
             stationsEl.add(option);
+
+            stations.push({
+              ...endpoint,
+              ...rest,
+            });
           }
-        );
+        }
 
         endpointEl.addEventListener("change", () => {
           resetIcecastMetadataStatsEndpoints();
@@ -235,7 +246,7 @@
         });
 
         stationsEl.addEventListener("change", async () => {
-          const station = (await stations)[stationsEl.selectedIndex];
+          const station = stations[stationsEl.selectedIndex];
           // prettier-ignore
           {
             document.getElementById("endpoint").value = station.endpoint;
@@ -432,7 +443,11 @@
                     </fieldset>
                   </div>
                   <div class="row">
-                    <fieldset name="icy-metadata-options" class="row">
+                    <fieldset
+                      name="icy-metadata-options"
+                      class="row"
+                      style="flex-grow: 1; justify-content: space-evenly"
+                    >
                       <legend>ICY Metadata Options</legend>
 
                       <div
@@ -560,7 +575,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <li>
             Download the
             <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.5.4.min.js"
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.6.0.min.js"
               >latest build</a
             >, or install via
             <a href="https://www.npmjs.com/package/icecast-metadata-player"
@@ -583,7 +598,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.5.4.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.6.0.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
