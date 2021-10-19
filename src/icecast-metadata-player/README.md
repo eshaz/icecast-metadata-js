@@ -72,14 +72,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.6.0.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.7.0.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```html
-   <script src="icecast-metadata-player-1.6.0.min.js"></script>
+   <script src="icecast-metadata-player-1.7.0.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -356,8 +356,9 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 * `onError(message, ...messages)` Called with message(s) when a fallback or error condition is met.
 
 #### Informational
-* `onCodecUpdate({ ...codecInformation })` Called with audio codec information whenever there is a change
-  * Information such as `bitrate` and `samplingRate` are passed in as an object to this callback
+* `onCodecUpdate(codecInformation, updateTimestamp)` Called with audio codec information whenever there is a change
+  * `codecInformation` such as `bitrate` and `samplingRate` are passed in as an object
+  * `updateTimestamp` is the time in milliseconds within the audio stream when the codec information was updated
 
 ### Events
 
@@ -378,7 +379,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.6.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.6.0.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.7.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.7.0.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Warning messages
