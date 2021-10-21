@@ -17,19 +17,19 @@ const About = () => (
       <a className={styles.headerLink} style={{ fontWeight: "bold" }} href="/">
         React Demo
       </a>
-      &nbsp;&nbsp; | &nbsp;&nbsp;
+      &nbsp;&nbsp;|&nbsp;&nbsp;
       <a
         className={styles.headerLink}
         href={`${process.env.PUBLIC_URL}/demo.html`}
       >
         HTML Demo
       </a>
-      &nbsp;&nbsp; | &nbsp;&nbsp;
+      &nbsp;&nbsp;|&nbsp;&nbsp;
       <a
         className={styles.headerLink}
         href={`${process.env.PUBLIC_URL}/bare-minimum-demo.html`}
       >
-        <i>"Bare Minimum"</i> &nbsp;HTML Demo
+        <i>"Bare Minimum"</i> HTML Demo
       </a>
     </div>
   </div>

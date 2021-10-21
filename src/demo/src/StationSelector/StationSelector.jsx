@@ -24,9 +24,9 @@ const CodecButton = ({
       }`}
       htmlFor={station.name + endpoint.codec}
     >
-      {endpoint.codec}{" "}
+      {endpoint.codec}
       {endpoint.metadataTypes.length > 0 &&
-        `| ${endpoint.metadataTypes.join(", ")}`}
+        ` | ${endpoint.metadataTypes.join(", ")}`}
     </label>
   </div>
 );

@@ -4,19 +4,23 @@ import styles from "./Player.module.css";
 const VISIT_STATION = "Visit this station at ";
 const ICECAST_METADATA_JS_DEMO = "Icecast Metadata JS Demo";
 
-const CodecInfo = React.memo(
-  ({ codecInfo }) =>
-    codecInfo ? (
-      <div className={styles.codecInfo}>
+const CodecInfo = React.memo(({ codecInfo }) => {
+  if (codecInfo) {
+    const title = Object.entries(codecInfo).reduce(
+      (acc, [k, v]) => acc + `${k}: ${v}\x0A`,
+      ""
+    );
+
+    return (
+      <div title={title} className={styles.codecInfo}>
         <div className={styles.codecItem}>{`${codecInfo.bitrate} kb/s`}</div>
         <div className={styles.codecItem}>{`${codecInfo.sampleRate} Hz`}</div>
       </div>
-    ) : null,
-  (prev, next) =>
-    next.codecInfo === null &&
-    prev.codecInfo.bitrate === next.codecInfo.bitrate &&
-    prev.codecInfo.sampleRate === next.codecInfo.sampleRate
-);
+    );
+  }
+
+  return null;
+});
 
 const Player = ({ station, playing, toggle, metadata, codecInfo }) => {
   // update metadata in title
@@ -75,4 +79,4 @@ const Player = ({ station, playing, toggle, metadata, codecInfo }) => {
   );
 };
 
-export default Player;
+export default React.memo(Player);
