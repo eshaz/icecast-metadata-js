@@ -19,6 +19,9 @@ export default class Player {
     this._codecUpdateQueue = instanceVariables[codecUpdateQueue];
     this._endpoint = instanceVariables[endpoint];
 
+    this._codecUpdateTimestamp = 0;
+    this._codecUpdateOffset = 0;
+
     // set the audio element an empty source to enable the play button
     try {
       this._audioElement.removeAttribute("src");
@@ -142,10 +145,18 @@ export default class Player {
    * @abstract
    */
   onCodecUpdate(codecData, updateTimestamp) {
+    const currentTime = this.currentTime;
+
+    // add previous offset when reconnecting
+    if (updateTimestamp < currentTime)
+      this._codecUpdateOffset += this._codecUpdateTimestamp;
+
+    this._codecUpdateTimestamp = updateTimestamp;
+
     this._codecUpdateQueue.addMetadata(
       { metadata: codecData, stats: {} },
-      updateTimestamp / 1000,
-      this.currentTime
+      (updateTimestamp + this._codecUpdateOffset) / 1000,
+      currentTime
     );
   }
 }
