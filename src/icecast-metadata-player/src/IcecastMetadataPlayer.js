@@ -43,6 +43,7 @@ import {
   // variables
   hasIcy,
   icecastMetadataQueue,
+  codecUpdateQueue,
   abortController,
 } from "./global.js";
 
@@ -150,6 +151,10 @@ export default class IcecastMetadataPlayer extends EventClass {
         onMetadataEnqueue: (...args) =>
           this[fireEvent](event.METADATA_ENQUEUE, ...args),
       }),
+      [codecUpdateQueue]: new IcecastMetadataQueue({
+        onMetadataUpdate: (...args) =>
+          this[fireEvent](event.CODEC_UPDATE, ...args),
+      }),
       [resetPlayback]: () => {
         clearTimeout(p.get(this)[retryTimeoutId]);
         this.removeEventListener(
@@ -164,6 +169,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         if (this.state !== state.RETRYING) {
           p.get(this)[audioElement].pause();
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
+          p.get(this)[codecUpdateQueue].purgeMetadataQueue();
           p.get(this)[playerResetPromise] = p
             .get(this)
             [playerFactory].player.reset();

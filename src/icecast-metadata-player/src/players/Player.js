@@ -1,4 +1,10 @@
-import { p, audioElement, icecastMetadataQueue, endpoint } from "../global.js";
+import {
+  p,
+  audioElement,
+  icecastMetadataQueue,
+  codecUpdateQueue,
+  endpoint,
+} from "../global.js";
 
 export default class Player {
   constructor(icecast, inputMimeType, codec) {
@@ -10,6 +16,7 @@ export default class Player {
 
     this._audioElement = instanceVariables[audioElement];
     this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
+    this._codecUpdateQueue = instanceVariables[codecUpdateQueue];
     this._endpoint = instanceVariables[endpoint];
 
     // set the audio element an empty source to enable the play button
@@ -127,6 +134,17 @@ export default class Player {
     this._icecastMetadataQueue.addMetadata(
       metadata,
       this.metadataTimestamp,
+      this.currentTime
+    );
+  }
+
+  /**
+   * @abstract
+   */
+  onCodecUpdate(codecData, updateTimestamp) {
+    this._codecUpdateQueue.addMetadata(
+      { metadata: codecData, stats: {} },
+      updateTimestamp / 1000,
       this.currentTime
     );
   }

@@ -330,14 +330,14 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * `metadata` ICY or Ogg metadata in an object of key value pairs
     * ICY: `{ "StreamTitle: "The Stream Title" }`
     * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
-  * `timestampOffset` time when is scheduled to be updated.
-  * `timestamp` time when metadata was discovered on the stream.
+  * `timestampOffset` time in seconds when is scheduled to be updated.
+  * `timestamp` time in seconds when metadata was discovered on the stream.
 * `onMetadataEnqueue(metadata, timestampOffset, timestamp)` Called when metadata is discovered on the stream.
   * `metadata` ICY or Ogg metadata in an object of key value pairs
     * ICY: `{ "StreamTitle: "The Stream Title" }`
     * Ogg: `{ "TITLE: "The Stream Title", "ARTIST": "Artist 1; Artist 2"... }`
-  * `timestampOffset` time when is scheduled to be updated.
-  * `timestamp` time when metadata was discovered on the stream.
+  * `timestampOffset` time in seconds when is scheduled to be updated.
+  * `timestamp` time in seconds when metadata was discovered on the stream.
 
 #### Stream lifecycle
 * `onLoad()` Called when the fetch request is started.
@@ -356,9 +356,9 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 * `onError(message, ...messages)` Called with message(s) when a fallback or error condition is met.
 
 #### Informational
-* `onCodecUpdate(codecInformation, updateTimestamp)` Called with audio codec information whenever there is a change
+* `onCodecUpdate(codecInformation, updateTimestamp)` Called with audio codec information whenever there is a change. This callback is synchronized with the audio.
   * `codecInformation` such as `bitrate` and `samplingRate` are passed in as an object
-  * `updateTimestamp` is the time in milliseconds within the audio stream when the codec information was updated
+  * `updateTimestamp` is the time in seconds within the audio stream when the codec information was updated
 
 ### Events
 
