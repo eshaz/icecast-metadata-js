@@ -3,7 +3,6 @@
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
   position: sticky;
   background: rgba(0, 0, 0, 0);
   width: 100%;
@@ -11,6 +10,7 @@
 
 .header {
   top: 0;
+  align-items: center;
   margin-bottom: calc(1px + 2vmin);
 }
 

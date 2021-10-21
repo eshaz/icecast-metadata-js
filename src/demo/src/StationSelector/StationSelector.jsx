@@ -102,4 +102,4 @@ const StationSelector = (props) => {
   ));
 };
 
-export default StationSelector;
+export default React.memo(StationSelector);
