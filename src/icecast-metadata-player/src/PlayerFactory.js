@@ -87,8 +87,7 @@ export default class PlayerFactory {
 
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
-        onCodecUpdate: (...args) =>
-          this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
+        onCodecUpdate: (...args) => this._player.onCodecUpdate(...args),
         onCodec,
         enableLogging: this._enableLogging,
       });

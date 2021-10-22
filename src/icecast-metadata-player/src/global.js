@@ -46,6 +46,7 @@ export const logError = Symbol();
 // variables
 export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
+export const codecUpdateQueue = Symbol();
 export const abortController = Symbol();
 
 // sync state

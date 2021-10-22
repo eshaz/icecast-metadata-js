@@ -26,6 +26,7 @@ const App = () => {
   const [audioElement] = useState(new Audio());
 
   const [metadata, setMetadata] = useState(SELECT_STATION);
+  const [codecInfo, setCodecInfo] = useState();
   const [icecast, setIcecast] = useState();
 
   const analyzer = useRef();
@@ -43,19 +44,23 @@ const App = () => {
           console.log(meta);
           setMetadata(meta);
         },
+        onCodecUpdate: setCodecInfo,
         onPlay: () => {
           setPlaying(true);
         },
         onStop: () => {
           setPlaying(false);
           setMetadata(SELECT_OR_PLAY);
+          setCodecInfo();
         },
         onLoad: () => {
           setPlaying(true);
           setMetadata(LOADING);
+          setCodecInfo();
         },
         onError: (error) => {
           setMetadata(error?.message || error);
+          setCodecInfo();
         },
         onRetry: () => {
           setMetadata(RECONNECTING);
@@ -125,6 +130,7 @@ const App = () => {
           toggle={toggle}
           playing={playing}
           metadata={metadata}
+          codecInfo={codecInfo}
         ></Player>
       </footer>
     </>

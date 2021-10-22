@@ -24,9 +24,9 @@ const CodecButton = ({
       }`}
       htmlFor={station.name + endpoint.codec}
     >
-      {endpoint.codec}{" "}
+      {endpoint.codec}
       {endpoint.metadataTypes.length > 0 &&
-        `| ${endpoint.metadataTypes.join(", ")}`}
+        ` | ${endpoint.metadataTypes.join(", ")}`}
     </label>
   </div>
 );
@@ -102,4 +102,4 @@ const StationSelector = (props) => {
   ));
 };
 
-export default StationSelector;
+export default React.memo(StationSelector);

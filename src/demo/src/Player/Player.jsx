@@ -4,7 +4,25 @@ import styles from "./Player.module.css";
 const VISIT_STATION = "Visit this station at ";
 const ICECAST_METADATA_JS_DEMO = "Icecast Metadata JS Demo";
 
-const Player = ({ station, playing, toggle, metadata }) => {
+const CodecInfo = React.memo(({ codecInfo }) => {
+  if (codecInfo) {
+    const title = Object.entries(codecInfo).reduce(
+      (acc, [k, v]) => acc + `${k}: ${v}\x0A`,
+      ""
+    );
+
+    return (
+      <div title={title} className={styles.codecInfo}>
+        <div className={styles.codecItem}>{`${codecInfo.bitrate} kb/s`}</div>
+        <div className={styles.codecItem}>{`${codecInfo.sampleRate} Hz`}</div>
+      </div>
+    );
+  }
+
+  return null;
+});
+
+const Player = ({ station, playing, toggle, metadata, codecInfo }) => {
   // update metadata in title
   const title = metadata.StreamTitle || metadata.TITLE;
   document.title = title
@@ -40,22 +58,25 @@ const Player = ({ station, playing, toggle, metadata }) => {
               metadata.VENDOR_STRING
             : metadata}
         </div>
-        {station?.link && (
-          <div className={styles.visitStation}>
-            {VISIT_STATION}
-            <a
-              className={styles.link}
-              href={station.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {station.name}
-            </a>
-          </div>
-        )}
+        <div className={styles.stationInfoContainer}>
+          {station?.link && (
+            <div className={styles.visitStation}>
+              {VISIT_STATION}
+              <a
+                className={styles.link}
+                href={station.link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {station.name}
+              </a>
+            </div>
+          )}
+          <CodecInfo codecInfo={codecInfo} />
+        </div>
       </div>
     </div>
   );
 };
 
-export default Player;
+export default React.memo(Player);

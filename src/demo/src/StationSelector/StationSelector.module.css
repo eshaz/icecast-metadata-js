@@ -44,8 +44,7 @@
 .codecs {
   display: flex;
   flex-direction: row;
-  font-weight: bold;
-  font-size: calc(1px + 1.5vmin);
+  font-size: calc(2px + 1.3vmin);
   font-family: monospace;
 }
 

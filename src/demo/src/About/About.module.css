@@ -1,5 +1,6 @@
 .about {
   pointer-events: initial;
+  text-align: center;
 
   filter: drop-shadow(2px 2px 1px #000) drop-shadow(-2px 2px 1px #000)
     drop-shadow(2px -2px 1px #000) drop-shadow(-2px -2px 1px #000)
@@ -26,7 +27,7 @@
   flex-direction: column;
   align-items: center;
   font-family: "Courier New", Courier, monospace;
-  font-size: calc(20px + 2vmin);
+  font-size: calc(18px + 2vmin);
   text-decoration: none;
 }
 
