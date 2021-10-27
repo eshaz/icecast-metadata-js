@@ -35,6 +35,7 @@ import {
   retryDelayMax,
   retryDelayRate,
   retryTimeout,
+  codecUpdateEnabled,
   // methods
   fireEvent,
   attachAudioElement,
@@ -125,6 +126,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
       [retryTimeout]: (options.retryTimeout || 30) * 1000,
       [playbackMethod]: options.playbackMethod,
+      [codecUpdateEnabled]: Boolean(options.onCodecUpdate),
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -134,7 +136,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.STREAM_END]: options.onStreamEnd || noOp,
         [event.METADATA]: options.onMetadata || noOp,
         [event.METADATA_ENQUEUE]: options.onMetadataEnqueue || noOp,
-        [event.CODEC_UPDATE]: options.onCodecUpdate || noOp,
+        [event.CODEC_UPDATE]: options.onCodecUpdate,
         [event.STOP]: options.onStop || noOp,
         [event.RETRY]: options.onRetry || noOp,
         [event.RETRY_TIMEOUT]: options.onRetryTimeout || noOp,

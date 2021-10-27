@@ -9,6 +9,7 @@ import {
   metadataTypes,
   icyMetaInt,
   icyDetectionTimeout,
+  codecUpdateEnabled,
   fireEvent,
   hasIcy,
   abortController,
@@ -30,6 +31,7 @@ export default class PlayerFactory {
     this._metadataTypes = instanceVariables[metadataTypes];
     this._icyMetaInt = instanceVariables[icyMetaInt];
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
+    this._codecUpdateEnabled = instanceVariables[codecUpdateEnabled];
 
     this._hasIcy = instanceVariables[hasIcy];
 
@@ -87,7 +89,9 @@ export default class PlayerFactory {
 
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
-        onCodecUpdate: (...args) => this._player.onCodecUpdate(...args),
+        onCodecUpdate:
+          this._codecUpdateEnabled &&
+          ((...args) => this._player.onCodecUpdate(...args)),
         onCodec,
         enableLogging: this._enableLogging,
       });

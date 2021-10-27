@@ -36,6 +36,7 @@ export const retryDelayRate = Symbol();
 export const retryDelayMin = Symbol();
 export const retryDelayMax = Symbol();
 export const retryTimeout = Symbol();
+export const codecUpdateEnabled = Symbol();
 
 // methods
 export const fireEvent = Symbol();
