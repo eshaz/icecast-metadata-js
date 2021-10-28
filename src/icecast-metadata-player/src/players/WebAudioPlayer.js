@@ -1,5 +1,5 @@
-import { OpusDecoder } from "opus-decoder";
-import { MPEGDecoder } from "mpg123-decoder";
+import { OpusDecoderWebWorker } from "opus-decoder";
+import { MPEGDecoderWebWorker } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
@@ -70,6 +70,7 @@ export default class WebAudioPlayer extends Player {
     this._sampleRate = 0;
     this._startTime = undefined;
     this._firedPlay = false;
+    this._decoderPromise = Promise.resolve();
 
     // reset audio context
     if (this._audioContext) this._audioContext.close();
@@ -88,20 +89,23 @@ export default class WebAudioPlayer extends Player {
     this._mediaStream = this._audioContext.createMediaStreamDestination();
     this._audioElement.srcObject = this._mediaStream.stream;
 
-    // reset opus decoder
-    if (this._wasmDecoder) {
-      await this._wasmDecoder.ready;
-      this._wasmDecoder.free();
+    if (this._wasmDecoder) await this._wasmDecoder.free();
+
+    if (
+      this._icecast.state !== state.STOPPING &&
+      this._icecast.state !== state.STOPPED
+    ) {
+      switch (this._codec) {
+        case "mpeg":
+          this._wasmDecoder = new MPEGDecoderWebWorker();
+          break;
+        case "opus":
+          this._wasmDecoder = new OpusDecoderWebWorker();
+          break;
+      }
     }
 
-    switch (this._codec) {
-      case "mpeg":
-        this._wasmDecoder = new MPEGDecoder();
-        break;
-      case "opus":
-        this._wasmDecoder = new OpusDecoder();
-        break;
-    }
+    this._wasmPromise = this._wasmDecoder.ready;
   }
 
   async onStream(oggPages) {
@@ -121,11 +125,13 @@ export default class WebAudioPlayer extends Player {
         }
       case SYNCED:
         if (frames.length) {
-          await this._wasmDecoder.ready;
-          const decoded = this._wasmDecoder.decodeFrames(
-            frames.map((f) => f.data)
-          );
-          this.playDecodedAudio(decoded);
+          await this._wasmPromise;
+
+          this._decoderPromise = this._decoderPromise
+            .then(() =>
+              this._wasmDecoder.decodeFrames(frames.map((f) => f.data))
+            )
+            .then((decoded) => this.playDecodedAudio(decoded));
         }
       default:
         this._frameQueue.addAll(frames); // always add frames
