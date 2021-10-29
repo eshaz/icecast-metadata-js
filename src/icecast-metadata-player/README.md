@@ -288,7 +288,7 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * HTML5 Audio Element to use to play the Icecast stream.
 * `enableLogging` (optional) **Default** `false`
   * Set to `true` to enable warning and error logging to the console
-* `enableCodecUpdates` (optional) **Default** `false`
+* `enableCodecUpdate` (optional) **Default** `false`
   * Set to `true` to enable the `codecupdate` event.
   * Codec updates are always enabled if the `onCodecUpdate` callback is present.
 * `playbackMethod` (optional) **Default** `mediasource`
