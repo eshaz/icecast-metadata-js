@@ -10,7 +10,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.8.0.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.9.0.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.0.2.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
@@ -91,25 +91,39 @@
       .time {
         text-align: right;
       }
-      .codec-table,
-      .codec-info,
-      .codec-type {
+      .codec-information {
+        margin: 1px 0 0 15px;
+      }
+      .codec-information-header {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+      }
+      .codec-information-header label {
+        margin-left: 5px;
+      }
+      .codec-information-header input {
+        margin-left: 0;
+      }
+      .supported-codecs-table,
+      .supported-codecs-info,
+      .supported-codecs-type {
         border: 1px solid black;
         border-collapse: collapse;
         text-align: center;
         white-space: nowrap;
         padding: 0 5px;
       }
-      .codec-type {
+      .supported-codecs-type {
         text-align: left;
       }
-      .codec-no {
+      .supported-codecs-no {
         background-color: red;
       }
-      .codec-maybe {
+      .supported-codecs-maybe {
         background-color: yellow;
       }
-      .codec-probably {
+      .supported-codecs-probably {
         background-color: green;
       }
       .metadata {
@@ -153,6 +167,7 @@
           .replace(/^ "|\n "/g, '\n"');
 
       const bodyLoad = async () => {
+        document.getElementById("isCodecUpdateEnabled").checked = true;
         document.playerForm.reset();
         document.statsForm.reset();
 
@@ -178,7 +193,9 @@
         };
 
         const stationsEl = document.getElementById("stations");
-        const supportedTypesEl = document.getElementById("supported-types");
+        const supportedTypesEl = document.getElementById(
+          "supported-codecs-table-body"
+        );
         const endpointEl = document.getElementById("endpoint");
 
         supportedTypesEl.innerHTML = [
@@ -203,15 +220,17 @@
 
           return (
             acc +
-            `<tr><td class="codec-type">${type}</td><td class="codec-info codec-${
+            `<tr><td class="supported-codecs-type">${type}</td><td class="supported-codecs-info supported-codecs-${
               mediasource || "no"
             }">${
               mediasource || "not supported"
-            }</td><td class="codec-info codec-${html5 || "no"}">${
+            }</td><td class="supported-codecs-info supported-codecs-${
+              html5 || "no"
+            }">${
               html5 || "not supported"
-            }</td><td class="codec-info codec-${webaudio || "no"}">${
-              webaudio || "not supported"
-            }</td></tr>`
+            }</td><td class="supported-codecs-info supported-codecs-${
+              webaudio || "no"
+            }">${webaudio || "not supported"}</td></tr>`
           );
         }, ``);
 
@@ -477,12 +496,24 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
                 </div>
               </form>
             </div>
-            <div style="white-space: nowrap; margin-left: 15px">
-              <a
-                title="Codec information is returned from the `codec-parser` npm package."
-                href="https://github.com/eshaz/codec-parser"
-                ><b>Codec Information</b></a
-              >
+            <div
+              class="codec-information"
+              title="Codec information is returned from the `codec-parser` npm package."
+            >
+              <div class="codec-information-header">
+                <input
+                  id="isCodecUpdateEnabled"
+                  name="isCodecUpdateEnabled"
+                  type="checkbox"
+                />
+                <label htmlFor="isCodecUpdateEnabled"
+                  >Enable
+                  <a href="https://github.com/eshaz/codec-parser"
+                    ><b>codec-parser</b></a
+                  >
+                  updates</label
+                >
+              </div>
               <div
                 style="white-space: normal; font-size: 10px"
                 id="audioInfo"
@@ -517,17 +548,17 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         <summary><b>Supported Codecs</b></summary>
         <br />
         <div style="display: flex; justify-content: center">
-          <table class="codec-table">
+          <table class="supported-codecs-table">
             <tr>
-              <th rowspan="2" class="codec-info">Codec</th>
+              <th rowspan="2" class="supported-codecs-info">Codec</th>
               <th colspan="3">Playback Method</th>
             </tr>
             <tr>
-              <th class="codec-info">MediaSource</th>
-              <th class="codec-info">HTML5 Audio</th>
-              <th class="codec-info">Web Audio</th>
+              <th class="supported-codecs-info">MediaSource</th>
+              <th class="supported-codecs-info">HTML5 Audio</th>
+              <th class="supported-codecs-info">Web Audio</th>
             </tr>
-            <tbody id="supported-types"></tbody>
+            <tbody id="supported-codecs-table-body"></tbody>
           </table>
           <div>
             <ul>
@@ -556,12 +587,11 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
               <li>
                 <b>Web Audio</b>
                 <div>
-                  Uses
-                  <a href="https://github.com/eshaz/opus-decoder"
-                    >opus-decoder</a
+                  Plays the audio using the Web Audio API. Uses
+                  <a href="https://github.com/eshaz/wasm-audio-decoders"
+                    >wasm-audio-decoders</a
                   >
-                  to decode Ogg Opus and plays the audio using the Web Audio
-                  API.
+                  to decode the audio in a Web Worker.
                 </div>
               </li>
             </ul>
@@ -575,7 +605,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <li>
             Download the
             <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.8.0.min.js"
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.9.0.min.js"
               >latest build</a
             >, or install via
             <a href="https://www.npmjs.com/package/icecast-metadata-player"
@@ -598,7 +628,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.8.0.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.9.0.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -945,7 +975,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
     };
 
     const onCodecUpdate = (audioCodecData, duration) => {
-      audioInfoEl.shadowRoot.innerHTML = `<div style="margin-bottom: 5px;">Last Updated: ${formatTime(
+      audioInfoEl.shadowRoot.innerHTML = `<div style="margin: 5px 0;">Last Updated: ${formatTime(
         duration
       )}</div><table style="margin-top: 5px; border-collapse: collapse;">${Object.entries(
         audioCodecData
@@ -1012,7 +1042,9 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           onStop,
           onMetadata,
           onMetadataEnqueue,
-          onCodecUpdate,
+          onCodecUpdate:
+            document.getElementById("isCodecUpdateEnabled").checked &&
+            onCodecUpdate,
           onError,
           playbackMethod: playerFormData.playbackMethod,
         }
