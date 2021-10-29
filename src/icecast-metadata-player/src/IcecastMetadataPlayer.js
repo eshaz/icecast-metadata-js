@@ -31,6 +31,7 @@ import {
   icyMetaInt,
   icyDetectionTimeout,
   enableLogging,
+  enableCodecUpdate,
   retryDelayMin,
   retryDelayMax,
   retryDelayRate,
@@ -120,6 +121,8 @@ export default class IcecastMetadataPlayer extends EventClass {
       [metadataTypes]: options.metadataTypes || ["icy"],
       [hasIcy]: (options.metadataTypes || ["icy"]).includes("icy"),
       [enableLogging]: options.enableLogging || false,
+      [enableCodecUpdate]:
+        Boolean(options.onCodecUpdate) || options.enableCodecUpdate,
       [retryDelayRate]: (options.retryDelayRate || 0.1) + 1,
       [retryDelayMin]: (options.retryDelayMin || 0.5) * 1000,
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,

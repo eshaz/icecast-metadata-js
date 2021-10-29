@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -44,8 +44,8 @@
   "dependencies": {
     "codec-parser": "1.4.0",
     "icecast-metadata-js": "0.5.4",
-    "mpg123-decoder": "0.0.3",
+    "mpg123-decoder": "0.2.0",
     "mse-audio-wrapper": "1.4.1",
-    "opus-decoder": "0.0.2"
+    "opus-decoder": "0.2.0"
   }
 }
