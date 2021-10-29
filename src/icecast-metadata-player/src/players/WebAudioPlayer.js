@@ -70,26 +70,8 @@ export default class WebAudioPlayer extends Player {
     this._sampleRate = 0;
     this._startTime = undefined;
     this._firedPlay = false;
-    this._decoderPromise = Promise.resolve();
 
-    // reset audio context
-    if (this._audioContext) this._audioContext.close();
-
-    this._audioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
-
-    // hack for safari to continue playing while locked
-    this._scriptProcessor = this._audioContext.createScriptProcessor(
-      2 ** 14,
-      2,
-      2
-    );
-    this._scriptProcessor.connect(this._audioContext.destination);
-
-    this._mediaStream = this._audioContext.createMediaStreamDestination();
-    this._audioElement.srcObject = this._mediaStream.stream;
-
-    if (this._wasmDecoder) await this._wasmDecoder.free();
+    if (this._wasmDecoder) this._wasmDecoder.free();
 
     if (
       this._icecast.state !== state.STOPPING &&
@@ -105,7 +87,21 @@ export default class WebAudioPlayer extends Player {
       }
     }
 
-    this._wasmPromise = this._wasmDecoder.ready;
+    if (this._audioContext) this._audioContext.close();
+
+    this._audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+
+    // hack for safari to continue playing while locked
+    this._scriptProcessor = this._audioContext.createScriptProcessor(
+      2 ** 14,
+      2,
+      2
+    );
+    this._scriptProcessor.connect(this._audioContext.destination);
+
+    this._mediaStream = this._audioContext.createMediaStreamDestination();
+    this._audioElement.srcObject = this._mediaStream.stream;
   }
 
   async onStream(oggPages) {
@@ -125,12 +121,8 @@ export default class WebAudioPlayer extends Player {
         }
       case SYNCED:
         if (frames.length) {
-          await this._wasmPromise;
-
-          this._decoderPromise = this._decoderPromise
-            .then(() =>
-              this._wasmDecoder.decodeFrames(frames.map((f) => f.data))
-            )
+          this._wasmDecoder
+            .decodeFrames(frames.map((f) => f.data))
             .then((decoded) => this.playDecodedAudio(decoded));
         }
       default:
