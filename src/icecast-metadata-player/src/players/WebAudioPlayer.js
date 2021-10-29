@@ -51,9 +51,7 @@ export default class WebAudioPlayer extends Player {
   }
 
   get metadataTimestamp() {
-    return (
-      (this._currentSample + this._currentSampleOffset) / this._sampleRate || 0
-    );
+    return this._currentTime / 1000;
   }
 
   get currentTime() {
@@ -65,8 +63,9 @@ export default class WebAudioPlayer extends Player {
     this._syncSuccessful = false;
     this._frameQueue = new FrameQueue(this._icecast);
 
-    this._currentSample = 0;
-    this._currentSampleOffset = 0;
+    this._currentTime = 0;
+    this._decodedSample = 0;
+    this._decodedSampleOffset = 0;
     this._sampleRate = 0;
     this._startTime = undefined;
     this._firedPlay = false;
@@ -85,6 +84,8 @@ export default class WebAudioPlayer extends Player {
           this._wasmDecoder = new OpusDecoderWebWorker();
           break;
       }
+
+      this._wasmReady = this._wasmDecoder.ready;
     }
 
     if (this._audioContext) this._audioContext.close();
@@ -121,6 +122,10 @@ export default class WebAudioPlayer extends Player {
         }
       case SYNCED:
         if (frames.length) {
+          this._currentTime = frames[frames.length - 1].totalDuration;
+
+          await this._wasmReady;
+
           this._wasmDecoder
             .decodeFrames(frames.map((f) => f.data))
             .then((decoded) => this.playDecodedAudio(decoded));
@@ -139,10 +144,13 @@ export default class WebAudioPlayer extends Player {
       if (!this._sampleRate) this._sampleRate = sampleRate;
       if (!this._startTime) this._startTime = Date.now();
 
-      if (this.metadataTimestamp < this._audioContext.currentTime) {
+      const decodeDuration =
+        (this._decodedSample + this._decodedSampleOffset) / this._sampleRate;
+
+      if (decodeDuration < this._audioContext.currentTime) {
         // audio context time starts incrementing immediately when it's created
         // offset needs to be accounted for to prevent overlapping sources
-        this._currentSampleOffset += Math.floor(
+        this._decodedSampleOffset += Math.floor(
           this._audioContext.currentTime * this._sampleRate
         );
       }
@@ -160,14 +168,14 @@ export default class WebAudioPlayer extends Player {
       const source = this._audioContext.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(this._mediaStream);
-      source.start(this.metadataTimestamp);
+      source.start(decodeDuration);
 
       if (!this._firedPlay) {
         this._icecast[fireEvent](event.PLAY);
         this._firedPlay = true;
       }
 
-      this._currentSample += samplesDecoded;
+      this._decodedSample += samplesDecoded;
     }
   }
 }
