@@ -6,10 +6,10 @@ import {
   audioElement,
   endpoint,
   enableLogging,
+  enableCodecUpdate,
   metadataTypes,
   icyMetaInt,
   icyDetectionTimeout,
-  codecUpdateEnabled,
   fireEvent,
   hasIcy,
   abortController,
@@ -26,12 +26,12 @@ export default class PlayerFactory {
 
     this._icecast = icecast;
     this._enableLogging = instanceVariables[enableLogging];
+    this._enableCodecUpdate = instanceVariables[enableCodecUpdate];
     this._audioElement = instanceVariables[audioElement];
     this._endpoint = instanceVariables[endpoint];
     this._metadataTypes = instanceVariables[metadataTypes];
     this._icyMetaInt = instanceVariables[icyMetaInt];
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
-    this._codecUpdateEnabled = instanceVariables[codecUpdateEnabled];
 
     this._hasIcy = instanceVariables[hasIcy];
 
@@ -90,7 +90,7 @@ export default class PlayerFactory {
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
         onCodecUpdate:
-          this._codecUpdateEnabled &&
+          this._enableCodecUpdate &&
           ((...args) => this._player.onCodecUpdate(...args)),
         onCodec,
         enableLogging: this._enableLogging,
