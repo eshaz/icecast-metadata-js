@@ -36,6 +36,7 @@ import {
   retryDelayMax,
   retryDelayRate,
   retryTimeout,
+  decoderEncoding,
   // methods
   fireEvent,
   attachAudioElement,
@@ -94,6 +95,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {number} options.retryDelayMax Maximum number of seconds between retries (end of the exponential back-off curve)
    * @param {boolean} options.enableLogging Set to `true` to enable warning and error logging to the console
    * @param {string} options.playbackMethod Sets the preferred playback method (mediasource (default), html5, webaudio)
+   * @param {string} options.decoderEncoding Sets the preferred decoder encoding (default: utf-8)
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
@@ -128,6 +130,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
       [retryTimeout]: (options.retryTimeout || 30) * 1000,
       [playbackMethod]: options.playbackMethod,
+      [decoderEncoding]: options.decoderEncoding,
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
