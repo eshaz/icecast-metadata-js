@@ -322,6 +322,9 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   #### *Only used when `["icy"]` metadata type is enabled*
   * `icyMetaInt` (optional) **Default** *reads from the response header*
     * ICY Metadata interval read from `Icy-MetaInt` header in the response
+  * `icyCharacterEncoding` (optional) **Default** `"uft-8"`
+    * Sets the character encoding of the ICY metadata. Most Icecast servers use `utf-8`, but encodings such as `iso-8859-2` are also used.
+    * See [Encoding API Encodings](https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings) for a complete   list of character encodings
   * `icyDetectionTimeout` (optional) **Default** `2000`
     * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
     * Set to `0` to disable metadata detection
@@ -384,6 +387,13 @@ player.addEventListener('metadata', (event) => {
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
 * To enable the source map, simply copy `icecast-metadata-player-1.9.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.9.0.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
+
+### Common Issues
+
+> ICY Metadata has incorrect characters.
+
+* Try setting the `icyCharacterEncoding` option to match the character encoding of the metadata.
+* A common ICY metadtata encoding other than `utf-8` is `iso-8859-2`
 
 ### Warning messages
 

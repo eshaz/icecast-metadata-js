@@ -30,6 +30,7 @@ export const endpoint = Symbol();
 export const metadataTypes = Symbol();
 export const audioElement = Symbol();
 export const icyMetaInt = Symbol();
+export const icyCharacterEncoding = Symbol();
 export const icyDetectionTimeout = Symbol();
 export const enableLogging = Symbol();
 export const retryDelayRate = Symbol();
@@ -37,7 +38,6 @@ export const retryDelayMin = Symbol();
 export const retryDelayMax = Symbol();
 export const retryTimeout = Symbol();
 export const enableCodecUpdate = Symbol();
-export const decoderEncoding = Symbol();
 
 // methods
 export const fireEvent = Symbol();

@@ -114,11 +114,8 @@ class IcecastMetadataQueue {
   }
 
   _dequeueMetadata() {
-    const {
-      metadata,
-      timestampOffset,
-      timestamp,
-    } = this._metadataQueue.shift();
+    const { metadata, timestampOffset, timestamp } =
+      this._metadataQueue.shift();
     this._onMetadataUpdate(metadata, timestampOffset, timestamp);
   }
 }

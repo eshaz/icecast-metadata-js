@@ -15,7 +15,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const Decoder = require("util").TextDecoder || TextDecoder;
 const Stats = require("./Stats");
 
 const noOp = () => {};
@@ -32,7 +31,6 @@ class MetadataParser {
     this._currentPosition = 0;
     this._buffer = new Uint8Array(0);
     this._stats = new Stats();
-    this._decoder = new Decoder(params.decoderEncoding || "utf-8");
 
     this._onStream = params.onStream || noOp;
     this._onMetadata = params.onMetadata || noOp;

@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+const Decoder = require("util").TextDecoder || TextDecoder;
 const MetadataParser = require("./MetadataParser/MetadataParser");
 const IcyMetadataParser = require("./MetadataParser/IcyMetadataParser");
 const OggMetadataParser = require("./MetadataParser/OggMetadataParser");
@@ -24,6 +25,7 @@ class IcecastMetadataReader {
   /**
    * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
    * @param {number} IcecastMetadataReader.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
+   * @param {number} IcecastMetadataReader.icyCharacterEncoding Character encoding to use for ICY metadata (defaults to "utf-8")
    * @param {number} IcecastMetadataReader.icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
    * @param {Array} IcecastMetadataReader.metadataTypes Types of metadata to capture: "icy" and/or "ogg"
    *
@@ -57,7 +59,7 @@ class IcecastMetadataReader {
   }
 
   /**
-   * @description Parses an ICY metadata string into key value pairs.
+   * @description Parses an already decoded ICY metadata string into key value pairs.
    * @param {string} metadataString ICY formatted metadata string. (i.e. "StreamTitle='A Title';")
    * @returns {object} Parsed metadata key value pairs. (i.e. {StreamTitle: "A Title"})
    */

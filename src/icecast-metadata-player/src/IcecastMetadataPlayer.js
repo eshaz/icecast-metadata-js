@@ -29,6 +29,7 @@ import {
   metadataTypes,
   audioElement,
   icyMetaInt,
+  icyCharacterEncoding,
   icyDetectionTimeout,
   enableLogging,
   enableCodecUpdate,
@@ -36,7 +37,6 @@ import {
   retryDelayMax,
   retryDelayRate,
   retryTimeout,
-  decoderEncoding,
   // methods
   fireEvent,
   attachAudioElement,
@@ -88,6 +88,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {HTMLAudioElement} options.audioElement Audio element to play the stream
    * @param {Array} options.metadataTypes Array of metadata types to parse
    * @param {number} options.icyMetaInt ICY metadata interval
+   * @param {string} options.icyCharacterEncoding Character encoding to use for ICY metadata (defaults to "utf-8")
    * @param {number} options.icyDetectionTimeout ICY metadata detection timeout
    * @param {number} options.retryTimeout Number of seconds to wait before giving up on retries
    * @param {number} options.retryDelayRate Percentage of seconds to increment after each retry (how quickly to increase the back-off)
@@ -95,7 +96,6 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {number} options.retryDelayMax Maximum number of seconds between retries (end of the exponential back-off curve)
    * @param {boolean} options.enableLogging Set to `true` to enable warning and error logging to the console
    * @param {string} options.playbackMethod Sets the preferred playback method (mediasource (default), html5, webaudio)
-   * @param {string} options.decoderEncoding Sets the preferred decoder encoding (default: utf-8)
    *
    * @callback options.onMetadata Called with metadata when synchronized with the audio
    * @callback options.onMetadataEnqueue Called with metadata when discovered on the response
@@ -119,6 +119,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [endpoint]: url,
       [audioElement]: options.audioElement || new Audio(),
       [icyMetaInt]: options.icyMetaInt,
+      [icyCharacterEncoding]: options.icyCharacterEncoding,
       [icyDetectionTimeout]: options.icyDetectionTimeout,
       [metadataTypes]: options.metadataTypes || ["icy"],
       [hasIcy]: (options.metadataTypes || ["icy"]).includes("icy"),
@@ -130,7 +131,6 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
       [retryTimeout]: (options.retryTimeout || 30) * 1000,
       [playbackMethod]: options.playbackMethod,
-      [decoderEncoding]: options.decoderEncoding,
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -231,7 +231,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     p.get(this)[playerFactory] = new PlayerFactory(
       this,
       p.get(this)[playbackMethod],
-      p.get(this)[decoderEncoding]
+      p.get(this)[icyCharacterEncoding]
     );
   }
 

@@ -9,11 +9,11 @@ import {
   enableCodecUpdate,
   metadataTypes,
   icyMetaInt,
+  icyCharacterEncoding,
   icyDetectionTimeout,
   fireEvent,
   hasIcy,
   abortController,
-  decoderEncoding,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -32,12 +32,11 @@ export default class PlayerFactory {
     this._endpoint = instanceVariables[endpoint];
     this._metadataTypes = instanceVariables[metadataTypes];
     this._icyMetaInt = instanceVariables[icyMetaInt];
+    this._icyCharacterEncoding = instanceVariables[icyCharacterEncoding];
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
 
     this._hasIcy = instanceVariables[hasIcy];
     
-    this._decoderEncoding = instanceVariables[decoderEncoding];
-
     this._preferredPlaybackMethod = preferredPlaybackMethod || "mediasource";
     this._playbackMethod = "";
     this._player = new Player(this._icecast);
@@ -118,9 +117,9 @@ export default class PlayerFactory {
         }
       },
       onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
-      decoderEncoding: this._decoderEncoding,
       metadataTypes: this._metadataTypes,
       icyMetaInt: this._icyMetaInt,
+      icyCharacterEncoding: this._icyCharacterEncoding,
       icyDetectionTimeout: this._icyDetectionTimeout,
     });
 

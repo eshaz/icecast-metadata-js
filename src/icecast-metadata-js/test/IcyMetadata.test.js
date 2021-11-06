@@ -354,9 +354,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -369,9 +368,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -384,9 +382,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -399,9 +396,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.c",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -413,9 +409,8 @@ describe("ICY Metadata Parsing", () => {
         StreamTitle: "The Stream Title",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -424,9 +419,8 @@ describe("ICY Metadata Parsing", () => {
       const metadataString = "StreamTitle='The Stream Title';\0\0\0";
       const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -435,9 +429,8 @@ describe("ICY Metadata Parsing", () => {
       const metadataString = "StreamTitl";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -451,9 +444,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -462,9 +454,8 @@ describe("ICY Metadata Parsing", () => {
       const metadataString = "";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -474,9 +465,8 @@ describe("ICY Metadata Parsing", () => {
         const metadataString = "Stream Title='The Stream Title';\0";
         const expectedMetadata = { "Stream Title": "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -485,9 +475,8 @@ describe("ICY Metadata Parsing", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamU";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -498,9 +487,8 @@ describe("ICY Metadata Parsing", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -512,9 +500,8 @@ describe("ICY Metadata Parsing", () => {
           StreamTitle: "Nils Landgren & Jan LundgrenÂ  - Why Did You Let Me Go",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -527,9 +514,8 @@ describe("ICY Metadata Parsing", () => {
             "Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -542,9 +528,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -557,9 +542,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -572,9 +556,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -587,9 +570,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -600,9 +582,8 @@ describe("ICY Metadata Parsing", () => {
           StreamTitle: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -614,9 +595,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -628,9 +608,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "some url",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -642,9 +621,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
