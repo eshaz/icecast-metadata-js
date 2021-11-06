@@ -1,6 +1,8 @@
-const fs = require("fs");
+const fs = require("fs").promises;
 const IcecastMetadataReader = require("../src/IcecastMetadataReader");
 const { readChunk, readChunks, concatAudio } = require("./utils");
+
+const DATA_PATH = "../../test/data/record/";
 
 describe("ICY Metadata Parsing", () => {
   let raw_256k,
@@ -14,29 +16,22 @@ describe("ICY Metadata Parsing", () => {
   const somaMetaInt = 16000;
   const isicsMetaInt = 64;
 
-  beforeAll((done) => {
-    Promise.all([
-      fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3.raw"),
-      fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3"),
-      fs.promises.readFile(
-        "../../test/data/record/no-rollover/isics-all.mp3.raw"
-      ),
-      fs.promises.readFile("../../test/data/record/no-rollover/isics-all.mp3"),
-      fs.promises.readFile(
-        "../../test/data/record/320mp3_iso-8859-2/music-320k_iso-8859-2.raw"
-      ),
-      fs.promises.readFile(
-        "../../test/data/record/320mp3_iso-8859-2/music-320k_iso-8859-2.mp3"
-      ),
-    ]).then(([r256k, e256, r16k, e16k, r320k, e320k]) => {
-      raw_256k = r256k;
-      expected_256k = e256;
-      raw_16k = r16k;
-      expected_16k = e16k;
-      raw_320k_iso_8859_2 = r320k;
-      expected_raw320k_iso_8859_2 = e320k;
-      done();
-    });
+  beforeAll(async () => {
+    [
+      raw_256k,
+      expected_256k,
+      raw_16k,
+      expected_16k,
+      raw_320k_iso_8859_2,
+      expected_raw320k_iso_8859_2,
+    ] = await Promise.all([
+      fs.readFile(DATA_PATH + "256mp3/music-256k.mp3.raw"),
+      fs.readFile(DATA_PATH + "256mp3/music-256k.mp3"),
+      fs.readFile(DATA_PATH + "no-rollover/isics-all.mp3.raw"),
+      fs.readFile(DATA_PATH + "no-rollover/isics-all.mp3"),
+      fs.readFile(DATA_PATH + "320mp3_iso-8859-2/music-320k_iso-8859-2.raw"),
+      fs.readFile(DATA_PATH + "320mp3_iso-8859-2/music-320k_iso-8859-2.mp3"),
+    ]);
 
     mockOnMetadataUpdate = jest.fn();
   });
@@ -93,7 +88,7 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks larger than the metaint", () => {
@@ -116,7 +111,7 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of equal size to the metaint", () => {
@@ -139,7 +134,7 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of random size", () => {
@@ -151,7 +146,7 @@ describe("ICY Metadata Parsing", () => {
       );
       const returnedAudio = concatAudio([returnedValues]);
 
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of size 10", () => {
@@ -161,7 +156,7 @@ describe("ICY Metadata Parsing", () => {
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedValues.metadata.length).toEqual(259);
-      expect(Buffer.compare(returnedAudio, expected_16k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_16k)).toEqual(0);
     });
   });
 
@@ -191,7 +186,7 @@ describe("ICY Metadata Parsing", () => {
 
       expect(
         Buffer.compare(concatAudio([noMetadata, metadata, rest]), expected_256k)
-      ).toBeFalsy();
+      ).toEqual(0);
     });
 
     it("should update metadata as soon as it is available", () => {
@@ -218,7 +213,7 @@ describe("ICY Metadata Parsing", () => {
       });
       expect(
         Buffer.compare(concatAudio([noMetadata, metadata, rest]), expected_256k)
-      ).toBeFalsy();
+      ).toEqual(0);
     });
 
     it("should defer metadata update if still reading second metadata chunk", () => {
@@ -261,7 +256,7 @@ describe("ICY Metadata Parsing", () => {
       });
       expect(
         Buffer.compare(concatAudio([firstValue, secondValue]), expected_256k)
-      ).toBeFalsy();
+      ).toEqual(0);
     });
 
     it("should defer metadata update if still reading metadata length byte", () => {
@@ -272,7 +267,7 @@ describe("ICY Metadata Parsing", () => {
       expect(values.metadata.length).toEqual(0);
       expect(
         Buffer.compare(concatAudio([values, rest]), expected_256k)
-      ).toBeFalsy();
+      ).toEqual(0);
     });
 
     it("should not update metadata given length byte is zero", () => {
@@ -283,7 +278,7 @@ describe("ICY Metadata Parsing", () => {
       expect(values.metadata.length).toEqual(1);
       expect(
         Buffer.compare(concatAudio([values, rest]), expected_256k)
-      ).toBeFalsy();
+      ).toEqual(0);
     });
 
     it("should update metadata as expected given the we are only reading zero or one byte at a time during the length step", () => {
@@ -315,7 +310,7 @@ describe("ICY Metadata Parsing", () => {
           totalBytesRead: 16113,
         },
       });
-      expect(Buffer.compare(concatAudio(values), expected_256k)).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), expected_256k)).toEqual(0);
     });
 
     it("should update metadata as expected given readBuffer is called with a zero length buffer", () => {
@@ -342,7 +337,7 @@ describe("ICY Metadata Parsing", () => {
           totalBytesRead: 16113,
         },
       });
-      expect(Buffer.compare(concatAudio(values), expected_256k)).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), expected_256k)).toEqual(0);
     });
   });
 
@@ -689,7 +684,7 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks larger than the metaint", () => {
@@ -712,7 +707,7 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks of equal size to the metaint", () => {
@@ -735,7 +730,7 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks of random size", () => {
@@ -747,7 +742,7 @@ describe("ICY Metadata Parsing", () => {
       );
       const returnedAudio = concatAudio([returnedValues]);
 
-      expect(Buffer.compare(returnedAudio, expected_256k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks of size 10", () => {
@@ -757,7 +752,7 @@ describe("ICY Metadata Parsing", () => {
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedValues.metadata.length).toEqual(259);
-      expect(Buffer.compare(returnedAudio, expected_16k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_16k)).toEqual(0);
     });
   });
 
@@ -795,7 +790,9 @@ describe("ICY Metadata Parsing", () => {
         },
       });
 
-      expect(Buffer.compare(returnedAudio, expected_raw320k_iso_8859_2)).toBeFalsy();
+      expect(
+        Buffer.compare(returnedAudio, expected_raw320k_iso_8859_2)
+      ).toEqual(0);
     });
   });
 });
