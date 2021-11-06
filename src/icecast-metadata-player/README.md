@@ -390,7 +390,7 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 
 ### Common Issues
 
-> ICY Metadata has incorrect characters.
+> ICY Metadata has incorrect characters such as "Zanzibar - Sz�lj M�r" when it should be "Zanzibar - Szólj Már"
 
 * Try setting the `icyCharacterEncoding` option to match the character encoding of the metadata.
 * A common ICY metadtata encoding other than `utf-8` is `iso-8859-2`
