@@ -36,7 +36,7 @@ export default class PlayerFactory {
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
 
     this._hasIcy = instanceVariables[hasIcy];
-    
+
     this._preferredPlaybackMethod = preferredPlaybackMethod || "mediasource";
     this._playbackMethod = "";
     this._player = new Player(this._icecast);

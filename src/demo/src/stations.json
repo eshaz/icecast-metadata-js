@@ -270,21 +270,21 @@
         "codec": "MP3 320",
         "metadataTypes": ["icy"],
         "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy", "icestats"]
+        "statsSources": ["icy"]
       },
       {
         "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_192",
         "codec": "MP3 192",
         "metadataTypes": ["icy"],
         "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy", "icestats"]
+        "statsSources": ["icy"]
       },
       {
         "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy", "icestats"]
+        "statsSources": ["icy"]
       }
     ]
   },
