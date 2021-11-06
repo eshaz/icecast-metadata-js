@@ -28,7 +28,7 @@ export default class IcecastReadableStream {
    * @param {object} options Configuration options for IcecastMetadataReader
    * @see IcecastMetadataReader for information on the options parameter
    */
-  constructor(response, { icyMetaInt, onStream = noOp, ...rest }) {
+  constructor(response, { icyMetaInt, decoderEncoding, onStream = noOp, ...rest }) {
     let icecast;
 
     this._readableStream = new ReadableStream({
@@ -37,6 +37,7 @@ export default class IcecastReadableStream {
           ...rest,
           icyMetaInt:
             parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
+          decoderEncoding: decoderEncoding,
           onStream: async (value) => {
             controller.enqueue(value.stream);
             return onStream(value);

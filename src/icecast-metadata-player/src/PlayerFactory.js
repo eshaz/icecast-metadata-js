@@ -13,6 +13,7 @@ import {
   fireEvent,
   hasIcy,
   abortController,
+  decoderEncoding,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -34,6 +35,8 @@ export default class PlayerFactory {
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
 
     this._hasIcy = instanceVariables[hasIcy];
+    
+    this._decoderEncoding = instanceVariables[decoderEncoding];
 
     this._preferredPlaybackMethod = preferredPlaybackMethod || "mediasource";
     this._playbackMethod = "";
@@ -115,6 +118,7 @@ export default class PlayerFactory {
         }
       },
       onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
+      decoderEncoding: this._decoderEncoding,
       metadataTypes: this._metadataTypes,
       icyMetaInt: this._icyMetaInt,
       icyDetectionTimeout: this._icyDetectionTimeout,
