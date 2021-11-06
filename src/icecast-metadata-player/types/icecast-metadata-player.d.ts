@@ -109,6 +109,9 @@ declare module "icecast-metadata-player" {
      */
     retryDelayMax?: number;
 
+    /** The metadata character decoder encoding */
+    decoderEncoding?: string;
+
     /**
      * Set to `true` to enable warning and error logging to the console
      * @default false

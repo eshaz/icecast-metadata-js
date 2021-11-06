@@ -230,7 +230,8 @@ export default class IcecastMetadataPlayer extends EventClass {
 
     p.get(this)[playerFactory] = new PlayerFactory(
       this,
-      p.get(this)[playbackMethod]
+      p.get(this)[playbackMethod],
+      p.get(this)[decoderEncoding]
     );
   }
 
