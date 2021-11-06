@@ -261,6 +261,34 @@
     ]
   },
   {
+    "name": "OXYGEN MAGYAR ZENE",
+    "description": "Hungarian Dance Hits",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-magyar-zene/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
     "name": "Bolerospara Enamorarse",
     "description": "Añoranzas por la melodias de el radio de los 40 s. 50 s y 60 s.",
     "link": "http://bolerosparaenamorarse.playtheradio.com",
