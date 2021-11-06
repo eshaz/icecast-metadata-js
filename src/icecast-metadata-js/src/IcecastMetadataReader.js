@@ -15,7 +15,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const Decoder = require("util").TextDecoder || TextDecoder;
 const MetadataParser = require("./MetadataParser/MetadataParser");
 const IcyMetadataParser = require("./MetadataParser/IcyMetadataParser");
 const OggMetadataParser = require("./MetadataParser/OggMetadataParser");

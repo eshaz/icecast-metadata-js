@@ -271,6 +271,7 @@
             document.getElementById("endpoint").value = station.endpoint;
             document.getElementById("icy").checked = station.metadataTypes.includes("icy");
             document.getElementById("ogg").checked = station.metadataTypes.includes("ogg");
+            document.getElementById("icyCharacterEncoding").value = station.icyCharacterEncoding || "utf-8";
   
             document.getElementById("icy-auto-query").checked = station.statsSources.includes("icy");
             document.getElementById("ogg-auto-query").checked = station.statsSources.includes("ogg");
@@ -468,16 +469,16 @@
                       style="flex-grow: 1; justify-content: space-evenly"
                     >
                       <legend>ICY Metadata Options</legend>
-
                       <div
                         title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response.
 Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
                         class="column"
                       >
                         <label for="icyDetectionTimeout"
-                          >ICY Detection Timeout (ms)</label
+                          >Detection Timeout</label
                         >
                         <input
+                          size="10"
                           type="number"
                           id="icyDetectionTimeout"
                           name="icyDetectionTimeout"
@@ -485,11 +486,29 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
                         />
                       </div>
                       <div
+                        title="The character encoding used to decode the ICY metadata string"
+                        class="column"
+                      >
+                        <label for="icyCharacterEncoding"
+                          >Character Encoding</label
+                        >
+                        <input
+                          size="10"
+                          name="icyCharacterEncoding"
+                          id="icyCharacterEncoding"
+                        />
+                      </div>
+                      <div
                         title="The detected metadata interval either from the Icy-MetaInt header value or the value detected in the stream."
                         class="column"
                       >
-                        <label for="icyMetaInt">ICY Metadata Interval</label>
-                        <input name="icyMetaInt" id="icyMetaInt" disabled />
+                        <label for="icyMetaInt">Metadata Interval</label>
+                        <input
+                          size="10"
+                          name="icyMetaInt"
+                          id="icyMetaInt"
+                          disabled
+                        />
                       </div>
                     </fieldset>
                   </div>
@@ -1036,6 +1055,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         {
           metadataTypes,
           icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
+          icyCharacterEncoding: playerFormData.icyCharacterEncoding,
           enableLogging: true,
           onStreamStart,
           onPlay,
