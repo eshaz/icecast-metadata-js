@@ -118,9 +118,9 @@ export default class PlayerFactory {
       },
       onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
       metadataTypes: this._metadataTypes,
-      icyMetaInt: this._icyMetaInt,
       icyCharacterEncoding: this._icyCharacterEncoding,
       icyDetectionTimeout: this._icyDetectionTimeout,
+      ...(this._icyMetaInt && {icyMetaInt: this._icyMetaInt}),
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();
