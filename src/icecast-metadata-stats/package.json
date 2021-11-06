@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-stats",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Simple to use Javascript class that queries an Icecast compatible server for metadata and statistics",
   "keywords": [
     "icecast",
@@ -35,6 +35,6 @@
     "webpack-cli": "^4.3.0"
   },
   "dependencies": {
-    "icecast-metadata-js": "0.5.4"
+    "icecast-metadata-js": "0.6.0"
   }
 }

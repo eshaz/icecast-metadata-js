@@ -157,6 +157,7 @@ A generator that takes in raw icecast response data and return stream data and m
 ```javascript
 const options = {
   metadataTypes: ["icy"],
+  icyCharacterEncoding: "utf-8",
   icyMetaInt: 16000,
   icyDetectionTimeout: 2000,
   enableLogging: false,
@@ -183,6 +184,10 @@ const options = {
 #### *Only used when `["icy"]` metadata type is enabled*
 * `icyMetaInt`
   * ICY Metadata interval read from `Icy-MetaInt` header in the response
+* `icyCharacterEncoding`
+  * Sets the character encoding of the ICY metadata. Most Icecast servers use `utf-8`, but encodings such as `iso-8859-2` are also used.
+  * See [Encoding API Encodings](https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings) for a complete list of character encodings.
+  * default: `"utf-8"`
 * `icyDetectionTimeout`
   * Duration in milliseconds to search for ICY metadata if icyMetaInt isn't passed in
   * Set to `0` to disable metadata detection

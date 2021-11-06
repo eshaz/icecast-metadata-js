@@ -1,28 +1,37 @@
-const fs = require("fs");
+const fs = require("fs").promises;
 const IcecastMetadataReader = require("../src/IcecastMetadataReader");
 const { readChunk, readChunks, concatAudio } = require("./utils");
 
+const DATA_PATH = "../../test/data/record/";
+
 describe("ICY Metadata Parsing", () => {
-  let raw256k, expected256kAudio, raw16k, expected16k, mockOnMetadataUpdate;
+  let raw_256k,
+    expected_256k,
+    raw_16k,
+    expected_16k,
+    raw_320k_iso_8859_2,
+    expected_raw320k_iso_8859_2,
+    mockOnMetadataUpdate;
 
   const somaMetaInt = 16000;
   const isicsMetaInt = 64;
 
-  beforeAll((done) => {
-    Promise.all([
-      fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3.raw"),
-      fs.promises.readFile("../../test/data/record/256mp3/music-256k.mp3"),
-      fs.promises.readFile(
-        "../../test/data/record/no-rollover/isics-all.mp3.raw"
-      ),
-      fs.promises.readFile("../../test/data/record/no-rollover/isics-all.mp3"),
-    ]).then(([r256k, e256, r16k, e16k]) => {
-      raw256k = r256k;
-      expected256kAudio = e256;
-      raw16k = r16k;
-      expected16k = e16k;
-      done();
-    });
+  beforeAll(async () => {
+    [
+      raw_256k,
+      expected_256k,
+      raw_16k,
+      expected_16k,
+      raw_320k_iso_8859_2,
+      expected_raw320k_iso_8859_2,
+    ] = await Promise.all([
+      fs.readFile(DATA_PATH + "256mp3/music-256k.mp3.raw"),
+      fs.readFile(DATA_PATH + "256mp3/music-256k.mp3"),
+      fs.readFile(DATA_PATH + "no-rollover/isics-all.mp3.raw"),
+      fs.readFile(DATA_PATH + "no-rollover/isics-all.mp3"),
+      fs.readFile(DATA_PATH + "320mp3_iso-8859-2/music-320k_iso-8859-2.raw"),
+      fs.readFile(DATA_PATH + "320mp3_iso-8859-2/music-320k_iso-8859-2.mp3"),
+    ]);
 
     mockOnMetadataUpdate = jest.fn();
   });
@@ -60,7 +69,7 @@ describe("ICY Metadata Parsing", () => {
     it("should return the correct audio given it is read in chunks smaller than the metaint", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
 
-      const returnedValues = readChunks(reader, raw256k, 15999);
+      const returnedValues = readChunks(reader, raw_256k, 15999);
 
       const returnedAudio = concatAudio([returnedValues]);
 
@@ -79,12 +88,12 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks larger than the metaint", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const returnedValues = readChunks(reader, raw256k, 16001);
+      const returnedValues = readChunks(reader, raw_256k, 16001);
       const returnedAudio = concatAudio([returnedValues]);
 
       expectMetadata(
@@ -102,12 +111,12 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of equal size to the metaint", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const returnedValues = readChunks(reader, raw256k, 16000);
+      const returnedValues = readChunks(reader, raw_256k, 16000);
       const returnedAudio = concatAudio([returnedValues]);
 
       expectMetadata(
@@ -125,38 +134,38 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of random size", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
       const returnedValues = readChunks(
         reader,
-        raw256k,
+        raw_256k,
         Math.floor(Math.random() * 30000)
       );
       const returnedAudio = concatAudio([returnedValues]);
 
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of size 10", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: isicsMetaInt });
-      const returnedValues = readChunks(reader, raw16k, 10);
+      const returnedValues = readChunks(reader, raw_16k, 10);
 
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedValues.metadata.length).toEqual(259);
-      expect(Buffer.compare(returnedAudio, expected16k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_16k)).toEqual(0);
     });
   });
 
   describe("Metadata Chunks", () => {
     it("should defer metadata update if still reading first metadata chunk", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const noMetadata = readChunk(reader, raw256k.subarray(0, 16004));
-      const metadata = readChunk(reader, raw256k.subarray(16004, 16800));
-      const rest = readChunk(reader, raw256k.subarray(16800));
+      const noMetadata = readChunk(reader, raw_256k.subarray(0, 16004));
+      const metadata = readChunk(reader, raw_256k.subarray(16004, 16800));
+      const rest = readChunk(reader, raw_256k.subarray(16800));
 
       expect(noMetadata.metadata).toEqual([]);
       expect(metadata.metadata[0]).toEqual({
@@ -176,18 +185,15 @@ describe("ICY Metadata Parsing", () => {
       });
 
       expect(
-        Buffer.compare(
-          concatAudio([noMetadata, metadata, rest]),
-          expected256kAudio
-        )
-      ).toBeFalsy();
+        Buffer.compare(concatAudio([noMetadata, metadata, rest]), expected_256k)
+      ).toEqual(0);
     });
 
     it("should update metadata as soon as it is available", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const noMetadata = readChunk(reader, raw256k.subarray(0, 16004));
-      const metadata = readChunk(reader, raw256k.subarray(16004, 16113));
-      const rest = readChunk(reader, raw256k.subarray(16113));
+      const noMetadata = readChunk(reader, raw_256k.subarray(0, 16004));
+      const metadata = readChunk(reader, raw_256k.subarray(16004, 16113));
+      const rest = readChunk(reader, raw_256k.subarray(16113));
 
       expect(noMetadata.metadata).toEqual([]);
       expect(metadata.metadata[0]).toEqual({
@@ -206,17 +212,14 @@ describe("ICY Metadata Parsing", () => {
         },
       });
       expect(
-        Buffer.compare(
-          concatAudio([noMetadata, metadata, rest]),
-          expected256kAudio
-        )
-      ).toBeFalsy();
+        Buffer.compare(concatAudio([noMetadata, metadata, rest]), expected_256k)
+      ).toEqual(0);
     });
 
     it("should defer metadata update if still reading second metadata chunk", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const firstValue = readChunk(reader, raw256k.subarray(0, 6224510));
-      const secondValue = readChunk(reader, raw256k.subarray(6224510));
+      const firstValue = readChunk(reader, raw_256k.subarray(0, 6224510));
+      const secondValue = readChunk(reader, raw_256k.subarray(6224510));
 
       expect(firstValue.metadata[0]).toEqual({
         metadata: {
@@ -252,47 +255,44 @@ describe("ICY Metadata Parsing", () => {
         },
       });
       expect(
-        Buffer.compare(
-          concatAudio([firstValue, secondValue]),
-          expected256kAudio
-        )
-      ).toBeFalsy();
+        Buffer.compare(concatAudio([firstValue, secondValue]), expected_256k)
+      ).toEqual(0);
     });
 
     it("should defer metadata update if still reading metadata length byte", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const values = readChunk(reader, raw256k.subarray(0, 16000));
-      const rest = readChunk(reader, raw256k.subarray(16000));
+      const values = readChunk(reader, raw_256k.subarray(0, 16000));
+      const rest = readChunk(reader, raw_256k.subarray(16000));
 
       expect(values.metadata.length).toEqual(0);
       expect(
-        Buffer.compare(concatAudio([values, rest]), expected256kAudio)
-      ).toBeFalsy();
+        Buffer.compare(concatAudio([values, rest]), expected_256k)
+      ).toEqual(0);
     });
 
     it("should not update metadata given length byte is zero", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
-      const values = readChunk(reader, raw256k.subarray(0, 120000));
-      const rest = readChunk(reader, raw256k.subarray(120000));
+      const values = readChunk(reader, raw_256k.subarray(0, 120000));
+      const rest = readChunk(reader, raw_256k.subarray(120000));
 
       expect(values.metadata.length).toEqual(1);
       expect(
-        Buffer.compare(concatAudio([values, rest]), expected256kAudio)
-      ).toBeFalsy();
+        Buffer.compare(concatAudio([values, rest]), expected_256k)
+      ).toEqual(0);
     });
 
     it("should update metadata as expected given the we are only reading zero or one byte at a time during the length step", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
 
       const values = [
-        readChunk(reader, raw256k.subarray(0, 15999)),
-        readChunk(reader, raw256k.subarray(15999, 15999)), // zero bytes
-        readChunk(reader, raw256k.subarray(15999, 16000)), // one byte
-        readChunk(reader, raw256k.subarray(16000, 16000)), // zero bytes
-        readChunk(reader, raw256k.subarray(16000, 16001)), // one byte (metadata length should be here)
-        readChunk(reader, raw256k.subarray(16001, 16001)), // zero bytes
-        readChunk(reader, raw256k.subarray(16001, 120000)),
-        readChunk(reader, raw256k.subarray(120000)),
+        readChunk(reader, raw_256k.subarray(0, 15999)),
+        readChunk(reader, raw_256k.subarray(15999, 15999)), // zero bytes
+        readChunk(reader, raw_256k.subarray(15999, 16000)), // one byte
+        readChunk(reader, raw_256k.subarray(16000, 16000)), // zero bytes
+        readChunk(reader, raw_256k.subarray(16000, 16001)), // one byte (metadata length should be here)
+        readChunk(reader, raw_256k.subarray(16001, 16001)), // zero bytes
+        readChunk(reader, raw_256k.subarray(16001, 120000)),
+        readChunk(reader, raw_256k.subarray(120000)),
       ];
 
       expect(values[6].metadata[0]).toEqual({
@@ -310,18 +310,16 @@ describe("ICY Metadata Parsing", () => {
           totalBytesRead: 16113,
         },
       });
-      expect(
-        Buffer.compare(concatAudio(values), expected256kAudio)
-      ).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), expected_256k)).toEqual(0);
     });
 
     it("should update metadata as expected given readBuffer is called with a zero length buffer", () => {
       const reader = new IcecastMetadataReader({ icyMetaInt: somaMetaInt });
       const values = [
-        readChunk(reader, raw256k.subarray(0, 15243)),
-        readChunk(reader, raw256k.subarray(15243, 15243)),
-        readChunk(reader, raw256k.subarray(15243, 16456)),
-        readChunk(reader, raw256k.subarray(16456)),
+        readChunk(reader, raw_256k.subarray(0, 15243)),
+        readChunk(reader, raw_256k.subarray(15243, 15243)),
+        readChunk(reader, raw_256k.subarray(15243, 16456)),
+        readChunk(reader, raw_256k.subarray(16456)),
       ];
 
       expect(values[2].metadata[0]).toEqual({
@@ -339,9 +337,7 @@ describe("ICY Metadata Parsing", () => {
           totalBytesRead: 16113,
         },
       });
-      expect(
-        Buffer.compare(concatAudio(values), expected256kAudio)
-      ).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), expected_256k)).toEqual(0);
     });
   });
 
@@ -354,9 +350,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -369,9 +364,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -384,9 +378,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -399,9 +392,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.c",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -413,9 +405,8 @@ describe("ICY Metadata Parsing", () => {
         StreamTitle: "The Stream Title",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -424,9 +415,8 @@ describe("ICY Metadata Parsing", () => {
       const metadataString = "StreamTitle='The Stream Title';\0\0\0";
       const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -435,9 +425,8 @@ describe("ICY Metadata Parsing", () => {
       const metadataString = "StreamTitl";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -451,9 +440,8 @@ describe("ICY Metadata Parsing", () => {
         StreamUrl: "https://example.com",
       };
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -462,9 +450,8 @@ describe("ICY Metadata Parsing", () => {
       const metadataString = "";
       const expectedMetadata = {};
 
-      const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-        metadataString
-      );
+      const returnedMetadata =
+        IcecastMetadataReader.parseIcyMetadata(metadataString);
 
       expect(returnedMetadata).toEqual(expectedMetadata);
     });
@@ -474,9 +461,8 @@ describe("ICY Metadata Parsing", () => {
         const metadataString = "Stream Title='The Stream Title';\0";
         const expectedMetadata = { "Stream Title": "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -485,9 +471,8 @@ describe("ICY Metadata Parsing", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamU";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -498,9 +483,8 @@ describe("ICY Metadata Parsing", () => {
         const metadataString = "StreamTitle='The Stream Title';StreamUrl='\0";
         const expectedMetadata = { StreamTitle: "The Stream Title" };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -512,9 +496,8 @@ describe("ICY Metadata Parsing", () => {
           StreamTitle: "Nils Landgren & Jan LundgrenÂ  - Why Did You Let Me Go",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -527,9 +510,8 @@ describe("ICY Metadata Parsing", () => {
             "Nils Ländgren & Jan Lundgren - Why Did You Let Me Go ひらがな",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -542,9 +524,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -557,9 +538,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -572,9 +552,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -587,9 +566,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "https://example.com",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -600,9 +578,8 @@ describe("ICY Metadata Parsing", () => {
           StreamTitle: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -614,9 +591,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -628,9 +604,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "some url",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -642,9 +617,8 @@ describe("ICY Metadata Parsing", () => {
           StreamUrl: "",
         };
 
-        const returnedMetadata = IcecastMetadataReader.parseIcyMetadata(
-          metadataString
-        );
+        const returnedMetadata =
+          IcecastMetadataReader.parseIcyMetadata(metadataString);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
       });
@@ -692,7 +666,7 @@ describe("ICY Metadata Parsing", () => {
 
     it("should detect the metadata and return the correct audio given it is read in chunks smaller than the metaint", () => {
       const reader = new IcecastMetadataReader();
-      const returnedValues = readChunks(reader, raw256k, 15999);
+      const returnedValues = readChunks(reader, raw_256k, 15999);
       const returnedAudio = concatAudio([returnedValues]);
 
       expectMetadata(
@@ -710,12 +684,12 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks larger than the metaint", () => {
       const reader = new IcecastMetadataReader();
-      const returnedValues = readChunks(reader, raw256k, 16001);
+      const returnedValues = readChunks(reader, raw_256k, 16001);
       const returnedAudio = concatAudio([returnedValues]);
 
       expectMetadata(
@@ -733,12 +707,12 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks of equal size to the metaint", () => {
       const reader = new IcecastMetadataReader();
-      const returnedValues = readChunks(reader, raw256k, 16000);
+      const returnedValues = readChunks(reader, raw_256k, 16000);
       const returnedAudio = concatAudio([returnedValues]);
 
       expectMetadata(
@@ -756,29 +730,69 @@ describe("ICY Metadata Parsing", () => {
           metadataLengthBytesRead: 389,
         }
       );
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks of random size", () => {
       const reader = new IcecastMetadataReader();
       const returnedValues = readChunks(
         reader,
-        raw256k,
+        raw_256k,
         Math.floor(Math.random() * 30000)
       );
       const returnedAudio = concatAudio([returnedValues]);
 
-      expect(Buffer.compare(returnedAudio, expected256kAudio)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
 
     it("should detect the metadata and return the correct audio given it is read in chunks of size 10", () => {
       const reader = new IcecastMetadataReader();
-      const returnedValues = readChunks(reader, raw16k, 10);
+      const returnedValues = readChunks(reader, raw_16k, 10);
 
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedValues.metadata.length).toEqual(259);
-      expect(Buffer.compare(returnedAudio, expected16k)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, expected_16k)).toEqual(0);
+    });
+  });
+
+  describe("Icy Metadata Character Encoding", () => {
+    it("should decode metadata based on the passed in character encoding", async () => {
+      const reader = new IcecastMetadataReader({
+        icyCharacterEncoding: "iso-8859-2",
+      });
+      const returnedValues = readChunk(reader, raw_320k_iso_8859_2);
+      const returnedAudio = concatAudio([returnedValues]);
+
+      expect(returnedValues.metadata.length).toEqual(2);
+      expect(returnedValues.metadata[0]).toEqual({
+        metadata: { StreamTitle: "Katona Klári - Vigyél el" },
+        stats: {
+          totalBytesRead: 4145,
+          streamBytesRead: 4096,
+          metadataLengthBytesRead: 1,
+          metadataBytesRead: 48,
+          currentBytesRemaining: 3446017,
+          currentStreamBytesRemaining: 0,
+          currentMetadataBytesRemaining: 0,
+        },
+      });
+      expect(returnedValues.metadata[1]).toEqual({
+        metadata: { StreamTitle: "Auth Csilla - El Kell, Hogy Engedj" },
+        stats: {
+          totalBytesRead: 1163660,
+          streamBytesRead: 1163264,
+          metadataLengthBytesRead: 284,
+          metadataBytesRead: 112,
+          currentBytesRemaining: 2286502,
+          currentStreamBytesRemaining: 0,
+          currentMetadataBytesRemaining: 0,
+        },
+      });
+
+      expect(
+        Buffer.compare(returnedAudio, expected_raw320k_iso_8859_2)
+      ).toEqual(0);
     });
   });
 });

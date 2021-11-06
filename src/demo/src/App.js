@@ -69,6 +69,7 @@ const App = () => {
           setMetadata(station.metadataTypes.length ? CONNECTED : "");
         },
         icyDetectionTimeout: 5000,
+        icyCharacterEncoding: station.icyCharacterEncoding,
         enableLogging: true,
         metadataTypes: station.metadataTypes,
         audioElement,

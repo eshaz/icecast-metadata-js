@@ -9,6 +9,7 @@ import {
   enableCodecUpdate,
   metadataTypes,
   icyMetaInt,
+  icyCharacterEncoding,
   icyDetectionTimeout,
   fireEvent,
   hasIcy,
@@ -31,6 +32,7 @@ export default class PlayerFactory {
     this._endpoint = instanceVariables[endpoint];
     this._metadataTypes = instanceVariables[metadataTypes];
     this._icyMetaInt = instanceVariables[icyMetaInt];
+    this._icyCharacterEncoding = instanceVariables[icyCharacterEncoding];
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
 
     this._hasIcy = instanceVariables[hasIcy];
@@ -116,8 +118,9 @@ export default class PlayerFactory {
       },
       onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
       metadataTypes: this._metadataTypes,
-      icyMetaInt: this._icyMetaInt,
+      icyCharacterEncoding: this._icyCharacterEncoding,
       icyDetectionTimeout: this._icyDetectionTimeout,
+      ...(this._icyMetaInt && {icyMetaInt: this._icyMetaInt}),
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();

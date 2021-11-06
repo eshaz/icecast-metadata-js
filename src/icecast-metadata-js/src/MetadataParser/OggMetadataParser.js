@@ -1,4 +1,4 @@
-/* Copyright 2020 Ethan Halsall
+/* Copyright 2020-2021 Ethan Halsall
     This file is part of icecast-metadata-js.
 
     icecast-metadata-js free software: you can redistribute it and/or modify
@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+const Decoder = require("util").TextDecoder || TextDecoder;
 const MetadataParser = require("./MetadataParser");
 
 /**
@@ -26,6 +27,7 @@ class OggMetadataParser extends MetadataParser {
   constructor(params) {
     super(params);
 
+    this._decoder = new Decoder("utf-8");
     this._generator = this._oggParser();
     this._generator.next();
   }

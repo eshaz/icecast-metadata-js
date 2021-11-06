@@ -1,4 +1,4 @@
-/* Copyright 2020 Ethan Halsall
+/* Copyright 2020-2021 Ethan Halsall
     This file is part of icecast-metadata-js.
 
     icecast-metadata-js free software: you can redistribute it and/or modify
@@ -28,15 +28,14 @@ export default class IcecastReadableStream {
    * @param {object} options Configuration options for IcecastMetadataReader
    * @see IcecastMetadataReader for information on the options parameter
    */
-  constructor(response, { icyMetaInt, onStream = noOp, ...rest }) {
+  constructor(response, { onStream = noOp, ...rest }) {
     let icecast;
 
     this._readableStream = new ReadableStream({
       async start(controller) {
         icecast = new IcecastMetadataReader({
+          icyMetaInt: parseInt(response.headers.get("Icy-MetaInt")),
           ...rest,
-          icyMetaInt:
-            parseInt(response.headers.get("Icy-MetaInt")) || icyMetaInt,
           onStream: async (value) => {
             controller.enqueue(value.stream);
             return onStream(value);

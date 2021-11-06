@@ -53,6 +53,7 @@ const sevenhtmlFetchStatus = Symbol();
 
 const streamEndpoint = Symbol();
 const icyMetaInt = Symbol();
+const icyCharacterEncoding = Symbol();
 const icyDetectionTimeout = Symbol();
 const sources = Symbol();
 const interval = Symbol();
@@ -81,6 +82,7 @@ export default class IcecastMetadataStats {
    * @param {URL} [options.nextsongsEndpoint] Endpoint for the `nextsongs` source
    * @param {URL} [options.sevenhtmlEndpoint] Endpoint for the `7.html` source
    * @param {number} [options.icyMetaInt] Manually sets the ICY metadata interval
+   * @param {string} [options.icyCharacterEncoding] Character encoding to use for ICY metadata (defaults to "utf-8")
    * @param {number} [options.icyDetectionTimeout] Time in milliseconds to search for ICY metadata
    */
   constructor(endpoint, options = {}) {
@@ -98,6 +100,7 @@ export default class IcecastMetadataStats {
       [onStats]: options.onStats || noOp,
       [onStatsFetch]: options.onStatsFetch || noOp,
       [icyMetaInt]: options.icyMetaInt,
+      [icyCharacterEncoding]: options.icyCharacterEncoding,
       [icyDetectionTimeout]: options.icyDetectionTimeout,
       [icyController]: new AbortController(),
       [oggController]: new AbortController(),
@@ -399,6 +402,7 @@ export default class IcecastMetadataStats {
             },
             metadataTypes: metadataType,
             icyMetaInt: p.get(this)[icyMetaInt],
+            icyCharacterEncoding: p.get(this)[icyCharacterEncoding],
             icyDetectionTimeout: p.get(this)[icyDetectionTimeout],
           }).startReading();
         }),

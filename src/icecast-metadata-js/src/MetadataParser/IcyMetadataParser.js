@@ -1,4 +1,4 @@
-/* Copyright 2020 Ethan Halsall
+/* Copyright 2020-2021 Ethan Halsall
     This file is part of icecast-metadata-js.
 
     icecast-metadata-js free software: you can redistribute it and/or modify
@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+const Decoder = require("util").TextDecoder || TextDecoder;
 const MetadataParser = require("./MetadataParser");
 
 /**
@@ -24,9 +25,15 @@ const MetadataParser = require("./MetadataParser");
  */
 
 class IcyMetadataParser extends MetadataParser {
-  constructor({ icyMetaInt, icyDetectionTimeout = 2000, ...rest }) {
+  constructor({
+    icyMetaInt,
+    icyDetectionTimeout = 2000,
+    icyCharacterEncoding = "utf-8",
+    ...rest
+  }) {
     super(rest);
 
+    this._decoder = new Decoder(icyCharacterEncoding);
     this._icyMetaInt = icyMetaInt;
     this._icyDetectionTimeout = icyDetectionTimeout;
 

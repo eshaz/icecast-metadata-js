@@ -1,4 +1,4 @@
-/* Copyright 2020 Ethan Halsall
+/* Copyright 2020-2021 Ethan Halsall
     This file is part of icecast-metadata-js.
 
     icecast-metadata-js free software: you can redistribute it and/or modify
@@ -114,11 +114,8 @@ class IcecastMetadataQueue {
   }
 
   _dequeueMetadata() {
-    const {
-      metadata,
-      timestampOffset,
-      timestamp,
-    } = this._metadataQueue.shift();
+    const { metadata, timestampOffset, timestamp } =
+      this._metadataQueue.shift();
     this._onMetadataUpdate(metadata, timestampOffset, timestamp);
   }
 }

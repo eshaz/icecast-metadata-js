@@ -5,6 +5,7 @@ import fs from "fs";
 const packageJson = JSON.parse(fs.readFileSync("./package.json"));
 
 const license = `
+/*! 
  * Copyright 2021 Ethan Halsall
  * https://github.com/eshaz/icecast-metadata-js
  *
@@ -22,7 +23,7 @@ const license = `
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
-`;
+ */`;
 
 export default {
   mode: "production",
@@ -46,11 +47,10 @@ export default {
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        extractComments: {
-          condition: true,
-          banner: () => license,
-        },
         terserOptions: {
+          output: {
+            preamble: license,
+          },
           mangle: {
             properties: {
               regex: /^_/,

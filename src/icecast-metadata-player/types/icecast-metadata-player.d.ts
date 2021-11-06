@@ -164,6 +164,11 @@ declare module "icecast-metadata-player" {
     /** ICY metadata interval */
     icyMetaInt?: number;
 
+    /** Character encoding to use for ICY metadata (defaults to "utf-8")
+     * @default "utf-8"
+     */
+    icyCharacterEncoding?: string;
+
     /** ICY metadata detection timeout
      * @default 2000
      */
