@@ -400,25 +400,22 @@ const expectedIcyFlacMetadata = [
 ];
 
 describe("OGG Metadata Parsing", () => {
-  let rawIcyFlac, icyFlac, oggFlac, oggOpus, oggVorbis;
+  let rawIcyFlac, icyFlac, oggFlac, oggFlacContinuedPages, oggOpus, oggVorbis;
 
   const flacMetaInt = 524288;
 
-  beforeAll((done) => {
-    Promise.all([
-      fs.promises.readFile("../../test/data/record/ogg/icy-flac.ogg.raw"),
-      fs.promises.readFile("../../test/data/record/ogg/icy-flac.ogg"),
-      fs.promises.readFile("../../test/data/record/ogg/ogg-flac.ogg"),
-      fs.promises.readFile("../../test/data/record/ogg/opus.ogg"),
-      fs.promises.readFile("../../test/data/record/ogg/vorbis.ogg"),
-    ]).then(([rawIFlac, iFlac, oFlac, opus, vorbis]) => {
-      rawIcyFlac = rawIFlac;
-      icyFlac = iFlac;
-      oggFlac = oFlac;
-      oggOpus = opus;
-      oggVorbis = vorbis;
-      done();
-    });
+  beforeAll(async () => {
+    [rawIcyFlac, icyFlac, oggFlac, oggFlacContinuedPages, oggOpus, oggVorbis] =
+      await Promise.all([
+        fs.promises.readFile("../../test/data/record/ogg/icy-flac.ogg.raw"),
+        fs.promises.readFile("../../test/data/record/ogg/icy-flac.ogg"),
+        fs.promises.readFile("../../test/data/record/ogg/ogg-flac.ogg"),
+        fs.promises.readFile(
+          "../../test/data/record/ogg/ogg-flac-continued-pages.ogg"
+        ),
+        fs.promises.readFile("../../test/data/record/ogg/opus.ogg"),
+        fs.promises.readFile("../../test/data/record/ogg/vorbis.ogg"),
+      ]);
 
     mockOnMetadataUpdate = jest.fn();
   });
@@ -442,7 +439,7 @@ describe("OGG Metadata Parsing", () => {
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
     });
 
     it("should return the correct audio and metadata given it is read in chunks of size 4000", () => {
@@ -453,7 +450,7 @@ describe("OGG Metadata Parsing", () => {
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
     });
 
     it("should return the correct audio and metadata given it is read in chunks of size 10", () => {
@@ -464,7 +461,7 @@ describe("OGG Metadata Parsing", () => {
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
     });
 
     it("should return the correct audio given it is read in chunks of random size", () => {
@@ -479,7 +476,7 @@ describe("OGG Metadata Parsing", () => {
       const returnedAudio = concatAudio([returnedValues]);
 
       expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
     });
   });
 
@@ -493,7 +490,7 @@ describe("OGG Metadata Parsing", () => {
         const returnedAudio = concatAudio([returnedValues]);
 
         expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-        expect(Buffer.compare(returnedAudio, oggVorbis)).toBeFalsy();
+        expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
       });
     });
 
@@ -506,7 +503,7 @@ describe("OGG Metadata Parsing", () => {
         const returnedAudio = concatAudio([returnedValues]);
 
         expect(returnedMetadata).toEqual(expectedOpusMetadata);
-        expect(Buffer.compare(returnedAudio, oggOpus)).toBeFalsy();
+        expect(Buffer.compare(returnedAudio, oggOpus)).toEqual(0);
       });
     });
 
@@ -519,7 +516,35 @@ describe("OGG Metadata Parsing", () => {
         const returnedAudio = concatAudio([returnedValues]);
 
         expect(returnedMetadata).toEqual(expectedOggFlacMetadata);
-        expect(Buffer.compare(returnedAudio, oggFlac)).toBeFalsy();
+        expect(Buffer.compare(returnedAudio, oggFlac)).toEqual(0);
+      });
+
+      it("should return the correct audio and metadata with continued pages", () => {
+        const reader = new IcecastMetadataReader({ metadataTypes: ["ogg"] });
+
+        const returnedValues = readChunk(reader, oggFlacContinuedPages);
+        const returnedMetadata = getMetadata(returnedValues.metadata);
+        const returnedAudio = concatAudio([returnedValues]);
+
+        expect(returnedMetadata).toEqual([
+          {
+            metadata: {
+              ARTIST: "Clean Bandit",
+              TITLE: "Solo (feat. Demi Lovato)",
+              VENDOR_STRING: "reference libFLAC 1.3.1 20141125",
+            },
+            stats: {
+              currentBytesRemaining: undefined,
+              currentMetadataBytesRemaining: 0,
+              currentStreamBytesRemaining: undefined,
+              metadataBytesRead: 97,
+              metadataLengthBytesRead: 0,
+              streamBytesRead: 208,
+              totalBytesRead: 208,
+            },
+          },
+        ]);
+        expect(Buffer.compare(returnedAudio, oggFlacContinuedPages)).toEqual(0);
       });
     });
 
@@ -535,7 +560,7 @@ describe("OGG Metadata Parsing", () => {
         const returnedAudio = concatAudio([returnedValues]);
 
         expect(returnedMetadata).toEqual(expectedIcyFlacMetadata);
-        expect(Buffer.compare(returnedAudio, icyFlac)).toBeFalsy();
+        expect(Buffer.compare(returnedAudio, icyFlac)).toEqual(0);
       });
     });
   });
@@ -567,7 +592,7 @@ describe("OGG Metadata Parsing", () => {
 
       expect(
         Buffer.compare(concatAudio([noMetadata, metadata, rest]), oggVorbis)
-      ).toBeFalsy();
+      ).toEqual(0);
     });
 
     it("should update metadata as expected given we are only reading zero or one byte at a time during the vendor length step", () => {
@@ -599,7 +624,7 @@ describe("OGG Metadata Parsing", () => {
           currentStreamBytesRemaining: 11818382,
         },
       });
-      expect(Buffer.compare(concatAudio(values), oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), oggVorbis)).toEqual(0);
     });
 
     it("should update metadata as expected given we are only reading zero or one byte at a time during the vendor string step", () => {
@@ -631,7 +656,7 @@ describe("OGG Metadata Parsing", () => {
           currentStreamBytesRemaining: 11818382,
         },
       });
-      expect(Buffer.compare(concatAudio(values), oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), oggVorbis)).toEqual(0);
     });
 
     it("should update metadata as expected given we are only reading zero or one byte at a time during the comment list length step", () => {
@@ -663,7 +688,7 @@ describe("OGG Metadata Parsing", () => {
           currentStreamBytesRemaining: 11818382,
         },
       });
-      expect(Buffer.compare(concatAudio(values), oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), oggVorbis)).toEqual(0);
     });
 
     it("should update metadata as expected given we are only reading zero or one byte at a time during the comment list length step", () => {
@@ -695,7 +720,7 @@ describe("OGG Metadata Parsing", () => {
           currentStreamBytesRemaining: 11818382,
         },
       });
-      expect(Buffer.compare(concatAudio(values), oggVorbis)).toBeFalsy();
+      expect(Buffer.compare(concatAudio(values), oggVorbis)).toEqual(0);
     });
   });
 });

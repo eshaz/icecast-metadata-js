@@ -261,7 +261,7 @@
     ]
   },
   {
-    "name": "OXYGEN MAGYAR ZENE",
+    "name": "Oxygen Magyar Zene",
     "description": "Hungarian Dance Hits",
     "link": "https://oxygenmusic.hu/ms-radios/oxygen-magyar-zene/",
     "endpoints": [
@@ -282,6 +282,47 @@
       {
         "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
         "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Music",
+    "description": "Pop / Rock / Dance / Latin / Disco",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_aac",
+        "codec": "MP3 64",
         "metadataTypes": ["icy"],
         "icyCharacterEncoding": "iso-8859-2",
         "statsSources": ["icy"]
