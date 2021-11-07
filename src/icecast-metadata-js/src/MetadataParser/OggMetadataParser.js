@@ -30,6 +30,7 @@ class OggMetadataParser extends MetadataParser {
     this._decoder = new Decoder("utf-8");
     this._generator = this._oggParser();
     this._generator.next();
+    this._isContinuePacket = false;
   }
 
   *_oggParser() {
@@ -37,7 +38,7 @@ class OggMetadataParser extends MetadataParser {
       const codecMatcher = yield* this._identifyCodec();
       if (codecMatcher) {
         while (yield* this._hasOggPage()) {
-          yield* this._getMetadata(codecMatcher);
+          if (!this._isContinuePacket) yield* this._getMetadata(codecMatcher);
           yield* this._getStream();
         }
       }
@@ -60,12 +61,16 @@ class OggMetadataParser extends MetadataParser {
   *_hasOggPage() {
     // Bytes (1-4 of 28)
     // Frame sync (must equal OggS): `AAAAAAAA|AAAAAAAA|AAAAAAAA|AAAAAAAA`:
+    // Byte (5 of 28) stream_structure_version
     // Byte (6 of 28)
     // * `00000...`: All zeros
+    // * `.....C..`: (0 no, 1 yes) last page of logical bitstream (eos)
+    // * `......D.`: (0 no, 1 yes) first page of logical bitstream (bos)
+    // * `.......E`: (0 no, 1 yes) continued packet
     let syncBytes = [];
     while (syncBytes.length <= 65307) {
       // max ogg page size
-      const bytes = yield* super._getNextValue(5); // Sync with OGG page without sending stream data
+      const bytes = yield* super._getNextValue(6); // Sync with OGG page without sending stream data
       if (
         bytes[0] === 0x4f &&
         bytes[1] === 0x67 &&
@@ -73,10 +78,11 @@ class OggMetadataParser extends MetadataParser {
         bytes[3] === 0x53 &&
         !(bytes[5] & 0b11111000)
       ) {
-        this._currentPosition -= 5;
-        this._remainingData += 5;
-        this._stats._totalBytesRead -= 5;
-        this._stats._currentBytesRemaining += 5;
+        this._isContinuePacket = bytes[5] & 0b00000001;
+        this._currentPosition -= 6;
+        this._remainingData += 6;
+        this._stats._totalBytesRead -= 6;
+        this._stats._currentBytesRemaining += 6;
         break;
       }
       syncBytes.push(bytes[0]);
