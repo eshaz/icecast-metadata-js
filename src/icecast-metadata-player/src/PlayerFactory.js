@@ -120,7 +120,7 @@ export default class PlayerFactory {
       metadataTypes: this._metadataTypes,
       icyCharacterEncoding: this._icyCharacterEncoding,
       icyDetectionTimeout: this._icyDetectionTimeout,
-      ...(this._icyMetaInt && {icyMetaInt: this._icyMetaInt}),
+      ...(this._icyMetaInt && { icyMetaInt: this._icyMetaInt }),
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();
