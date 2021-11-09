@@ -70,39 +70,44 @@ export default class WebAudioPlayer extends Player {
     this._startTime = undefined;
     this._firedPlay = false;
 
-    if (this._wasmDecoder) this._wasmDecoder.free();
+    if (!this._audioContext) {
+      // set up audio context once
+      // audio context needs to be reused for the life of this instance for safari compatibility
+      const audioContextParams = {
+        latencyHint: "playback",
+      };
 
-    if (
-      this._icecast.state !== state.STOPPING &&
-      this._icecast.state !== state.STOPPED
-    ) {
-      switch (this._codec) {
-        case "mpeg":
-          this._wasmDecoder = new MPEGDecoderWebWorker();
-          break;
-        case "opus":
-          this._wasmDecoder = new OpusDecoderWebWorker();
-          break;
+      if (window.AudioContext) {
+        this._audioContext = new AudioContext(audioContextParams);
+      } else {
+        this._audioContext = new window.webkitAudioContext(audioContextParams);
+
+        // hack for safari to continue playing while locked
+        this._audioContext
+          .createScriptProcessor(2 ** 14, 2, 2)
+          .connect(this._audioContext.destination);
       }
-
-      this._wasmReady = this._wasmDecoder.ready;
+    } else {
+      // disconnect the currently playing media stream
+      this._mediaStream.disconnect();
     }
 
-    if (this._audioContext) this._audioContext.close();
+    // set up decoder
+    if (this._wasmDecoder) await this._wasmDecoder.free();
 
-    this._audioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
+    switch (this._codec) {
+      case "mpeg":
+        this._wasmDecoder = new MPEGDecoderWebWorker();
+        break;
+      case "opus":
+        this._wasmDecoder = new OpusDecoderWebWorker();
+        break;
+    }
 
-    // hack for safari to continue playing while locked
-    this._scriptProcessor = this._audioContext.createScriptProcessor(
-      2 ** 14,
-      2,
-      2
-    );
-    this._scriptProcessor.connect(this._audioContext.destination);
+    this._wasmReady = this._wasmDecoder.ready;
 
-    this._mediaStream = this._audioContext.createMediaStreamDestination();
-    this._audioElement.srcObject = this._mediaStream.stream;
+    this._mediaStream = null;
+    this._audioElement.srcObject = new MediaStream();
   }
 
   async onStream(oggPages) {
@@ -141,8 +146,14 @@ export default class WebAudioPlayer extends Player {
       this._icecast.state !== state.STOPPED &&
       samplesDecoded
     ) {
-      if (!this._sampleRate) this._sampleRate = sampleRate;
-      if (!this._startTime) this._startTime = Date.now();
+      if (!this._mediaStream) {
+        this._sampleRate = sampleRate;
+
+        this._mediaStream = this._audioContext.createMediaStreamDestination();
+        this._audioElement.srcObject = this._mediaStream.stream; // triggers canplay event
+
+        this._startTime = Date.now();
+      }
 
       const decodeDuration =
         (this._decodedSample + this._decodedSampleOffset) / this._sampleRate;

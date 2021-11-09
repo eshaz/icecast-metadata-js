@@ -28,11 +28,15 @@ export default class Player {
       this._audioElement.srcObject = null;
 
       if (window.MediaSource) {
+        // MediaSourcePlayer
         this._audioElement.src = URL.createObjectURL(new MediaSource());
       } else {
-        this._audioElement.srcObject = new MediaStream();
+        // WebAudioPlayer
+        this._mediaStream = new MediaStream();
+        this._audioElement.srcObject = this._mediaStream;
       }
     } catch {
+      // HTML5Player
       // mp3 32kbs silence
       this._audioElement.src =
         "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
