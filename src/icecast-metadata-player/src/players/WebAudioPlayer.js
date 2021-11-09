@@ -19,6 +19,15 @@ export default class WebAudioPlayer extends Player {
     this._icecast.addEventListener(event.RETRY, () => {
       this._syncState = NOT_SYNCED;
     });
+    this._icecast.addEventListener(event.STREAM_START, () => {
+      if (!this._wasmDecoder) this._getWasmDecoder();
+    });
+
+    this._getWasmDecoder();
+
+    // set up audio context once
+    // audio context needs to be reused for the life of this instance for safari compatibility
+    this._getAudioContext();
 
     this.reset();
   }
@@ -58,6 +67,36 @@ export default class WebAudioPlayer extends Player {
     return (Date.now() - this._startTime) / 1000 || 0;
   }
 
+  _getWasmDecoder() {
+    switch (this._codec) {
+      case "mpeg":
+        this._wasmDecoder = new MPEGDecoderWebWorker();
+        break;
+      case "opus":
+        this._wasmDecoder = new OpusDecoderWebWorker();
+        break;
+    }
+
+    this._wasmReady = this._wasmDecoder.ready;
+  }
+
+  _getAudioContext() {
+    const audioContextParams = {
+      latencyHint: "playback",
+    };
+
+    if (window.AudioContext) {
+      this._audioContext = new AudioContext(audioContextParams);
+    } else {
+      this._audioContext = new window.webkitAudioContext(audioContextParams);
+
+      // hack for safari to continue playing while locked
+      this._audioContext
+        .createScriptProcessor(2 ** 14, 2, 2)
+        .connect(this._audioContext.destination);
+    }
+  }
+
   async reset() {
     this._syncState = SYNCED;
     this._syncSuccessful = false;
@@ -70,44 +109,23 @@ export default class WebAudioPlayer extends Player {
     this._startTime = undefined;
     this._firedPlay = false;
 
-    if (!this._audioContext) {
-      // set up audio context once
-      // audio context needs to be reused for the life of this instance for safari compatibility
-      const audioContextParams = {
-        latencyHint: "playback",
-      };
-
-      if (window.AudioContext) {
-        this._audioContext = new AudioContext(audioContextParams);
-      } else {
-        this._audioContext = new window.webkitAudioContext(audioContextParams);
-
-        // hack for safari to continue playing while locked
-        this._audioContext
-          .createScriptProcessor(2 ** 14, 2, 2)
-          .connect(this._audioContext.destination);
+    if (
+      this._icecast.state === state.STOPPING ||
+      this._icecast.state === state.STOPPED
+    ) {
+      if (this._wasmDecoder) {
+        this._wasmDecoder.free();
+        this._wasmDecoder = null;
       }
-    } else {
-      // disconnect the currently playing media stream
-      this._mediaStream.disconnect();
+
+      if (this._mediaStream) {
+        // disconnect the currently playing media stream
+        this._mediaStream.disconnect();
+        this._mediaStream = null;
+      }
+
+      this._audioElement.srcObject = new MediaStream();
     }
-
-    // set up decoder
-    if (this._wasmDecoder) await this._wasmDecoder.free();
-
-    switch (this._codec) {
-      case "mpeg":
-        this._wasmDecoder = new MPEGDecoderWebWorker();
-        break;
-      case "opus":
-        this._wasmDecoder = new OpusDecoderWebWorker();
-        break;
-    }
-
-    this._wasmReady = this._wasmDecoder.ready;
-
-    this._mediaStream = null;
-    this._audioElement.srcObject = new MediaStream();
   }
 
   async onStream(oggPages) {
@@ -146,7 +164,7 @@ export default class WebAudioPlayer extends Player {
       this._icecast.state !== state.STOPPED &&
       samplesDecoded
     ) {
-      if (!this._mediaStream) {
+      if (!this._sampleRate) {
         this._sampleRate = sampleRate;
 
         this._mediaStream = this._audioContext.createMediaStreamDestination();
