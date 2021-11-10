@@ -1,20 +1,20 @@
 {
   "files": {
     "main.css": "/icecast-metadata-js/static/css/main.1d6599a0.chunk.css",
-    "main.js": "/icecast-metadata-js/static/js/main.99672fb2.chunk.js",
-    "main.js.map": "/icecast-metadata-js/static/js/main.99672fb2.chunk.js.map",
+    "main.js": "/icecast-metadata-js/static/js/main.c72e0a33.chunk.js",
+    "main.js.map": "/icecast-metadata-js/static/js/main.c72e0a33.chunk.js.map",
     "runtime-main.js": "/icecast-metadata-js/static/js/runtime-main.d5d05c2f.js",
     "runtime-main.js.map": "/icecast-metadata-js/static/js/runtime-main.d5d05c2f.js.map",
-    "static/js/2.97f92b63.chunk.js": "/icecast-metadata-js/static/js/2.97f92b63.chunk.js",
-    "static/js/2.97f92b63.chunk.js.map": "/icecast-metadata-js/static/js/2.97f92b63.chunk.js.map",
+    "static/js/2.4b722f1e.chunk.js": "/icecast-metadata-js/static/js/2.4b722f1e.chunk.js",
+    "static/js/2.4b722f1e.chunk.js.map": "/icecast-metadata-js/static/js/2.4b722f1e.chunk.js.map",
     "index.html": "/icecast-metadata-js/index.html",
     "static/css/main.1d6599a0.chunk.css.map": "/icecast-metadata-js/static/css/main.1d6599a0.chunk.css.map",
-    "static/js/2.97f92b63.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.97f92b63.chunk.js.LICENSE.txt"
+    "static/js/2.4b722f1e.chunk.js.LICENSE.txt": "/icecast-metadata-js/static/js/2.4b722f1e.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.d5d05c2f.js",
-    "static/js/2.97f92b63.chunk.js",
+    "static/js/2.4b722f1e.chunk.js",
     "static/css/main.1d6599a0.chunk.css",
-    "static/js/main.99672fb2.chunk.js"
+    "static/js/main.c72e0a33.chunk.js"
   ]
 }
