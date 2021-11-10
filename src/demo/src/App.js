@@ -88,18 +88,20 @@ const App = () => {
   }, [icecast, playing]);
 
   useEffect(() => {
-    setAudioMotion(
-      new AudioMotionAnalyzer(analyzer.current, {
-        source: audioElement,
-        showScaleX: false,
-        fftSize: 32768,
-        mode: 1,
-        gradient: "prism",
-        showBgColor: false,
-        barSpace: 0,
-        lumiBars: true,
-      })
-    );
+    if (window.AudioContext) {
+      setAudioMotion(
+        new AudioMotionAnalyzer(analyzer.current, {
+          source: audioElement,
+          showScaleX: false,
+          fftSize: 32768,
+          mode: 1,
+          gradient: "prism",
+          showBgColor: false,
+          barSpace: 0,
+          lumiBars: true,
+        })
+      );
+    }
   }, [audioElement]);
 
   // adjust canvas size for audio spectrum
