@@ -114,7 +114,10 @@ export default class WebAudioPlayer extends Player {
       this._icecast.state === state.STOPPED
     ) {
       if (this._wasmDecoder) {
-        this._wasmDecoder.free();
+        const decoder = this._wasmDecoder;
+        this._wasmReady.then(() => {
+          decoder.free();
+        });
         this._wasmDecoder = null;
       }
 
