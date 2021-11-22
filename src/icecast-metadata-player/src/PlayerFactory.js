@@ -106,7 +106,7 @@ export default class PlayerFactory {
       onStream: async ({ stream }) => {
         this._icecast[fireEvent](event.STREAM, stream);
 
-        const frames = [...this._codecParser.iterator(stream)];
+        const frames = [...this._codecParser.parseChunk(stream)];
 
         if (this._player.isAudioPlayer) {
           await this._player.onStream([...this._unprocessedFrames, ...frames]);
