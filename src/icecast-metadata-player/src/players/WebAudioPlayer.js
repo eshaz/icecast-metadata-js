@@ -1,5 +1,5 @@
-import { OpusDecoderWebWorker } from "opus-decoder";
-import { MPEGDecoderWebWorker } from "mpg123-decoder";
+import { OpusDecoderWebWorker, OpusDecoder } from "opus-decoder";
+import { MPEGDecoderWebWorker, MPEGDecoder } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
@@ -70,10 +70,10 @@ export default class WebAudioPlayer extends Player {
   _getWasmDecoder() {
     switch (this._codec) {
       case "mpeg":
-        this._wasmDecoder = new MPEGDecoderWebWorker();
+        this._wasmDecoder = new MPEGDecoder();
         break;
       case "opus":
-        this._wasmDecoder = new OpusDecoderWebWorker();
+        this._wasmDecoder = new OpusDecoder();
         break;
     }
 
@@ -151,17 +151,17 @@ export default class WebAudioPlayer extends Player {
           this._currentTime = frames[frames.length - 1].totalDuration;
 
           await this._wasmReady;
-
-          this._wasmDecoder
-            .decodeFrames(frames.map((f) => f.data))
-            .then((decoded) => this.playDecodedAudio(decoded));
+          this._decodeAndPlay(frames);
         }
       default:
         this._frameQueue.addAll(frames); // always add frames
     }
   }
 
-  playDecodedAudio({ channelData, samplesDecoded, sampleRate }) {
+  async _decodeAndPlay(frames) {
+    const { channelData, samplesDecoded, sampleRate } =
+      await this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
+
     if (
       this._icecast.state !== state.STOPPING &&
       this._icecast.state !== state.STOPPED &&

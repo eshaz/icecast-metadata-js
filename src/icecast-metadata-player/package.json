@@ -44,8 +44,8 @@
   "dependencies": {
     "codec-parser": "2.0.0",
     "icecast-metadata-js": "0.6.1",
-    "mpg123-decoder": "0.3.2",
+    "mpg123-decoder": "0.3.3",
     "mse-audio-wrapper": "1.4.3",
-    "opus-decoder": "0.3.2"
+    "opus-decoder": "0.3.3"
   }
 }
