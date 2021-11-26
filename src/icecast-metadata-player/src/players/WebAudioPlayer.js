@@ -85,11 +85,11 @@ export default class WebAudioPlayer extends Player {
       latencyHint: "playback",
     };
 
-    if (window.AudioContext) {
-      this._audioContext = new AudioContext(audioContextParams);
-    } else {
-      this._audioContext = new window.webkitAudioContext(audioContextParams);
+    this._audioContext = window.AudioContext
+      ? new AudioContext(audioContextParams)
+      : new window.webkitAudioContext(audioContextParams);
 
+    if (this._isIOS) {
       // hack for safari to continue playing while locked
       this._audioContext
         .createScriptProcessor(2 ** 14, 2, 2)
@@ -151,17 +151,17 @@ export default class WebAudioPlayer extends Player {
           this._currentTime = frames[frames.length - 1].totalDuration;
 
           await this._wasmReady;
-
-          this._wasmDecoder
-            .decodeFrames(frames.map((f) => f.data))
-            .then((decoded) => this.playDecodedAudio(decoded));
+          this._decodeAndPlay(frames);
         }
       default:
         this._frameQueue.addAll(frames); // always add frames
     }
   }
 
-  playDecodedAudio({ channelData, samplesDecoded, sampleRate }) {
+  async _decodeAndPlay(frames) {
+    const { channelData, samplesDecoded, sampleRate } =
+      await this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
+
     if (
       this._icecast.state !== state.STOPPING &&
       this._icecast.state !== state.STOPPED &&
