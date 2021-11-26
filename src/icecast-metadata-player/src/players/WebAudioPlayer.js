@@ -1,5 +1,5 @@
-import { OpusDecoderWebWorker, OpusDecoder } from "opus-decoder";
-import { MPEGDecoderWebWorker, MPEGDecoder } from "mpg123-decoder";
+import { OpusDecoderWebWorker } from "opus-decoder";
+import { MPEGDecoderWebWorker } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
@@ -70,10 +70,10 @@ export default class WebAudioPlayer extends Player {
   _getWasmDecoder() {
     switch (this._codec) {
       case "mpeg":
-        this._wasmDecoder = new MPEGDecoder();
+        this._wasmDecoder = new MPEGDecoderWebWorker();
         break;
       case "opus":
-        this._wasmDecoder = new OpusDecoder();
+        this._wasmDecoder = new OpusDecoderWebWorker();
         break;
     }
 
@@ -85,11 +85,11 @@ export default class WebAudioPlayer extends Player {
       latencyHint: "playback",
     };
 
-    if (window.AudioContext) {
-      this._audioContext = new AudioContext(audioContextParams);
-    } else {
-      this._audioContext = new window.webkitAudioContext(audioContextParams);
+    this._audioContext = window.AudioContext
+      ? new AudioContext(audioContextParams)
+      : new window.webkitAudioContext(audioContextParams);
 
+    if (this._isIOS) {
       // hack for safari to continue playing while locked
       this._audioContext
         .createScriptProcessor(2 ** 14, 2, 2)
