@@ -89,12 +89,10 @@ export default class WebAudioPlayer extends Player {
       ? new AudioContext(audioContextParams)
       : new window.webkitAudioContext(audioContextParams);
 
-    if (this._isIOS) {
-      // hack for safari to continue playing while locked
-      this._audioContext
-        .createScriptProcessor(2 ** 14, 2, 2)
-        .connect(this._audioContext.destination);
-    }
+    // hack for iOS to continue playing while locked
+    this._audioContext
+      .createScriptProcessor(2 ** 14, 2, 2)
+      .connect(this._audioContext.destination);
   }
 
   async reset() {

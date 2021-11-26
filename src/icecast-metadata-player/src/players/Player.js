@@ -22,12 +22,6 @@ export default class Player {
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;
 
-    const userAgent = window.navigator.userAgent;
-    this._isIOS =
-      userAgent.match(/iPad|iPhone/i) &&
-      userAgent.match(/WebKit/i) &&
-      !userAgent.match(/CriOS/i);
-
     // set the audio element an empty source to enable the play button
     try {
       this._audioElement.removeAttribute("src");
