@@ -4,17 +4,17 @@
   "private": true,
   "dependencies": {
     "audiomotion-analyzer": "^3.6.0",
-    "icecast-metadata-player": "file:../icecast-metadata-player",
+    "icecast-metadata-player": "1.10.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "^4.0.3"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.15.0",
+    "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "gh-pages": "^3.2.3",
-    "prettier": "^2.4.1"
+    "prettier": "^2.5.0"
   },
   "scripts": {
     "start": "react-scripts start",

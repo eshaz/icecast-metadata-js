@@ -36,9 +36,9 @@
   "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player",
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "prettier": "^2.4.1",
+    "prettier": "^2.5.0",
     "terser-webpack-plugin": "^5.2.5",
-    "webpack": "^5.64.2",
+    "webpack": "^5.64.4",
     "webpack-cli": "^4.9.0"
   },
   "dependencies": {
