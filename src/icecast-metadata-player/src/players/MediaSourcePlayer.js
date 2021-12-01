@@ -11,8 +11,8 @@ import {
 import Player from "./Player.js";
 import FrameQueue from "../FrameQueue.js";
 
-const BUFFER = 10; // seconds of audio to store in SourceBuffer
-const BUFFER_INTERVAL = 10; // seconds before removing from SourceBuffer
+const BUFFER = 5; // seconds of audio to store in SourceBuffer
+const BUFFER_INTERVAL = 5; // seconds before removing from SourceBuffer
 
 export default class MediaSourcePlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
@@ -78,6 +78,7 @@ export default class MediaSourcePlayer extends Player {
   async reset() {
     this._syncState = SYNCED;
     this._frameQueue = new FrameQueue(this._icecast);
+    this._sourceBufferQueue = [];
     this._firedPlay = false;
 
     this._mediaSourcePromise = this._prepareMediaSource(
@@ -193,8 +194,19 @@ export default class MediaSourcePlayer extends Player {
         this._firedPlay = true;
       }
 
-      this._mediaSource.sourceBuffers[0].appendBuffer(chunk);
-      await this._waitForSourceBuffer();
+      this._sourceBufferQueue.push(chunk);
+
+      try {
+        do {
+          this._mediaSource.sourceBuffers[0].appendBuffer(
+            this._sourceBufferQueue[0]
+          );
+          await this._waitForSourceBuffer();
+          this._sourceBufferQueue.shift();
+        } while (this._sourceBufferQueue.length);
+      } catch (e) {
+        if (e.name !== "QuotaExceededError") throw e;
+      }
 
       if (
         this._audioElement.currentTime > BUFFER &&
