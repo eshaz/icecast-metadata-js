@@ -30,6 +30,16 @@
         background: #000;
         color: cyan;
         font-family: Montserrat;
+        margin: 0;
+      }
+      canvas {
+        position: absolute;
+        z-index: -1;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        padding: 8px;
       }
       .row {
         display: flex;
@@ -63,43 +73,46 @@
   </head>
 
   <body>
-    <table>
-      <tbody>
-        <tr>
-          <td>Playback Method</td>
-          <td id="actualPlaybackMethod"></td>
-        </tr>
-        <tr>
-          <td>ICY Metadata Interval</td>
-          <td id="icyMetaInt"></td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="row">
-      <div class="metadata-info">
-        <h3>Metadata</h3>
-        <table class="metadata-table">
-          <tbody>
-            <tr>
-              <th class="metadata-header">Current Time</th>
-              <th class="metadata-header">Now Playing</th>
-            </tr>
-            <tr>
-              <td class="metadata-time"><div id="currentTime"></div></td>
-              <td class="metadata"><div id="metadata"></div></td>
-            </tr>
-          </tbody>
-        </table>
-        <table class="metadata-table">
-          <tbody id="metadataQueue"></tbody>
-        </table>
-      </div>
-      <div class="codec-information">
-        <h3>Codec Updates</h3>
-        <div
-          style="font-family: monospace; white-space: normal; font-size: 10px"
-          id="audioInfo"
-        ></div>
+    <canvas></canvas>
+    <div class="container">
+      <table>
+        <tbody>
+          <tr>
+            <td>Playback Method</td>
+            <td id="actualPlaybackMethod"></td>
+          </tr>
+          <tr>
+            <td>ICY Metadata Interval</td>
+            <td id="icyMetaInt"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row">
+        <div class="metadata-info">
+          <h3>Metadata</h3>
+          <table class="metadata-table">
+            <tbody>
+              <tr>
+                <th class="metadata-header">Current Time</th>
+                <th class="metadata-header">Now Playing</th>
+              </tr>
+              <tr>
+                <td class="metadata-time"><div id="currentTime"></div></td>
+                <td class="metadata"><div id="metadata"></div></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="metadata-table">
+            <tbody id="metadataQueue"></tbody>
+          </table>
+        </div>
+        <div class="codec-information">
+          <h3>Codec Updates</h3>
+          <div
+            style="font-family: monospace; white-space: normal; font-size: 10px"
+            id="audioInfo"
+          ></div>
+        </div>
       </div>
     </div>
   </body>
@@ -233,4 +246,269 @@
       statusText: "Icecast Metadata JS Demo starting...",
     });
   </script>
+
+  <script>
+    const NUM_CONFETTI = 50;
+    const COLORS = [
+      [85, 71, 106],
+      [174, 61, 99],
+      [219, 56, 83],
+      [244, 92, 68],
+      [248, 182, 70],
+    ];
+    const PI_2 = 2 * Math.PI;
+
+    const canvas = document.querySelector("canvas");
+    const context = canvas.getContext("2d", { alpha: false });
+
+    let screenWidth = 0,
+      screenHeight = 0;
+
+    const resizeWindow = () => {
+      screenWidth = canvas.width = window.innerWidth;
+      screenHeight = canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", resizeWindow, false);
+
+    const range = (a, b) => (b - a) * Math.random() + a;
+
+    const drawCircle = (x, y, r, style) => {
+      const circle = new Path2D();
+      circle.arc(x, y, r, 0, PI_2);
+      context.fillStyle = style;
+      context.fill(circle);
+    };
+
+    class Confetti {
+      constructor() {
+        this.style = COLORS[~~range(0, 5)];
+        this.rgb = `rgba(${this.style[0]},${this.style[1]},${this.style[2]}`;
+        this.focalLength = 0.5;
+        this.maxOpacity = 0.5;
+        this.replace();
+      }
+
+      replace() {
+        this.radius = range(10, 200);
+        this.opacity = 0;
+        this.fadeSpeed = 0.01; //0.0005 * range(1, 3);
+        this.xPos = range(-this.radius, screenWidth + this.radius);
+        this.yPos = range(-this.radius, screenHeight + this.radius);
+        this.xPosMin = -this.radius;
+        this.yPosMin = -this.radius;
+        this.xPosMax = screenWidth + this.radius;
+        this.yPosMax = screenHeight + this.radius;
+        this.xVelocity = range(-.4, .4); //range(0, 2);
+        this.yVelocity = range(-.4, .4); //this.focalLength * this.radius + range(-1, 1);
+      }
+
+      draw() {
+        this.xPos += this.xVelocity;
+        this.yPos += this.yVelocity;
+
+        // fade in
+        this.opacity += this.fadeSpeed;
+        // fade out
+        if (this.opacity > this.maxOpacity) {
+          this.opacity = this.maxOpacity;
+          //this.fadeSpeed *= -1;
+          this.fadeSpeed = 0;
+        }
+        if (
+          this.opacity < 0 ||
+          this.yPos < this.yPosMin ||
+          this.xPos < this.xPosMin ||
+          this.yPos > this.yPosMax ||
+          this.xPos > this.xPosMax
+        ) {
+          this.replace();
+        }
+        drawCircle(
+          this.xPos,
+          this.yPos,
+          this.radius,
+          `${this.rgb},${this.opacity})`
+        );
+      }
+    }
+
+    const step = () => {
+      requestAnimationFrame(step);
+      context.fillStyle = "black";
+      context.fillRect(0, 0, screenWidth, screenHeight);
+      for (let i = 0; i < confetti.length; i++) confetti[i].draw();
+    };
+
+    resizeWindow();
+
+    confetti = [];
+    for (let i = 0; i < NUM_CONFETTI; i++) confetti.push(new Confetti());
+
+    requestAnimationFrame(step);
+  </script>
+
+  <!--
+  <script>
+    var canvas = document.querySelector("canvas");
+    var context = canvas.getContext("2d");
+
+    var time = 0,
+      velocity = 0.1,
+      velocityTarget = 0.1,
+      width,
+      height,
+      lastX,
+      lastY;
+
+    var MAX_OFFSET = 400;
+    var SPACING = 4;
+    var POINTS = MAX_OFFSET / SPACING;
+    var PEAK = MAX_OFFSET * 0.25;
+    var POINTS_PER_LAP = 6;
+    var SHADOW_STRENGTH = 6;
+
+    setup();
+
+    function setup() {
+      resize();
+      step();
+    }
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    function step() {
+      time += velocity;
+      velocity += (velocityTarget - velocity) * 0.3;
+
+      clear();
+      render();
+
+      requestAnimationFrame(step);
+    }
+
+    function clear() {
+      context.clearRect(0, 0, width, height);
+    }
+
+    function render() {
+      var x,
+        y,
+        cx = width / 2,
+        cy = height / 2;
+
+      context.globalCompositeOperation = "lighter";
+      context.strokeStyle = "#fff";
+      context.shadowColor = "#fff";
+      context.lineWidth = 2;
+      context.beginPath();
+
+      for (var i = POINTS; i > 0; i--) {
+        var value = i * SPACING + (time % SPACING);
+
+        var ax = Math.sin(value / POINTS_PER_LAP) * Math.PI,
+          ay = Math.cos(value / POINTS_PER_LAP) * Math.PI;
+
+        (x = ax * value), (y = ay * value * 0.35);
+
+        var o = 1 - Math.min(value, PEAK) / PEAK;
+
+        y -= Math.pow(o, 2) * 200;
+        y += (200 * value) / MAX_OFFSET;
+        y += (x / cx) * width * 0.1;
+
+        context.globalAlpha = 1 - value / MAX_OFFSET;
+        context.shadowBlur = SHADOW_STRENGTH * o;
+
+        context.lineTo(cx + x, cy + y);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(cx + x, cy + y);
+      }
+
+      context.lineTo(cx, cy - 200);
+      context.lineTo(cx, 0);
+      context.stroke();
+    }
+  </script>
+  -->
+
+  <!--
+  <script src="https://github.com/processing/p5.js/releases/download/0.6.0/p5.min.js"></script>
+  <script>
+    let points = [];
+    let tickSpeed = 10;
+    let base = 180;
+    let numPoints = 10;
+    let maxTicks = 3000;
+    let ticks = 0;
+
+    function Point(x = random(width), y = random(height), a = random(PI)) {
+      this.x = x;
+      this.y = y;
+      this.a = a;
+      this.dx = cos(a);
+      this.dy = sin(a);
+      this.hue = (random(100) + base) % 360;
+      this.color = color(this.hue, 100, 100, 0.01);
+    }
+
+    Point.prototype.update = function () {
+      this.x += this.dx;
+      this.y += this.dy;
+      if (this.x < 0 || this.x >= width) this.dx *= -1;
+      if (this.y < 0 || this.y >= height) this.dy *= -1;
+      stroke(this.color);
+      line(this.x, this.y, this.neighbor.x, this.neighbor.y);
+    };
+
+    function setup() {
+      createCanvas();
+      colorMode(HSB);
+      windowResized();
+      blendMode(ADD);
+      strokeWeight(1.5);
+    }
+
+    function init() {
+      points = [];
+      base = random(360);
+      ticks = 0;
+
+      for (var i = 0; i < numPoints; i++) points.push(new Point());
+
+      for (var i = 0; i < points.length; i++) {
+        let j = i;
+        while (j == i) j = floor(random(points.length));
+        points[i].neighbor = points[j];
+      }
+    }
+
+    function draw() {
+      //if (ticks > maxTicks) return;
+      for (var n = 0; n < tickSpeed; n++) {
+        for (var i = 0; i < points.length; i++) {
+          points[i].update();
+        }
+        ticks++;
+      }
+    }
+
+    function mouseClicked() {
+      windowResized();
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      pixelDensity(1);
+      clear();
+      background(0);
+      init();
+    }
+  </script>
+  -->
 </html>
