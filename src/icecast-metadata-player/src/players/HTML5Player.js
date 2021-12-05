@@ -61,8 +61,6 @@ export default class HTML5Player extends Player {
         { once: true }
       );
 
-      this._audioElement.play();
-
       if (!this._firedPlay) {
         this._icecast[fireEvent](event.PLAY);
         this._firedPlay = true;

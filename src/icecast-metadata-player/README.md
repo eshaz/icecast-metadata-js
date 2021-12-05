@@ -47,7 +47,7 @@ https://github.com/eshaz/icecast-metadata-js
   * [Getters](#getters)
 * [Instantiating](#instantiating)
   * [Options](#options)
-  * [Callbacks](#callbacks)
+  * [Callbacks](#callbacks-all-optional)
 * [Troubleshooting](#troubleshooting)
   * [Debugging](#debugging)
   * [Warning Messages](#warning-messages)
@@ -286,6 +286,8 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * HTTP(s) endpoint for the Icecast compatible stream.
 * `audioElement` (optional) - **Default** `new Audio()`
   * HTML5 Audio Element to use to play the Icecast stream.
+* `bufferLength` (optional) - **Default** `1`
+  * Sets the number of seconds to buffer before starting playback
 * `enableLogging` (optional) **Default** `false`
   * Set to `true` to enable warning and error logging to the console
 * `enableCodecUpdate` (optional) **Default** `false`
@@ -348,6 +350,7 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 #### Stream lifecycle
 * `onLoad()` Called when the fetch request is started.
 * `onStreamStart()` Called when fetch request begins to return data.
+* `onBuffer(time)` Called when the audio buffer is being filled.
 * `onPlay()` Called when the audio element begins playing.
 * `onStream(streamData)` Called when stream data is sent to the audio element.
 * `onStreamEnd()` Called when the fetch request completes.

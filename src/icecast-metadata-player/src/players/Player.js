@@ -1,6 +1,7 @@
 import {
   p,
   audioElement,
+  bufferLength,
   icecastMetadataQueue,
   codecUpdateQueue,
   endpoint,
@@ -18,6 +19,7 @@ export default class Player {
     this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
     this._codecUpdateQueue = instanceVariables[codecUpdateQueue];
     this._endpoint = instanceVariables[endpoint];
+    this._bufferLength = instanceVariables[bufferLength];
 
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;

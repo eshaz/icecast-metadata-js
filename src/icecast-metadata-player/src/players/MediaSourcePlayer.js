@@ -4,6 +4,7 @@ import {
   state,
   event,
   fireEvent,
+  concatBuffers,
   SYNCED,
   SYNCING,
   NOT_SYNCED,
@@ -117,11 +118,8 @@ export default class MediaSourcePlayer extends Player {
 
       await this._createMediaSource(inputMimeType);
 
-      return async (frames) => {
-        for await (const { data } of frames) {
-          await this._appendSourceBuffer(data);
-        }
-      };
+      return async (frames) =>
+        this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
     } else {
       // wrap the audio into fragments before passing to MSE
       const wrapper = new MSEAudioWrapper(inputMimeType, {
@@ -189,11 +187,6 @@ export default class MediaSourcePlayer extends Player {
       this._icecast.state !== state.STOPPING &&
       this._mediaSource.sourceBuffers.length
     ) {
-      if (!this._firedPlay) {
-        this._icecast[fireEvent](event.PLAY);
-        this._firedPlay = true;
-      }
-
       this._sourceBufferQueue.push(chunk);
 
       try {
@@ -208,14 +201,23 @@ export default class MediaSourcePlayer extends Player {
         if (e.name !== "QuotaExceededError") throw e;
       }
 
+      if (!this._firedPlay) {
+        if (this._bufferLength <= this.metadataTimestamp * 1000) {
+          this._icecast[fireEvent](event.PLAY);
+          this._firedPlay = true;
+        } else {
+          this._icecast[fireEvent](event.BUFFER, this.metadataTimestamp);
+        }
+      }
+
       if (
-        this._audioElement.currentTime > BUFFER &&
+        this._audioElement.currentTime > BUFFER + this._bufferLength &&
         this._sourceBufferRemoved + BUFFER_INTERVAL * 1000 < Date.now()
       ) {
         this._sourceBufferRemoved = Date.now();
         this._mediaSource.sourceBuffers[0].remove(
           0,
-          this._audioElement.currentTime - BUFFER
+          this._audioElement.currentTime - BUFFER + this._bufferLength
         );
         await this._waitForSourceBuffer();
       }

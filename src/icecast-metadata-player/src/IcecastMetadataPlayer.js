@@ -28,6 +28,7 @@ import {
   endpoint,
   metadataTypes,
   audioElement,
+  bufferLength,
   icyMetaInt,
   icyCharacterEncoding,
   icyDetectionTimeout,
@@ -72,7 +73,7 @@ const playerState = Symbol();
 
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
-const onAudioCanPlay = Symbol();
+const onPlay = Symbol();
 const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
 
@@ -87,6 +88,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {object} options Options object
    * @param {HTMLAudioElement} options.audioElement Audio element to play the stream
    * @param {Array} options.metadataTypes Array of metadata types to parse
+   * @param {number} options.bufferLength Seconds of audio to buffer before starting playback
    * @param {number} options.icyMetaInt ICY metadata interval
    * @param {string} options.icyCharacterEncoding Character encoding to use for ICY metadata (defaults to "utf-8")
    * @param {number} options.icyDetectionTimeout ICY metadata detection timeout
@@ -104,6 +106,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @callback options.onPlay Called when the audio element begins playing
    * @callback options.onLoad Called when stream request is started
    * @callback options.onStreamStart Called when stream requests begins to return data
+   * @callback options.onBuffer Called when the audio buffer is being filled
    * @callback options.onStream Called when stream data is sent to the audio element
    * @callback options.onStreamEnd Called when the stream request completes
    * @callback options.onStop Called when the stream is completely stopped and all cleanup operations are complete
@@ -118,6 +121,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       // options
       [endpoint]: url,
       [audioElement]: options.audioElement || new Audio(),
+      [bufferLength]: (options.bufferLength || 1) * 1000,
       [icyMetaInt]: options.icyMetaInt,
       [icyCharacterEncoding]: options.icyCharacterEncoding,
       [icyDetectionTimeout]: options.icyDetectionTimeout,
@@ -136,6 +140,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.PLAY]: options.onPlay || noOp,
         [event.LOAD]: options.onLoad || noOp,
         [event.STREAM_START]: options.onStreamStart || noOp,
+        [event.BUFFER]: options.onBuffer || noOp,
         [event.STREAM]: options.onStream || noOp,
         [event.STREAM_END]: options.onStreamEnd || noOp,
         [event.METADATA]: options.onMetadata || noOp,
@@ -188,19 +193,6 @@ export default class IcecastMetadataPlayer extends EventClass {
       [onAudioPause]: () => {
         this.stop();
       },
-      [onAudioCanPlay]: () => {
-        const audio = p.get(this)[audioElement];
-
-        if (
-          this.state === state.LOADING ||
-          (!audio.loop &&
-            this.state !== state.STOPPING &&
-            this.state !== state.STOPPED)
-        ) {
-          audio.play();
-          this[playerState] = state.PLAYING;
-        }
-      },
       [onAudioError]: (e) => {
         const errors = {
           1: "MEDIA_ERR_ABORTED The fetching of the associated resource was aborted by the user's request.",
@@ -221,6 +213,19 @@ export default class IcecastMetadataPlayer extends EventClass {
           this.stop();
         } else {
           p.get(this)[resetPlayback]();
+        }
+      },
+      [onPlay]: () => {
+        const audio = p.get(this)[audioElement];
+
+        if (
+          this.state === state.LOADING ||
+          (!audio.loop &&
+            this.state !== state.STOPPING &&
+            this.state !== state.STOPPED)
+        ) {
+          audio.play();
+          this[playerState] = state.PLAYING;
         }
       },
     });
@@ -293,8 +298,8 @@ export default class IcecastMetadataPlayer extends EventClass {
     const audio = p.get(this)[audioElement];
     audio.addEventListener("pause", p.get(this)[onAudioPause]);
     audio.addEventListener("play", p.get(this)[onAudioPlay]);
-    audio.addEventListener("canplay", p.get(this)[onAudioCanPlay]);
     audio.addEventListener("error", p.get(this)[onAudioError]);
+    this.addEventListener("play", p.get(this)[onPlay]);
   }
 
   /**
@@ -304,8 +309,8 @@ export default class IcecastMetadataPlayer extends EventClass {
     const audio = p.get(this)[audioElement];
     audio.removeEventListener("pause", p.get(this)[onAudioPause]);
     audio.removeEventListener("play", p.get(this)[onAudioPlay]);
-    audio.removeEventListener("canplay", p.get(this)[onAudioCanPlay]);
     audio.removeEventListener("error", p.get(this)[onAudioError]);
+    this.removeEventListener("play", p.get(this)[onPlay]);
 
     await this.stop();
   }
