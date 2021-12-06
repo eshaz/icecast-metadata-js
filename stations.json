@@ -928,7 +928,7 @@
       },
       {
         "endpoint": "https://streaming510.radionomy.com/Radio-Mozart_64.aac",
-        "codec": "MP3",
+        "codec": "AAC",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats"]
       }
