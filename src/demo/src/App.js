@@ -28,6 +28,7 @@ const App = () => {
   const [castSession, setCastSession] = useState();
 
   const namespace = "urn:x-cast:icecast-metadata-js-demo";
+  const castAPIId = "E3C20492";
 
   const sendCastMessage = useCallback(
     (msg) => {
@@ -43,9 +44,7 @@ const App = () => {
 
     window.__onGCastApiAvailable = (loaded) => {
       if (loaded) {
-        const sessionRequest = new window.chrome.cast.SessionRequest(
-          "E3C20492"
-        );
+        const sessionRequest = new window.chrome.cast.SessionRequest(castAPIId);
 
         const apiConfig = new window.chrome.cast.ApiConfig(
           sessionRequest,

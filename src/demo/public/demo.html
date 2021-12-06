@@ -300,11 +300,12 @@
     <script>
       let castSession;
       const namespace = "urn:x-cast:icecast-metadata-js-demo";
+      const castAPIId = "E3C20492";
 
       window.__onGCastApiAvailable = (loaded) => {
         if (loaded) {
           const sessionRequest = new window.chrome.cast.SessionRequest(
-            "E3C20492"
+            castAPIId
           );
 
           const apiConfig = new window.chrome.cast.ApiConfig(
@@ -318,8 +319,8 @@
       };
 
       const sendCastMessage = (msg) => {
-          castSession?.sendMessage(namespace, msg);
-        };
+        castSession?.sendMessage(namespace, msg);
+      };
     </script>
   </head>
   <body onload="bodyLoad();">
@@ -1076,7 +1077,9 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       playerFormData.icy && metadataTypes.push("icy");
       playerFormData.ogg && metadataTypes.push("ogg");
 
-      const enableCodecUpdate = document.getElementById("isCodecUpdateEnabled").checked
+      const enableCodecUpdate = document.getElementById(
+        "isCodecUpdateEnabled"
+      ).checked;
 
       icecastMetadataPlayer = new IcecastMetadataPlayer(
         playerFormData.endpoint,
@@ -1090,9 +1093,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           onStop,
           onMetadata,
           onMetadataEnqueue,
-          onCodecUpdate:
-            enableCodecUpdate &&
-            onCodecUpdate,
+          onCodecUpdate: enableCodecUpdate && onCodecUpdate,
           onError,
           playbackMethod: playerFormData.playbackMethod,
         }
@@ -1102,7 +1103,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         console.log(args);
       });
 
-      sendCastMessage({command: "change station", metadataTypes, enableCodecUpdate, ...playerFormData});
+      sendCastMessage({
+        command: "change station",
+        metadataTypes,
+        enableCodecUpdate,
+        ...playerFormData,
+      });
     };
 
     document.getElementById("play").addEventListener("click", () => {
@@ -1117,12 +1123,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
 
       getIcecastMetadataPlayer();
       icecastMetadataPlayer.play();
-      sendCastMessage({command: "play"});
+      sendCastMessage({ command: "play" });
     });
 
     document.getElementById("stop").addEventListener("click", () => {
       icecastMetadataPlayer.stop();
-      sendCastMessage({command: "stop"});
+      sendCastMessage({ command: "stop" });
     });
   </script>
   <script>
