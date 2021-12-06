@@ -49,7 +49,8 @@ class MetadataParser {
   *_passThroughParser() {
     this._remainingData = Infinity;
     while (true) {
-      yield* this._sendStream(yield* this._getNextValue());
+      this._addStream(yield* this._getNextValue());
+      yield* this._sendStream();
     }
   }
 
