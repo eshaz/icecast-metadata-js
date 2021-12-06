@@ -138,9 +138,9 @@ export default class MediaSourcePlayer extends Player {
       await this._createMediaSource(wrapper.mimeType);
 
       return async (codecFrames) => {
-        for await (const fragment of wrapper.iterator(codecFrames)) {
-          await this._appendSourceBuffer(fragment);
-        }
+        const fragments = concatBuffers([...wrapper.iterator(codecFrames)]);
+
+        await this._appendSourceBuffer(fragments);
       };
     }
   }
