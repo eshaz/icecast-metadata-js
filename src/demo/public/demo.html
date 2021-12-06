@@ -12,6 +12,7 @@
     <meta name="title" content="Icecast Metadata Player Demo" />
     <script src="/icecast-metadata-js/icecast-metadata-player-1.10.7.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.1.1.min.js"></script>
+    <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
       rel="stylesheet"
@@ -269,20 +270,20 @@
           const station = stations[stationsEl.selectedIndex];
           // prettier-ignore
           {
-            document.getElementById("endpoint").value = station.endpoint;
-            document.getElementById("icy").checked = station.metadataTypes.includes("icy");
-            document.getElementById("ogg").checked = station.metadataTypes.includes("ogg");
-            document.getElementById("icyCharacterEncoding").value = station.icyCharacterEncoding || "utf-8";
-  
-            document.getElementById("icy-auto-query").checked = station.statsSources.includes("icy");
-            document.getElementById("ogg-auto-query").checked = station.statsSources.includes("ogg");
-            document.getElementById("sevenhtml-auto-query").checked = station.statsSources.includes("sevenhtml");
-            document.getElementById("stats-auto-query").checked = station.statsSources.includes("stats");
-            document.getElementById("icestats-auto-query").checked = station.statsSources.includes("icestats");
-            document.getElementById("nextsongs-auto-query").checked = station.statsSources.includes("nextsongs");
+              document.getElementById("endpoint").value = station.endpoint;
+              document.getElementById("icy").checked = station.metadataTypes.includes("icy");
+              document.getElementById("ogg").checked = station.metadataTypes.includes("ogg");
+              document.getElementById("icyCharacterEncoding").value = station.icyCharacterEncoding || "utf-8";
 
-            resetIcecastMetadataStatsEndpoints();
-          }
+              document.getElementById("icy-auto-query").checked = station.statsSources.includes("icy");
+              document.getElementById("ogg-auto-query").checked = station.statsSources.includes("ogg");
+              document.getElementById("sevenhtml-auto-query").checked = station.statsSources.includes("sevenhtml");
+              document.getElementById("stats-auto-query").checked = station.statsSources.includes("stats");
+              document.getElementById("icestats-auto-query").checked = station.statsSources.includes("icestats");
+              document.getElementById("nextsongs-auto-query").checked = station.statsSources.includes("nextsongs");
+
+              resetIcecastMetadataStatsEndpoints();
+            }
 
           playerFormData = Object.fromEntries(
             new FormData(playerForm).entries()
@@ -295,6 +296,30 @@
         stationsEl.selectedIndex = 0;
         stationsEl.dispatchEvent(new Event("change"));
       };
+    </script>
+    <script>
+      let castSession;
+      const namespace = "urn:x-cast:icecast-metadata-js-demo";
+
+      window.__onGCastApiAvailable = (loaded) => {
+        if (loaded) {
+          const sessionRequest = new window.chrome.cast.SessionRequest(
+            "E3C20492"
+          );
+
+          const apiConfig = new window.chrome.cast.ApiConfig(
+            sessionRequest,
+            (session) => (castSession = session),
+            () => {}
+          );
+
+          window.chrome.cast.initialize(apiConfig);
+        }
+      };
+
+      const sendCastMessage = (msg) => {
+          castSession?.sendMessage(namespace, msg);
+        };
     </script>
   </head>
   <body onload="bodyLoad();">
@@ -1051,6 +1076,8 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       playerFormData.icy && metadataTypes.push("icy");
       playerFormData.ogg && metadataTypes.push("ogg");
 
+      const enableCodecUpdate = document.getElementById("isCodecUpdateEnabled").checked
+
       icecastMetadataPlayer = new IcecastMetadataPlayer(
         playerFormData.endpoint,
         {
@@ -1064,7 +1091,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           onMetadata,
           onMetadataEnqueue,
           onCodecUpdate:
-            document.getElementById("isCodecUpdateEnabled").checked &&
+            enableCodecUpdate &&
             onCodecUpdate,
           onError,
           playbackMethod: playerFormData.playbackMethod,
@@ -1074,6 +1101,8 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
       icecastMetadataPlayer.addEventListener("metadata", (...args) => {
         console.log(args);
       });
+
+      sendCastMessage({command: "change station", metadataTypes, enableCodecUpdate, ...playerFormData});
     };
 
     document.getElementById("play").addEventListener("click", () => {
@@ -1088,10 +1117,12 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
 
       getIcecastMetadataPlayer();
       icecastMetadataPlayer.play();
+      sendCastMessage({command: "play"});
     });
 
     document.getElementById("stop").addEventListener("click", () => {
       icecastMetadataPlayer.stop();
+      sendCastMessage({command: "stop"});
     });
   </script>
   <script>
