@@ -1,11 +1,6 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from "react";
-import AudioMotionAnalyzer from "audiomotion-analyzer";
+import React, { useState, useCallback, useEffect } from "react";
+
+import Milkdrop from "./Milkdrop/Milkdrop";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
@@ -21,29 +16,21 @@ const RECONNECTING = "Lost Connection. Reconnecting...";
 const CONNECTED = "Waiting for metadata...";
 
 const App = () => {
+  const [audioElement] = useState(new Audio());
   const [station, setStation] = useState();
   const [playing, setPlaying] = useState(false);
-  const [audioElement] = useState(new Audio());
 
   const [metadata, setMetadata] = useState(SELECT_STATION);
   const [codecInfo, setCodecInfo] = useState();
   const [icecast, setIcecast] = useState();
 
-  const analyzer = useRef();
-  const [audioMotion, setAudioMotion] = useState();
   const [castSession, setCastSession] = useState();
 
   const namespace = "urn:x-cast:icecast-metadata-js-demo";
 
   const sendCastMessage = useCallback(
     (msg) => {
-      console.log("sending", msg);
-      castSession?.sendMessage(
-        namespace,
-        msg,
-        () => console.log("Message sent: ", msg),
-        (...args) => console.log("error", ...args)
-      );
+      castSession?.sendMessage(namespace, msg);
     },
     [castSession]
   );
@@ -53,8 +40,7 @@ const App = () => {
     script.src = "//www.gstatic.com/cv/js/sender/v1/cast_sender.js";
     document.body.appendChild(script);
 
-    window.__onGCastApiAvailable = (loaded, error) => {
-      console.log("cast", loaded, error);
+    window.__onGCastApiAvailable = (loaded) => {
       if (loaded) {
         const sessionRequest = new window.chrome.cast.SessionRequest(
           "E3C20492"
@@ -63,17 +49,12 @@ const App = () => {
         const apiConfig = new window.chrome.cast.ApiConfig(
           sessionRequest,
           (session) => {
-            console.log("New session ID:" + session.sessionId);
             setCastSession(session);
           },
-          (...e) => console.log("error", ...e)
+          () => {}
         );
 
-        window.chrome.cast.initialize(
-          apiConfig,
-          (...args) => console.log("success", ...args),
-          (...args) => console.log("error", ...args)
-        );
+        window.chrome.cast.initialize(apiConfig);
       }
     };
   }, []);
@@ -151,36 +132,9 @@ const App = () => {
     playing ? stop() : play();
   }, [playing, stop, play]);
 
-  useEffect(() => {
-    if (window.AudioContext) {
-      setAudioMotion(
-        new AudioMotionAnalyzer(analyzer.current, {
-          source: audioElement,
-          showScaleX: false,
-          fftSize: 32768,
-          mode: 1,
-          gradient: "prism",
-          showBgColor: false,
-          barSpace: 0,
-          lumiBars: true,
-        })
-      );
-    }
-  }, [audioElement]);
-
-  // adjust canvas size for audio spectrum
-  useLayoutEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      audioMotion &&
-        audioMotion.setCanvasSize(window.innerWidth, window.innerHeight + 100);
-    });
-    resizeObserver.observe(analyzer.current);
-    return () => resizeObserver.disconnect();
-  }, [audioMotion]);
-
   return (
     <>
-      <div className={styles.spectrum} ref={analyzer}></div>
+      {window.MediaSource && <Milkdrop audioElement={audioElement} />}
       <header className={styles.header}>
         <About />
       </header>
