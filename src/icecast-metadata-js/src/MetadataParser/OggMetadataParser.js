@@ -92,7 +92,7 @@ class OggMetadataParser extends MetadataParser {
       this._stats._currentBytesRemaining += 4;
     }
 
-    if (syncBytes.length) yield* this._sendStream(Uint8Array.from(syncBytes));
+    if (syncBytes.length) this._addStream(Uint8Array.from(syncBytes));
 
     if (syncBytes.length > 65307) {
       this._logError(
@@ -144,7 +144,7 @@ class OggMetadataParser extends MetadataParser {
   *_getNextValue(length) {
     const value = yield* super._getNextValue(length);
 
-    yield* this._sendStream(value);
+    this._addStream(value);
     return value;
   }
 

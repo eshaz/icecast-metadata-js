@@ -10,6 +10,7 @@ export const state = {
 };
 
 export const event = {
+  BUFFER: "buffer",
   PLAY: "play",
   LOAD: "load",
   STREAM_START: "streamstart",
@@ -29,6 +30,7 @@ export const event = {
 export const endpoint = Symbol();
 export const metadataTypes = Symbol();
 export const audioElement = Symbol();
+export const bufferLength = Symbol();
 export const icyMetaInt = Symbol();
 export const icyCharacterEncoding = Symbol();
 export const icyDetectionTimeout = Symbol();
@@ -55,3 +57,16 @@ export const abortController = Symbol();
 export const SYNCED = Symbol();
 export const SYNCING = Symbol();
 export const NOT_SYNCED = Symbol();
+
+export const concatBuffers = (buffers) => {
+  const buffer = new Uint8Array(
+    buffers.reduce((acc, buf) => acc + buf.length, 0)
+  );
+
+  buffers.reduce((offset, buf) => {
+    buffer.set(buf, offset);
+    return offset + buf.length;
+  }, 0);
+
+  return buffer;
+};

@@ -17,10 +17,3 @@
 .footer {
   bottom: 0;
 }
-
-.spectrum {
-  position: absolute;
-  position: fixed;
-  z-index: -5;
-  height: 100%;
-}

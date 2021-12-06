@@ -1,0 +1,6 @@
+.spectrum {
+  position: absolute;
+  position: fixed;
+  z-index: -5;
+  height: 100%;
+}

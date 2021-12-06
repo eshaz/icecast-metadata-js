@@ -30,6 +30,8 @@ class MetadataParser {
     this._remainingData = 0;
     this._currentPosition = 0;
     this._buffer = new Uint8Array(0);
+    this._streamBuffer = [];
+    this._streamBufferLength = 0;
     this._stats = new Stats();
 
     this._onStream = params.onStream || noOp;
@@ -47,15 +49,26 @@ class MetadataParser {
   *_passThroughParser() {
     this._remainingData = Infinity;
     while (true) {
-      yield* this._sendStream(yield* this._getNextValue());
+      this._addStream(yield* this._getNextValue());
+      yield* this._sendStream();
     }
   }
 
-  static _concatBuffers(buf1, buf2) {
-    const result = new Uint8Array(buf1.length + buf2.length);
-    result.set(buf1);
-    result.set(buf2, buf1.length);
-    return result;
+  static _concatBuffers(...buffers) {
+    const length = buffers.reduce((acc, buf) => acc + buf.length, 0);
+
+    return this._concatBuffersKnownLength(buffers, length);
+  }
+
+  static _concatBuffersKnownLength(buffers, length) {
+    const buffer = new Uint8Array(length);
+
+    buffers.reduce((offset, buf) => {
+      buffer.set(buf, offset);
+      return offset + buf.length;
+    }, 0);
+
+    return buffer;
   }
 
   *iterator(chunk) {
@@ -109,16 +122,32 @@ class MetadataParser {
     this._onError(...messages);
   }
 
-  *_sendStream(stream) {
-    this._stats.addStreamBytes(stream.length);
+  _addStream(stream) {
+    this._streamBuffer.push(stream);
+    this._streamBufferLength += stream.length;
+  }
 
-    const streamPayload = { stream, stats: this._stats.stats };
+  *_sendStream() {
+    if (this._streamBuffer.length) {
+      const stream = MetadataParser._concatBuffersKnownLength(
+        this._streamBuffer,
+        this._streamBufferLength
+      );
+      this._streamBuffer = [];
+      this._streamBufferLength = 0;
 
-    this._onStreamPromise = this._onStream(streamPayload);
-    yield streamPayload;
+      this._stats.addStreamBytes(stream.length);
+
+      const streamPayload = { stream, stats: this._stats.stats };
+
+      this._onStreamPromise = this._onStream(streamPayload);
+      yield streamPayload;
+    }
   }
 
   *_sendMetadata(metadata) {
+    yield* this._sendStream();
+
     const metadataPayload = {
       metadata,
       stats: this._stats.stats,
@@ -158,6 +187,8 @@ class MetadataParser {
   }
 
   *_readData() {
+    yield* this._sendStream();
+
     let data;
 
     do {

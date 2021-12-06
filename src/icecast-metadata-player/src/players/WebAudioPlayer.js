@@ -165,13 +165,17 @@ export default class WebAudioPlayer extends Player {
       this._icecast.state !== state.STOPPED &&
       samplesDecoded
     ) {
+      this._icecast[fireEvent](event.STREAM, {
+        channelData,
+        samplesDecoded,
+        sampleRate,
+      });
+
       if (!this._sampleRate) {
         this._sampleRate = sampleRate;
 
         this._mediaStream = this._audioContext.createMediaStreamDestination();
         this._audioElement.srcObject = this._mediaStream.stream; // triggers canplay event
-
-        this._startTime = Date.now();
       }
 
       const decodeDuration =
@@ -201,8 +205,13 @@ export default class WebAudioPlayer extends Player {
       source.start(decodeDuration);
 
       if (!this._firedPlay) {
-        this._icecast[fireEvent](event.PLAY);
-        this._firedPlay = true;
+        if (this._bufferLength <= this._currentTime) {
+          this._icecast[fireEvent](event.PLAY);
+          this._startTime = Date.now();
+          this._firedPlay = true;
+        } else {
+          this._icecast[fireEvent](event.BUFFER, this._currentTime / 1000);
+        }
       }
 
       this._decodedSample += samplesDecoded;

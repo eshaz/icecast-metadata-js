@@ -86,6 +86,12 @@ declare module "icecast-metadata-player" {
     audioElement?: HTMLAudioElement;
 
     /**
+     * Number of seconds to buffer before starting playback
+     * @default 1
+     */
+    bufferLength?: number;
+
+    /**
      * Number of seconds to wait before giving up on retries
      * @default 30
      */
@@ -129,6 +135,9 @@ declare module "icecast-metadata-player" {
 
     /** Called when stream requests begins to return data */
     onStreamStart?: () => void;
+
+    /** Called when the audio buffer is being filled */
+    onBuffer?: (time: number) => void;
 
     /** Called when stream data is sent to the audio element */
     onStream?: (streamData: Uint8Array) => void;

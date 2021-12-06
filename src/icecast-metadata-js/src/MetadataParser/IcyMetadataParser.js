@@ -137,7 +137,7 @@ class IcyMetadataParser extends MetadataParser {
     this._stats.currentStreamBytesRemaining = this._remainingData;
 
     while (this._remainingData) {
-      yield* this._sendStream(yield* super._getNextValue());
+      this._addStream(yield* super._getNextValue());
     }
   }
 

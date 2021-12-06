@@ -1,11 +1,7 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from "react";
-import AudioMotionAnalyzer from "audiomotion-analyzer";
+import React, { useState, useCallback, useEffect } from "react";
+
+import Milkdrop from "./Milkdrop/Milkdrop";
+import AudioMotion from "./AudioMotion/AudioMotion";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
@@ -21,23 +17,61 @@ const RECONNECTING = "Lost Connection. Reconnecting...";
 const CONNECTED = "Waiting for metadata...";
 
 const App = () => {
+  const [audioElement] = useState(new Audio());
   const [station, setStation] = useState();
   const [playing, setPlaying] = useState(false);
-  const [audioElement] = useState(new Audio());
 
   const [metadata, setMetadata] = useState(SELECT_STATION);
   const [codecInfo, setCodecInfo] = useState();
   const [icecast, setIcecast] = useState();
 
-  const analyzer = useRef();
-  const [audioMotion, setAudioMotion] = useState();
+  const [castSession, setCastSession] = useState();
+
+  const namespace = "urn:x-cast:icecast-metadata-js-demo";
+  const castAPIId = "E3C20492";
+
+  const sendCastMessage = useCallback(
+    (msg) => {
+      castSession?.sendMessage(namespace, msg);
+    },
+    [castSession]
+  );
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "//www.gstatic.com/cv/js/sender/v1/cast_sender.js";
+    document.body.appendChild(script);
+
+    window.__onGCastApiAvailable = (loaded) => {
+      if (loaded) {
+        const sessionRequest = new window.chrome.cast.SessionRequest(castAPIId);
+
+        const apiConfig = new window.chrome.cast.ApiConfig(
+          sessionRequest,
+          (session) => {
+            setCastSession(session);
+          },
+          () => {}
+        );
+
+        window.chrome.cast.initialize(apiConfig);
+      }
+    };
+  }, []);
 
   const changeStation = useCallback(
     async (station) => {
       if (icecast) {
         await icecast.stop();
+        sendCastMessage({ command: "stop" });
         icecast.detachAudioElement();
       }
+
+      sendCastMessage({
+        command: "change station",
+        enableCodecUpdate: true,
+        ...station,
+      });
 
       const player = new IcecastMetadataPlayer(station.endpoint, {
         onMetadata: (meta) => {
@@ -76,47 +110,35 @@ const App = () => {
       });
 
       player.play();
+      sendCastMessage({ command: "play" });
 
       setIcecast(player);
       setStation(station);
     },
-    [icecast, audioElement]
+    [icecast, audioElement, sendCastMessage]
   );
 
+  const play = useCallback(() => {
+    icecast.play();
+    sendCastMessage({ command: "play" });
+  }, [icecast, sendCastMessage]);
+
+  const stop = useCallback(() => {
+    icecast.stop();
+    sendCastMessage({ command: "stop" });
+  }, [icecast, sendCastMessage]);
+
   const toggle = useCallback(() => {
-    playing ? icecast.stop() : icecast.play();
-  }, [icecast, playing]);
-
-  useEffect(() => {
-    if (window.AudioContext) {
-      setAudioMotion(
-        new AudioMotionAnalyzer(analyzer.current, {
-          source: audioElement,
-          showScaleX: false,
-          fftSize: 32768,
-          mode: 1,
-          gradient: "prism",
-          showBgColor: false,
-          barSpace: 0,
-          lumiBars: true,
-        })
-      );
-    }
-  }, [audioElement]);
-
-  // adjust canvas size for audio spectrum
-  useLayoutEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      audioMotion &&
-        audioMotion.setCanvasSize(window.innerWidth, window.innerHeight + 100);
-    });
-    resizeObserver.observe(analyzer.current);
-    return () => resizeObserver.disconnect();
-  }, [audioMotion]);
+    playing ? stop() : play();
+  }, [playing, stop, play]);
 
   return (
     <>
-      <div className={styles.spectrum} ref={analyzer}></div>
+      {window.MediaSource ? (
+        <Milkdrop audioElement={audioElement} />
+      ) : (
+        <AudioMotion audioElement={audioElement} />
+      )}
       <header className={styles.header}>
         <About />
       </header>
