@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 
 import Milkdrop from "./Milkdrop/Milkdrop";
+import AudioMotion from "./AudioMotion/AudioMotion";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
@@ -134,7 +135,11 @@ const App = () => {
 
   return (
     <>
-      {window.MediaSource && <Milkdrop audioElement={audioElement} />}
+      {window.MediaSource ? (
+        <Milkdrop audioElement={audioElement} />
+      ) : (
+        <AudioMotion audioElement={audioElement} />
+      )}
       <header className={styles.header}>
         <About />
       </header>
