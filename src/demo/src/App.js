@@ -134,7 +134,7 @@ const App = () => {
 
   return (
     <>
-      {window.MediaSource ? (
+      {window.WebGL2RenderingContext ? (
         <Milkdrop audioElement={audioElement} />
       ) : (
         <AudioMotion audioElement={audioElement} />
