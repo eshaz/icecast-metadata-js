@@ -93,6 +93,11 @@ export default class WebAudioPlayer extends Player {
     this._audioContext
       .createScriptProcessor(2 ** 14, 2, 2)
       .connect(this._audioContext.destination);
+
+    this._audioContext.resume();
+    this._audioContext.onstatechange = () => {
+      if (this._audioContext !== "running") this._audioContext.resume();
+    };
   }
 
   async reset() {
