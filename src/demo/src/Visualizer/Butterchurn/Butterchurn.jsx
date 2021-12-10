@@ -9,53 +9,55 @@ const Butterchurn = ({ sourceNode }) => {
   const [visualizer, setVisualizer] = useState();
 
   useEffect(() => {
-    const visualizer = butterchurn.createVisualizer(
-      sourceNode.context, //audioContext,
-      analyzer.current,
-      {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        pixelRatio: window.devicePixelRatio || 1,
-        textureRatio: 1,
-      }
-    );
+    if (sourceNode) {
+      const visualizer = butterchurn.createVisualizer(
+        sourceNode.context, //audioContext,
+        analyzer.current,
+        {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          pixelRatio: window.devicePixelRatio || 1,
+          textureRatio: 1,
+        }
+      );
 
-    visualizer.connectAudio(sourceNode);
-    const presets = butterchurnPresets.getPresets();
-    setVisualizer(visualizer);
+      visualizer.connectAudio(sourceNode);
+      const presets = butterchurnPresets.getPresets();
+      setVisualizer(visualizer);
 
-    const presetsList = [
-      //"Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
-      //"cope + martin - mother-of-pearl",
-      //"fiShbRaiN + Flexi - witchcraft 2.0",
-      //"Flexi + Martin - cascading decay swing",
-      //"Flexi + stahlregen - jelly showoff parade",
-      //"flexi - bouncing balls [double mindblob neon mix]",
-      //"Flexi - mindblob [shiny mix]",
-      //"Flexi - predator-prey-spirals",
-      "Flexi - truly soft piece of software - this is generic texturing (Jelly) ", // good
-      //"Flexi, fishbrain, Geiss + Martin - tokamak witchery", // too bright for text
-      //"Flexi, martin + geiss - dedicated to the sherwin maxawow", // good but too active
-      "Geiss - Cauldron - painterly 2 (saturation remix)", // good
-      //"martin - castle in the air", // low key
-      //"martin - mandelbox explorer - high speed demo version", // low key
-    ];
+      const presetsList = [
+        //"Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
+        //"cope + martin - mother-of-pearl",
+        //"fiShbRaiN + Flexi - witchcraft 2.0",
+        //"Flexi + Martin - cascading decay swing",
+        //"Flexi + stahlregen - jelly showoff parade",
+        //"flexi - bouncing balls [double mindblob neon mix]",
+        //"Flexi - mindblob [shiny mix]",
+        //"Flexi - predator-prey-spirals",
+        "Flexi - truly soft piece of software - this is generic texturing (Jelly) ", // good
+        //"Flexi, fishbrain, Geiss + Martin - tokamak witchery", // too bright for text
+        //"Flexi, martin + geiss - dedicated to the sherwin maxawow", // good but too active
+        "Geiss - Cauldron - painterly 2 (saturation remix)", // good
+        //"martin - castle in the air", // low key
+        //"martin - mandelbox explorer - high speed demo version", // low key
+      ];
 
-    visualizer.loadPreset(presets[presetsList[1]]);
+      visualizer.loadPreset(presets[presetsList[1]]);
 
-    let running = true;
+      let running = true;
 
-    const step = () => {
-      visualizer.render();
-      if (running) requestAnimationFrame(step);
-    };
+      const step = () => {
+        visualizer.render();
+        if (running) requestAnimationFrame(step);
+      };
 
-    step();
+      step();
 
-    return () => {
-      running = false;
-      visualizer.disconnectAudio(sourceNode);
-    };
+      return () => {
+        running = false;
+        visualizer.disconnectAudio(sourceNode);
+      };
+    }
   }, [sourceNode]);
 
   useLayoutEffect(() => {
