@@ -202,7 +202,7 @@ export default class MediaSourcePlayer extends Player {
       }
 
       if (!this._firedPlay) {
-        if (this._bufferLength <= this.metadataTimestamp * 1000) {
+        if (this._bufferLength <= this.metadataTimestamp) {
           this._icecast[fireEvent](event.PLAY);
           this._firedPlay = true;
         } else {
