@@ -3,14 +3,15 @@ import styles from "./AudioMotion.module.css";
 
 import AudioMotionAnalyzer from "audiomotion-analyzer";
 
-const AudioMotion = ({ audioElement }) => {
+const AudioMotion = ({ sourceNode }) => {
   const analyzer = useRef();
   const [audioMotion, setAudioMotion] = useState();
 
   useEffect(() => {
-    setAudioMotion(
-      new AudioMotionAnalyzer(analyzer.current, {
-        source: audioElement,
+    if (sourceNode) {
+      const visualizer = new AudioMotionAnalyzer(analyzer.current, {
+        source: sourceNode,
+        connectSpeakers: false,
         showScaleX: false,
         fftSize: 32768,
         mode: 1,
@@ -18,9 +19,15 @@ const AudioMotion = ({ audioElement }) => {
         showBgColor: false,
         barSpace: 0,
         lumiBars: true,
-      })
-    );
-  }, [audioElement]);
+      });
+
+      setAudioMotion(visualizer);
+
+      return () => {
+        visualizer.disconnectInput();
+      };
+    }
+  }, [sourceNode]);
 
   useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver(() => {

@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
 
-import Milkdrop from "./Milkdrop/Milkdrop";
-import AudioMotion from "./AudioMotion/AudioMotion";
 import Player from "./Player/Player";
 import StationSelector from "./StationSelector/StationSelector";
 import stations from "./stations.json";
@@ -9,6 +7,10 @@ import styles from "./App.module.css";
 import About from "./About/About";
 
 import IcecastMetadataPlayer from "icecast-metadata-player";
+import Visualizer, {
+  visualizers,
+  VisualizerSelector,
+} from "./Visualizer/Visualizer";
 
 const SELECT_STATION = "Select a station";
 const SELECT_OR_PLAY = "Select a station or press play";
@@ -24,6 +26,8 @@ const App = () => {
   const [metadata, setMetadata] = useState(SELECT_STATION);
   const [codecInfo, setCodecInfo] = useState();
   const [icecast, setIcecast] = useState();
+
+  const [visualizer, setVisualizer] = useState(visualizers[0]);
 
   const [castSession, setCastSession] = useState();
 
@@ -134,12 +138,13 @@ const App = () => {
 
   return (
     <>
-      {window.WebGL2RenderingContext ? (
-        <Milkdrop audioElement={audioElement} />
-      ) : (
-        <AudioMotion audioElement={audioElement} />
-      )}
+      <Visualizer audioElement={audioElement} selectedVisualizer={visualizer} />
       <header className={styles.header}>
+        <VisualizerSelector
+          className={styles.visualizerSelector}
+          visualizer={visualizer}
+          setVisualizer={setVisualizer}
+        />
         <About />
       </header>
       <main>

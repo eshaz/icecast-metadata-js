@@ -1,6 +1,5 @@
 .header,
 .footer {
-  pointer-events: none;
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -16,4 +15,9 @@
 
 .footer {
   bottom: 0;
+}
+
+.visualizerSelector {
+  position: absolute;
+  right: 0;
 }

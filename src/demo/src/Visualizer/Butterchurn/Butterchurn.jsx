@@ -1,22 +1,16 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
-import styles from "./Milkdrop.module.css";
+import styles from "./Butterchurn.module.css";
 
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
 
-const Milkdrop = ({ audioElement }) => {
+const Butterchurn = ({ sourceNode }) => {
   const analyzer = useRef();
   const [visualizer, setVisualizer] = useState();
-  const [audioContext] = useState(
-    new (window.AudioContext || window.webkitAudioContext)()
-  );
 
   useEffect(() => {
-    const source = audioContext.createMediaElementSource(audioElement);
-    source.connect(audioContext.destination);
-
-    const milkdrop = butterchurn.createVisualizer(
-      source.context, //audioContext,
+    const visualizer = butterchurn.createVisualizer(
+      sourceNode.context, //audioContext,
       analyzer.current,
       {
         width: window.innerWidth,
@@ -26,11 +20,9 @@ const Milkdrop = ({ audioElement }) => {
       }
     );
 
-    milkdrop.connectAudio(source);
-
+    visualizer.connectAudio(sourceNode);
     const presets = butterchurnPresets.getPresets();
-
-    setVisualizer(milkdrop);
+    setVisualizer(visualizer);
 
     const presetsList = [
       //"Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
@@ -49,25 +41,22 @@ const Milkdrop = ({ audioElement }) => {
       //"martin - mandelbox explorer - high speed demo version", // low key
     ];
 
-    milkdrop.loadPreset(presets[presetsList[1]]);
+    visualizer.loadPreset(presets[presetsList[1]]);
+
+    let running = true;
 
     const step = () => {
-      milkdrop.render();
-      requestAnimationFrame(step);
+      visualizer.render();
+      if (running) requestAnimationFrame(step);
     };
 
     step();
 
     return () => {
-      source.disconnect();
+      running = false;
+      visualizer.disconnectAudio(sourceNode);
     };
-  }, [audioContext, audioElement]);
-
-  const unlockContext = () => {
-    if (audioContext.state === "suspended") audioContext.resume();
-    window.removeEventListener("click", unlockContext);
-  };
-  window.addEventListener("click", unlockContext);
+  }, [sourceNode]);
 
   useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
@@ -83,4 +72,4 @@ const Milkdrop = ({ audioElement }) => {
   return <canvas className={styles.spectrum} ref={analyzer}></canvas>;
 };
 
-export default Milkdrop;
+export default Butterchurn;
