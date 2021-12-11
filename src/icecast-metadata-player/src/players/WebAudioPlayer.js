@@ -210,12 +210,12 @@ export default class WebAudioPlayer extends Player {
       source.start(decodeDuration);
 
       if (!this._firedPlay) {
-        if (this._bufferLength <= this._currentTime) {
+        if (this._bufferLength <= this.metadataTimestamp) {
           this._icecast[fireEvent](event.PLAY);
           this._startTime = Date.now();
           this._firedPlay = true;
         } else {
-          this._icecast[fireEvent](event.BUFFER, this._currentTime / 1000);
+          this._icecast[fireEvent](event.BUFFER, this.metadataTimestamp);
         }
       }
 

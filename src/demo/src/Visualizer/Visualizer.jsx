@@ -5,11 +5,11 @@ import Butterchurn from "./Butterchurn/Butterchurn";
 // eslint-disable-next-line
 import style from "./Visualizer.module.css";
 
-export const visualizers = ["audiomotion", "butterchurn", "none"];
+export const visualizers = ["butterchurn", "audiomotion", "none"];
 
 export const VisualizerSelector = ({
   className,
-  visualizer = "audiomotion",
+  visualizer,
   setVisualizer,
 }) => (
   <div className={className} title="Select a visualizer">

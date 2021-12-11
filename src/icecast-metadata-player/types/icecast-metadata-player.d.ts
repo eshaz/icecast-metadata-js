@@ -290,6 +290,7 @@ declare module "icecast-metadata-player" {
 
     addEventListener(
       type:
+        | "buffer"
         | "play"
         | "load"
         | "streamstart"
@@ -309,6 +310,7 @@ declare module "icecast-metadata-player" {
 
     removeEventListener(
       type:
+        | "buffer"
         | "play"
         | "load"
         | "streamstart"

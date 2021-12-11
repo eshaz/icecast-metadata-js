@@ -121,7 +121,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       // options
       [endpoint]: url,
       [audioElement]: options.audioElement || new Audio(),
-      [bufferLength]: (options.bufferLength || 1) * 1000,
+      [bufferLength]: options.bufferLength || 1,
       [icyMetaInt]: options.icyMetaInt,
       [icyCharacterEncoding]: options.icyCharacterEncoding,
       [icyDetectionTimeout]: options.icyDetectionTimeout,
