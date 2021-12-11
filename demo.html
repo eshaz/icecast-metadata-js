@@ -10,7 +10,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.11.1.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.11.3.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.1.1.min.js"></script>
     <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <link
@@ -78,6 +78,10 @@
       }
       .options-group {
         justify-content: center;
+      }
+      .retry-group input {
+        width: 40px;
+        margin: 0;
       }
       .play-pause-button {
         padding: 0;
@@ -167,6 +171,31 @@
         JSON.stringify(json, null, 1)
           .replace(/\{\n|\n\}/g, "")
           .replace(/^ "|\n "/g, '\n"');
+
+      const icyOptionsFormControl = (el) => {
+        const icyOpts = [
+          document.getElementById("icyDetectionTimeout"),
+          document.getElementById("icyCharacterEncoding"),
+        ];
+        if (el.checked) {
+          icyOpts.forEach((e) => (e.disabled = false));
+        } else {
+          icyOpts.forEach((e) => (e.disabled = true));
+        }
+      };
+
+      const retryOptionsFormControl = (el) => {
+        const retryOpts = [
+          document.getElementById("retryDelayRate"),
+          document.getElementById("retryDelayMin"),
+          document.getElementById("retryDelayMax"),
+        ];
+        if (el.value === "0") {
+          retryOpts.forEach((e) => (e.disabled = true));
+        } else {
+          retryOpts.forEach((e) => (e.disabled = false));
+        }
+      };
 
       const bodyLoad = async () => {
         document.getElementById("isCodecUpdateEnabled").checked = true;
@@ -289,6 +318,9 @@
             new FormData(playerForm).entries()
           );
           statsFormData = Object.fromEntries(new FormData(statsForm).entries());
+
+          icyOptionsFormControl(document.getElementById("icy"));
+          retryOptionsFormControl(document.getElementById("retryTimeout"));
 
           getIcecastMetadataStats();
         });
@@ -450,7 +482,12 @@
                       <legend>Metadata Types</legend>
                       <div title="Check to enable ICY metadata." class="row">
                         <label for="icy">ICY</label>
-                        <input id="icy" name="icy" type="checkbox" />
+                        <input
+                          id="icy"
+                          name="icy"
+                          type="checkbox"
+                          onchange="icyOptionsFormControl(this)"
+                        />
                       </div>
                       <div title="Check to enable Ogg metadata." class="row">
                         <label for="ogg">Ogg</label>
@@ -463,80 +500,191 @@
                       style="flex-grow: 1; justify-content: space-evenly"
                       title="Select the first playback method to try when instantiating IcecastMetadataPlayer. See the below table for playback method compatibility. If the selected playback method does not work, the next working method will be automatically chosen."
                     >
-                      <legend>Playback Method</legend>
-                      <div
-                        title="The preferred playback method to use."
-                        class="column"
-                      >
-                        <label for="playbackMethod">Preferred</label>
-                        <select id="playbackMethod" name="playbackMethod">
-                          <option value="mediasource">mediasource</option>
-                          <option value="webaudio">webaudio</option>
-                          <option value="html5">html5</option>
-                        </select>
-                      </div>
-                      <div
-                        title="The actual playback method being used."
-                        class="column"
-                      >
-                        <label for="actualPlaybackMethod">Actual</label>
-                        <input
-                          size="9"
-                          name="actualPlaybackMethod"
-                          id="actualPlaybackMethod"
-                          disabled
-                        />
-                      </div>
+                      <legend>Playback Method / Buffering</legend>
+                      <table>
+                        <tr title="The preferred playback method to use.">
+                          <td>
+                            <label for="playbackMethod">Preferred Method</label>
+                          </td>
+                          <td>
+                            <select
+                              style="width: 8.6em; margin: 0"
+                              id="playbackMethod"
+                              name="playbackMethod"
+                            >
+                              <option value="mediasource">mediasource</option>
+                              <option value="webaudio">webaudio</option>
+                              <option value="html5">html5</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr title="The actual playback method being used.">
+                          <td>
+                            <label for="actualPlaybackMethod"
+                              >Actual Method</label
+                            >
+                          </td>
+                          <td>
+                            <input
+                              style="width: 8em; margin: 0"
+                              name="actualPlaybackMethod"
+                              id="actualPlaybackMethod"
+                              disabled
+                            />
+                          </td>
+                        </tr>
+                        <tr
+                          title="Number of seconds to buffer before starting playback."
+                        >
+                          <td>
+                            <label for="bufferLength">Buffer</label>
+                          </td>
+                          <td>
+                            <input
+                              style="width: 8em; margin: 0"
+                              type="number"
+                              id="bufferLength"
+                              name="bufferLength"
+                              value="1"
+                            />
+                          </td>
+                        </tr>
+                      </table>
                     </fieldset>
                   </div>
                   <div class="row">
-                    <fieldset
-                      name="icy-metadata-options"
-                      class="row"
-                      style="flex-grow: 1; justify-content: space-evenly"
-                    >
+                    <fieldset name="icy-metadata-options" class="row">
                       <legend>ICY Metadata Options</legend>
-                      <div
-                        title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response.
-Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
-                        class="column"
-                      >
-                        <label for="icyDetectionTimeout"
-                          >Detection Timeout</label
+                      <table>
+                        <tr
+                          title="The detected metadata interval either from the Icy-MetaInt header value or the value detected in the stream."
                         >
-                        <input
-                          size="10"
-                          type="number"
-                          id="icyDetectionTimeout"
-                          name="icyDetectionTimeout"
-                          value="2000"
-                        />
-                      </div>
-                      <div
-                        title="The character encoding used to decode the ICY metadata string"
-                        class="column"
-                      >
-                        <label for="icyCharacterEncoding"
-                          >Character Encoding</label
+                          <td>
+                            <label for="icyMetaInt">Metadata Interval</label>
+                          </td>
+                          <td>
+                            <input
+                              style="width: 5em"
+                              name="icyMetaInt"
+                              id="icyMetaInt"
+                              disabled
+                            />
+                          </td>
+                        </tr>
+                        <tr
+                          title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response. Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
                         >
-                        <input
-                          size="10"
-                          name="icyCharacterEncoding"
-                          id="icyCharacterEncoding"
-                        />
-                      </div>
-                      <div
-                        title="The detected metadata interval either from the Icy-MetaInt header value or the value detected in the stream."
-                        class="column"
-                      >
-                        <label for="icyMetaInt">Metadata Interval</label>
-                        <input
-                          size="10"
-                          name="icyMetaInt"
-                          id="icyMetaInt"
-                          disabled
-                        />
-                      </div>
+                          <td>
+                            <label for="icyDetectionTimeout"
+                              >Detection Timeout</label
+                            >
+                          </td>
+                          <td>
+                            <input
+                              style="width: 5em"
+                              type="number"
+                              id="icyDetectionTimeout"
+                              name="icyDetectionTimeout"
+                              value="2000"
+                              step="500"
+                              min="0"
+                            />
+                          </td>
+                        </tr>
+                        <tr
+                          title="The character encoding used to decode the ICY metadata string"
+                        >
+                          <td>
+                            <label for="icyCharacterEncoding"
+                              >Character Encoding</label
+                            >
+                          </td>
+                          <td>
+                            <input
+                              style="width: 5em"
+                              name="icyCharacterEncoding"
+                              id="icyCharacterEncoding"
+                            />
+                          </td>
+                        </tr>
+                      </table>
+                    </fieldset>
+                    <fieldset
+                      title="When the connection is lost, reconnects will be attempted at a frequency controlled by an exponential backoff curve."
+                      name="retry-delay"
+                      class="row retry-group"
+                    >
+                      <legend>Retry Options</legend>
+                      <table>
+                        <tr
+                          title="Number of seconds to wait before giving up on retries. Set to 0 to disable retries."
+                        >
+                          <td>
+                            <label for="retryTimeout">Timeout</label>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              id="retryTimeout"
+                              name="retryTimeout"
+                              value="30"
+                              min="0"
+                              onchange="retryOptionsFormControl(this)"
+                            />
+                          </td>
+                        </tr>
+                        <tr
+                          title="Percentage of seconds to increment after each retry (how quickly to increase the back-off)"
+                        >
+                          <td>
+                            <label for="retryDelayRate">Delay Rate</label>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              id="retryDelayRate"
+                              name="retryDelayRate"
+                              value="0.1"
+                              step="0.1"
+                              min="0"
+                            />
+                          </td>
+                        </tr>
+                        <tr
+                          title="Minimum number of seconds between retries (start of the exponential back-off curve)"
+                        >
+                          <td>
+                            <label for="retryDelayMin">Delay Min</label>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              id="retryDelayMin"
+                              name="retryDelayMin"
+                              value="0.5"
+                              step="0.1"
+                              min="0"
+                            />
+                          </td>
+                        </tr>
+                        <tr
+                          title="Maximum number of seconds between retries (end of the exponential back-off curve)"
+                        >
+                          <td>
+                            <label for="retryDelayMax">Delay Max</label>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              id="retryDelayMax"
+                              name="retryDelayMax"
+                              value="2"
+                              step="0.1"
+                              min="0"
+                            />
+                          </td>
+                        </tr>
+                      </table>
                     </fieldset>
                   </div>
                 </div>
@@ -651,7 +799,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           <li>
             Download the
             <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.11.1.min.js"
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.11.3.min.js"
               >latest build</a
             >, or install via
             <a href="https://www.npmjs.com/package/icecast-metadata-player"
@@ -674,7 +822,7 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.11.1.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.11.3.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -1081,12 +1229,22 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
         "isCodecUpdateEnabled"
       ).checked;
 
+      options = {
+        metadataTypes,
+        icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
+        icyCharacterEncoding: playerFormData.icyCharacterEncoding,
+        bufferLength: parseInt(playerFormData.bufferLength),
+        retryTimeout: parseInt(playerFormData.retryTimeout),
+        retryDelayRate: parseInt(playerFormData.retryDelayRate),
+        retryDelayMin: parseInt(playerFormData.retryDelayMin),
+        retryDelayMax: parseInt(playerFormData.retryDelayMax),
+        playbackMethod: playerFormData.playbackMethod,
+      };
+
       icecastMetadataPlayer = new IcecastMetadataPlayer(
         playerFormData.endpoint,
         {
-          metadataTypes,
-          icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
-          icyCharacterEncoding: playerFormData.icyCharacterEncoding,
+          ...options,
           enableLogging: true,
           onStreamStart,
           onPlay,
@@ -1095,7 +1253,6 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
           onMetadataEnqueue,
           onCodecUpdate: enableCodecUpdate && onCodecUpdate,
           onError,
-          playbackMethod: playerFormData.playbackMethod,
         }
       );
 
@@ -1105,9 +1262,8 @@ Note: If a stream actually contains ICY metadata and times out, there will be er
 
       sendCastMessage({
         command: "change station",
-        metadataTypes,
         enableCodecUpdate,
-        ...playerFormData,
+        ...options,
       });
     };
 
