@@ -10,7 +10,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.11.2.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.11.3.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.1.1.min.js"></script>
     <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <link
@@ -572,8 +572,7 @@
                           </td>
                         </tr>
                         <tr
-                          title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response.
-                        Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
+                          title="The time in milliseconds to wait before giving up on detecting ICY metadata in the response. Note: If a stream actually contains ICY metadata and times out, there will be errors in the decoded audio."
                         >
                           <td>
                             <label for="icyDetectionTimeout"
@@ -800,7 +799,7 @@
           <li>
             Download the
             <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.11.2.min.js"
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.11.3.min.js"
               >latest build</a
             >, or install via
             <a href="https://www.npmjs.com/package/icecast-metadata-player"
@@ -823,7 +822,7 @@
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.11.2.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.11.3.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -1266,8 +1265,6 @@
         enableCodecUpdate,
         ...options,
       });
-
-      console.log(options);
     };
 
     document.getElementById("play").addEventListener("click", () => {
