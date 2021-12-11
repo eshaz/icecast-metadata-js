@@ -12,7 +12,7 @@
     "react-scripts": "^4.0.3"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.0",
+    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "gh-pages": "^3.2.3",
