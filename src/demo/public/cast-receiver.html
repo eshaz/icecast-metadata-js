@@ -186,6 +186,12 @@
         metadataTypes: stationData.metadataTypes,
         icyDetectionTimeout: stationData.icyDetectionTimeout,
         icyCharacterEncoding: stationData.icyCharacterEncoding,
+        bufferLength: stationData.bufferLength,
+        retryTimeout: stationData.retryTimeout,
+        retryDelayRate: stationData.retryDelayRate,
+        retryDelayMin: stationData.retryDelayMin,
+        retryDelayMax: stationData.retryDelayMax,
+        playbackMethod: stationData.playbackMethod,
         enableLogging: true,
         onStreamStart,
         onPlay,
@@ -194,7 +200,6 @@
         onMetadataEnqueue,
         onCodecUpdate: stationData.enableCodecUpdate && onCodecUpdate,
         onError,
-        playbackMethod: stationData.playbackMethod,
       });
 
       icecastMetadataPlayer.play();
