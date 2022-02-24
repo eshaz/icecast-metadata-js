@@ -4,13 +4,6 @@ object-assign
 @license MIT
 */
 
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <http://feross.org>
- * @license  MIT
- */
-
 /*! ../../utils */
 
 /*! ../audio/audioLevels */
@@ -76,8 +69,6 @@ object-assign
 /*! ecma-proposal-math-extensions */
 
 /*! exports provided: default */
-
-/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*! no static exports found */
 
@@ -235,4 +226,13 @@ object-assign
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ */
+
+/**!
+ * audioMotion-analyzer
+ * High-resolution real-time graphic audio spectrum analyzer JS module
+ *
+ * @version 3.6.0
+ * @author  Henrique Avila Vianna <hvianna@gmail.com> <https://henriquevianna.com>
+ * @license AGPL-3.0-or-later
  */
