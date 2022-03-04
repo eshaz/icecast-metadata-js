@@ -178,7 +178,11 @@ export default class IcecastMetadataPlayer extends EventClass {
         );
 
         if (this.state !== state.RETRYING) {
-          p.get(this)[audioElement].pause();
+          try {
+            p.get(this)[audioElement].pause();
+          } catch (e) {
+            p.get(this)[onAudioError](e);
+          }
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
           p.get(this)[codecUpdateQueue].purgeMetadataQueue();
           p.get(this)[playerResetPromise] = p
@@ -206,8 +210,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           this[fireEvent](
             event.ERROR,
             "The audio element encountered an error",
-            errors[e.target.error.code] || `Code: ${e.target.error.code}`,
-            `Message: ${e.target.error.message}`
+            errors[e?.target?.error?.code] || e,
           );
 
           this.stop();
@@ -224,7 +227,9 @@ export default class IcecastMetadataPlayer extends EventClass {
             this.state !== state.STOPPING &&
             this.state !== state.STOPPED)
         ) {
-          audio.play();
+          audio.play().catch((e) => {
+            p.get(this)[onAudioError](e);
+          });
           this[playerState] = state.PLAYING;
         }
       },
