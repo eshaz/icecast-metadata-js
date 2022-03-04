@@ -439,4 +439,10 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 
 > The audio element encountered an error
 
-* An error occurred while the browser was playing or decoding the audio. This may occur if your browser doesn't support a codec.
+* An error occurred while the browser was playing or decoding the audio. This may occur if your browser doesn't support a codec or if there is a problem with the Icecast stream.
+
+> NotAllowedError: The play method is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
+
+> NotAllowedError: play() failed because the user didn't interact with the document first. https://goo.gl/xX8pDD
+
+* This error occurs when attempting to call `play()` without it being triggered by a user interaction on the web page. See [#107](https://github.com/eshaz/icecast-metadata-js/issues/107) and this [guide](https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide) for more information.
