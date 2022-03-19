@@ -1,6 +1,0 @@
-node_modules
-*.log
-src/**.mp3
-src/**.cue
-test/temp/*
-dist
