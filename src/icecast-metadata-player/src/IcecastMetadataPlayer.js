@@ -206,12 +206,14 @@ export default class IcecastMetadataPlayer extends EventClass {
           5: " MEDIA_ERR_ENCRYPTED",
         };
 
+        const error = e?.target?.error || e;
+
         if (this.state !== state.RETRYING) {
           this[fireEvent](
             event.ERROR,
-            "The audio element encountered an error." +
-              errors[e?.target?.error?.code] || "",
-            e
+            "The audio element encountered an error." + errors[error?.code] ||
+              "",
+            error
           );
 
           this.stop();
