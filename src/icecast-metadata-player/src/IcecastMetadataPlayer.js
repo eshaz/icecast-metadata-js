@@ -211,8 +211,8 @@ export default class IcecastMetadataPlayer extends EventClass {
         if (this.state !== state.RETRYING) {
           this[fireEvent](
             event.ERROR,
-            "The audio element encountered an error." + (errors[error?.code] ||
-              ""),
+            "The audio element encountered an error." +
+              (errors[error?.code] || ""),
             error
           );
 
