@@ -362,7 +362,7 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 
 #### Error / Warning
 * `onWarn(message, ...messages)` Called with message(s) when a warning condition is met.
-* `onError(message, ...messages)` Called with message(s) when a fallback or error condition is met.
+* `onError(message, error)` Called with a message and an Error object when an exception occurs when a fallback or error condition is met.
 
 #### Informational
 * `onCodecUpdate(codecInformation, updateTimestamp)` Called with audio codec information whenever there is a change. This callback is synchronized with the audio.
