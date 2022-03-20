@@ -72,14 +72,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.11.4.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.11.5.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```html
-   <script src="icecast-metadata-player-1.11.4.min.js"></script>
+   <script src="icecast-metadata-player-1.11.5.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -362,7 +362,7 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 
 #### Error / Warning
 * `onWarn(message, ...messages)` Called with message(s) when a warning condition is met.
-* `onError(message, ...messages)` Called with message(s) when a fallback or error condition is met.
+* `onError(message, error)` Called with a message and an Error object when an exception occurs when a fallback or error condition is met.
 
 #### Informational
 * `onCodecUpdate(codecInformation, updateTimestamp)` Called with audio codec information whenever there is a change. This callback is synchronized with the audio.
@@ -388,7 +388,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.11.4.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.11.4.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.11.5.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.11.5.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Common Issues
@@ -439,4 +439,10 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 
 > The audio element encountered an error
 
-* An error occurred while the browser was playing or decoding the audio. This may occur if your browser doesn't support a codec.
+* An error occurred while the browser was playing or decoding the audio. This may occur if your browser doesn't support a codec or if there is a problem with the Icecast stream.
+
+> NotAllowedError: The play method is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
+
+> NotAllowedError: play() failed because the user didn't interact with the document first. https://goo.gl/xX8pDD
+
+* This error occurs when attempting to call `play()` without it being triggered by a user interaction on the web page. See [#107](https://github.com/eshaz/icecast-metadata-js/issues/107) and this [guide](https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide) for more information.

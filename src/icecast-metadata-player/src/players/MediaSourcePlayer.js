@@ -129,8 +129,8 @@ export default class MediaSourcePlayer extends Player {
       if (!MediaSource.isTypeSupported(wrapper.mimeType)) {
         this._icecast[fireEvent](
           event.ERROR,
-          `Media Source Extensions API in your browser does not support ${inputMimeType} or ${wrapper.mimeType}`,
-          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+          `Media Source Extensions API in your browser does not support ${inputMimeType} or ${wrapper.mimeType}.` +
+            "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
         );
         throw new Error(`Unsupported Media Source Codec ${wrapper.mimeType}`);
       }

@@ -160,8 +160,8 @@ declare module "icecast-metadata-player" {
     /** Called with message(s) when a warning condition is met */
     onWarn?: (...messages: [string]) => void;
 
-    /** Called with message(s) when a fallback or error condition is met */
-    onError?: (...messages: [string]) => void;
+    /** Called with a message and an Error object when a fallback or error condition is met */
+    onError?: (message: string, error?: Error) => void;
   }
 
   /** IcecastMetadataPlayer `options` parameter when there is icy metadata */

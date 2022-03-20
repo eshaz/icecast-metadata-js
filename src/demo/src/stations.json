@@ -348,9 +348,9 @@
     "link": "https://kaaosradio.fi/",
     "endpoints": [
       {
-        "endpoint": "https://stream.kaaosradio.fi/stream2",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
+        "endpoint": "https://stream.kaaosradio.fi:8001/stream2",
+        "codec": "MP3",
+        "metadataTypes": [],
         "statsSources": ["ogg", "icestats"]
       }
     ]
@@ -361,9 +361,9 @@
     "link": "https://kaaosradio.fi/",
     "endpoints": [
       {
-        "endpoint": "https://stream.kaaosradio.fi/chill",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
+        "endpoint": "https://stream.kaaosradio.fi:8001/chill",
+        "codec": "MP3",
+        "metadataTypes": [],
         "statsSources": ["ogg", "icestats"]
       }
     ]
@@ -374,9 +374,9 @@
     "link": "https://kaaosradio.fi/",
     "endpoints": [
       {
-        "endpoint": "https://stream.kaaosradio.fi/chip",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
+        "endpoint": "https://stream.kaaosradio.fi:8001/chip",
+        "codec": "MP3",
+        "metadataTypes": [],
         "statsSources": ["ogg", "icestats"]
       }
     ]

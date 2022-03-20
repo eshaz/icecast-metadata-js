@@ -178,7 +178,11 @@ export default class IcecastMetadataPlayer extends EventClass {
         );
 
         if (this.state !== state.RETRYING) {
-          p.get(this)[audioElement].pause();
+          try {
+            p.get(this)[audioElement].pause();
+          } catch (e) {
+            p.get(this)[onAudioError](e);
+          }
           p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
           p.get(this)[codecUpdateQueue].purgeMetadataQueue();
           p.get(this)[playerResetPromise] = p
@@ -195,19 +199,21 @@ export default class IcecastMetadataPlayer extends EventClass {
       },
       [onAudioError]: (e) => {
         const errors = {
-          1: "MEDIA_ERR_ABORTED The fetching of the associated resource was aborted by the user's request.",
-          2: "MEDIA_ERR_NETWORK Some kind of network error occurred which prevented the media from being successfully fetched, despite having previously been available.",
-          3: "MEDIA_ERR_DECODE Despite having previously been determined to be usable, an error occurred while trying to decode the media resource, resulting in an error.",
-          4: "MEDIA_ERR_SRC_NOT_SUPPORTED The associated resource or media provider object (such as a MediaStream) has been found to be unsuitable.",
-          5: "MEDIA_ERR_ENCRYPTED",
+          1: " MEDIA_ERR_ABORTED The fetching of the associated resource was aborted by the user's request.",
+          2: " MEDIA_ERR_NETWORK Some kind of network error occurred which prevented the media from being successfully fetched, despite having previously been available.",
+          3: " MEDIA_ERR_DECODE Despite having previously been determined to be usable, an error occurred while trying to decode the media resource, resulting in an error.",
+          4: " MEDIA_ERR_SRC_NOT_SUPPORTED The associated resource or media provider object (such as a MediaStream) has been found to be unsuitable.",
+          5: " MEDIA_ERR_ENCRYPTED",
         };
+
+        const error = e?.target?.error || e;
 
         if (this.state !== state.RETRYING) {
           this[fireEvent](
             event.ERROR,
-            "The audio element encountered an error",
-            errors[e.target.error.code] || `Code: ${e.target.error.code}`,
-            `Message: ${e.target.error.message}`
+            "The audio element encountered an error." +
+              (errors[error?.code] || ""),
+            error
           );
 
           this.stop();
@@ -224,7 +230,9 @@ export default class IcecastMetadataPlayer extends EventClass {
             this.state !== state.STOPPING &&
             this.state !== state.STOPPED)
         ) {
-          audio.play();
+          audio.play().catch((e) => {
+            p.get(this)[onAudioError](e);
+          });
           this[playerState] = state.PLAYING;
         }
       },
@@ -343,7 +351,8 @@ export default class IcecastMetadataPlayer extends EventClass {
               ) {
                 this[fireEvent](
                   event.ERROR,
-                  e.message.match(/network|fetch|offline|codec/i) ? e : e.stack
+                  e.message.match(/network|fetch|offline|codec/i) ? e : e.stack,
+                  e
                 );
               }
             }
@@ -407,7 +416,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       (error.message.match(/network|fetch|offline|Error in body stream/i) ||
         error.name === "HTTP Response Error")
     ) {
-      this[fireEvent](event.ERROR, error);
+      this[fireEvent](event.ERROR, error.name, error);
       this[playerState] = state.RETRYING;
       this.addEventListener(event.STREAM_START, p.get(this)[resetPlayback], {
         once: true,
