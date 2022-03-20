@@ -15,10 +15,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const { Writable, PassThrough } = require("stream");
-const IcecastMetadataReader = require("./IcecastMetadataReader");
+import { Writable, PassThrough } from "stream";
+import IcecastMetadataReader from "./IcecastMetadataReader.js";
 
-class IcecastMetadataStream extends Writable {
+export default class IcecastMetadataStream extends Writable {
   /**
    * @description NodeJS streams wrapper for IcecastMetadataReader
    * @param {object} IcecastMetadataStream constructor parameter
@@ -77,5 +77,3 @@ class IcecastMetadataStream extends Writable {
     super.end();
   }
 }
-
-module.exports = IcecastMetadataStream;

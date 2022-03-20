@@ -14,11 +14,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const getArgs = require("./get-args");
-const IcecastMetadataArchiveRecorder = require("./Recorder/IcecastMetadataArchiveRecorder");
-const IcecastMetadataRecorder = require("./Recorder/IcecastMetadataRecorder");
-const path = require("path");
+import getArgs from "./get-args.js";
+import IcecastMetadataArchiveRecorder from "./Recorder/IcecastMetadataArchiveRecorder.js";
+import IcecastMetadataRecorder from "./Recorder/IcecastMetadataRecorder.js";
+import path from "path";
 
+const __dirname = new URL(".", import.meta.url).pathname;
 const recorderInstances = new Map();
 let runningInstances = 0;
 

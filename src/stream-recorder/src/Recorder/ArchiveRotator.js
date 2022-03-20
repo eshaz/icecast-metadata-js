@@ -14,8 +14,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 /**
  * @description Moves files into an archive file path
@@ -24,7 +24,7 @@ const path = require("path");
  * @param {string} ArchiveRotator.archiveDate date to prepend to archive folder
  * @param {Array[string]} ArchiveRotator.filesToArchive filenames to archive
  */
-class ArchiveRotator {
+export default class ArchiveRotator {
   constructor(params) {
     this._archivePath = path.join(params.archivePath, params.archiveDate);
     this._filesToArchive = params.filesToArchive;
@@ -81,5 +81,3 @@ class ArchiveRotator {
     });
   }
 }
-
-module.exports = ArchiveRotator;

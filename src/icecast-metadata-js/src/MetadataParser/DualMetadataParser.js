@@ -15,8 +15,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const IcyMetadataParser = require("./IcyMetadataParser");
-const OggMetadataParser = require("./OggMetadataParser");
+import IcyMetadataParser from "./IcyMetadataParser.js";
+import OggMetadataParser from "./OggMetadataParser.js";
 
 /**
  * @description Parses ICY and OGG metadata from an Icecast stream
@@ -24,7 +24,7 @@ const OggMetadataParser = require("./OggMetadataParser");
  * @see IcecastMetadataReader
  */
 
-class DualMetadataParser {
+export default class DualMetadataParser {
   constructor(params) {
     const { onStream, ...rest } = params;
     this._oggMetadataParser = new OggMetadataParser(params);
@@ -75,5 +75,3 @@ class DualMetadataParser {
     }
   }
 }
-
-module.exports = DualMetadataParser;

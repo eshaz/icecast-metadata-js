@@ -14,13 +14,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const fs = require("fs");
-const path = require("path");
-const fetch = require("node-fetch").default;
-const { AbortController } = require("abort-controller");
-const { IcecastMetadataStream } = require("icecast-metadata-js");
+import fs from "fs";
+import path from "path";
+import fetch from "node-fetch";
+import { AbortController } from "abort-controller";
+import { IcecastMetadataStream } from "icecast-metadata-js";
 
-const CueWriter = require("./CueWriter");
+import CueWriter from "./CueWriter.js";
 
 /**
  * @description Records an Icecast Stream with Metadata into an audio file and a cue file
@@ -32,7 +32,7 @@ const CueWriter = require("./CueWriter");
  * @param {boolean} IcecastMetadataRecorder.prependDate Prepend an ISO date to each cue entry
  * @param {number} [IcecastMetadataRecorder.cueRollover=undefined] Number of metadata updates before creating a new cue file. Use for compatibility with applications such as foobar2000.
  */
-class IcecastMetadataRecorder {
+export default class IcecastMetadataRecorder {
   constructor({
     output,
     name,
@@ -211,5 +211,3 @@ class IcecastMetadataRecorder {
     file && file.end();
   }
 }
-
-module.exports = IcecastMetadataRecorder;

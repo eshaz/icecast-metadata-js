@@ -14,12 +14,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const cron = require("cron-parser");
+import cron from "cron-parser";
 
-const IcecastMetadataRecorder = require("./IcecastMetadataRecorder");
-const ArchiveRotator = require("./ArchiveRotator");
+import IcecastMetadataRecorder from "./IcecastMetadataRecorder.js";
+import ArchiveRotator from "./ArchiveRotator.js";
 
-class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
+export default class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
   constructor(params) {
     super(params);
     this._archivePath = params.archivePath;
@@ -66,5 +66,3 @@ class IcecastMetadataArchiveRecorder extends IcecastMetadataRecorder {
       .then(() => this.record());
   }
 }
-
-module.exports = IcecastMetadataArchiveRecorder;

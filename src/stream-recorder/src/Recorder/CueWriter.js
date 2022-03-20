@@ -14,13 +14,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const fs = require("fs");
-const path = require("path");
-const { Transform } = require("stream");
+import fs from "fs";
+import path from "path";
+import { Transform } from "stream";
 
-const CueBuilder = require("./CueBuilder");
+import CueBuilder from "./CueBuilder.js";
 
-class CueWriter extends Transform {
+export default class CueWriter extends Transform {
   constructor({
     startDate,
     cueRollover,
@@ -169,5 +169,3 @@ class CueWriter extends Transform {
     });
   }
 }
-
-module.exports = CueWriter;

@@ -14,11 +14,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const fs = require("fs");
-const fetch = require("node-fetch");
-const IcecastMetadataRecorder = require("../../src/Recorder/IcecastMetadataRecorder");
+const mockFetch = jest.fn()
+jest.unstable_mockModule("node-fetch", () => ({
+  default: mockFetch
+}));
 
-jest.mock("node-fetch");
+import { jest } from "@jest/globals";
+import fs from "fs";
+import IcecastMetadataRecorder from "../../src/Recorder/IcecastMetadataRecorder.js";
 
 describe("Given the IcecastMetadataRecorder", () => {
   const realDate = Date.now;
@@ -52,7 +55,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       `${params.expectedPath}${params.expectedFileName}.${params.expectedFileFormat}.raw`
     );
 
-    fetch.mockResolvedValue({ headers, body });
+    mockFetch.mockResolvedValue({ headers, body });
 
     metadataRecorder = new IcecastMetadataRecorder({
       output: `${params.actualPath}${params.expectedFileName}.${params.expectedFileFormat}`,

@@ -1,6 +1,7 @@
-const fs = require("fs").promises;
-const IcecastMetadataReader = require("../src/IcecastMetadataReader");
-const { readChunk, readChunks, concatAudio } = require("./utils");
+import fs from "fs/promises";
+import { jest } from "@jest/globals";
+import { IcecastMetadataReader } from "icecast-metadata-js";
+import { readChunk, readChunks, concatAudio } from "./utils";
 
 const DATA_PATH = "../../test/data/record/";
 

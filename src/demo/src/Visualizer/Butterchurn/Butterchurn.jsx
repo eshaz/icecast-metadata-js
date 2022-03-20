@@ -7,6 +7,24 @@ import butterchurnPresets from "butterchurn-presets";
 const Butterchurn = ({ sourceNode }) => {
   const analyzer = useRef();
   const [visualizer, setVisualizer] = useState();
+  const [preset, setPreset] = useState(0);
+
+  const presetsList = [
+    "Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
+    "cope + martin - mother-of-pearl",
+    "fiShbRaiN + Flexi - witchcraft 2.0",
+    "Flexi + Martin - cascading decay swing",
+    "Flexi + stahlregen - jelly showoff parade",
+    "flexi - bouncing balls [double mindblob neon mix]",
+    "Flexi - mindblob [shiny mix]",
+    "Flexi - predator-prey-spirals",
+    "Flexi - truly soft piece of software - this is generic texturing (Jelly) ", // good
+    "Flexi, fishbrain, Geiss + Martin - tokamak witchery", // too bright for text
+    "Flexi, martin + geiss - dedicated to the sherwin maxawow", // good but too active
+    "Geiss - Cauldron - painterly 2 (saturation remix)", // good
+    "martin - castle in the air", // low key
+    "martin - mandelbox explorer - high speed demo version", // low key
+  ];
 
   useEffect(() => {
     if (sourceNode) {
@@ -25,24 +43,7 @@ const Butterchurn = ({ sourceNode }) => {
       const presets = butterchurnPresets.getPresets();
       setVisualizer(visualizer);
 
-      const presetsList = [
-        //"Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
-        //"cope + martin - mother-of-pearl",
-        //"fiShbRaiN + Flexi - witchcraft 2.0",
-        //"Flexi + Martin - cascading decay swing",
-        //"Flexi + stahlregen - jelly showoff parade",
-        //"flexi - bouncing balls [double mindblob neon mix]",
-        //"Flexi - mindblob [shiny mix]",
-        //"Flexi - predator-prey-spirals",
-        "Flexi - truly soft piece of software - this is generic texturing (Jelly) ", // good
-        //"Flexi, fishbrain, Geiss + Martin - tokamak witchery", // too bright for text
-        //"Flexi, martin + geiss - dedicated to the sherwin maxawow", // good but too active
-        "Geiss - Cauldron - painterly 2 (saturation remix)", // good
-        //"martin - castle in the air", // low key
-        //"martin - mandelbox explorer - high speed demo version", // low key
-      ];
-
-      visualizer.loadPreset(presets[presetsList[1]]);
+      visualizer.loadPreset(presets[presetsList[11]]);
 
       let running = true;
 
@@ -70,6 +71,14 @@ const Butterchurn = ({ sourceNode }) => {
     resizeObserver.observe(analyzer.current);
     return () => resizeObserver.disconnect();
   }, [visualizer]);
+
+  /*useEffect(() => {
+    window.addEventListener('keydown', () => {});
+  
+    return () => {
+      window.removeEventListener('keydown', handleUserKeyPress);
+    };
+  }, []);*/
 
   return <canvas className={styles.spectrum} ref={analyzer}></canvas>;
 };

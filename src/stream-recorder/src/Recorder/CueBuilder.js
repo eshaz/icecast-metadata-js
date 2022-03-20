@@ -50,7 +50,7 @@ const supportedTrackEntries = [
   FILE,
 ];
 
-class CueBuilder {
+export default class CueBuilder {
   /**
    * @description Generates a CD cue file based on the SCSI-3 Multimedia Commands specification
    * @param {Object} entries Key-Value pairs to add as entries to the top of the cue file
@@ -163,5 +163,3 @@ class CueBuilder {
       .join(":");
   }
 }
-
-module.exports = CueBuilder;
