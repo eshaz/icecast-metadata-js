@@ -14,18 +14,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const fs = require("fs");
-const fetch = require("node-fetch");
-const IcecastMetadataRecorder = require("../../src/Recorder/IcecastMetadataRecorder");
-
-jest.mock("node-fetch");
+import { jest } from "@jest/globals";
+import fs from "fs";
+import IcecastMetadataRecorder from "../../src/Recorder/IcecastMetadataRecorder.js";
 
 describe("Given the IcecastMetadataRecorder", () => {
   const realDate = Date.now;
-  let metadataRecorder;
+  let metadataRecorder, fetch;
 
   beforeAll(() => {
     global.Date.now = jest.fn(() => 1596057371222);
+    fetch = jest.fn();
   });
 
   afterAll(() => {
@@ -61,6 +60,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       name: params.expectedStreamTitle,
       endpoint: "https://example.com",
       cueRollover: params.expectedCueRollover,
+      fetch,
     });
 
     metadataRecorder.record().then(() => done());

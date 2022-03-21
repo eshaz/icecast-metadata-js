@@ -15,19 +15,18 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const Decoder = globalThis.TextDecoder;
-const MetadataParser = require("./MetadataParser");
+import MetadataParser from "./MetadataParser.js";
 
 /**
  * @description Parses OGG metadata from an Icecast stream
  * @protected
  * @see IcecastMetadataReader
  */
-class OggMetadataParser extends MetadataParser {
+export default class OggMetadataParser extends MetadataParser {
   constructor(params) {
     super(params);
 
-    this._decoder = new Decoder("utf-8");
+    this._decoder = new globalThis.TextDecoder("utf-8");
     this._generator = this._oggParser();
     this._generator.next();
     this._isContinuePacket = false;
@@ -203,5 +202,3 @@ class OggMetadataParser extends MetadataParser {
     );
   }
 }
-
-module.exports = OggMetadataParser;

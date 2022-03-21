@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const Stats = require("./Stats");
+import Stats from "./Stats.js";
 
 const noOp = () => {};
 
@@ -25,7 +25,7 @@ const noOp = () => {};
  * @see IcecastMetadataReader
  */
 
-class MetadataParser {
+export default class MetadataParser {
   constructor(params) {
     this._remainingData = 0;
     this._currentPosition = 0;
@@ -199,5 +199,3 @@ class MetadataParser {
     return data;
   }
 }
-
-module.exports = MetadataParser;

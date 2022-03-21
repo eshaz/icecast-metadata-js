@@ -1,4 +1,4 @@
-const CueBuilder = require("../../src/Recorder/CueBuilder");
+import CueBuilder from "../../src/Recorder/CueBuilder.js";
 
 describe("Cue Builder", () => {
   describe("Start Cue File", () => {

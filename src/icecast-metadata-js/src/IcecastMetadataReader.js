@@ -15,12 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const MetadataParser = require("./MetadataParser/MetadataParser");
-const IcyMetadataParser = require("./MetadataParser/IcyMetadataParser");
-const OggMetadataParser = require("./MetadataParser/OggMetadataParser");
-const DualMetadataParser = require("./MetadataParser/DualMetadataParser");
+import MetadataParser from "./MetadataParser/MetadataParser.js";
+import IcyMetadataParser from "./MetadataParser/IcyMetadataParser.js";
+import OggMetadataParser from "./MetadataParser/OggMetadataParser.js";
+import DualMetadataParser from "./MetadataParser/DualMetadataParser.js";
 
-class IcecastMetadataReader {
+export default class IcecastMetadataReader {
   /**
    * @description Splits Icecast raw response into stream bytes and metadata key / value pairs.
    * @param {number} IcecastMetadataReader.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
@@ -110,5 +110,3 @@ class IcecastMetadataReader {
     return this._metadataParser.asyncReadAll(chunk);
   }
 }
-
-module.exports = IcecastMetadataReader;

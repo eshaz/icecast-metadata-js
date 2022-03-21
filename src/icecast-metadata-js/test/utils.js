@@ -41,4 +41,4 @@ const concatAudio = (values) =>
     values.flatMap((value) => value.stream.map(({ stream }) => stream))
   );
 
-module.exports = { readChunk, readChunks, concatAudio };
+export { readChunk, readChunks, concatAudio };

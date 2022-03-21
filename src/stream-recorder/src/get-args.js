@@ -14,9 +14,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const fs = require("fs");
-const argv = require("yargs");
-const cron = require("cron-parser");
+import fs from "fs";
+import yargs from "yargs";
+import cron from "cron-parser";
 
 const exclusive = (obj, a, b) => {
   if (!(obj[a] || obj[b])) {
@@ -65,19 +65,19 @@ const assertCronString = (obj, a) => {
 };
 
 const getArgs = () =>
-  argv
-    .check((argv) => {
+  yargs(process.argv.slice(2))
+    .check((yarg) => {
       // assert exclusive or condition for streams
       const exclusiveValid = ["output", "endpoint"].reduce(
-        (acc, field) => exclusive(argv, "streams", field),
+        (acc, field) => exclusive(yarg, "streams", field),
         false
       );
 
       // assert per stream options
-      if (argv.streams) {
-        assertArray(argv, "streams");
+      if (yarg.streams) {
+        assertArray(yarg, "streams");
         // assert each item inside the stream object
-        argv.streams.forEach((stream) => {
+        yarg.streams.forEach((stream) => {
           // required fields
           assertNotNull(stream, "output");
           assertNotNull(stream, "endpoint");
@@ -96,21 +96,21 @@ const getArgs = () =>
       } else {
         // if there is no streams array
         // required fields
-        assertNotNull(argv, "output");
-        assertNotNull(argv, "endpoint");
+        assertNotNull(yarg, "output");
+        assertNotNull(yarg, "endpoint");
         // optional type checks
-        assertType(argv, "output", "string");
-        assertType(argv, "name", "string");
-        assertType(argv, "endpoint", "string");
-        assertType(argv, "metadata-interval", "number");
-        assertType(argv, "bitrate", "number");
+        assertType(yarg, "output", "string");
+        assertType(yarg, "name", "string");
+        assertType(yarg, "endpoint", "string");
+        assertType(yarg, "metadata-interval", "number");
+        assertType(yarg, "bitrate", "number");
       }
 
       // assert global options
-      assertType(argv, "cue-rollover", "number");
-      assertType(argv, "archive-interval", "string");
-      assertType(argv, "archive-path", "string");
-      assertCronString(argv, "archive-interval");
+      assertType(yarg, "cue-rollover", "number");
+      assertType(yarg, "archive-interval", "string");
+      assertType(yarg, "archive-path", "string");
+      assertCronString(yarg, "archive-interval");
 
       return true;
     })
@@ -260,6 +260,6 @@ const getArgs = () =>
     .epilog(
       "For more information, see https://github.com/eshaz/icecast-metadata-js"
     )
-    .wrap(argv.terminalWidth()).argv;
+    .wrap(yargs().terminalWidth()).argv;
 
-module.exports = getArgs;
+export default getArgs;

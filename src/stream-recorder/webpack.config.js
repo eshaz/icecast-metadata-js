@@ -1,18 +1,19 @@
-const TerserPlugin = require("terser-webpack-plugin");
+import TerserPlugin from "terser-webpack-plugin";
 
-module.exports = {
+export default {
+  mode: "production",
   externals: {
-    fs: "commonjs fs",
-    path: "commonjs path",
+    fs: "commonjs2 fs",
+    path: "commonjs2 path",
   },
-  entry: __dirname + "/src/StreamRecorder.js",
+  entry: new URL("src/StreamRecorder.js", import.meta.url).pathname,
   output: {
-    path: __dirname + "/dist",
-    filename: "recorder.js",
+    path: new URL("dist", import.meta.url).pathname,
+    filename: "recorder.cjs",
   },
   optimization: {
     concatenateModules: false,
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         terserOptions: {

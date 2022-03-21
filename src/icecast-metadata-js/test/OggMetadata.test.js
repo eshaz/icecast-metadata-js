@@ -1,6 +1,7 @@
-const fs = require("fs");
-const IcecastMetadataReader = require("../src/IcecastMetadataReader");
-const { readChunk, readChunks, concatAudio } = require("./utils");
+import fs from "fs/promises";
+import { jest } from "@jest/globals";
+import { IcecastMetadataReader } from "icecast-metadata-js";
+import { readChunk, readChunks, concatAudio } from "./utils";
 
 const expectedVorbisMetadata = [
   {
@@ -400,21 +401,25 @@ const expectedIcyFlacMetadata = [
 ];
 
 describe("OGG Metadata Parsing", () => {
-  let rawIcyFlac, icyFlac, oggFlac, oggFlacContinuedPages, oggOpus, oggVorbis;
+  let rawIcyFlac,
+    icyFlac,
+    oggFlac,
+    oggFlacContinuedPages,
+    oggOpus,
+    oggVorbis,
+    mockOnMetadataUpdate;
 
   const flacMetaInt = 524288;
 
   beforeAll(async () => {
     [rawIcyFlac, icyFlac, oggFlac, oggFlacContinuedPages, oggOpus, oggVorbis] =
       await Promise.all([
-        fs.promises.readFile("../../test/data/record/ogg/icy-flac.ogg.raw"),
-        fs.promises.readFile("../../test/data/record/ogg/icy-flac.ogg"),
-        fs.promises.readFile("../../test/data/record/ogg/ogg-flac.ogg"),
-        fs.promises.readFile(
-          "../../test/data/record/ogg/ogg-flac-continued-pages.ogg"
-        ),
-        fs.promises.readFile("../../test/data/record/ogg/opus.ogg"),
-        fs.promises.readFile("../../test/data/record/ogg/vorbis.ogg"),
+        fs.readFile("../../test/data/record/ogg/icy-flac.ogg.raw"),
+        fs.readFile("../../test/data/record/ogg/icy-flac.ogg"),
+        fs.readFile("../../test/data/record/ogg/ogg-flac.ogg"),
+        fs.readFile("../../test/data/record/ogg/ogg-flac-continued-pages.ogg"),
+        fs.readFile("../../test/data/record/ogg/opus.ogg"),
+        fs.readFile("../../test/data/record/ogg/vorbis.ogg"),
       ]);
 
     mockOnMetadataUpdate = jest.fn();

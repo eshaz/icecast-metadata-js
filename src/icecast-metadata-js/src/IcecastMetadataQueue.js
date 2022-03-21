@@ -17,7 +17,7 @@
 
 const noOp = () => {};
 
-class IcecastMetadataQueue {
+export default class IcecastMetadataQueue {
   /**
    * @description Schedules updates up to the millisecond for Icecast Metadata from the response body of an Icecast stream mountpoint
    * @description The accuracy of metadata updates is a direct relationship of the icyMetaInt
@@ -119,5 +119,3 @@ class IcecastMetadataQueue {
     this._onMetadataUpdate(metadata, timestampOffset, timestamp);
   }
 }
-
-module.exports = IcecastMetadataQueue;

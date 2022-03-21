@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-class Stats {
+export default class Stats {
   constructor() {
     this._totalBytesRead = 0;
     this._streamBytesRead = 0;
@@ -70,5 +70,3 @@ class Stats {
     this._currentBytesRemaining += bytes;
   }
 }
-
-module.exports = Stats;

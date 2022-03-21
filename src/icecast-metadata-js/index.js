@@ -1,9 +1,5 @@
-const IcecastMetadataQueue = require("./src/IcecastMetadataQueue");
-const IcecastMetadataReader = require("./src/IcecastMetadataReader");
-const IcecastMetadataStream = require("./src/IcecastMetadataStream");
+import IcecastMetadataQueue from "./src/IcecastMetadataQueue.js";
+import IcecastMetadataReader from "./src/IcecastMetadataReader.js";
+import IcecastMetadataStream from "./src/IcecastMetadataStream.js";
 
-module.exports = {
-  IcecastMetadataQueue,
-  IcecastMetadataReader,
-  IcecastMetadataStream,
-};
+export { IcecastMetadataQueue, IcecastMetadataReader, IcecastMetadataStream };

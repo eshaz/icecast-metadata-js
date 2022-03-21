@@ -15,8 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const Decoder = globalThis.TextDecoder;
-const MetadataParser = require("./MetadataParser");
+import MetadataParser from "./MetadataParser.js";
 
 /**
  * @description Parses ICY metadata from an Icecast stream
@@ -24,7 +23,7 @@ const MetadataParser = require("./MetadataParser");
  * @see IcecastMetadataReader
  */
 
-class IcyMetadataParser extends MetadataParser {
+export default class IcyMetadataParser extends MetadataParser {
   constructor({
     icyMetaInt,
     icyDetectionTimeout = 2000,
@@ -33,7 +32,7 @@ class IcyMetadataParser extends MetadataParser {
   }) {
     super(rest);
 
-    this._decoder = new Decoder(icyCharacterEncoding);
+    this._decoder = new globalThis.TextDecoder(icyCharacterEncoding);
     this._icyMetaInt = icyMetaInt;
     this._icyDetectionTimeout = icyDetectionTimeout;
 
@@ -162,5 +161,3 @@ class IcyMetadataParser extends MetadataParser {
     );
   }
 }
-
-module.exports = IcyMetadataParser;
