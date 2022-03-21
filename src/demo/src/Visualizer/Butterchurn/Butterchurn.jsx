@@ -7,9 +7,7 @@ import butterchurnPresets from "butterchurn-presets";
 const Butterchurn = ({ sourceNode }) => {
   const analyzer = useRef();
   const [visualizer, setVisualizer] = useState();
-  const [preset, setPreset] = useState(0);
-
-  const presetsList = [
+  const [presetsList] = useState([
     "Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
     "cope + martin - mother-of-pearl",
     "fiShbRaiN + Flexi - witchcraft 2.0",
@@ -24,7 +22,8 @@ const Butterchurn = ({ sourceNode }) => {
     "Geiss - Cauldron - painterly 2 (saturation remix)", // good
     "martin - castle in the air", // low key
     "martin - mandelbox explorer - high speed demo version", // low key
-  ];
+  ]);
+  //const [preset, setPreset] = useState(0);
 
   useEffect(() => {
     if (sourceNode) {
@@ -59,7 +58,7 @@ const Butterchurn = ({ sourceNode }) => {
         visualizer.disconnectAudio(sourceNode);
       };
     }
-  }, [sourceNode]);
+  }, [sourceNode, presetsList]);
 
   useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver(() => {

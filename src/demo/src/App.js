@@ -111,7 +111,6 @@ const App = () => {
         enableLogging: true,
         metadataTypes: station.metadataTypes,
         audioElement,
-        playbackMethod: "webaudio"
       });
 
       player.play();
