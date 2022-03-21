@@ -13,23 +13,25 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
+import fetch from "node-fetch";
+import path from "path";
 
 import getArgs from "./get-args.js";
 import IcecastMetadataArchiveRecorder from "./Recorder/IcecastMetadataArchiveRecorder.js";
 import IcecastMetadataRecorder from "./Recorder/IcecastMetadataRecorder.js";
-import path from "path";
 
-const __dirname = new URL(".", import.meta.url).pathname;
 const recorderInstances = new Map();
 let runningInstances = 0;
 
 const getIcecastMetadataArchiveRecorder = (params) =>
   new IcecastMetadataArchiveRecorder({
     archiveInterval: params["archive-interval"],
-    archivePath: path.join(
-      path.isAbsolute(params["archive-path"]) ? "" : __dirname,
-      params["archive-path"]
-    ),
+    archivePath: params["archive-path"]
+      ? path.join(
+          path.isAbsolute(params["archive-path"]) ? "" : process.cwd(),
+          params["archive-path"]
+        )
+      : process.cwd(),
     name: params.name,
     endpoint: params.endpoint,
     cueRollover: params["cue-rollover"],
@@ -38,9 +40,12 @@ const getIcecastMetadataArchiveRecorder = (params) =>
     metadataInterval: params["metadata-interval"],
     bitrate: params["bitrate"],
     output: path.join(
-      path.isAbsolute(params.output) ? "" : params["output-path"] || __dirname,
+      path.isAbsolute(params.output)
+        ? ""
+        : params["output-path"] || process.cwd(),
       params.output
     ),
+    fetch,
   });
 
 const getIcecastMetadataRecorder = (params) =>
@@ -53,9 +58,12 @@ const getIcecastMetadataRecorder = (params) =>
     metadataInterval: params["metadata-interval"],
     bitrate: params["bitrate"],
     output: path.join(
-      path.isAbsolute(params.output) ? "" : params["output-path"] || __dirname,
+      path.isAbsolute(params.output)
+        ? ""
+        : params["output-path"] || process.cwd(),
       params.output
     ),
+    fetch,
   });
 
 const constructIcecastMetadataReaders = (args, recorder) => {

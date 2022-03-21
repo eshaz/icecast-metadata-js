@@ -16,7 +16,7 @@
 
 import fs from "fs";
 import path from "path";
-import fetch from "node-fetch";
+
 import { AbortController } from "abort-controller";
 import { IcecastMetadataStream } from "icecast-metadata-js";
 
@@ -42,11 +42,13 @@ export default class IcecastMetadataRecorder {
     cueRollover,
     metadataInterval,
     bitrate,
+    fetch,
   }) {
     this._fileName = output;
     this._endpoint = endpoint;
     this._metadataInterval = metadataInterval;
     this._bitrate = bitrate;
+    this._fetch = fetch;
 
     this._cueWriterParams = {
       name,
@@ -136,7 +138,7 @@ export default class IcecastMetadataRecorder {
   async record() {
     this._init();
 
-    this._recordPromise = fetch(this._endpoint, {
+    this._recordPromise = this._fetch(this._endpoint, {
       method: "GET",
       headers: {
         "Icy-MetaData": "1",

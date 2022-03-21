@@ -11,6 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/eshaz/icecast-metadata-js.git"
   },
+  "main": "./src/StreamRecorder.js",
   "type": "module",
   "author": "Ethan Halsall",
   "license": "GPL-3.0",
@@ -32,9 +33,6 @@
     "cron-parser": "^4.2.1",
     "icecast-metadata-js": "file:../icecast-metadata-js",
     "node-fetch": "^3.2.3",
-    "yargs": "^17.3.1"
-  },
-  "jest": {
-      "transform": {}
+    "yargs": "^17.4.0"
   }
 }
