@@ -31,7 +31,7 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "cron-parser": "^4.2.1",
-    "icecast-metadata-js": "file:../icecast-metadata-js",
+    "icecast-metadata-js": "1.0.0",
     "node-fetch": "^3.2.3",
     "yargs": "^17.4.0"
   }
