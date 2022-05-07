@@ -110,6 +110,7 @@ const App = () => {
         icyCharacterEncoding: station.icyCharacterEncoding,
         enableLogging: true,
         metadataTypes: station.metadataTypes,
+        bufferLength: station.bufferLength,
         audioElement,
       });
 

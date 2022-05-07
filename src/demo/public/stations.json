@@ -26,103 +26,220 @@
     ]
   },
   {
-    "name": "Dance Wave!",
-    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
-    "link": "https://dancewave.online/",
+    "name": "Dukes' Funk Jazz",
+    "description": "Playing best Jazz Funk music",
     "endpoints": [
       {
-        "endpoint": "https://dancewave.online/dance.mp3",
+        "endpoint": "https://deeperlink.com:8042/jazzfunk",
         "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "WFM Lounge Radio",
+    "description": "Ambient, Chillout, Funk, Jazz, Rhythm & Blues, Soul Music.",
+    "link": "https://wfmlounge.com/",
+    "endpoints": [
       {
-        "endpoint": "https://dancewave.online/dance.aac",
-        "codec": "AAC+",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
+        "endpoint": "https://manager.conceptradio.fr:1295/stream",
+        "codec": "MP3",
+        "bufferLength": 4,
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Pure Radio Holland - Downtempo Channel",
+    "description": "Pure Radio Holland is an internet radio station based in the Netherlands. Our goal is to give a platform for new and established artists and Dj's and provide you with the best in non-stop Electronic music.",
+    "link": "https://pureradio.eu",
+    "endpoints": [
       {
-        "endpoint": "https://dancewave.online/dance.ogg",
-        "codec": "Vorbis",
+        "endpoint": "https://streamserver.pure-isp.eu:8040/flac",
+        "codec": "FLAC",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
-        "endpoint": "https://dancewave.online/dance.opus",
-        "codec": "Opus",
+        "endpoint": "https://streamserver.pure-isp.eu:8040/ultra",
+        "codec": "AAC 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://streamserver.pure-isp.eu:8040/high",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://streamserver.pure-isp.eu:8040/low",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Deep Link NYC",
+    "description": "Selected House music DJ mixes and sets. On this channel you can hear many different House Music genres such as Deep, Soulful, Jazzy, Funky, Disco, Nu-Jazz and many others.",
+    "link": "https://www.deeplink.stream/deep-link-radio",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8102/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8102/64",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soulful Link Radio",
+    "description": "If you love vocals and soulful vibes, Soulful Link is the right radio for you. Most of the mixes and sets will cheer you up, fix your mood and make your day or night pleasant! So, press play and start singing your favorite house music tune with your favorite radio!",
+    "link": "https://www.deeplink.stream/soulful-link-radio",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8072/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8072/64",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Jazzier Link Radio",
+    "description": "If you like Soulful House Music with a strong Jazz influence in it, this is the right channel for you! We selected some of the best DJ mixes and sets for your (and ours) pleasure, and we hope you will enjoy it every day. It's Jazz House Music, and we love it!",
+    "link": "https://www.deeplink.stream/jazzier-link-radio",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8012/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8012/64",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Dacha's House Mixes",
+    "description": "Dacha started collecting House Music in early nineties, and he is still delivering monthly DJ mixes that you can hear on this channel. It's all about pure Jazz and Deep House music with soulful vibe.",
+    "link": "https://www.deeplink.stream/dacha-s-house-mixes",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8002/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8002/64",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "ColdStar.Online Radio",
+    "description": "This stream contains classics of progressive, uplifting, balearic, vocal trance and etc. Radioshows with cues, and live tracklist on ColdStar.Online. Ads free!",
+    "link": "https://ice.coldstar.online/",
+    "endpoints": [
+      {
+        "endpoint": "https://ice.coldstar.online/high.ogg",
+        "codec": "Vorbis 256",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://ice.coldstar.online/low.ogg",
+        "codec": "Vorbis 96",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       }
     ]
   },
   {
-    "name": "Dance Wave Retro!",
-    "description": "All Dance before 2000!",
-    "link": "https://retro.dancewave.online/",
+    "name": "Radio Sputnik",
+    "description": "RadioSputnik.nl started somewhere in 2002 as a pirate radio station on the FM band (24/7) with a low power transmitter (10 Watts) and its main focus was to transmit underground house/club music. Now it’s a non profit internet radio station.",
+    "link": "https://radiosputnik.nl",
     "endpoints": [
       {
-        "endpoint": "https://retro.dancewave.online/retrodance.mp3",
+        "endpoint": "https://radiosputnik.nl:8443/flac",
+        "codec": "FLAC",
+        "bufferLength": 2,
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://radiosputnik.nl:8443",
         "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://retro.dancewave.online/retrodance.aac",
-        "codec": "AAC+",
-        "metadataTypes": ["icy"],
-        "statsSources": ["ogg", "icestats"]
-      },
-      {
-        "endpoint": "https://retro.dancewave.online/retrodance.ogg",
-        "codec": "Vorbis",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg", "icestats"]
-      },
-      {
-        "endpoint": "https://retro.dancewave.online/retrodance.opus",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg", "icestats"]
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
       }
     ]
   },
   {
-    "name": "90.9 Jazzy rádió - Jazzy Cool",
-    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
-    "link": "https://jazzy.hu/",
+    "name": "Zog Radio",
+    "description": "Zog Radio is a new ICECAST Internet radio station being trialled during the COVID-19 downtime. The station is run by DJ Zog who is a Techno, Ambient, Dub Techno DJ and occasional producer from Melbourne Australia.",
+    "link": "https://www.zog.net.au/",
     "endpoints": [
       {
-        "endpoint": "https://s04.diazol.hu:9530/live.mp3",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "sevenhtml"]
+        "endpoint": "https://icecast.zog.net.au:8443/source",
+        "codec": "FLAC",
+        "bufferLength": 2,
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
       }
     ]
   },
   {
-    "name": "90.9 Jazzy rádió - Jazzy Groove",
+    "name": "Chillout Zone",
     "description": "",
-    "link": "https://jazzy.hu/",
+    "link": "https://chillout.zone",
     "endpoints": [
       {
-        "endpoint": "https://s04.diazol.hu:9510/live.mp3",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "sevenhtml"]
+        "endpoint": "https://chillout.zone/chillout_plus",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
       }
     ]
   },
   {
-    "name": "90.9 Jazzy rádió - Jazzy Soul",
-    "description": "",
-    "link": "https://jazzy.hu/",
+    "name": "Deep Relax",
+    "description": "This channel is for deep relaxation, nature sounds, some guitar and piano, beach, sea, wind.. go to sleep.",
+    "link": "https://www.deeplink.stream/radio-stations/deep-relax",
     "endpoints": [
       {
-        "endpoint": "https://s04.diazol.hu:9520/live.mp3",
+        "endpoint": "https://deeperlink.com:8082/stream",
         "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "sevenhtml"]
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8082/64",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
       }
     ]
   },
@@ -222,123 +339,27 @@
     ]
   },
   {
-    "name": "Jazz4ever",
-    "description": "An accurate selection of Jazz, Fusion and Funky-Jazz with a sprinkle of \"sparkly\" Smooth Jazz.",
-    "link": "http://jazz4ever.net/",
+    "name": "Explorando Musica",
+    "description": "House, Trance, Chill Out, Dance, Future House, Progressive House, Deep House, Big Room",
+    "link": "https://www.bpmelectro.com",
     "endpoints": [
       {
-        "endpoint": "https://streamingv2.shoutcast.com/Jazz4ever",
-        "codec": "MP3",
+        "endpoint": "https://c13.radioboss.fm:8144/autodj",
+        "codec": "Vorbis 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats"]
       }
     ]
   },
   {
-    "name": "Smooth Jazz Smooth Wave",
-    "description": "",
+    "name": "DnB4You Randomizer",
+    "description": "Best Neurofunk ever",
     "endpoints": [
       {
-        "link": "http://www.smoothazzwavesarasota.com",
-        "endpoint": "https://streaming510.radionomy.com/SmoothJazzSmoothWave",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Smooth Jazz Zone",
-    "description": "",
-    "link": "",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming510.radionomy.com/SmoothJazzZone",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Oxygen Magyar Zene",
-    "description": "Hungarian Dance Hits",
-    "link": "https://oxygenmusic.hu/ms-radios/oxygen-magyar-zene/",
-    "endpoints": [
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene",
-        "codec": "MP3 320",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_192",
-        "codec": "MP3 192",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
-        "codec": "MP3 128",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
-    "name": "Oxygen Music",
-    "description": "Pop / Rock / Dance / Latin / Disco",
-    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
-    "endpoints": [
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_flac",
-        "codec": "FLAC",
+        "endpoint": "https://dnb4you.org.ru:8443/radio",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
-        "statsSources": ["ogg"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic",
-        "codec": "MP3 320",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_192",
-        "codec": "MP3 192",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_128",
-        "codec": "MP3 128",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_aac",
-        "codec": "MP3 64",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
-    "name": "Bolerospara Enamorarse",
-    "description": "Añoranzas por la melodias de el radio de los 40 s. 50 s y 60 s.",
-    "link": "http://bolerosparaenamorarse.playtheradio.com",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming510.radionomy.com/boleros-para-enamorarse",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
+        "statsSources": ["ogg", "icestats"]
       }
     ]
   },
@@ -378,19 +399,6 @@
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["ogg", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Zog Radio",
-    "description": "Zog Radio is a new ICECAST Internet radio station being trialled during the COVID-19 downtime. The station is run by DJ Zog who is a Techno, Ambient, Dub Techno DJ and occasional producer from Melbourne Australia.",
-    "link": "https://www.zog.net.au/",
-    "endpoints": [
-      {
-        "endpoint": "https://icecast.zog.net.au:8443/source",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
       }
     ]
   },
@@ -470,6 +478,213 @@
     ]
   },
   {
+    "name": "Graffiti Urban Radio",
+    "link": "https://www.urban-radio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://diffusion.lafrap.fr/grafopus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://diffusion.lafrap.fr/grafdab.mp3",
+        "codec": "MP3 320",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://diffusion.lafrap.fr/graffiti.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://diffusion.lafrap.fr/graffiti",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "JazzW3",
+    "link": "https://jazzw3.wixsite.com/jazzw3",
+    "description": "JazzW3, Grupo de Jazz & Blues, interpretando las mejores y más reconocidas obras de Jazz y Blues, Incursionando con nuevos y jóvenes talentos salvadoreños.",
+    "endpoints": [
+      {
+        "endpoint": "https://jazz.w3.at:8443/w3jazz.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://jazz.w3.at:8443/w3jazz.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Cool",
+    "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
+    "link": "https://jazzy.hu/",
+    "endpoints": [
+      {
+        "endpoint": "https://s04.diazol.hu:9530/live.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Groove",
+    "description": "",
+    "link": "https://jazzy.hu/",
+    "endpoints": [
+      {
+        "endpoint": "https://s04.diazol.hu:9510/live.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "90.9 Jazzy rádió - Jazzy Soul",
+    "description": "",
+    "link": "https://jazzy.hu/",
+    "endpoints": [
+      {
+        "endpoint": "https://s04.diazol.hu:9520/live.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Czech Radio in D major (Český rozhlas D-dur)",
+    "description": "A public radio broadcaster in the Czech Republic broadcasting classical music of all genres",
+    "link": "https://plus.rozhlas.cz/",
+    "endpoints": [
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur-256.ogg",
+        "codec": "Vorbis 256",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur.ogg",
+        "codec": "Vorbis 128",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      }
+    ]
+  },
+  {
+    "name": "Czech Radio Jazz (Český rozhlas Jazz)",
+    "description": "Broadcasting jazz 24 hours a day in a wide range of genres from its beginnings to the current fusion",
+    "link": "https://plus.rozhlas.cz/",
+    "endpoints": [
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz-256.ogg",
+        "codec": "Vorbis 256",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz.ogg",
+        "codec": "Vorbis 128",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Magyar Zene",
+    "description": "Hungarian Dance Hits",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-magyar-zene/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Music",
+    "description": "Pop / Rock / Dance / Latin / Disco",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_aac",
+        "codec": "MP3 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
     "name": "Magic-Radio",
     "description": "Oldies Hits 24 hours a day. Magic Radio has been broadcasting since 2002 ‘mainly titles of the Eighties but also sometimes of other decades.’ The station is his personal non-profit project and he says, “The programming is completely subjective but I try to keep an overall coherence. I have always been passionate about radio and sound techniques since my childhood. I experienced the beginning of FM in France, ear glued to the transistor, fascinated by the new medium! My goal is to recreate this “atmosphere” that existed on FM in the 80s in terms of musical programming and jingles.",
     "link": "https://magic-radio.net",
@@ -503,88 +718,6 @@
         "codec": "AAC",
         "metadataTypes": [],
         "statsSources": ["icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Chillout Zone",
-    "description": "",
-    "link": "https://chillout.zone",
-    "endpoints": [
-      {
-        "endpoint": "https://chillout.zone/chillout_plus",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg"]
-      }
-    ]
-  },
-  {
-    "name": "Radio Sputnik",
-    "description": "RadioSputnik.nl started somewhere in 2002 as a pirate radio station on the FM band (24/7) with a low power transmitter (10 Watts) and its main focus was to transmit underground house/club music. Now it’s a non profit internet radio station.",
-    "link": "https://radiosputnik.nl",
-    "endpoints": [
-      {
-        "endpoint": "https://radiosputnik.nl:8443/flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://radiosputnik.nl:8443",
-        "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Czech Radio in D major (Český rozhlas D-dur)",
-    "description": "A public radio broadcaster in the Czech Republic broadcasting classical music of all genres",
-    "link": "https://radiosputnik.nl",
-    "endpoints": [
-      {
-        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur-256.ogg",
-        "codec": "Vorbis 256",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur.ogg",
-        "codec": "Vorbis 128",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://amp.cesnet.cz:8443/cro-d-dur.flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      }
-    ]
-  },
-  {
-    "name": "Czech Radio Jazz (Český rozhlas Jazz)",
-    "description": "Broadcasting jazz 24 hours a day in a wide range of genres from its beginnings to the current fusion",
-    "link": "https://radiosputnik.nl",
-    "endpoints": [
-      {
-        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz-256.ogg",
-        "codec": "Vorbis 256",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz.ogg",
-        "codec": "Vorbis 128",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://amp.cesnet.cz:8443/cro-jazz.flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
       }
     ]
   },
@@ -865,95 +998,6 @@
     ]
   },
   {
-    "name": "Sama Radio Senegal",
-    "description": "Good Vibes from Senegal West Africa! Sama Radio Dakar Senegal créée en Août 2013. Avec un groupe de jeunes ambitieux Sénégalais elle est aujourd hui la première chaîne indépendante et qui résume l ensemble du Paysage médiatique Sénégalais.",
-    "link": "https://www.sunufm.com/samaradio/",
-    "endpoints": [
-      {
-        "endpoint": "https://streamingv2.shoutcast.com/SamaRadio",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://streamingv2.shoutcast.com/SamaRadio_64.aac",
-        "codec": "AAC",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "SeneEthiopia",
-    "description": "World Reggae and african music www.africanmusic.nl Radio SeneEthiopia wish all his listeners a Happy and blessed 2",
-    "link": "www.africanmusic.nl",
-    "endpoints": [
-      {
-        "endpoint": "https://streamingv2.shoutcast.com/SeneEthiopia",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://streamingv2.shoutcast.com/SeneEthiopia_64.aac",
-        "codec": "AAC",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "BFC Classique",
-    "description": "L'autre climat musical en Bourgogne-Franche-Comté",
-    "link": "https://bfc-classique.fr/",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming510.radionomy.com/BFC-CLASSIQUE",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Radio-Mozart",
-    "description": "All Mozart all the time / Ce n est pas de la radio c est du Mozart !",
-    "link": "http://www.radiomozart.com",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming510.radionomy.com/Radio-Mozart",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://streaming510.radionomy.com/Radio-Mozart_64.aac",
-        "codec": "AAC",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Beethoven Radio",
-    "description": "Only Beethoven",
-    "link": "http://beethoven-radio.playtheradio.com",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming510.radionomy.com/Beethoven-Radio",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://streaming510.radionomy.com/Beethoven-Radio_64.aac",
-        "codec": "AAC",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
     "name": "Atmospheres Radio",
     "description": "Music by students, staff and friends of the Royal Welsh College of Music and Drama",
     "link": "https://streaming.galaxywebsolutions.com/AudioPlayer/9040",
@@ -963,19 +1007,6 @@
         "codec": "MP3",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
-    "name": "Jive Nation Radio",
-    "description": "Dance Rock / Disco / Dance - Clubbing",
-    "link": "http://www.jivenation.be/",
-    "endpoints": [
-      {
-        "endpoint": "https://streamingv2.shoutcast.com/jive-nation-radio",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
       }
     ]
   },
@@ -1006,32 +1037,6 @@
     ]
   },
   {
-    "name": "CineMusik",
-    "description": "",
-    "link": "https://cinemusik.playtheradio.com",
-    "endpoints": [
-      {
-        "endpoint": "https://streamingv2.shoutcast.com/CineMusik",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "ChillOutWorld",
-    "description": "Best Chill-Out Radio.",
-    "link": "http://radioworld66.com",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming510.radionomy.com/ChillOutWorld",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
     "name": "TheRadio.CC",
     "description": "The Radio CC - Euer Creative Commons-Webradio",
     "link": "https://theradio.cc",
@@ -1041,6 +1046,12 @@
         "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "http://stream.theradio.cc:8000/trcc-stream.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
       }
     ]
   }
