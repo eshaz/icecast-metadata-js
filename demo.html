@@ -302,6 +302,7 @@
               document.getElementById("endpoint").value = station.endpoint;
               document.getElementById("icy").checked = station.metadataTypes.includes("icy");
               document.getElementById("ogg").checked = station.metadataTypes.includes("ogg");
+              document.getElementById("bufferLength").value = station.bufferLength || 1;
               document.getElementById("icyCharacterEncoding").value = station.icyCharacterEncoding || "utf-8";
 
               document.getElementById("icy-auto-query").checked = station.statsSources.includes("icy");
