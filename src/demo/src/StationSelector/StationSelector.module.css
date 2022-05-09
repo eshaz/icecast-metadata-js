@@ -44,7 +44,6 @@
 .codecs {
   display: flex;
   flex-direction: row;
-  font-size: calc(2px + 1.3vmin);
   font-family: monospace;
 }
 
@@ -56,10 +55,19 @@
   align-items: center;
   text-align: center;
   box-sizing: border-box;
-  width: calc(5px + 20vmin);
   padding: calc(1px + 1vmin);
   margin: calc(1px + 1vmin) calc(1px + 1vmin) 0;
   border-radius: calc(1px + 1vmin);
+}
+
+.codecGroupFour {
+  font-size: calc(2px + 1.3vmin);
+  width: calc(5px + 20vmin);
+}
+
+.codecGroupFive {
+  font-size: calc(2px + 1.1vmin);
+  width: calc(5px + 16vmin);
 }
 
 .codecSelected {

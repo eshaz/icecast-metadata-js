@@ -339,19 +339,6 @@
     ]
   },
   {
-    "name": "Explorando Musica",
-    "description": "House, Trance, Chill Out, Dance, Future House, Progressive House, Deep House, Big Room",
-    "link": "https://www.bpmelectro.com",
-    "endpoints": [
-      {
-        "endpoint": "https://c13.radioboss.fm:8144/autodj",
-        "codec": "Vorbis 256",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
     "name": "DnB4You Randomizer",
     "description": "Best Neurofunk ever",
     "endpoints": [
@@ -370,138 +357,19 @@
     "endpoints": [
       {
         "endpoint": "https://stream.kaaosradio.fi:8001/stream2",
-        "codec": "MP3",
+        "codec": "Main",
         "metadataTypes": [],
-        "statsSources": ["ogg", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Kaaosradio 24/7 Chillout",
-    "description": "",
-    "link": "https://kaaosradio.fi/",
-    "endpoints": [
+        "statsSources": ["icestats"]
+      },
       {
         "endpoint": "https://stream.kaaosradio.fi:8001/chill",
-        "codec": "MP3",
+        "codec": "Chillout",
         "metadataTypes": [],
-        "statsSources": ["ogg", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Kaaosradio 24/7 Chiptunes",
-    "description": "",
-    "link": "https://kaaosradio.fi/",
-    "endpoints": [
+        "statsSources": ["icestats"]
+      },
       {
         "endpoint": "https://stream.kaaosradio.fi:8001/chip",
-        "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["ogg", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Naim Radio",
-    "description": "Naim Radio brings you an eclectic mix of superbly recorded music from the Naim Records roster. Established in 1993 it offers a diverse music mix, from contemporary singer-songwriters to classical.",
-    "link": "https://www.naimaudio.com/",
-    "endpoints": [
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8362/flac.flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8362/high.aac",
-        "codec": "AAC",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      },
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8362/low.mp3",
-        "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Naim Classical",
-    "description": "The all-new Naim Classical station bring you an exclusive mix of superbly recorded classical music from the Naim Records roster. There are playlists from a diverse range of classical artists, ensembles and orchestras.",
-    "link": "https://www.naimaudio.com/",
-    "endpoints": [
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8252/class-flac.flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8252/class-high.aac",
-        "codec": "AAC",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      },
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8252/class-low.mp3",
-        "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Naim Jazz",
-    "description": "The all-new Naim Jazz station bring you an exclusive mix of superbly recorded jazz cuts from the Naim Records roster. There are playlists from a diverse range of jazz soloists, bands and collaborations.",
-    "link": "https://www.naimaudio.com/",
-    "endpoints": [
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-flac.flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icestats", "ogg"]
-      },
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-high.aac",
-        "codec": "AAC",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      },
-      {
-        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-low.mp3",
-        "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      }
-    ]
-  },
-  {
-    "name": "Graffiti Urban Radio",
-    "link": "https://www.urban-radio.com/",
-    "endpoints": [
-      {
-        "endpoint": "https://diffusion.lafrap.fr/grafopus",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg", "icestats"]
-      },
-      {
-        "endpoint": "https://diffusion.lafrap.fr/grafdab.mp3",
-        "codec": "MP3 320",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      },
-      {
-        "endpoint": "https://diffusion.lafrap.fr/graffiti.mp3",
-        "codec": "MP3 128",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      },
-      {
-        "endpoint": "https://diffusion.lafrap.fr/graffiti",
-        "codec": "AAC",
+        "codec": "Chiptunes",
         "metadataTypes": [],
         "statsSources": ["icestats"]
       }
@@ -527,41 +395,1322 @@
     ]
   },
   {
-    "name": "90.9 Jazzy rádió - Jazzy Cool",
+    "name": "90.9 Jazzy rádió",
     "description": "The only Hungarian radio playing soul, swing, lounge and jazz beside smooth jazz hits.",
     "link": "https://jazzy.hu/",
     "endpoints": [
       {
         "endpoint": "https://s04.diazol.hu:9530/live.mp3",
-        "codec": "MP3",
+        "codec": "Cool",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats", "sevenhtml"]
-      }
-    ]
-  },
-  {
-    "name": "90.9 Jazzy rádió - Jazzy Groove",
-    "description": "",
-    "link": "https://jazzy.hu/",
-    "endpoints": [
+      },
       {
         "endpoint": "https://s04.diazol.hu:9510/live.mp3",
-        "codec": "MP3",
+        "codec": "Groove",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://s04.diazol.hu:9520/live.mp3",
+        "codec": "Soul",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats", "sevenhtml"]
       }
     ]
   },
   {
-    "name": "90.9 Jazzy rádió - Jazzy Soul",
-    "description": "",
-    "link": "https://jazzy.hu/",
+    "name": "Soma FM - Groove Salad",
+    "description": "A nicely chilled plate of ambient/downtempo beats and grooves.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://s04.diazol.hu:9520/live.mp3",
+        "endpoint": "https://ice2.somafm.com/groovesalad-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/groovesalad-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/groovesalad-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/groovesalad-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/groovesalad-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Groove Salad Classic",
+    "description": "The classic (early 2000s) version of a nicely chilled plate of ambient/downtempo beats and grooves.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/gsclassic-128-mp3",
+        "codec": "MP3 160",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/gsclassic-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/gsclassic-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/gsclassic-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Drone Zone",
+    "description": "Served best chilled, safe with most medications. Atmospheric textures with minimal beats.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/dronezone-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dronezone-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dronezone-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dronezone-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dronezone-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Deep Space One",
+    "description": "Deep ambient electronic, experimental and space music. For inner and outer space exploration.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/deepspaceone-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/deepspaceone-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/deepspaceone-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/deepspaceone-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Space Station Soma",
+    "description": "Tune in, turn on, space out. Spaced-out ambient and mid-tempo electronica.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/spacestation-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/spacestation-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/spacestation-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/spacestation-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Underground 80s",
+    "description": "Early 80s UK Synthpop and a bit of New Wave.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/u80s-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/u80s-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/u80s-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/u80s-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/u80s-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Indie Pop Rocks!",
+    "description": "New and classic favorite indie pop tracks.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/indiepop-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/indiepop-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/indiepop-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/indiepop-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Secret Agent",
+    "description": "The soundtrack for your stylish, mysterious, dangerous life. For Spies and PIs too!",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/secretagent-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/secretagent-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/secretagent-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/secretagent-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Left Coast 70s",
+    "description": "Mellow album rock from the Seventies. Yacht not required.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/seventies-320-mp3",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/seventies-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/seventies-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/seventies-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/seventies-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Lush",
+    "description": "Sensuous and mellow female vocals, many with an electronic influence.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/lush-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/lush-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/lush-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/lush-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Folk Forward",
+    "description": "Indie Folk, Alt-folk and the occasional folk classics.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/folkfwd-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/folkfwd-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/folkfwd-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/folkfwd-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - DEF CON Radio",
+    "description": "Music for Hacking. The DEF CON Year-Round Channel.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/defcon-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/defcon-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/defcon-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/defcon-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/defcon-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Beat Blender",
+    "description": "A late night blend of deep-house and downtempo chill.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/beatblender-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/beatblender-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/beatblender-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/beatblender-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Illinois Street Lounge",
+    "description": "Classic bachelor pad, playful exotica and vintage music of tomorrow.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/illstreet-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/illstreet-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/illstreet-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/illstreet-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Boot Liquor",
+    "description": "Americana Roots music for Cowhands, Cowpokes and Cowtippers",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/bootliquor-320-mp3",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/bootliquor-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/bootliquor-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/bootliquor-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/bootliquor-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - ThistleRadio",
+    "description": "Exploring music from Celtic roots and branches",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/thistle-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/thistle-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/thistle-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/thistle-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Synphaera Radio",
+    "description": "Featuring the music from an independent record label focused on modern electronic ambient and space music.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/synphaera-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/synphaera-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/synphaera-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/synphaera-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/synphaera-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - PopTron",
+    "description": "Electropop and indie dance rock with sparkle and pop.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/poptron-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/poptron-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/poptron-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/poptron-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - The Trip",
+    "description": "Progressive house / trance. Tip top tunes.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/thetrip-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/thetrip-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/thetrip-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/thetrip-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Sonic Universe",
+    "description": "Transcending the world of jazz with eclectic, avant-garde takes on tradition.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/sonicuniverse-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sonicuniverse-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sonicuniverse-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sonicuniverse-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sonicuniverse-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Suburbs of Goa",
+    "description": "Desi-influenced Asian world beats and beyond.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/suburbsofgoa-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/suburbsofgoa-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/suburbsofgoa-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/suburbsofgoa-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Dub Step Beyond",
+    "description": "Dubstep, Dub and Deep Bass. May damage speakers at high volume.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/dubstep-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dubstep-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dubstep-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dubstep-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/dubstep-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Seven Inch Soul",
+    "description": "Vintage soul tracks from the original 45 RPM vinyl.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/7soul-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/7soul-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/7soul-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/7soul-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Fluid",
+    "description": "Drown in the electronic sound of instrumental hiphop, future soul and liquid trap.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/fluid-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/fluid-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/fluid-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/fluid-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Heavyweight Reggae",
+    "description": "Reggae, Ska, Rocksteady classic and deep tracks.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/reggae-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/reggae-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/reggae-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/reggae-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Metal Detector",
+    "description": "From black to doom, prog to sludge, thrash to post, stoner to crossover, punk to industrial.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/metal-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/metal-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/metal-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/metal-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Mission Control",
+    "description": "Celebrating NASA and Space Explorers everywhere.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/missioncontrol-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/missioncontrol-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/missioncontrol-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/missioncontrol-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Digitalis",
+    "description": "Digitally affected analog rock to calm the agitated heart.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/digitalis-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/digitalis-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/digitalis-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/digitalis-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - cliqhop idm",
+    "description": "Blips'n'beeps backed mostly w/beats. Intelligent Dance Music.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/cliqhop-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/cliqhop-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/cliqhop-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/cliqhop-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/cliqhop-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Vaporwaves",
+    "description": "All Vaporwave. All the time.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/vaporwaves-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/vaporwaves-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/vaporwaves-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/vaporwaves-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Black Rock FM",
+    "description": "From the Playa to the world, for the annual Burning Man festival.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/brfm-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/brfm-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/brfm-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/brfm-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - The Dark Zone",
+    "description": "PREVIEW: The darker side of deep ambient. Music for staring into the Abyss.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/darkzone-256-mp3",
+        "codec": "MP3 256",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/darkzone-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/darkzone-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/darkzone-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/darkzone-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - SF 10-33",
+    "description": "Ambient music mixed with the sounds of San Francisco public safety radio traffic.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/sf0133-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sf0133-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sf0133-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/sf0133-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - Covers",
+    "description": "Just covers. Songs you know by artists you don't. We've got you covered.",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/covers-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/covers-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/covers-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/covers-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - SomaFM Specials",
+    "description": "Now featuring Tiki Time, Bossa Beyond, Surf Report & More!",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/specials-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/specials-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/specials-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/specials-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - n5MD Radio",
+    "description": "Emotional Experiments in Music: Ambient, modern composition, post-rock, & experimental electronic music",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/n5md-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/n5md-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/n5md-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/n5md-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - SomaFM Live",
+    "description": "Special Live Events and rebroadcasts of past live events",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/live-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/live-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/live-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/live-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Soma FM - SF Police Scanner",
+    "description": "San Francisco Public Safety Scanner Feed",
+    "link": "https://somafm.com/",
+    "codecButtonsPerGroup": 5,
+    "endpoints": [
+      {
+        "endpoint": "https://ice2.somafm.com/scanner-128-mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/scanner-128-aac",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/scanner-64-aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      },
+      {
+        "endpoint": "https://ice2.somafm.com/scanner-32-aac",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Atmospheres Radio",
+    "description": "Music by students, staff and friends of the Royal Welsh College of Music and Drama",
+    "link": "https://streaming.galaxywebsolutions.com/AudioPlayer/9040",
+    "endpoints": [
+      {
+        "endpoint": "https://streaming.galaxywebsolutions.com:9040/stream",
         "codec": "MP3",
         "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats", "sevenhtml"]
+        "statsSources": ["icy"]
       }
     ]
   },
@@ -768,6 +1917,81 @@
         "codec": "AAC",
         "metadataTypes": [],
         "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Naim Radio",
+    "description": "Naim Radio brings you an eclectic mix of superbly recorded music from the Naim Records roster. Established in 1993 it offers a diverse music mix, from contemporary singer-songwriters to classical.",
+    "link": "https://www.naimaudio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8362/flac.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8362/high.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8362/low.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Naim Classical",
+    "description": "The all-new Naim Classical station bring you an exclusive mix of superbly recorded classical music from the Naim Records roster. There are playlists from a diverse range of classical artists, ensembles and orchestras.",
+    "link": "https://www.naimaudio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8252/class-flac.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8252/class-high.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8252/class-low.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Naim Jazz",
+    "description": "The all-new Naim Jazz station bring you an exclusive mix of superbly recorded jazz cuts from the Naim Records roster. There are playlists from a diverse range of jazz soloists, bands and collaborations.",
+    "link": "https://www.naimaudio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-flac.flac",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats", "ogg"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-high.aac",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://mscp3.live-streams.nl:8342/jazz-low.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
       }
     ]
   },
@@ -994,64 +2218,6 @@
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
-    "name": "Atmospheres Radio",
-    "description": "Music by students, staff and friends of the Royal Welsh College of Music and Drama",
-    "link": "https://streaming.galaxywebsolutions.com/AudioPlayer/9040",
-    "endpoints": [
-      {
-        "endpoint": "https://streaming.galaxywebsolutions.com:9040/stream",
-        "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
-    "name": "Radio Cumbernauld",
-    "description": "Broadcasting local news and music from Cumbernauld Scotland",
-    "link": "https://www.radiocumbernauld.uk/",
-    "endpoints": [
-      {
-        "endpoint": "https://audio-edge-p6jke.yyz.d.radiomast.io/ebca0c3d-4178-4386-88a1-4db6b7d9e291",
-        "codec": "AAC",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
-    "name": "Lo Nuestro 102.1",
-    "description": "La mejor música típica de Panamá.",
-    "link": "https://www.fmlonuestro.com/",
-    "endpoints": [
-      {
-        "endpoint": "https://www.streaming507.net:8136/stream",
-        "codec": "AAC",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
-    "name": "TheRadio.CC",
-    "description": "The Radio CC - Euer Creative Commons-Webradio",
-    "link": "https://theradio.cc",
-    "endpoints": [
-      {
-        "endpoint": "http://stream.theradio.cc:8000/trcc-stream.opus",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg", "icestats"]
-      },
-      {
-        "endpoint": "http://stream.theradio.cc:8000/trcc-stream.mp3",
-        "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
       }
     ]
   }

@@ -6,6 +6,7 @@ const CodecButton = ({
   selectedStation,
   changeStation,
   codecButtonNotSelectedStyle,
+  codecButtonWidthStyle,
   endpoint,
 }) => (
   <div>
@@ -17,7 +18,7 @@ const CodecButton = ({
       onChange={() => changeStation({ ...station, ...endpoint })}
     />
     <label
-      className={`${styles.codecLabel} ${
+      className={`${styles.codecLabel} ${codecButtonWidthStyle} ${
         selectedStation?.endpoint === endpoint.endpoint
           ? styles.codecSelected
           : codecButtonNotSelectedStyle
@@ -36,6 +37,7 @@ const CodecButtonGroup = ({
   selectedStation,
   changeStation,
   codecButtonNotSelectedStyle,
+  codecButtonWidthStyle,
   codecButtonsPerGroup,
 }) => {
   const codecButtonGroups = [];
@@ -51,6 +53,7 @@ const CodecButtonGroup = ({
               station={station}
               endpoint={endpoint}
               codecButtonNotSelectedStyle={codecButtonNotSelectedStyle}
+              codecButtonWidthStyle={codecButtonWidthStyle}
               selectedStation={selectedStation}
               changeStation={changeStation}
             />
@@ -60,6 +63,11 @@ const CodecButtonGroup = ({
   }
 
   return codecButtonGroups;
+};
+
+const codecButtonWidths = {
+  4: styles.codecGroupFour,
+  5: styles.codecGroupFive,
 };
 
 const Station = ({ station, selectedStation, changeStation }) => {
@@ -73,6 +81,9 @@ const Station = ({ station, selectedStation, changeStation }) => {
     codecButtonNotSelectedStyle = styles.codecNotSelectedNotPlaying;
   }
 
+  const codecButtonsPerGroup = station.codecButtonsPerGroup || 4;
+  const codecButtonWidthStyle = codecButtonWidths[codecButtonsPerGroup];
+
   return (
     <label
       className={`${styles.stationLabel} ${stationLabelStyle}`}
@@ -85,7 +96,8 @@ const Station = ({ station, selectedStation, changeStation }) => {
         selectedStation={selectedStation}
         changeStation={changeStation}
         codecButtonNotSelectedStyle={codecButtonNotSelectedStyle}
-        codecButtonsPerGroup={4}
+        codecButtonWidthStyle={codecButtonWidthStyle}
+        codecButtonsPerGroup={codecButtonsPerGroup}
       />
     </label>
   );
