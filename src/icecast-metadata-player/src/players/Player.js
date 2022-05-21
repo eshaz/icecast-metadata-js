@@ -102,7 +102,7 @@ export default class Player {
       this._audioElement.loop = true;
     }
 
-    if(supportedSources.includes("webaudio")) {
+    if (supportedSources.includes("webaudio")) {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
         latencyHint: "playback",
       });
@@ -117,11 +117,15 @@ export default class Player {
 
         const unlock = () => {
           audioCtx.resume().then(() => {
-            events.forEach((e) => this._audioElement.removeEventListener(e, unlock));
+            events.forEach((e) =>
+              this._audioElement.removeEventListener(e, unlock)
+            );
           });
         };
-  
-        events.forEach((e) => this._audioElement.addEventListener(e, unlock, false));
+
+        events.forEach((e) =>
+          this._audioElement.addEventListener(e, unlock, false)
+        );
       }
     }
   }
