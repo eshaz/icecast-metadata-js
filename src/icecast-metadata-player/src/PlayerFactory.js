@@ -11,6 +11,7 @@ import {
   icyMetaInt,
   icyCharacterEncoding,
   icyDetectionTimeout,
+  playbackMethod,
   fireEvent,
   hasIcy,
   abortController,
@@ -34,13 +35,12 @@ export default class PlayerFactory {
     this._icyMetaInt = instanceVariables[icyMetaInt];
     this._icyCharacterEncoding = instanceVariables[icyCharacterEncoding];
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
-
     this._hasIcy = instanceVariables[hasIcy];
+    this._preferredPlaybackMethod = instanceVariables[playbackMethod];
 
-    this._preferredPlaybackMethod = preferredPlaybackMethod || "mediasource";
     this._playbackMethod = "";
     this._player = new Player(this._icecast);
-    this._player.enablePlayButton(this._supportedPlaybackMethods);
+    this._player.enablePlayButton(PlayerFactory.supportedPlaybackMethods);
 
     this._unprocessedFrames = [];
     this._codecParser = undefined;
@@ -48,10 +48,18 @@ export default class PlayerFactory {
     this._codec = "";
   }
 
-  get _supportedPlaybackMethods() {
+  static get supportedPlaybackMethods() {
     return [MediaSourcePlayer, WebAudioPlayer, HTML5Player].map((player) =>
       player.isSupported ? player.name : ""
     );
+  }
+
+  static canPlayType(type) {
+    return {
+      mediasource: MediaSourcePlayer.canPlayType(type),
+      html5: HTML5Player.canPlayType(type),
+      webaudio: WebAudioPlayer.canPlayType(type),
+    };
   }
 
   get player() {
