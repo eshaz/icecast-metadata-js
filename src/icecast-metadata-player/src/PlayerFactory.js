@@ -40,10 +40,18 @@ export default class PlayerFactory {
     this._preferredPlaybackMethod = preferredPlaybackMethod || "mediasource";
     this._playbackMethod = "";
     this._player = new Player(this._icecast);
+    this._player.enablePlayButton(this._supportedPlaybackMethods);
+
     this._unprocessedFrames = [];
     this._codecParser = undefined;
     this._inputMimeType = "";
     this._codec = "";
+  }
+
+  get _supportedPlaybackMethods() {
+    return [MediaSourcePlayer, WebAudioPlayer, HTML5Player].map((player) =>
+      player.isSupported ? player.name : ""
+    );
   }
 
   get player() {

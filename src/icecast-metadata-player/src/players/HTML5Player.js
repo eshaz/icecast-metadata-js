@@ -13,7 +13,13 @@ export default class HTML5Player extends Player {
   }
 
   static canPlayType(mimeType) {
+    if (!HTML5Player.isSupported) return "";
+
     return super.canPlayType((type) => new Audio().canPlayType(type), mimeType);
+  }
+
+  static get isSupported() {
+    return Boolean(window.Audio);
   }
 
   static get name() {

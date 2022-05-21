@@ -39,14 +39,15 @@ export default class MediaSourcePlayer extends Player {
       },
     };
 
-    try {
-      new MediaSource();
-    } catch {
-      return "";
-    }
+    if (!MediaSourcePlayer.isSupported) return "";
+
     if (MediaSource.isTypeSupported(mimeType)) return "probably";
 
     return super.canPlayType(MediaSource.isTypeSupported, mimeType, mapping);
+  }
+
+  static get isSupported() {
+    return Boolean(window.MediaSource);
   }
 
   static get name() {

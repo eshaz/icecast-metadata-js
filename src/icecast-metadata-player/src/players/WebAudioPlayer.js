@@ -40,14 +40,20 @@ export default class WebAudioPlayer extends Player {
       },
     };
 
-    if (!window.WebAssembly) return "";
-    if (!(window.AudioContext || window.webkitAudioContext)) return "";
-    if (!window.MediaStream) return "";
+    if (!WebAudioPlayer.isSupported) return "";
 
     return super.canPlayType(
       (codec) => codec === 'audio/ogg;codecs="opus"' || codec === "audio/mpeg",
       mimeType,
       mapping
+    );
+  }
+
+  static get isSupported() {
+    return Boolean(
+      window.WebAssembly &&
+        (window.AudioContext || window.webkitAudioContext) &&
+        window.MediaStream
     );
   }
 
