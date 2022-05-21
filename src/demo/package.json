@@ -6,7 +6,7 @@
     "audiomotion-analyzer": "^3.6.0",
     "butterchurn": "^2.6.7",
     "butterchurn-presets": "^2.4.7",
-    "icecast-metadata-player": "1.11.6",
+    "icecast-metadata-player": "1.11.7",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-scripts": "^5.0.1"
@@ -14,7 +14,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^14.1.1",
+    "@testing-library/user-event": "^14.2.0",
     "gh-pages": "^3.2.3",
     "prettier": "^2.6.2"
   },

@@ -29,6 +29,7 @@ export const event = {
 // options
 export const endpoint = Symbol();
 export const metadataTypes = Symbol();
+export const playbackMethod = Symbol();
 export const audioElement = Symbol();
 export const bufferLength = Symbol();
 export const icyMetaInt = Symbol();
@@ -48,6 +49,7 @@ export const shouldRetry = Symbol();
 export const logError = Symbol();
 
 // variables
+export const audioContext = Symbol();
 export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
 export const codecUpdateQueue = Symbol();

@@ -27,6 +27,7 @@ import {
   // options,
   endpoint,
   metadataTypes,
+  playbackMethod,
   audioElement,
   bufferLength,
   icyMetaInt,
@@ -52,9 +53,6 @@ import {
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
 import PlayerFactory from "./PlayerFactory.js";
-import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
-import HTML5Player from "./players/HTML5Player.js";
-import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 let EventClass;
 
@@ -65,7 +63,6 @@ try {
   EventClass = EventTargetPolyfill;
 }
 
-const playbackMethod = Symbol();
 const playerFactory = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
@@ -134,7 +131,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryDelayMin]: (options.retryDelayMin || 0.5) * 1000,
       [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
       [retryTimeout]: (options.retryTimeout || 30) * 1000,
-      [playbackMethod]: options.playbackMethod,
+      [playbackMethod]: options.playbackMethod || "mediasource",
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -241,24 +238,16 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[attachAudioElement]();
     this[playerState] = state.STOPPED;
 
-    p.get(this)[playerFactory] = new PlayerFactory(
-      this,
-      p.get(this)[playbackMethod],
-      p.get(this)[icyCharacterEncoding]
-    );
+    p.get(this)[playerFactory] = new PlayerFactory(this);
   }
 
   /**
-   * @description Checks for MediaSource and HTML5 support for a given codec
+   * @description Checks for MediaSource, WebAudio, and HTML5 support for a given codec
    * @param {string} type Codec / mime-type to check
-   * @returns {mediasource: string, html5: string} Object indicating if the codec is supported by MediaSource or HTML5 audio
+   * @returns {mediasource: string, webaudio: string, html5: string} Object indicating if the codec is supported by the playback method
    */
   static canPlayType(type) {
-    return {
-      mediasource: MediaSourcePlayer.canPlayType(type),
-      html5: HTML5Player.canPlayType(type),
-      webaudio: WebAudioPlayer.canPlayType(type),
-    };
+    return PlayerFactory.canPlayType(type);
   }
 
   /**

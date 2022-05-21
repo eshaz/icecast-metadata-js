@@ -1,6 +1,7 @@
 import {
   p,
   audioElement,
+  audioContext,
   bufferLength,
   icecastMetadataQueue,
   codecUpdateQueue,
@@ -9,11 +10,11 @@ import {
 
 export default class Player {
   constructor(icecast, inputMimeType, codec) {
-    const instanceVariables = p.get(icecast);
-
     this._icecast = icecast;
     this._inputMimeType = inputMimeType;
     this._codec = codec;
+
+    const instanceVariables = p.get(this._icecast);
 
     this._audioElement = instanceVariables[audioElement];
     this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
@@ -23,31 +24,6 @@ export default class Player {
 
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;
-
-    // set the audio element an empty source to enable the play button
-    try {
-      this._audioElement.removeAttribute("src");
-      this._audioElement.srcObject = null;
-
-      if (window.MediaSource) {
-        // MediaSourcePlayer
-        this._audioElement.src = URL.createObjectURL(new MediaSource());
-      } else {
-        // WebAudioPlayer
-        this._mediaStream = new MediaStream();
-        this._audioElement.srcObject = this._mediaStream;
-      }
-    } catch {
-      // HTML5Player
-      // mp3 32kbs silence
-      this._audioElement.src =
-        "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
-        "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
-        "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
-        "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
-
-      this._audioElement.loop = true;
-    }
   }
 
   static parseMimeType(mimeType) {
@@ -101,6 +77,64 @@ export default class Player {
 
     // codec not in the list
     return "";
+  }
+
+  enablePlayButton(supportedSources) {
+    // set the audio element an empty source to enable the play button
+    this._audioElement.removeAttribute("src");
+    this._audioElement.srcObject = null;
+
+    if (supportedSources.includes("mediasource")) {
+      // MediaSourcePlayer
+      this._audioElement.src = URL.createObjectURL(new MediaSource());
+    } else if (supportedSources.includes("webaudio")) {
+      this._mediaStream = new MediaStream();
+      this._audioElement.srcObject = this._mediaStream;
+    } else if (supportedSources.includes("html5")) {
+      // HTML5Player
+      // mp3 32kbs silence
+      this._audioElement.src =
+        "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
+        "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
+        "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
+        "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
+
+      this._audioElement.loop = true;
+    }
+
+    if (supportedSources.includes("webaudio")) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+        latencyHint: "playback",
+      });
+
+      p.get(this._icecast)[audioContext] = audioCtx;
+
+      // hack for iOS Audio element controls support
+      // iOS will only enable AudioContext.resume() when called directly from a UI event
+      // https://stackoverflow.com/questions/57510426
+      if (audioCtx.state === "suspended") {
+        const events = ["touchstart", "touchend", "mousedown", "keydown"];
+
+        const unlock = () => {
+          audioCtx.resume().then(() => {
+            events.forEach((e) =>
+              this._audioElement.removeEventListener(e, unlock)
+            );
+          });
+        };
+
+        events.forEach((e) =>
+          this._audioElement.addEventListener(e, unlock, false)
+        );
+      }
+    }
+  }
+
+  /**
+   * @abstract
+   */
+  get isSupported() {
+    return false;
   }
 
   /**

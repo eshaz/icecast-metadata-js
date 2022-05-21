@@ -3,6 +3,8 @@ import { MPEGDecoderWebWorker } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
+  p,
+  audioContext,
   state,
   event,
   SYNCED,
@@ -27,7 +29,7 @@ export default class WebAudioPlayer extends Player {
 
     // set up audio context once
     // audio context needs to be reused for the life of this instance for safari compatibility
-    this._getAudioContext();
+    this._initAudioContext();
 
     this.reset();
   }
@@ -40,14 +42,20 @@ export default class WebAudioPlayer extends Player {
       },
     };
 
-    if (!window.WebAssembly) return "";
-    if (!(window.AudioContext || window.webkitAudioContext)) return "";
-    if (!window.MediaStream) return "";
+    if (!WebAudioPlayer.isSupported) return "";
 
     return super.canPlayType(
       (codec) => codec === 'audio/ogg;codecs="opus"' || codec === "audio/mpeg",
       mimeType,
       mapping
+    );
+  }
+
+  static get isSupported() {
+    return Boolean(
+      window.WebAssembly &&
+        (window.AudioContext || window.webkitAudioContext) &&
+        window.MediaStream
     );
   }
 
@@ -80,14 +88,8 @@ export default class WebAudioPlayer extends Player {
     this._wasmReady = this._wasmDecoder.ready;
   }
 
-  _getAudioContext() {
-    const audioContextParams = {
-      latencyHint: "playback",
-    };
-
-    this._audioContext = window.AudioContext
-      ? new AudioContext(audioContextParams)
-      : new window.webkitAudioContext(audioContextParams);
+  _initAudioContext() {
+    this._audioContext = p.get(this._icecast)[audioContext];
 
     // hack for iOS to continue playing while locked
     this._audioContext
@@ -96,7 +98,7 @@ export default class WebAudioPlayer extends Player {
 
     this._audioContext.resume();
     this._audioContext.onstatechange = () => {
-      if (this._audioContext !== "running") this._audioContext.resume();
+      if (this._audioContext.state !== "running") this._audioContext.resume();
     };
   }
 
