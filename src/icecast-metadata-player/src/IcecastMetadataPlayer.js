@@ -54,14 +54,7 @@ import {
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
 import PlayerFactory from "./PlayerFactory.js";
 
-let EventClass;
-
-try {
-  new EventTarget();
-  EventClass = EventTarget;
-} catch {
-  EventClass = EventTargetPolyfill;
-}
+const EventClass = window.EventTarget || EventTargetPolyfill;
 
 const playerFactory = Symbol();
 const playerResetPromise = Symbol();
@@ -158,10 +151,12 @@ export default class IcecastMetadataPlayer extends EventClass {
         onMetadataUpdate: (...args) => this[fireEvent](event.METADATA, ...args),
         onMetadataEnqueue: (...args) =>
           this[fireEvent](event.METADATA_ENQUEUE, ...args),
+        paused: true,
       }),
       [codecUpdateQueue]: new IcecastMetadataQueue({
         onMetadataUpdate: (...args) =>
           this[fireEvent](event.CODEC_UPDATE, ...args),
+        paused: true,
       }),
       [resetPlayback]: () => {
         clearTimeout(p.get(this)[retryTimeoutId]);
@@ -239,6 +234,18 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[playerState] = state.STOPPED;
 
     p.get(this)[playerFactory] = new PlayerFactory(this);
+
+    this.addEventListener(event.PLAY, () => {
+      p.get(this)[icecastMetadataQueue].startQueue(
+        p.get(this)[playerFactory].player.currentTime
+      );
+    });
+
+    this.addEventListener(event.PLAY, () => {
+      p.get(this)[codecUpdateQueue].startQueue(
+        p.get(this)[playerFactory].player.currentTime
+      );
+    });
   }
 
   /**
