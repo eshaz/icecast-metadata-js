@@ -184,7 +184,7 @@ export default class Player {
   /**
    * @abstract
    */
-  onCodecUpdate(codecData, updateTimestamp) {
+  onCodecUpdate(metadata, updateTimestamp) {
     const currentTime = this.currentTime;
 
     // add previous offset when reconnecting
@@ -194,7 +194,7 @@ export default class Player {
     this._codecUpdateTimestamp = updateTimestamp;
 
     this._codecUpdateQueue.addMetadata(
-      { metadata: codecData, stats: {} },
+      { metadata },
       (updateTimestamp + this._codecUpdateOffset) / 1000,
       currentTime
     );

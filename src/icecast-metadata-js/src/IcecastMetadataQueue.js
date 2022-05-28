@@ -25,6 +25,7 @@ export default class IcecastMetadataQueue {
    * @param {number} [IcecastMetadataQueue.icyBr] Bitrate of audio stream used to increase accuracy when to updating metadata
    * @param {onMetadataUpdate} [IcecastMetadataQueue.onMetadataUpdate] Callback executed when metadata is scheduled to update
    * @param {onMetadataEnqueue} [IcecastMetadataQueue.onMetadataEnqueue] Callback executed when metadata is enqueued
+   * @param {boolean} [IcecastMetadataQueue.paused] Set to true to start the queue in a paused mode
    *
    * @callback onMetadataUpdate
    * @param {Object} metadata Object containing all metadata received.
@@ -41,10 +42,17 @@ export default class IcecastMetadataQueue {
    * @param {number} timestamp Current time of the audio player when the metadata was added
    *
    */
-  constructor({ icyBr, onMetadataUpdate = noOp, onMetadataEnqueue = noOp }) {
+  constructor({
+    icyBr,
+    onMetadataUpdate = noOp,
+    onMetadataEnqueue = noOp,
+    paused = false,
+  }) {
     this._icyBr = icyBr;
     this._onMetadataUpdate = onMetadataUpdate;
     this._onMetadataEnqueue = onMetadataEnqueue;
+    this._initialPaused = paused;
+    this._paused = paused;
     this._isInitialMetadata = true;
     this._metadataQueue = [];
   }
@@ -69,11 +77,16 @@ export default class IcecastMetadataQueue {
      * since the latest buffer input. The buffer offset should be the total
      * seconds of audio in the player buffer when the metadata was read.
      */
-    this._enqueueMetadata(
+    timestamp += stats ? this.getTimeByBytes(stats.currentStreamPosition) : 0;
+
+    const metadataPayload = {
       metadata,
       timestampOffset,
-      timestamp + this.getTimeByBytes(stats.currentStreamPosition)
-    );
+      timestamp,
+    };
+
+    this._metadataQueue.push(metadataPayload);
+    if (!this._paused) this._enqueueMetadata(metadataPayload);
   }
 
   /**
@@ -86,30 +99,44 @@ export default class IcecastMetadataQueue {
   }
 
   /**
+   * @description Starts the metadata queue if it was paused
+   * @param {number} [timestamp] Current time of the audio player
+   */
+  startQueue(timestamp) {
+    if (this._paused) {
+      this._metadataQueue.forEach((u) => {
+        if (timestamp !== undefined) u.timestamp = timestamp;
+
+        this._enqueueMetadata(u);
+      });
+      this._paused = false;
+    }
+  }
+
+  /**
    * @description Clears all metadata updates and empties the queue
    */
   purgeMetadataQueue() {
     this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
     this._metadataQueue = [];
+    this._paused = this._initialPaused;
+    this._isInitialMetadata = true;
   }
 
-  _enqueueMetadata(metadata, timestampOffset, timestamp) {
-    const metadataPayload = {
-      metadata,
-      timestampOffset,
-      timestamp,
-    };
-
-    this._metadataQueue.push(metadataPayload);
-    this._onMetadataEnqueue(metadata, timestampOffset, timestamp);
+  _enqueueMetadata(payload) {
+    this._onMetadataEnqueue(
+      payload.metadata,
+      payload.timestampOffset,
+      payload.timestamp
+    );
 
     if (this._isInitialMetadata) {
       this._dequeueMetadata();
       this._isInitialMetadata = false;
     } else {
-      metadataPayload._timeoutId = setTimeout(() => {
+      payload._timeoutId = setTimeout(() => {
         this._dequeueMetadata();
-      }, (timestampOffset - timestamp) * 1000); // trigger timeout relative to play position
+      }, (payload.timestampOffset - payload.timestamp) * 1000); // trigger timeout relative to play position
     }
   }
 

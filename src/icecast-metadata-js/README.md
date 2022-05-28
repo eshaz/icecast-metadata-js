@@ -276,6 +276,7 @@ Metadata updates can be highly accurate because they are embedded inline with th
      icyBr: parseInt(headers.get("Icy-Br")),
      onMetadataUpdate: onMetadataUpdate,
      onMetadataEnqueue: onMetadataEnqueue,
+     paused: false // set to true to start the queue as paused. To start metadata updates, call `metadataQueue.startQueue(currentTime)`
    });
    ```
 
@@ -308,6 +309,9 @@ Metadata updates can be highly accurate because they are embedded inline with th
 * `metadataQueue.getTimeByBytes(numberOfBytes: number)`
   * Takes in a number of stream bytes read and derives the seconds to delay the metadata update based on a constant audio bitrate.
   * This only works for constant bitrate streams.
+* `metadataQueue.startQueue(currentTime)`
+  * Starts the metadata queue if it was paused.
+  * `currentTime` (optional, if icyBr is passed in) the current time in the audio player.
 * `metadataQueue.purgeMetadataQueue()`
   * Purges the metadata queue and clears any pending metadata updates.
 

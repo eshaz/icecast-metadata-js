@@ -72,7 +72,7 @@ export default class WebAudioPlayer extends Player {
   }
 
   get currentTime() {
-    return (Date.now() - this._startTime) / 1000 || 0;
+    return (performance.now() - this._playbackStartTime) / 1000 || 0;
   }
 
   _getWasmDecoder() {
@@ -111,7 +111,7 @@ export default class WebAudioPlayer extends Player {
     this._decodedSample = 0;
     this._decodedSampleOffset = 0;
     this._sampleRate = 0;
-    this._startTime = undefined;
+    this._playbackStartTime = undefined;
     this._firedPlay = false;
 
     if (
@@ -214,7 +214,7 @@ export default class WebAudioPlayer extends Player {
       if (!this._firedPlay) {
         if (this._bufferLength <= this.metadataTimestamp) {
           this._icecast[fireEvent](event.PLAY);
-          this._startTime = Date.now();
+          this._playbackStartTime = performance.now();
           this._firedPlay = true;
         } else {
           this._icecast[fireEvent](event.BUFFER, this.metadataTimestamp);

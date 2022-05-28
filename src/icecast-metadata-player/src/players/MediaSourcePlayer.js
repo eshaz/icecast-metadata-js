@@ -213,9 +213,9 @@ export default class MediaSourcePlayer extends Player {
 
       if (
         this._audioElement.currentTime > BUFFER + this._bufferLength &&
-        this._sourceBufferRemoved + BUFFER_INTERVAL * 1000 < Date.now()
+        this._sourceBufferRemoved + BUFFER_INTERVAL * 1000 < performance.now()
       ) {
-        this._sourceBufferRemoved = Date.now();
+        this._sourceBufferRemoved = performance.now();
         this._mediaSource.sourceBuffers[0].remove(
           0,
           this._audioElement.currentTime - BUFFER + this._bufferLength
