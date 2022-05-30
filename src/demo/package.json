@@ -6,14 +6,14 @@
     "audiomotion-analyzer": "^3.6.0",
     "butterchurn": "^2.6.7",
     "butterchurn-presets": "^2.4.7",
-    "icecast-metadata-player": "1.11.9",
+    "icecast-metadata-player": "1.11.10",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.2.0",
+    "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
     "gh-pages": "^4.0.0",
     "prettier": "^2.6.2"

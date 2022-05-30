@@ -1702,6 +1702,36 @@
     ]
   },
   {
+    "name": "Graffiti Urban Radio",
+    "link": "https://www.urban-radio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://diffusion.lafrap.fr/grafopus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://diffusion.lafrap.fr/grafdab.mp3",
+        "codec": "MP3 320",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://diffusion.lafrap.fr/graffiti.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://diffusion.lafrap.fr/graffiti",
+        "codec": "AAC",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
     "name": "Atmospheres Radio",
     "description": "Music by students, staff and friends of the Royal Welsh College of Music and Drama",
     "link": "https://streaming.galaxywebsolutions.com/AudioPlayer/9040",
