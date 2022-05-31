@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "codec-parser": "2.0.2",
-    "icecast-metadata-js": "1.1.0",
+    "icecast-metadata-js": "1.1.1",
     "mpg123-decoder": "0.3.13",
     "mse-audio-wrapper": "1.4.5",
     "opus-decoder": "0.4.5"
