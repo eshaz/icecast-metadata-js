@@ -54,6 +54,7 @@ export default class IcecastMetadataQueue {
     this._initialPaused = paused;
     this._paused = paused;
     this._isInitialMetadata = true;
+    this._pendingMetadata = [];
     this._metadataQueue = [];
   }
 
@@ -85,8 +86,9 @@ export default class IcecastMetadataQueue {
       timestamp,
     };
 
-    this._metadataQueue.push(metadataPayload);
-    if (!this._paused) this._enqueueMetadata(metadataPayload);
+    this._paused
+      ? this._pendingMetadata.push(metadataPayload)
+      : this._enqueueMetadata(metadataPayload);
   }
 
   /**
@@ -104,11 +106,12 @@ export default class IcecastMetadataQueue {
    */
   startQueue(timestamp) {
     if (this._paused) {
-      this._metadataQueue.forEach((u) => {
+      this._pendingMetadata.forEach((u) => {
         if (timestamp !== undefined) u.timestamp = timestamp;
 
         this._enqueueMetadata(u);
       });
+      this._pendingMetadata = [];
       this._paused = false;
     }
   }
@@ -119,11 +122,14 @@ export default class IcecastMetadataQueue {
   purgeMetadataQueue() {
     this._metadataQueue.forEach((i) => clearTimeout(i._timeoutId));
     this._metadataQueue = [];
+    this._pendingMetadata = [];
     this._paused = this._initialPaused;
     this._isInitialMetadata = true;
   }
 
   _enqueueMetadata(payload) {
+    this._metadataQueue.push(payload);
+
     this._onMetadataEnqueue(
       payload.metadata,
       payload.timestampOffset,
