@@ -24,6 +24,13 @@ export default class Player {
 
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;
+
+    this._startMetadata = () => {
+      const currentTime = this.currentTime;
+
+      this._icecastMetadataQueue.startQueue(currentTime);
+      this._codecUpdateQueue.startQueue(currentTime);
+    };
   }
 
   static parseMimeType(mimeType) {

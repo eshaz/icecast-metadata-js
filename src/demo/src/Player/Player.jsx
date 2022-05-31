@@ -24,7 +24,7 @@ const CodecInfo = React.memo(({ codecInfo }) => {
 
 const Player = ({ station, playing, toggle, metadata, codecInfo }) => {
   // update metadata in title
-  const title = metadata.StreamTitle || metadata.TITLE;
+  const title = metadata?.StreamTitle || metadata?.TITLE;
   document.title = title
     ? `${title} | ${ICECAST_METADATA_JS_DEMO}`
     : ICECAST_METADATA_JS_DEMO;

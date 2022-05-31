@@ -9,6 +9,10 @@ export default class HTML5Player extends Player {
     this._audioElement.loop = false;
     this._audioElement.preload = "none";
 
+    this._icecast.addEventListener(event.STREAM_START, () => {
+      if (!this._firedPlay) this.reset();
+    });
+
     this.reset();
   }
 
@@ -50,7 +54,8 @@ export default class HTML5Player extends Player {
     this._metadataTimestampOffset = 0;
     this._firedPlay = false;
 
-    this._audioElement.removeAttribute("src");
+    this._audioElement.src = null;
+    this._audioElement.srcObject = null;
     this._audioElement.src = this._endpoint;
 
     if (
@@ -63,6 +68,7 @@ export default class HTML5Player extends Player {
           this._audioLoadedTimestamp = performance.now();
           this._metadataTimestampOffset =
             performance.now() - this._metadataLoadedTimestamp;
+          this._startMetadata();
         },
         { once: true }
       );

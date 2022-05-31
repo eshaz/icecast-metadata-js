@@ -21,6 +21,7 @@ export default class MediaSourcePlayer extends Player {
 
     this.reset();
 
+    this._icecast.addEventListener(event.PLAY, this._startMetadata);
     this._icecast.addEventListener(event.RETRY, () => {
       this._syncState = NOT_SYNCED;
     });

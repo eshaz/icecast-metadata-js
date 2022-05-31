@@ -234,18 +234,6 @@ export default class IcecastMetadataPlayer extends EventClass {
     this[playerState] = state.STOPPED;
 
     p.get(this)[playerFactory] = new PlayerFactory(this);
-
-    this.addEventListener(event.PLAY, () => {
-      p.get(this)[icecastMetadataQueue].startQueue(
-        p.get(this)[playerFactory].player.currentTime
-      );
-    });
-
-    this.addEventListener(event.PLAY, () => {
-      p.get(this)[codecUpdateQueue].startQueue(
-        p.get(this)[playerFactory].player.currentTime
-      );
-    });
   }
 
   /**
