@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.11.11",
+  "version": "1.11.12",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -18,7 +18,7 @@
     "update-version": "find ../demo -iname 'icecast-metadata-player*' -exec rm \"{}\" \\; && find ./ ../demo -name '.map' -prune -o -name '.git' -prune -o -name 'node_modules' -prune -o -name 'package-lock.json' -prune -o -name 'build' -prune -o -type f -printf '\\n%p:' -exec sed -i \"s/icecast-metadata-player-[0-9]*\\.[0-9]*\\.[0-9]*/icecast-metadata-player-$npm_package_version/g w /dev/fd/2\" \"{}\" \\; && cp ./build/*.js ./build/*.map ../demo/public/",
     "build": "rm -f ./build/* && webpack && npm run update-version"
   },
-  "main": "build/icecast-metadata-player-1.11.11.min.js",
+  "main": "build/icecast-metadata-player-1.11.12.min.js",
   "module": "src/IcecastMetadataPlayer.js",
   "types": "types/icecast-metadata-player.d.ts",
   "type": "module",
