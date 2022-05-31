@@ -12,6 +12,7 @@ export const state = {
 export const event = {
   BUFFER: "buffer",
   PLAY: "play",
+  PLAY_READY: "playready", // internal
   LOAD: "load",
   STREAM_START: "streamstart",
   STREAM: "stream",

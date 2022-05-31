@@ -63,7 +63,7 @@ const playerState = Symbol();
 
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
-const onPlay = Symbol();
+const onPlayReady = Symbol();
 const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
 
@@ -128,6 +128,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
+        [event.PLAY_READY]: noOp,
         [event.LOAD]: options.onLoad || noOp,
         [event.STREAM_START]: options.onStreamStart || noOp,
         [event.BUFFER]: options.onBuffer || noOp,
@@ -213,7 +214,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           p.get(this)[resetPlayback]();
         }
       },
-      [onPlay]: () => {
+      [onPlayReady]: () => {
         const audio = p.get(this)[audioElement];
 
         if (
@@ -291,7 +292,8 @@ export default class IcecastMetadataPlayer extends EventClass {
     audio.addEventListener("pause", p.get(this)[onAudioPause]);
     audio.addEventListener("play", p.get(this)[onAudioPlay]);
     audio.addEventListener("error", p.get(this)[onAudioError]);
-    this.addEventListener("play", p.get(this)[onPlay]);
+
+    this.addEventListener(event.PLAY_READY, p.get(this)[onPlayReady]);
   }
 
   /**
@@ -302,8 +304,8 @@ export default class IcecastMetadataPlayer extends EventClass {
     audio.removeEventListener("pause", p.get(this)[onAudioPause]);
     audio.removeEventListener("play", p.get(this)[onAudioPlay]);
     audio.removeEventListener("error", p.get(this)[onAudioError]);
-    this.removeEventListener("play", p.get(this)[onPlay]);
 
+    this.removeEventListener(event.PLAY_READY, p.get(this)[onPlayReady]);
     await this.stop();
   }
 

@@ -18,7 +18,6 @@ export default class WebAudioPlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    this._icecast.addEventListener(event.PLAY, this._startMetadata);
     this._icecast.addEventListener(event.RETRY, () => {
       this._syncState = NOT_SYNCED;
     });
@@ -113,7 +112,7 @@ export default class WebAudioPlayer extends Player {
     this._decodedSampleOffset = 0;
     this._sampleRate = 0;
     this._playbackStartTime = undefined;
-    this._firedPlay = false;
+    this._playReady = false;
 
     if (
       this._icecast.state === state.STOPPING ||
@@ -212,11 +211,14 @@ export default class WebAudioPlayer extends Player {
       source.connect(this._mediaStream);
       source.start(decodeDuration);
 
-      if (!this._firedPlay) {
+      if (!this._playReady) {
         if (this._bufferLength <= this.metadataTimestamp) {
-          this._icecast[fireEvent](event.PLAY);
+          this._icecast[fireEvent](event.PLAY_READY);
           this._playbackStartTime = performance.now();
-          this._firedPlay = true;
+
+          this._startMetadata();
+          this._icecast[fireEvent](event.PLAY);
+          this._playReady = true;
         } else {
           this._icecast[fireEvent](event.BUFFER, this.metadataTimestamp);
         }

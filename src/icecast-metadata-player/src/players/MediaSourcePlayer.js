@@ -21,7 +21,6 @@ export default class MediaSourcePlayer extends Player {
 
     this.reset();
 
-    this._icecast.addEventListener(event.PLAY, this._startMetadata);
     this._icecast.addEventListener(event.RETRY, () => {
       this._syncState = NOT_SYNCED;
     });
@@ -82,7 +81,7 @@ export default class MediaSourcePlayer extends Player {
     this._syncState = SYNCED;
     this._frameQueue = new FrameQueue(this._icecast);
     this._sourceBufferQueue = [];
-    this._firedPlay = false;
+    this._playReady = false;
 
     this._mediaSourcePromise = this._prepareMediaSource(
       this._inputMimeType,
@@ -203,10 +202,18 @@ export default class MediaSourcePlayer extends Player {
         if (e.name !== "QuotaExceededError") throw e;
       }
 
-      if (!this._firedPlay) {
+      if (!this._playReady) {
         if (this._bufferLength <= this.metadataTimestamp) {
-          this._icecast[fireEvent](event.PLAY);
-          this._firedPlay = true;
+          this._audioElement.addEventListener(
+            "playing",
+            () => {
+              this._startMetadata();
+              this._icecast[fireEvent](event.PLAY);
+            },
+            { once: true }
+          );
+          this._icecast[fireEvent](event.PLAY_READY);
+          this._playReady = true;
         } else {
           this._icecast[fireEvent](event.BUFFER, this.metadataTimestamp);
         }
