@@ -230,7 +230,6 @@ if (WebAudioPlayer.isSupported) {
     audioCtx
       .resume()
       .then(() => {
-        console.log("unlock");
         events.forEach((e) => document.removeEventListener(e, unlock));
 
         // hack for iOS to continue playing while locked
