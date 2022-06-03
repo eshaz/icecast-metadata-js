@@ -3,8 +3,6 @@ import { MPEGDecoderWebWorker } from "mpg123-decoder";
 
 import FrameQueue from "../FrameQueue.js";
 import {
-  p,
-  audioContext,
   state,
   event,
   SYNCED,
@@ -25,12 +23,9 @@ export default class WebAudioPlayer extends Player {
       if (!this._wasmDecoder) this._getWasmDecoder();
     });
 
+    this._audioContext = WebAudioPlayer.constructor.audioContext;
+
     this._getWasmDecoder();
-
-    // set up audio context once
-    // audio context needs to be reused for the life of this instance for safari compatibility
-    this._initAudioContext();
-
     this.reset();
   }
 
@@ -86,20 +81,6 @@ export default class WebAudioPlayer extends Player {
     }
 
     this._wasmReady = this._wasmDecoder.ready;
-  }
-
-  _initAudioContext() {
-    this._audioContext = p.get(this._icecast)[audioContext];
-
-    // hack for iOS to continue playing while locked
-    this._audioContext
-      .createScriptProcessor(2 ** 14, 2, 2)
-      .connect(this._audioContext.destination);
-
-    this._audioContext.resume();
-    this._audioContext.onstatechange = () => {
-      if (this._audioContext.state !== "running") this._audioContext.resume();
-    };
   }
 
   async reset() {
@@ -227,4 +208,44 @@ export default class WebAudioPlayer extends Player {
       this._decodedSample += samplesDecoded;
     }
   }
+}
+
+// statically initialize audio context and start using a DOM event
+if (WebAudioPlayer.isSupported) {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const audioCtxErrorHandler = (e) => {
+    console.error(
+      "icecast-metadata-js",
+      "Failed to start the AudioContext. WebAudio playback will not be possible.",
+      e
+    );
+  };
+
+  // hack for iOS Audio element controls support
+  // iOS will only enable AudioContext.resume() when called directly from a UI event
+  // https://stackoverflow.com/questions/57510426
+  const events = ["touchstart", "touchend", "mousedown", "keydown"];
+
+  const unlock = () => {
+    audioCtx
+      .resume()
+      .then(() => {
+        events.forEach((e) => document.removeEventListener(e, unlock));
+
+        // hack for iOS to continue playing while locked
+        audioCtx
+          .createScriptProcessor(2 ** 14, 2, 2)
+          .connect(audioCtx.destination);
+
+        audioCtx.onstatechange = () => {
+          if (audioCtx.state !== "running")
+            audioCtx.resume().catch(audioCtxErrorHandler);
+        };
+      })
+      .catch(audioCtxErrorHandler);
+  };
+
+  events.forEach((e) => document.addEventListener(e, unlock));
+
+  WebAudioPlayer.constructor.audioContext = audioCtx;
 }
