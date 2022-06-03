@@ -50,7 +50,6 @@ export const shouldRetry = Symbol();
 export const logError = Symbol();
 
 // variables
-export const audioContext = Symbol();
 export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
 export const codecUpdateQueue = Symbol();

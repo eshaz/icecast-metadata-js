@@ -1,7 +1,6 @@
 import {
   p,
   audioElement,
-  audioContext,
   bufferLength,
   icecastMetadataQueue,
   codecUpdateQueue,
@@ -107,33 +106,6 @@ export default class Player {
         "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
 
       this._audioElement.loop = true;
-    }
-
-    if (supportedSources.includes("webaudio")) {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-        latencyHint: "playback",
-      });
-
-      p.get(this._icecast)[audioContext] = audioCtx;
-
-      // hack for iOS Audio element controls support
-      // iOS will only enable AudioContext.resume() when called directly from a UI event
-      // https://stackoverflow.com/questions/57510426
-      if (audioCtx.state === "suspended") {
-        const events = ["touchstart", "touchend", "mousedown", "keydown"];
-
-        const unlock = () => {
-          audioCtx.resume().then(() => {
-            events.forEach((e) =>
-              this._audioElement.removeEventListener(e, unlock)
-            );
-          });
-        };
-
-        events.forEach((e) =>
-          this._audioElement.addEventListener(e, unlock, false)
-        );
-      }
     }
   }
 
