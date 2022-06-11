@@ -344,7 +344,7 @@
     "endpoints": [
       {
         "endpoint": "https://dnb4you.org.ru:8443/radio",
-        "codec": "Opus",
+        "codec": "Vorbis",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       }
