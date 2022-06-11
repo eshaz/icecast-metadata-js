@@ -212,7 +212,10 @@ export default class WebAudioPlayer extends Player {
 
 // statically initialize audio context and start using a DOM event
 if (WebAudioPlayer.isSupported) {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+    latencyHint: "playback",
+  });
+
   const audioCtxErrorHandler = (e) => {
     console.error(
       "icecast-metadata-js",
