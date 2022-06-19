@@ -78,7 +78,10 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async reset() {
+    super.reset();
+
     this._syncState = SYNCED;
+    this._syncSuccessful = false;
     this._frameQueue = new FrameQueue(this._icecast);
     this._sourceBufferQueue = [];
     this._playReady = false;
@@ -100,8 +103,12 @@ export default class MediaSourcePlayer extends Player {
           this._frameQueue.initSync();
           this._syncState = SYNCING;
         case SYNCING:
-          [frames] = this._frameQueue.sync(frames);
-          if (frames.length) this._syncState = SYNCED;
+          [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
+          if (frames.length) {
+            this._syncState = SYNCED;
+
+            if (!this._syncSuccessful) await this.reset();
+          }
       }
 
       this._frameQueue.addAll(frames);

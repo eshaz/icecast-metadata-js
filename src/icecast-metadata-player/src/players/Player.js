@@ -138,9 +138,12 @@ export default class Player {
   }
 
   /**
-   * @interface
+   * @abstract
    */
-  async reset() {}
+  async reset() {
+    this._icecastMetadataQueue.purgeMetadataQueue();
+    this._codecUpdateQueue.purgeMetadataQueue();
+  }
 
   /**
    * @abstract

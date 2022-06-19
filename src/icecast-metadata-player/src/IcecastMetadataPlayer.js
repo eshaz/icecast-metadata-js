@@ -176,8 +176,6 @@ export default class IcecastMetadataPlayer extends EventClass {
           } catch (e) {
             p.get(this)[onAudioError](e);
           }
-          p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-          p.get(this)[codecUpdateQueue].purgeMetadataQueue();
           p.get(this)[playerResetPromise] = p
             .get(this)
             [playerFactory].player.reset();

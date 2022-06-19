@@ -48,6 +48,8 @@ export default class HTML5Player extends Player {
   }
 
   async reset() {
+    super.reset();
+
     this._frame = null;
     this._metadataLoadedTimestamp = performance.now();
     this._audioLoadedTimestamp = 0;
