@@ -84,6 +84,8 @@ export default class WebAudioPlayer extends Player {
   }
 
   async reset() {
+    super.reset();
+
     this._syncState = SYNCED;
     this._syncSuccessful = false;
     this._frameQueue = new FrameQueue(this._icecast);
@@ -212,10 +214,6 @@ export default class WebAudioPlayer extends Player {
 
 // statically initialize audio context and start using a DOM event
 if (WebAudioPlayer.isSupported) {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-    latencyHint: "playback",
-  });
-
   const audioCtxErrorHandler = (e) => {
     console.error(
       "icecast-metadata-js",
@@ -230,11 +228,15 @@ if (WebAudioPlayer.isSupported) {
   const events = ["touchstart", "touchend", "mousedown", "keydown"];
 
   const unlock = () => {
+    events.forEach((e) => document.removeEventListener(e, unlock));
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+      latencyHint: "playback",
+    });
+
     audioCtx
       .resume()
       .then(() => {
-        events.forEach((e) => document.removeEventListener(e, unlock));
-
         // hack for iOS to continue playing while locked
         audioCtx
           .createScriptProcessor(2 ** 14, 2, 2)
@@ -246,9 +248,9 @@ if (WebAudioPlayer.isSupported) {
         };
       })
       .catch(audioCtxErrorHandler);
+
+    WebAudioPlayer.constructor.audioContext = audioCtx;
   };
 
   events.forEach((e) => document.addEventListener(e, unlock));
-
-  WebAudioPlayer.constructor.audioContext = audioCtx;
 }
