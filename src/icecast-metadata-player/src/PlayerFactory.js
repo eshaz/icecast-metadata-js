@@ -30,12 +30,10 @@ export default class PlayerFactory {
     this._enableLogging = instanceVariables[enableLogging];
     this._enableCodecUpdate = instanceVariables[enableCodecUpdate];
     this._audioElement = instanceVariables[audioElement];
-    this._endpoint = instanceVariables[endpoint];
     this._metadataTypes = instanceVariables[metadataTypes];
     this._icyMetaInt = instanceVariables[icyMetaInt];
     this._icyCharacterEncoding = instanceVariables[icyCharacterEncoding];
     this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
-    this._hasIcy = instanceVariables[hasIcy];
     this._preferredPlaybackMethod = instanceVariables[playbackMethod];
 
     this._playbackMethod = "";
@@ -87,10 +85,12 @@ export default class PlayerFactory {
   }
 
   async fetchStream() {
-    const res = await fetch(this._endpoint, {
+    const instanceVariables = p.get(this._icecast);
+
+    const res = await fetch(instanceVariables[endpoint], {
       method: "GET",
-      headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: p.get(this._icecast)[abortController].signal,
+      headers: instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {},
+      signal: instanceVariables[abortController].signal,
     });
 
     if (!res.ok) {

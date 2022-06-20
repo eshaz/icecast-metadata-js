@@ -1,4 +1,5 @@
 import MSEAudioWrapper from "mse-audio-wrapper";
+import SynAudio from "synaudio";
 
 import {
   state,
@@ -21,9 +22,11 @@ export default class MediaSourcePlayer extends Player {
 
     this.reset();
 
-    this._icecast.addEventListener(event.RETRY, () => {
-      this._syncState = NOT_SYNCED;
-    });
+    [event.RETRY, event.SWITCH].forEach((e) =>
+      this._icecast.addEventListener(e, () => {
+        this._syncState = NOT_SYNCED;
+      })
+    );
   }
 
   static canPlayType(mimeType) {

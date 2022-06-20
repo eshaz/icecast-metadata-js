@@ -49,6 +49,8 @@ import {
   icecastMetadataQueue,
   codecUpdateQueue,
   abortController,
+  switchEndpointPromise,
+  switchRequestId,
 } from "./global.js";
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
@@ -140,6 +142,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.STOP]: options.onStop || noOp,
         [event.RETRY]: options.onRetry || noOp,
         [event.RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
+        [event.SWITCH]: options.onSwitch || noOp,
         [event.WARN]: (...messages) => {
           this[logError](console.warn, options.onWarn, messages);
         },
@@ -227,6 +230,8 @@ export default class IcecastMetadataPlayer extends EventClass {
           this[playerState] = state.PLAYING;
         }
       },
+      [switchEndpointPromise]: Promise.resolve(),
+      [switchRequestId]: 0,
     });
 
     this[attachAudioElement]();
@@ -320,6 +325,13 @@ export default class IcecastMetadataPlayer extends EventClass {
       // prettier-ignore
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
+          .then(() => {
+            if (this.state === state.SWITCHING) {
+              this[fireEvent](event.SWITCH);
+              //this[playerState] = state.LOADING;
+              return tryFetching();
+            }
+          })
           .catch(async (e) => {
             if (e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
@@ -357,7 +369,7 @@ export default class IcecastMetadataPlayer extends EventClass {
 
   /**
    * @description Stops playing the Icecast stream
-   * @async Resolves the icecast stream has stopped
+   * @async Resolves when the icecast stream has stopped
    */
   async stop() {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
@@ -367,6 +379,45 @@ export default class IcecastMetadataPlayer extends EventClass {
       await new Promise((resolve) => {
         this.addEventListener(event.STOP, resolve, { once: true });
       });
+    }
+  }
+
+  /**
+   * @description Switches the Icecast stream endpoint during playback
+   * @async Resolves when the new endpoint has began returning data
+   */
+  async switchEndpoint(newEndpoint) {
+    if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
+      const requestId = ++p.get(this)[switchRequestId];
+
+      return p.get(this)[switchEndpointPromise] = p
+        .get(this)
+        [switchEndpointPromise].then(() => {
+          if (
+            (this.state === state.PLAYING || this.state === state.RETRYING) &&
+            requestId === p.get(this)[switchRequestId] // only execute if this is latest request
+          ) {
+            this[playerState] = state.SWITCHING;
+
+            p.get(this)[endpoint] = newEndpoint;
+            p.get(this)[abortController].abort();
+            p.get(this)[abortController] = new AbortController();
+
+            this[fireEvent](event.SWITCH);
+
+            return new Promise((resolve) => {
+              this.addEventListener(
+                event.STREAM_START,
+                () => {
+                  if (this.state === state.SWITCHING)
+                    this[playerState] = state.PLAYING;
+                  resolve();
+                },
+                { once: true }
+              );
+            });
+          }
+        });
     }
   }
 

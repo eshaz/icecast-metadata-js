@@ -16,9 +16,12 @@ export default class WebAudioPlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    this._icecast.addEventListener(event.RETRY, () => {
-      this._syncState = NOT_SYNCED;
-    });
+    [event.RETRY, event.SWITCH].forEach((e) =>
+      this._icecast.addEventListener(e, () => {
+        this._syncState = NOT_SYNCED;
+      })
+    );
+
     this._icecast.addEventListener(event.STREAM_START, () => {
       if (!this._wasmDecoder) this._getWasmDecoder();
     });

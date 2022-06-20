@@ -7,6 +7,7 @@ export const state = {
   STOPPING: "stopping",
   STOPPED: "stopped",
   RETRYING: "retrying",
+  SWITCHING: "switching",
 };
 
 export const event = {
@@ -23,6 +24,7 @@ export const event = {
   STOP: "stop",
   RETRY: "retry",
   RETRY_TIMEOUT: "retrytimeout",
+  SWITCH: "switch",
   WARN: "warn",
   ERROR: "error",
 };
@@ -54,6 +56,8 @@ export const hasIcy = Symbol();
 export const icecastMetadataQueue = Symbol();
 export const codecUpdateQueue = Symbol();
 export const abortController = Symbol();
+export const switchEndpointPromise = Symbol();
+export const switchRequestId = Symbol();
 
 // sync state
 export const SYNCED = Symbol();
