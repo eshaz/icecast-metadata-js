@@ -77,32 +77,28 @@ export default class FrameQueue {
 
     let matched, outOfFrames;
 
-    align_queues: for (const absoluteSyncPoint of syncPoints) {
-      this._syncPoint =
-        absoluteSyncPoint - (this._absolutePosition - this._queue.length);
+    if (syncPoints) {
+      align_queues: for (const absoluteSyncPoint of syncPoints) {
+        this._syncPoint =
+          absoluteSyncPoint - (this._absolutePosition - this._queue.length);
 
-      for (
-        let i = syncQueueStartIndex;
-        i < this._syncQueue.length && this._syncPoint + i < this._queue.length;
-        i++
-      )
-        if (this._queue[this._syncPoint + i].crc32 !== this._syncQueue[i].crc32)
-          continue align_queues; // failed to match
+        for (
+          let i = syncQueueStartIndex;
+          i < this._syncQueue.length &&
+          this._syncPoint + i < this._queue.length;
+          i++
+        )
+          if (
+            this._queue[this._syncPoint + i].crc32 !== this._syncQueue[i].crc32
+          )
+            continue align_queues; // failed to match
 
-      outOfFrames =
-        this._syncPoint + this._syncQueue.length <= this._queue.length;
-      matched = true;
-      break; // full match
+        outOfFrames =
+          this._syncPoint + this._syncQueue.length <= this._queue.length;
+        matched = true;
+        break; // full match
+      }
     }
-
-    /*console.log(
-      syncQueueCrc,
-      syncPoints,
-      this._queueIndexes,
-      this._queueDuration,
-      this._queue.length,
-      this._syncQueue.length
-    );*/
 
     // have some overlapping frames, but none are new frames
     if (outOfFrames) return [[], false];
