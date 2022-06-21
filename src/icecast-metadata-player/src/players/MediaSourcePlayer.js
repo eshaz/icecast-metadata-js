@@ -1,5 +1,4 @@
 import MSEAudioWrapper from "mse-audio-wrapper";
-import SynAudio from "synaudio";
 
 import {
   state,
@@ -106,7 +105,7 @@ export default class MediaSourcePlayer extends Player {
           this._frameQueue.initSync();
           this._syncState = SYNCING;
         case SYNCING:
-          [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
+          [frames, this._syncSuccessful] = await this._frameQueue.sync(frames);
           if (frames.length) {
             this._syncState = SYNCED;
 

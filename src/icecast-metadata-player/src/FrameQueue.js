@@ -1,4 +1,7 @@
-import { event, fireEvent } from "./global.js";
+import SynAudio from "synaudio";
+
+import { concatBuffers, event, fireEvent } from "./global.js";
+import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 export default class FrameQueue {
   constructor(icecast) {
@@ -13,6 +16,7 @@ export default class FrameQueue {
   initSync() {
     this._syncQueue = [];
     this._syncPoint = 0;
+    this._synAudioResult = null;
   }
 
   initQueue() {
@@ -23,15 +27,15 @@ export default class FrameQueue {
     this._absolutePosition = 0;
   }
 
-  add({ crc32, duration }) {
-    this._queue.push({ crc32, duration });
-    this._queueDuration += duration;
+  add(frame) {
+    this._queue.push(frame);
+    this._queueDuration += frame.duration;
 
     // update queue index
-    let indexes = this._queueIndexes[crc32];
+    let indexes = this._queueIndexes[frame.crc32];
     if (!indexes) {
       indexes = [];
-      this._queueIndexes[crc32] = indexes;
+      this._queueIndexes[frame.crc32] = indexes;
     }
     indexes.push(this._absolutePosition++);
 
@@ -67,18 +71,18 @@ export default class FrameQueue {
    * @param {Array<CodecFrame|OggPage>} frames
    * @returns Array with frames as first element, boolean indicating if the sync was successful as the second element
    */
-  sync(frames) {
+  async sync(frames) {
     this._syncQueue.push(...frames);
 
     // get all indexed matches for crc and check
     const syncQueueStartIndex = 0;
     const syncQueueCrc = this._syncQueue[syncQueueStartIndex].crc32;
-    const syncPoints = this._queueIndexes[syncQueueCrc];
+    const crcSyncPoints = this._queueIndexes[syncQueueCrc];
 
     let matched, outOfFrames;
 
-    if (syncPoints) {
-      align_queues: for (const absoluteSyncPoint of syncPoints) {
+    if (crcSyncPoints) {
+      align_queues: for (const absoluteSyncPoint of crcSyncPoints) {
         this._syncPoint =
           absoluteSyncPoint - (this._absolutePosition - this._queue.length);
 
@@ -98,15 +102,14 @@ export default class FrameQueue {
         matched = true;
         break; // full match
       }
-    }
 
-    // have some overlapping frames, but none are new frames
-    if (outOfFrames) return [[], false];
+      // have some overlapping frames, but none are new frames
+      if (outOfFrames) return [[], false];
 
-    if (matched) {
-      const sliceIndex = this._queue.length - this._syncPoint;
-      // prettier-ignore
-      this._icecast[fireEvent](
+      if (matched) {
+        const sliceIndex = this._queue.length - this._syncPoint;
+        // prettier-ignore
+        this._icecast[fireEvent](
         event.WARN,
         "Reconnected successfully after retry event.",
         `Found ${sliceIndex} frames (${(this._queue
@@ -115,11 +118,146 @@ export default class FrameQueue {
         "Synchronized old and new request."
       );
 
-      const newFrames = this._syncQueue.slice(sliceIndex);
-      this.initSync();
-      return [newFrames, true];
+        const newFrames = this._syncQueue.slice(sliceIndex);
+        this.initSync();
+        return [newFrames, true];
+      }
     }
 
+    // no crc32 matches, try matching with PCM
+
+    const minSyncLength = 0.5; // seconds
+
+    if (
+      this._syncQueue[this._syncQueue.length - 1].totalDuration < minSyncLength
+    ) {
+      return [[], false];
+    }
+
+    const samplesToDuration = (samples, rate) => samples / rate;
+
+    if (!this._synAudioResult) {
+      const audioCtx = WebAudioPlayer.constructor.audioContext;
+
+      const [a, b] = await Promise.all([
+        audioCtx.decodeAudioData(
+          concatBuffers(this._queue.map(({ data }) => data)).buffer
+        ),
+        audioCtx.decodeAudioData(
+          concatBuffers(this._syncQueue.map(({ data }) => data)).buffer
+        ),
+      ]);
+
+      console.log("decoded", performance.now());
+
+      const synAudio = new SynAudio({
+        covarianceSampleSize: a.sampleRate * minSyncLength,
+        initialGranularity: 32,
+      });
+
+      const aDecoded = {
+        channelData: [],
+        samplesDecoded: a.length,
+        sampleRate: a.sampleRate,
+      };
+      const bDecoded = {
+        channelData: [],
+        samplesDecoded: b.length,
+        sampleRate: b.sampleRate,
+      };
+
+      for (let i = 0; i < a.numberOfChannels; i++)
+        aDecoded.channelData.push(a.getChannelData(i));
+
+      for (let i = 0; i < b.numberOfChannels; i++)
+        bDecoded.channelData.push(b.getChannelData(i));
+
+      this._synAudioResult = await synAudio.syncWorker(
+        aDecoded,
+        bDecoded,
+        aDecoded.sampleRate
+      );
+
+      console.log("synced", performance.now());
+
+      const aFrameLength = samplesToDuration(
+        this._queue.reduce((aac, { samples }) => samples + aac, 0),
+        this._queue[0].header.sampleRate
+      );
+      const bFrameLength = samplesToDuration(
+        this._syncQueue.reduce((aac, { samples }) => samples + aac, 0),
+        this._syncQueue[0].header.sampleRate
+      );
+
+      const aDecodeStart =
+        aFrameLength -
+        samplesToDuration(aDecoded.samplesDecoded, aDecoded.sampleRate);
+      const bDecodeStart =
+        bFrameLength -
+        samplesToDuration(bDecoded.samplesDecoded, bDecoded.sampleRate);
+
+      const aOffset = samplesToDuration(
+        this._synAudioResult.sampleOffset,
+        aDecoded.sampleRate
+      );
+      const bTrim = samplesToDuration(
+        this._synAudioResult.trim,
+        bDecoded.sampleRate
+      );
+
+      this._bMinLength = aFrameLength - aOffset - bTrim;
+
+      console.log(
+        "aFrameLength",
+        aFrameLength,
+        "bFrameLength",
+        bFrameLength,
+        "aDecodeStart",
+        aDecodeStart,
+        "bDecodeStart",
+        bDecodeStart,
+        "offset",
+        aOffset,
+        "trim",
+        bTrim,
+        "minLength",
+        this._bMinLength,
+        "covariance",
+        this._synAudioResult.covariance
+      );
+    }
+
+    const bFrameLength =
+      this._syncQueue[this._syncQueue.length - 1].totalDuration / 1000;
+
+    console.log(bFrameLength, this._bMinLength);
+
+    if (bFrameLength <= this._bMinLength) {
+      // need more frames
+      return [[], false];
+    }
+
+    let sliceIndex = this._syncQueue.length;
+    for (; sliceIndex > 0; sliceIndex--) {
+      if (
+        this._syncQueue[sliceIndex - 1].totalDuration / 1000 <
+        this._bMinLength
+      )
+        break;
+    }
+
+    console.log(
+      "slice",
+      sliceIndex,
+      this._syncQueue[sliceIndex].totalDuration / 1000
+    );
+
+    const newFrames = this._syncQueue.slice(sliceIndex);
+    this.initSync();
+    this.initQueue();
+    return [newFrames, true];
+
+    /*
     // no matching data (not synced)
     // prettier-ignore
     this._icecast[fireEvent](
@@ -133,5 +271,6 @@ export default class FrameQueue {
     this.initSync();
     this.initQueue(); // clear queue since there is a gap in data
     return [syncQueue, false];
+    */
   }
 }

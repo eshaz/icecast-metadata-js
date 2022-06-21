@@ -130,7 +130,7 @@ export default class WebAudioPlayer extends Player {
         this._frameQueue.initSync();
         this._syncState = SYNCING;
       case SYNCING:
-        [frames, this._syncSuccessful] = this._frameQueue.sync(frames);
+        [frames, this._syncSuccessful] = await this._frameQueue.sync(frames);
 
         if (frames.length) {
           this._syncState = SYNCED;

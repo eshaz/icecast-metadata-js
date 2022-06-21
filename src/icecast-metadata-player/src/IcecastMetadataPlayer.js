@@ -390,7 +390,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
       const requestId = ++p.get(this)[switchRequestId];
 
-      return p.get(this)[switchEndpointPromise] = p
+      p.get(this)[switchEndpointPromise] = p
         .get(this)
         [switchEndpointPromise].then(() => {
           if (
@@ -418,6 +418,8 @@ export default class IcecastMetadataPlayer extends EventClass {
             });
           }
         });
+
+        return p.get(this)[switchEndpointPromise];
     }
   }
 
