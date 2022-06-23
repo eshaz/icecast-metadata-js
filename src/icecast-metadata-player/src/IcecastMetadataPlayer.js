@@ -271,7 +271,7 @@ export default class IcecastMetadataPlayer extends EventClass {
   }
 
   /**
-   * @returns {string} The current state ("loading", "playing", "stopping", "stopped", "retrying")
+   * @returns {string} The current state ("loading", "playing", "stopping", "stopped", "retrying", "switching")
    */
   get state() {
     return p.get(this)[playerState];
@@ -419,7 +419,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           }
         });
 
-        return p.get(this)[switchEndpointPromise];
+      return p.get(this)[switchEndpointPromise];
     }
   }
 

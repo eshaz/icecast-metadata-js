@@ -6,6 +6,7 @@ import {
   fireEvent,
   concatBuffers,
   SYNCED,
+  PCM_SYNCED,
   SYNCING,
   NOT_SYNCED,
 } from "../global.js";
@@ -19,11 +20,9 @@ export default class MediaSourcePlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    this.reset();
-
     [event.RETRY, event.SWITCH].forEach((e) =>
       this._icecast.addEventListener(e, () => {
-        this._syncState = NOT_SYNCED;
+        this.syncState = NOT_SYNCED;
       })
     );
   }
@@ -82,8 +81,8 @@ export default class MediaSourcePlayer extends Player {
   async reset() {
     super.reset();
 
-    this._syncState = SYNCED;
-    this._syncSuccessful = false;
+    this.syncState = SYNCED;
+    this.syncFrames = [];
     this._frameQueue = new FrameQueue(this._icecast);
     this._sourceBufferQueue = [];
     this._playReady = false;
@@ -100,25 +99,27 @@ export default class MediaSourcePlayer extends Player {
     frames = frames.flatMap((frame) => frame.codecFrames || frame);
 
     if (frames.length) {
-      switch (this._syncState) {
+      switch (this.syncState) {
         case NOT_SYNCED:
           this._frameQueue.initSync();
-          this._syncState = SYNCING;
+          this.syncState = SYNCING;
         case SYNCING:
-          [frames, this._syncSuccessful] = await this._frameQueue.sync(frames);
-          if (frames.length) {
-            this._syncState = SYNCED;
-
-            if (!this._syncSuccessful) await this.reset();
-          }
+          [frames, this.syncState] = await this._frameQueue.sync(frames);
       }
 
-      this._frameQueue.addAll(frames);
+      switch (this.syncState) {
+        case SYNCED:
+          // when frames are present, we should already know the codec and have the mse audio mimetype determined
+          await (
+            await this._mediaSourcePromise
+          )(frames); // wait for the source buffer to be created
 
-      // when frames are present, we should already know the codec and have the mse audio mimetype determined
-      await (
-        await this._mediaSourcePromise
-      )(frames); // wait for the source buffer to be created
+          this._frameQueue.addAll(frames);
+          break;
+        case PCM_SYNCED:
+          this.syncFrames.push(...frames);
+          break;
+      }
     }
   }
 

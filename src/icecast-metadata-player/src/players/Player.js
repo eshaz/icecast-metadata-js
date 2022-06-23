@@ -5,6 +5,7 @@ import {
   icecastMetadataQueue,
   codecUpdateQueue,
   endpoint,
+  SYNCED,
 } from "../global.js";
 
 export default class Player {
@@ -23,6 +24,11 @@ export default class Player {
 
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;
+
+    this._syncState = SYNCED;
+    this._syncStatePromise = new Promise((resolve) => {
+      resolve = this._syncStateResolve;
+    });
 
     this._startMetadata = () => {
       const currentTime = this.currentTime;
@@ -107,6 +113,24 @@ export default class Player {
 
       this._audioElement.loop = true;
     }
+  }
+
+  get syncStateUpdate() {
+    return this._syncStatePromise;
+  }
+
+  get syncState() {
+    return this._syncState;
+  }
+
+  set syncState(newState) {
+    this._syncState = newState;
+
+    if (this._syncStateResolve) this._syncStateResolve(newState);
+
+    this._syncStatePromise = new Promise((resolve) => {
+      this._syncStateResolve = resolve;
+    });
   }
 
   /**

@@ -1,11 +1,19 @@
 import SynAudio from "synaudio";
 
-import { concatBuffers, event, fireEvent } from "./global.js";
+import {
+  concatBuffers,
+  event,
+  fireEvent,
+  SYNCED,
+  PCM_SYNCED,
+  SYNCING,
+  NOT_SYNCED,
+} from "./global.js";
 import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 export default class FrameQueue {
   constructor(icecast) {
-    this.CACHE_DURATION = 300000; // milliseconds of burst on connect data
+    this.CACHE_DURATION = 60000; // milliseconds of burst on connect data
 
     this._icecast = icecast;
 
@@ -104,7 +112,7 @@ export default class FrameQueue {
       }
 
       // have some overlapping frames, but none are new frames
-      if (outOfFrames) return [[], false];
+      if (outOfFrames) return [[], SYNCING];
 
       if (matched) {
         const sliceIndex = this._queue.length - this._syncPoint;
@@ -120,21 +128,37 @@ export default class FrameQueue {
 
         const newFrames = this._syncQueue.slice(sliceIndex);
         this.initSync();
-        return [newFrames, true];
+        return [newFrames, SYNCED];
       }
     }
 
     // no crc32 matches, try matching with PCM
 
-    const minSyncLength = 0.5; // seconds
+    /*
+    add method to PlayerFactory to switch player
+      pass in new codec, start time (offset of b frames)
+
+      create new player with the new codec
+
+      set timeout to start new player when start time has elapsed
+      After start, remove / stop old player, which should have already stopped since all frames would have been consumed
+
+      Could stop the player as soon as the new player can start to have a faster switch
+
+      change state from SWITCHING to PLAYING once new player starts
+
+    */
+
+    const minSyncLength = 1; // seconds
 
     if (
       this._syncQueue[this._syncQueue.length - 1].totalDuration < minSyncLength
     ) {
-      return [[], false];
+      return [[], SYNCING];
     }
 
     const samplesToDuration = (samples, rate) => samples / rate;
+    const durationToSamples = (duration, rate) => Math.round(duration * rate);
 
     if (!this._synAudioResult) {
       const audioCtx = WebAudioPlayer.constructor.audioContext;
@@ -148,10 +172,20 @@ export default class FrameQueue {
         ),
       ]);
 
+      const correlationSampleSize = a.sampleRate * minSyncLength;
+
+      if (
+        a.length <= correlationSampleSize ||
+        b.length <= correlationSampleSize
+      ) {
+        console.log("need more data");
+        return [[], SYNCING]; // need more data
+      }
+
       console.log("decoded", performance.now());
 
       const synAudio = new SynAudio({
-        covarianceSampleSize: a.sampleRate * minSyncLength,
+        correlationSampleSize,
         initialGranularity: 32,
       });
 
@@ -172,14 +206,6 @@ export default class FrameQueue {
       for (let i = 0; i < b.numberOfChannels; i++)
         bDecoded.channelData.push(b.getChannelData(i));
 
-      this._synAudioResult = await synAudio.syncWorker(
-        aDecoded,
-        bDecoded,
-        aDecoded.sampleRate
-      );
-
-      console.log("synced", performance.now());
-
       const aFrameLength = samplesToDuration(
         this._queue.reduce((aac, { samples }) => samples + aac, 0),
         this._queue[0].header.sampleRate
@@ -196,17 +222,6 @@ export default class FrameQueue {
         bFrameLength -
         samplesToDuration(bDecoded.samplesDecoded, bDecoded.sampleRate);
 
-      const aOffset = samplesToDuration(
-        this._synAudioResult.sampleOffset,
-        aDecoded.sampleRate
-      );
-      const bTrim = samplesToDuration(
-        this._synAudioResult.trim,
-        bDecoded.sampleRate
-      );
-
-      this._bMinLength = aFrameLength - aOffset - bTrim;
-
       console.log(
         "aFrameLength",
         aFrameLength,
@@ -216,14 +231,34 @@ export default class FrameQueue {
         aDecodeStart,
         "bDecodeStart",
         bDecodeStart,
+        "aDecodeLength",
+        samplesToDuration(a.length, a.sampleRate),
+        "bDecodeLength",
+        samplesToDuration(b.length, b.sampleRate)
+      );
+
+      this._synAudioResult = await synAudio.syncWorker(
+        aDecoded,
+        bDecoded,
+        aDecoded.sampleRate
+      );
+
+      console.log("synced", performance.now());
+
+      const aOffset = samplesToDuration(
+        this._synAudioResult.sampleOffset,
+        aDecoded.sampleRate
+      );
+
+      this._bMinLength = aFrameLength - aOffset - (aDecodeStart + bDecodeStart);
+
+      console.log(
         "offset",
         aOffset,
-        "trim",
-        bTrim,
         "minLength",
         this._bMinLength,
-        "covariance",
-        this._synAudioResult.covariance
+        "correlation",
+        this._synAudioResult.correlation
       );
     }
 
@@ -234,15 +269,12 @@ export default class FrameQueue {
 
     if (bFrameLength <= this._bMinLength) {
       // need more frames
-      return [[], false];
+      return [[], SYNCING];
     }
 
-    let sliceIndex = this._syncQueue.length;
-    for (; sliceIndex > 0; sliceIndex--) {
-      if (
-        this._syncQueue[sliceIndex - 1].totalDuration / 1000 <
-        this._bMinLength
-      )
+    let sliceIndex = 0;
+    for (; sliceIndex < this._syncQueue.length - 1; sliceIndex++) {
+      if (this._syncQueue[sliceIndex].totalDuration / 1000 > this._bMinLength)
         break;
     }
 
@@ -255,9 +287,8 @@ export default class FrameQueue {
     const newFrames = this._syncQueue.slice(sliceIndex);
     this.initSync();
     this.initQueue();
-    return [newFrames, true];
+    return [newFrames, PCM_SYNCED];
 
-    /*
     // no matching data (not synced)
     // prettier-ignore
     this._icecast[fireEvent](
@@ -270,7 +301,6 @@ export default class FrameQueue {
     const syncQueue = this._syncQueue;
     this.initSync();
     this.initQueue(); // clear queue since there is a gap in data
-    return [syncQueue, false];
-    */
+    return [syncQueue, NOT_SYNCED];
   }
 }

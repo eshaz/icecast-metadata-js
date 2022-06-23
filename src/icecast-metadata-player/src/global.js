@@ -60,9 +60,10 @@ export const switchEndpointPromise = Symbol();
 export const switchRequestId = Symbol();
 
 // sync state
-export const SYNCED = Symbol();
-export const SYNCING = Symbol();
-export const NOT_SYNCED = Symbol();
+export const SYNCED = Symbol("synced");
+export const SYNCING = Symbol("syncing");
+export const PCM_SYNCED = Symbol("pcm_synced");
+export const NOT_SYNCED = Symbol("not_synced");
 
 export const concatBuffers = (buffers) => {
   const buffer = new Uint8Array(

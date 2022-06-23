@@ -15,6 +15,11 @@ import {
   fireEvent,
   hasIcy,
   abortController,
+  SYNCED,
+  PCM_SYNCED,
+  SYNCING,
+  NOT_SYNCED,
+  noOp,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -140,12 +145,83 @@ export default class PlayerFactory {
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();
+    const codec = await codecPromise;
 
     if (!this._player.isAudioPlayer) {
-      this._buildPlayer(inputMimeType, await codecPromise);
+      [this._player, this._playbackMethod] = this._buildPlayer(
+        inputMimeType,
+        codec
+      );
+      this._player.reset();
+    } else {
+      await this._syncPlayer(inputMimeType, codec);
     }
 
     await icecastPromise;
+  }
+
+  async _syncPlayer(inputMimeType, codec) {
+    const handleSyncEvent = async () => {
+      const syncState = await this._player.syncStateUpdate;
+      console.log(syncState);
+
+      this._player.onMetadata = noOp;
+      this._player.onCodecUpdate = noOp;
+
+      // resolves on the next sync state update
+      // SYNCING -> should not be returned on await
+      // SYNCED -> returned if there is a perfect sync, or the player is alreay synced
+      // PCM_SYNCED -> returned if there is a pcm correlation sync
+      // NOT_SYNCED -> returned if there is no match between old and new
+
+      switch (syncState) {
+        case PCM_SYNCED:
+        case NOT_SYNCED: {
+          // create new player
+          const totalBufferedAudio =
+            this._player.metadataTimestamp - this._player.currentTime;
+
+          const [player, playbackMethod] = this._buildPlayer(
+            inputMimeType,
+            codec
+          );
+          player.globalUpdateOffset = totalBufferedAudio;
+          // disable any new metadata from being added in old player
+
+          await new Promise((resolve) => {
+            setTimeout(async () => {
+              const syncFrames = this._player.syncFrames;
+              await this._player.reset();
+
+              this._player = player;
+              this._playbackMethod = playbackMethod;
+
+              this._player.reset();
+              this._player.onStream(syncFrames);
+
+              console.log("new player");
+
+              resolve();
+            }, totalBufferedAudio * 1000);
+          });
+
+          break;
+        }
+        case SYNCING:
+          return handleSyncEvent(); // still syncing
+        case SYNCED: // synced on crc32 hashes
+      }
+    };
+
+    await handleSyncEvent();
+
+    // try to sync in current player
+    // if no crc sync
+    //   build new player with new codec
+    //   let old player continue
+    // else
+    //   return
+    //
   }
 
   _buildPlayer(inputMimeType, codec) {
@@ -156,17 +232,19 @@ export default class PlayerFactory {
       html5: HTML5Player,
     };
 
-    for (const player of Object.values({ firstMethod, ...rest })) {
-      const support = player.canPlayType(`${inputMimeType};codecs="${codec}"`);
+    let player, playbackMethod;
+
+    for (const Player of Object.values({ firstMethod, ...rest })) {
+      const support = Player.canPlayType(`${inputMimeType};codecs="${codec}"`);
 
       if (support === "probably" || support === "maybe") {
-        this._playbackMethod = player.name;
-        this._player = new player(this._icecast, inputMimeType, codec);
-        break;
+        playbackMethod = Player.name;
+        player = new Player(this._icecast, inputMimeType, codec);
+        return [player, playbackMethod];
       }
     }
 
-    if (!this._player) {
+    if (player) {
       throw new Error(
         `Your browser does not support this audio codec ${inputMimeType}${
           codec && `;codecs="${codec}"`
