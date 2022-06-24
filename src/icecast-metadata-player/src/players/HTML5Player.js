@@ -10,10 +10,10 @@ export default class HTML5Player extends Player {
     this._audioElement.preload = "none";
 
     this._icecast.addEventListener(event.STREAM_START, () => {
-      if (!this._playReady) this.reset();
+      if (!this._playReady) this.end();
     });
 
-    this.reset();
+    this.end();
   }
 
   static canPlayType(mimeType) {
@@ -47,8 +47,8 @@ export default class HTML5Player extends Player {
     );
   }
 
-  async reset() {
-    super.reset();
+  async end() {
+    super.end();
 
     this._frame = null;
     this._metadataLoadedTimestamp = performance.now();

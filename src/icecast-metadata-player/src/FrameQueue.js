@@ -163,21 +163,22 @@ export default class FrameQueue {
     if (!this._synAudioResult) {
       const audioCtx = WebAudioPlayer.constructor.audioContext;
 
-      const [a, b] = await Promise.all([
-        audioCtx.decodeAudioData(
-          concatBuffers(this._queue.map(({ data }) => data)).buffer
-        ),
+      [this._a, this._b] = await Promise.all([
+        this._a // only decode "a" once
+          ? this._a
+          : audioCtx.decodeAudioData(
+              concatBuffers(this._queue.map(({ data }) => data)).buffer
+            ),
         audioCtx.decodeAudioData(
           concatBuffers(this._syncQueue.map(({ data }) => data)).buffer
         ),
       ]);
 
-      const correlationSampleSize = a.sampleRate * minSyncLength;
+      const correlationSampleSize = this._a.sampleRate * minSyncLength;
 
-      if (
-        a.length <= correlationSampleSize ||
-        b.length <= correlationSampleSize
-      ) {
+      if (this._b.length <= correlationSampleSize) {
+        // need to handle this situation where buffered data continues to go into this player while doing pcm sync
+        // maybe another sync state that creates a new player immediately when it is known that there are no crc data matches
         console.log("need more data");
         return [[], SYNCING]; // need more data
       }
@@ -191,20 +192,20 @@ export default class FrameQueue {
 
       const aDecoded = {
         channelData: [],
-        samplesDecoded: a.length,
-        sampleRate: a.sampleRate,
+        samplesDecoded: this._a.length,
+        sampleRate: this._a.sampleRate,
       };
       const bDecoded = {
         channelData: [],
-        samplesDecoded: b.length,
-        sampleRate: b.sampleRate,
+        samplesDecoded: this._b.length,
+        sampleRate: this._b.sampleRate,
       };
 
-      for (let i = 0; i < a.numberOfChannels; i++)
-        aDecoded.channelData.push(a.getChannelData(i));
+      for (let i = 0; i < this._a.numberOfChannels; i++)
+        aDecoded.channelData.push(this._a.getChannelData(i));
 
-      for (let i = 0; i < b.numberOfChannels; i++)
-        bDecoded.channelData.push(b.getChannelData(i));
+      for (let i = 0; i < this._b.numberOfChannels; i++)
+        bDecoded.channelData.push(this._b.getChannelData(i));
 
       const aFrameLength = samplesToDuration(
         this._queue.reduce((aac, { samples }) => samples + aac, 0),
@@ -232,9 +233,9 @@ export default class FrameQueue {
         "bDecodeStart",
         bDecodeStart,
         "aDecodeLength",
-        samplesToDuration(a.length, a.sampleRate),
+        samplesToDuration(this._a.length, this._a.sampleRate),
         "bDecodeLength",
-        samplesToDuration(b.length, b.sampleRate)
+        samplesToDuration(this._b.length, this._b.sampleRate)
       );
 
       this._synAudioResult = await synAudio.syncWorker(

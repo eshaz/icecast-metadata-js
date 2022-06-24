@@ -25,6 +25,8 @@ export default class MediaSourcePlayer extends Player {
         this.syncState = NOT_SYNCED;
       })
     );
+
+    this._init();
   }
 
   static canPlayType(mimeType) {
@@ -78,9 +80,7 @@ export default class MediaSourcePlayer extends Player {
     return this._audioElement.currentTime;
   }
 
-  async reset() {
-    super.reset();
-
+  async _init() {
     this.syncState = SYNCED;
     this.syncFrames = [];
     this._frameQueue = new FrameQueue(this._icecast);
@@ -95,6 +95,18 @@ export default class MediaSourcePlayer extends Player {
     await this._mediaSourcePromise;
   }
 
+  async start(metadataOffset) {
+    super.start(metadataOffset);
+
+    await this._attachMediaSource();
+  }
+
+  async end() {
+    super.end();
+
+    await this._init();
+  }
+
   async onStream(frames) {
     frames = frames.flatMap((frame) => frame.codecFrames || frame);
 
@@ -104,7 +116,10 @@ export default class MediaSourcePlayer extends Player {
           this._frameQueue.initSync();
           this.syncState = SYNCING;
         case SYNCING:
-          [frames, this.syncState] = await this._frameQueue.sync(frames);
+          [this.syncFrames, this.syncState] = await this._frameQueue.sync(
+            frames
+          );
+          frames = this.syncFrames;
       }
 
       switch (this.syncState) {
@@ -117,7 +132,6 @@ export default class MediaSourcePlayer extends Player {
           this._frameQueue.addAll(frames);
           break;
         case PCM_SYNCED:
-          this.syncFrames.push(...frames);
           break;
       }
     }
@@ -159,9 +173,6 @@ export default class MediaSourcePlayer extends Player {
   async _createMediaSource(mimeType) {
     await new Promise(async (resolve) => {
       this._mediaSource = new MediaSource();
-      this._audioElement.loop = false;
-      this._audioElement.src = URL.createObjectURL(this._mediaSource);
-
       this._mediaSource.addEventListener("sourceopen", resolve, {
         once: true,
       });
@@ -173,14 +184,26 @@ export default class MediaSourcePlayer extends Player {
 
   async _waitForSourceBuffer() {
     return new Promise((resolve) => {
-      this._mediaSource.sourceBuffers[0].addEventListener(
-        "updateend",
-        resolve,
-        {
-          once: true,
-        }
-      );
+      const sourceBuffer = this._mediaSource.sourceBuffers[0];
+
+      if (!sourceBuffer.updating) {
+        resolve();
+      } else {
+        this._mediaSource.sourceBuffers[0].addEventListener(
+          "updateend",
+          resolve,
+          {
+            once: true,
+          }
+        );
+      }
     });
+  }
+
+  async _attachMediaSource() {
+    this._audioElement.loop = false;
+    this._audioElement.src = URL.createObjectURL(this._mediaSource);
+    await this._mediaSourcePromise;
   }
 
   async _appendSourceBuffer(chunk) {
@@ -201,13 +224,11 @@ export default class MediaSourcePlayer extends Player {
       this._sourceBufferQueue.push(chunk);
 
       try {
-        do {
-          this._mediaSource.sourceBuffers[0].appendBuffer(
-            this._sourceBufferQueue[0]
-          );
+        for await (const sourceBuffer of this._sourceBufferQueue) {
+          this._mediaSource.sourceBuffers[0].appendBuffer(sourceBuffer);
           await this._waitForSourceBuffer();
-          this._sourceBufferQueue.shift();
-        } while (this._sourceBufferQueue.length);
+        }
+        this._sourceBufferQueue = [];
       } catch (e) {
         if (e.name !== "QuotaExceededError") throw e;
       }

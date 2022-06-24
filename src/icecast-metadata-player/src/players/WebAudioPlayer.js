@@ -29,7 +29,7 @@ export default class WebAudioPlayer extends Player {
     this._audioContext = WebAudioPlayer.constructor.audioContext;
 
     this._getWasmDecoder();
-    this.reset();
+    this.end();
   }
 
   static canPlayType(mimeType) {
@@ -86,8 +86,8 @@ export default class WebAudioPlayer extends Player {
     this._wasmReady = this._wasmDecoder.ready;
   }
 
-  async reset() {
-    super.reset();
+  async end() {
+    super.end();
 
     this._syncState = SYNCED;
     this._syncSuccessful = false;
@@ -135,7 +135,7 @@ export default class WebAudioPlayer extends Player {
         if (frames.length) {
           this._syncState = SYNCED;
 
-          if (!this._syncSuccessful) await this.reset();
+          if (!this._syncSuccessful) await this.end();
         }
       case SYNCED:
         if (frames.length) {

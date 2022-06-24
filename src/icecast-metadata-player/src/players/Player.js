@@ -164,7 +164,14 @@ export default class Player {
   /**
    * @abstract
    */
-  async reset() {
+  async start(metadataOffset = 0) {
+    this._metadataOffset = metadataOffset;
+  }
+
+  /**
+   * @abstract
+   */
+  async end() {
     this._icecastMetadataQueue.purgeMetadataQueue();
     this._codecUpdateQueue.purgeMetadataQueue();
   }

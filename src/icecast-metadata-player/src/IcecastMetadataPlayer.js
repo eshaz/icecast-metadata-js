@@ -69,7 +69,7 @@ const onPlayReady = Symbol();
 const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
 
-const resetPlayback = Symbol();
+const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 
@@ -162,12 +162,9 @@ export default class IcecastMetadataPlayer extends EventClass {
           this[fireEvent](event.CODEC_UPDATE, ...args),
         paused: true,
       }),
-      [resetPlayback]: () => {
+      [endPlayback]: () => {
         clearTimeout(p.get(this)[retryTimeoutId]);
-        this.removeEventListener(
-          event.STREAM_START,
-          p.get(this)[resetPlayback]
-        );
+        this.removeEventListener(event.STREAM_START, p.get(this)[endPlayback]);
         p.get(this)[audioElement].removeEventListener(
           "waiting",
           p.get(this)[onAudioWaiting]
@@ -181,7 +178,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           }
           p.get(this)[playerResetPromise] = p
             .get(this)
-            [playerFactory].player.reset();
+            [playerFactory].player.end();
         }
       },
       // audio element event handlers
@@ -212,7 +209,7 @@ export default class IcecastMetadataPlayer extends EventClass {
 
           this.stop();
         } else {
-          p.get(this)[resetPlayback]();
+          p.get(this)[endPlayback]();
         }
       },
       [onPlayReady]: () => {
@@ -355,7 +352,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           });
 
       tryFetching().finally(() => {
-        p.get(this)[resetPlayback]();
+        p.get(this)[endPlayback]();
 
         this[fireEvent](event.STOP);
         this[playerState] = state.STOPPED;
@@ -455,7 +452,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     ) {
       this[fireEvent](event.ERROR, error.name, error);
       this[playerState] = state.RETRYING;
-      this.addEventListener(event.STREAM_START, p.get(this)[resetPlayback], {
+      this.addEventListener(event.STREAM_START, p.get(this)[endPlayback], {
         once: true,
       });
 

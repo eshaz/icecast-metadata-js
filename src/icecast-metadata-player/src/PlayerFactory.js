@@ -152,7 +152,7 @@ export default class PlayerFactory {
         inputMimeType,
         codec
       );
-      this._player.reset();
+      this._player.start();
     } else {
       await this._syncPlayer(inputMimeType, codec);
     }
@@ -165,48 +165,45 @@ export default class PlayerFactory {
       const syncState = await this._player.syncStateUpdate;
       console.log(syncState);
 
-      this._player.onMetadata = noOp;
-      this._player.onCodecUpdate = noOp;
+      //this._player.onMetadata = noOp;
+      //this._player.onCodecUpdate = noOp;
 
       // resolves on the next sync state update
       // SYNCING -> should not be returned on await
-      // SYNCED -> returned if there is a perfect sync, or the player is alreay synced
+      // SYNCED -> returned if there is a perfect sync, or the player is already synced
       // PCM_SYNCED -> returned if there is a pcm correlation sync
       // NOT_SYNCED -> returned if there is no match between old and new
 
+      // need to handle "need more"
+
       switch (syncState) {
         case PCM_SYNCED:
-        case NOT_SYNCED: {
-          // create new player
-          const totalBufferedAudio =
-            this._player.metadataTimestamp - this._player.currentTime;
+        case NOT_SYNCED:
+          const oldPlayer = this._player;
 
-          const [player, playbackMethod] = this._buildPlayer(
+          const currentTimeOffset = oldPlayer.currentTime;
+          const totalBufferedAudio =
+            oldPlayer.metadataTimestamp - currentTimeOffset;
+
+          // all new stream and metadata will be pushed to the new player
+          [this._player, this._playbackMethod] = this._buildPlayer(
             inputMimeType,
             codec
           );
-          player.globalUpdateOffset = totalBufferedAudio;
-          // disable any new metadata from being added in old player
+
+          this._unprocessedFrames.push(oldPlayer.syncFrames);
 
           await new Promise((resolve) => {
             setTimeout(async () => {
-              const syncFrames = this._player.syncFrames;
-              await this._player.reset();
-
-              this._player = player;
-              this._playbackMethod = playbackMethod;
-
-              this._player.reset();
-              this._player.onStream(syncFrames);
-
+              oldPlayer.end();
               console.log("new player");
+              await this._player.start();
 
               resolve();
             }, totalBufferedAudio * 1000);
           });
 
           break;
-        }
         case SYNCING:
           return handleSyncEvent(); // still syncing
         case SYNCED: // synced on crc32 hashes
@@ -214,14 +211,6 @@ export default class PlayerFactory {
     };
 
     await handleSyncEvent();
-
-    // try to sync in current player
-    // if no crc sync
-    //   build new player with new codec
-    //   let old player continue
-    // else
-    //   return
-    //
   }
 
   _buildPlayer(inputMimeType, codec) {
