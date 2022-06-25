@@ -83,7 +83,7 @@ export default class MediaSourcePlayer extends Player {
   async _init() {
     this.syncState = SYNCED;
     this.syncFrames = [];
-    this._frameQueue = new FrameQueue(this._icecast);
+    this._frameQueue = new FrameQueue(this._icecast, this);
     this._sourceBufferQueue = [];
     this._playReady = false;
 
@@ -116,13 +116,14 @@ export default class MediaSourcePlayer extends Player {
           this._frameQueue.initSync();
           this.syncState = SYNCING;
         case SYNCING:
-          [this.syncFrames, this.syncState] = await this._frameQueue.sync(
-            frames
-          );
+          [this.syncFrames, this.syncState, this.syncDelay] =
+            await this._frameQueue.sync(frames);
           frames = this.syncFrames;
       }
 
       switch (this.syncState) {
+        case PCM_SYNCED:
+          break;
         case SYNCED:
           // when frames are present, we should already know the codec and have the mse audio mimetype determined
           await (
@@ -130,8 +131,6 @@ export default class MediaSourcePlayer extends Player {
           )(frames); // wait for the source buffer to be created
 
           this._frameQueue.addAll(frames);
-          break;
-        case PCM_SYNCED:
           break;
       }
     }

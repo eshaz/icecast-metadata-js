@@ -17,6 +17,7 @@ import {
   abortController,
   SYNCED,
   PCM_SYNCED,
+  PCM_SYNCING,
   SYNCING,
   NOT_SYNCED,
   noOp,
@@ -181,27 +182,29 @@ export default class PlayerFactory {
         case NOT_SYNCED:
           const oldPlayer = this._player;
 
-          const currentTimeOffset = oldPlayer.currentTime;
-          const totalBufferedAudio =
-            oldPlayer.metadataTimestamp - currentTimeOffset;
-
           // all new stream and metadata will be pushed to the new player
           [this._player, this._playbackMethod] = this._buildPlayer(
             inputMimeType,
             codec
           );
 
-          this._unprocessedFrames.push(oldPlayer.syncFrames);
+          this._unprocessedFrames.push(...oldPlayer.syncFrames);
 
-          await new Promise((resolve) => {
-            setTimeout(async () => {
-              oldPlayer.end();
-              console.log("new player");
-              await this._player.start();
+          const startNewPlayer = () => {
+            oldPlayer.end();
+            console.log("new player");
+            return this._player.start();
+          };
 
-              resolve();
-            }, totalBufferedAudio * 1000);
-          });
+          if (oldPlayer.syncDelay) {
+            await new Promise((resolve) => {
+              setTimeout(() => {
+                startNewPlayer().then(resolve);
+              }, oldPlayer.syncDelay * 1000);
+            });
+          } else {
+            await startNewPlayer();
+          }
 
           break;
         case SYNCING:
