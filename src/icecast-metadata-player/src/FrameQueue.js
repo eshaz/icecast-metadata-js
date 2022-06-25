@@ -29,34 +29,47 @@ export default class FrameQueue {
   }
 
   initQueue() {
-    this._queue = [];
-    this._queueDuration = 0;
+    this._absoluteQueuePosition = 0;
 
-    this._queueIndexes = {};
-    this._absolutePosition = 0;
+    this._crcQueue = [];
+    this._crcQueueDuration = 0;
+    this._crcQueueIndexes = {};
+
+    this._pcmQueue = [];
+    this._pcmQueueDuration = 0;
   }
 
   add(frame) {
-    this._queue.push(frame);
-    this._queueDuration += frame.duration;
+    // crc queue
+    const { crc32, duration } = frame;
+    this._crcQueue.push({ crc32, duration });
+    this._crcQueueDuration += duration;
 
     // update queue index
-    let indexes = this._queueIndexes[frame.crc32];
+    let indexes = this._crcQueueIndexes[crc32];
     if (!indexes) {
       indexes = [];
-      this._queueIndexes[frame.crc32] = indexes;
+      this._crcQueueIndexes[crc32] = indexes;
     }
-    indexes.push(this._absolutePosition++);
+    indexes.push(this._absoluteQueuePosition++);
 
-    if (this._queueDuration >= this.CRC_DURATION) {
-      const { crc32, duration } = this._queue.shift();
-      this._queueDuration -= duration;
+    if (this._crcQueueDuration >= this.CRC_DURATION) {
+      const { crc32, duration } = this._crcQueue.shift();
+      this._crcQueueDuration -= duration;
 
       // remove the oldest index
-      const indexes = this._queueIndexes[crc32];
+      const indexes = this._crcQueueIndexes[crc32];
       indexes.shift();
       // remove the key if there are no indexes left
-      if (!indexes.length) delete this._queueIndexes[crc32];
+      if (!indexes.length) delete this._crcQueueIndexes[crc32];
+    }
+
+    // pcm queue
+    this._pcmQueue.push(frame);
+    this._pcmQueueDuration += duration;
+
+    if (this._pcmQueueDuration >= this.PCM_DURATION) {
+      this._pcmQueueDuration -= this._pcmQueue.shift().duration;
     }
   }
 
@@ -108,28 +121,30 @@ export default class FrameQueue {
     // get all indexed matches for crc and check
     const syncQueueStartIndex = 0;
     const syncQueueCrc = this._syncQueue[syncQueueStartIndex].crc32;
-    const crcSyncPoints = this._queueIndexes[syncQueueCrc];
+    const crcSyncPoints = this._crcQueueIndexes[syncQueueCrc];
 
     let matched, outOfFrames;
 
     if (crcSyncPoints) {
       align_queues: for (const absoluteSyncPoint of crcSyncPoints) {
         this._syncPoint =
-          absoluteSyncPoint - (this._absolutePosition - this._queue.length);
+          absoluteSyncPoint -
+          (this._absoluteQueuePosition - this._crcQueue.length);
 
         for (
           let i = syncQueueStartIndex;
           i < this._syncQueue.length &&
-          this._syncPoint + i < this._queue.length;
+          this._syncPoint + i < this._crcQueue.length;
           i++
         )
           if (
-            this._queue[this._syncPoint + i].crc32 !== this._syncQueue[i].crc32
+            this._crcQueue[this._syncPoint + i].crc32 !==
+            this._syncQueue[i].crc32
           )
             continue align_queues; // failed to match
 
         outOfFrames =
-          this._syncPoint + this._syncQueue.length <= this._queue.length;
+          this._syncPoint + this._syncQueue.length <= this._crcQueue.length;
         matched = true;
         break; // full match
       }
@@ -138,12 +153,12 @@ export default class FrameQueue {
       if (outOfFrames) return [[], SYNCING];
 
       if (matched) {
-        const sliceIndex = this._queue.length - this._syncPoint;
+        const sliceIndex = this._crcQueue.length - this._syncPoint;
         // prettier-ignore
         this._icecast[fireEvent](
         event.WARN,
         `Reconnected successfully after ${this._icecast.state}.`,
-        `Found ${sliceIndex} frames (${(this._queue
+        `Found ${sliceIndex} frames (${(this._crcQueue
           .slice(this._syncPoint)
           .reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds) of overlapping audio data in new request.`,
         "Synchronized old and new request."
@@ -320,41 +335,23 @@ export default class FrameQueue {
         `Unable to synchronize after ${this._icecast.state}.`,
         e
       );
+      throw e;
     }
   }
 
   async _decodeQueues() {
     const audioCtx = WebAudioPlayer.constructor.audioContext;
-    const decodePromises = [];
 
-    // decode the base queue only once
-    if (!this._a) {
-      // trim the old connection buffer
-      let queueSliceIndex = this._queue.length - 1;
-      for (
-        let dur = 0;
-        queueSliceIndex > 0 && dur <= this.PCM_DURATION;
-        queueSliceIndex--
-      )
-        dur += this._queue[queueSliceIndex].duration;
-
-      this._queue = this._queue.slice(queueSliceIndex);
-
-      decodePromises.push(
-        audioCtx.decodeAudioData(
-          concatBuffers(this._queue.map(({ data }) => data)).buffer
-        )
-      );
-    } else {
-      decodePromises.push(this._a);
-    }
-
-    decodePromises.push(
+    [this._a, this._b] = await Promise.all([
+      // decode the pcm queue only once
+      this._a
+        ? this._a
+        : audioCtx.decodeAudioData(
+            concatBuffers(this._pcmQueue.map(({ data }) => data)).buffer
+          ),
       audioCtx.decodeAudioData(
         concatBuffers(this._syncQueue.map(({ data }) => data)).buffer
-      )
-    );
-
-    [this._a, this._b] = await Promise.all(decodePromises);
+      ),
+    ]);
   }
 }
