@@ -104,7 +104,9 @@
       .play-pause-button {
         padding: 0;
         width: 60px;
+        height: 60px;
         user-select: none;
+        white-space: normal;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
       }
       .play-pause-image {
@@ -213,6 +215,25 @@
         } else {
           retryOpts.forEach((e) => (e.disabled = false));
         }
+      };
+
+      const getFormOptions = () => {
+        const metadataTypes = [];
+        playerFormData.icy && metadataTypes.push("icy");
+        playerFormData.ogg && metadataTypes.push("ogg");
+
+        return {
+          endpoint: playerFormData.endpoint,
+          metadataTypes,
+          icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
+          icyCharacterEncoding: playerFormData.icyCharacterEncoding,
+          bufferLength: parseInt(playerFormData.bufferLength),
+          retryTimeout: parseInt(playerFormData.retryTimeout),
+          retryDelayRate: parseInt(playerFormData.retryDelayRate),
+          retryDelayMin: parseInt(playerFormData.retryDelayMin),
+          retryDelayMax: parseInt(playerFormData.retryDelayMax),
+          playbackMethod: playerFormData.playbackMethod,
+        };
       };
 
       const bodyLoad = async () => {
@@ -479,6 +500,13 @@
                       class="play-pause-image"
                       src="/icecast-metadata-js/pause.svg"
                     />
+                  </button>
+                  <button
+                    class="play-pause-button"
+                    title="Select a new stream endpoint while playing and click here to switch."
+                    id="switchEndpoint"
+                  >
+                    Switch Endpoint
                   </button>
                 </fieldset>
                 <div>
@@ -1179,7 +1207,9 @@
     currentTimeEl.attachShadow({ mode: "open" });
     audioInfoEl.attachShadow({ mode: "open" });
 
-    let icecastMetadataPlayer, timer, currentTime;
+    let icecastMetadataPlayer,
+      timer,
+      currentTime = 0;
 
     const onMetadata = (metadata) => {
       metadataEl.innerHTML = `<pre>${formatMetadata(metadata)}</pre>`;
@@ -1222,7 +1252,6 @@
       icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
       playbackMethodEl.value = icecastMetadataPlayer.playbackMethod;
 
-      currentTime = 0;
       clearInterval(timer);
       timer = setInterval(() => {
         currentTime += 0.1;
@@ -1231,6 +1260,7 @@
     };
 
     const onStop = () => {
+      currentTime = 0;
       clearInterval(timer);
     };
 
@@ -1238,42 +1268,30 @@
       metadataEl.innerHTML = message;
     };
 
+    const onSwitch = () => {
+      metadataEl.innerHTML = "Switching";
+    };
+
     // gets a new instance of the IcecastMetadataPlayer and starts a timer
     const getIcecastMetadataPlayer = () => {
-      const metadataTypes = [];
-      playerFormData.icy && metadataTypes.push("icy");
-      playerFormData.ogg && metadataTypes.push("ogg");
-
       const enableCodecUpdate = document.getElementById(
         "isCodecUpdateEnabled"
       ).checked;
 
-      options = {
-        metadataTypes,
-        icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
-        icyCharacterEncoding: playerFormData.icyCharacterEncoding,
-        bufferLength: parseInt(playerFormData.bufferLength),
-        retryTimeout: parseInt(playerFormData.retryTimeout),
-        retryDelayRate: parseInt(playerFormData.retryDelayRate),
-        retryDelayMin: parseInt(playerFormData.retryDelayMin),
-        retryDelayMax: parseInt(playerFormData.retryDelayMax),
-        playbackMethod: playerFormData.playbackMethod,
-      };
+      options = getFormOptions();
 
-      icecastMetadataPlayer = new IcecastMetadataPlayer(
-        playerFormData.endpoint,
-        {
-          ...options,
-          enableLogging: true,
-          onStreamStart,
-          onPlay,
-          onStop,
-          onMetadata,
-          onMetadataEnqueue,
-          onCodecUpdate: enableCodecUpdate && onCodecUpdate,
-          onError,
-        }
-      );
+      icecastMetadataPlayer = new IcecastMetadataPlayer(options.endpoint, {
+        ...options,
+        enableLogging: true,
+        onStreamStart,
+        onPlay,
+        onStop,
+        onMetadata,
+        onMetadataEnqueue,
+        onCodecUpdate: enableCodecUpdate && onCodecUpdate,
+        onError,
+        onSwitch,
+      });
 
       icecastMetadataPlayer.addEventListener("metadata", (...args) => {
         console.log(args);
@@ -1282,7 +1300,7 @@
       sendCastMessage({
         command: "change station",
         enableCodecUpdate,
-        endpoint: playerFormData.endpoint,
+        endpoint: options.endpoint,
         ...options,
       });
     };
@@ -1305,6 +1323,14 @@
     document.getElementById("stop").addEventListener("click", () => {
       icecastMetadataPlayer.stop();
       sendCastMessage({ command: "stop" });
+    });
+
+    document.getElementById("switchEndpoint").addEventListener("click", () => {
+      if (icecastMetadataPlayer) {
+        const options = getFormOptions();
+
+        icecastMetadataPlayer.switchEndpoint(options.endpoint, options);
+      }
     });
   </script>
   <script>

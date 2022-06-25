@@ -64,61 +64,76 @@ const App = () => {
   }, []);
 
   const changeStation = useCallback(
-    async (station) => {
-      if (icecast) {
-        await icecast.stop();
-        sendCastMessage({ command: "stop" });
-        icecast.detachAudioElement();
+    async (newStation) => {
+      if (
+        icecast &&
+        station &&
+        icecast.state !== "stopped" &&
+        newStation.name === station.name
+      ) {
+        icecast.switchEndpoint(newStation.endpoint, newStation);
+      } else {
+        if (icecast) {
+          await icecast.stop();
+          sendCastMessage({ command: "stop" });
+          icecast.detachAudioElement();
+        }
+
+        sendCastMessage({
+          command: "change station",
+          enableCodecUpdate: true,
+          ...newStation,
+        });
+
+        const player = new IcecastMetadataPlayer(newStation.endpoint, {
+          onMetadata: (meta) => {
+            console.log(meta);
+            setMetadata(meta);
+          },
+          onCodecUpdate: setCodecInfo,
+          onPlay: () => {
+            console.log("playing");
+            setPlaying(true);
+          },
+          onStop: () => {
+            setPlaying(false);
+            setMetadata(SELECT_OR_PLAY);
+            setCodecInfo();
+          },
+          onLoad: () => {
+            setPlaying(true);
+            setMetadata(LOADING);
+            setCodecInfo();
+          },
+          onError: (error) => {
+            setMetadata(error?.message || error);
+            setCodecInfo();
+          },
+          onRetry: () => {
+            setMetadata(RECONNECTING);
+          },
+          onStreamStart: () => {
+            setMetadata(newStation.metadataTypes.length ? CONNECTED : "");
+          },
+          onSwitch: () => {
+            console.log("switch");
+          },
+          icyDetectionTimeout: 5000,
+          icyCharacterEncoding: newStation.icyCharacterEncoding,
+          enableLogging: true,
+          metadataTypes: newStation.metadataTypes,
+          bufferLength: newStation.bufferLength,
+          audioElement,
+          retryTimeout: 120,
+        });
+
+        player.play();
+        sendCastMessage({ command: "play" });
+
+        setIcecast(player);
       }
 
-      sendCastMessage({
-        command: "change station",
-        enableCodecUpdate: true,
-        ...station,
-      });
-
-      const player = new IcecastMetadataPlayer(station.endpoint, {
-        onMetadata: (meta) => {
-          console.log(meta);
-          setMetadata(meta);
-        },
-        onCodecUpdate: setCodecInfo,
-        onPlay: () => {
-          setPlaying(true);
-        },
-        onStop: () => {
-          setPlaying(false);
-          setMetadata(SELECT_OR_PLAY);
-          setCodecInfo();
-        },
-        onLoad: () => {
-          setPlaying(true);
-          setMetadata(LOADING);
-          setCodecInfo();
-        },
-        onError: (error) => {
-          setMetadata(error?.message || error);
-          setCodecInfo();
-        },
-        onRetry: () => {
-          setMetadata(RECONNECTING);
-        },
-        onStreamStart: () => {
-          setMetadata(station.metadataTypes.length ? CONNECTED : "");
-        },
-        icyDetectionTimeout: 5000,
-        icyCharacterEncoding: station.icyCharacterEncoding,
-        enableLogging: true,
-        metadataTypes: station.metadataTypes,
-        bufferLength: station.bufferLength,
-        audioElement,
-      });
-
-      player.play();
-      sendCastMessage({ command: "play" });
-
-      setIcecast(player);
-      setStation(station);
+      setStation(newStation);
     },
     [icecast, audioElement, sendCastMessage]
   );

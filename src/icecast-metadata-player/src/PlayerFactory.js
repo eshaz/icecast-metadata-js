@@ -217,17 +217,19 @@ export default class PlayerFactory {
       });
     };
 
-    await new Promise((complete, cancel) => {
+    let cancel;
+    await new Promise((complete, reject) => {
       // cancel switch event if stop is called
+      cancel = reject;
       this._icecast.addEventListener(state.STOPPING, cancel, { once: true });
 
-      handleSyncEvent(complete, cancel).then(() => {
-        this._icecast.removeEventListener(state.STOPPING, cancel);
-
-        if (this._icecast.state === state.SWITCHING)
-          this._icecast[playerState] = state.PLAYING;
-      });
+      handleSyncEvent(complete, cancel);
     });
+
+    this._icecast.removeEventListener(state.STOPPING, cancel);
+
+    if (this._icecast.state === state.SWITCHING)
+      this._icecast[playerState] = state.PLAYING;
   }
 
   _buildPlayer(inputMimeType, codec) {
