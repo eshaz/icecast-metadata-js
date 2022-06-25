@@ -24,7 +24,6 @@ export default class FrameQueue {
 
   initSync() {
     this._syncQueue = [];
-    this._syncPoint = 0;
     this._synAudioResult = null;
   }
 
@@ -64,6 +63,36 @@ export default class FrameQueue {
     frames.forEach((frame) => this.add(frame));
   }
 
+  /**
+   *
+   * @param {Array<CodecFrame|OggPage>} frames
+   */
+  async sync(frames) {
+    this._syncQueue.push(...frames);
+
+    // try syncing using crc32 hashes (if the stream data matches exactly)
+    const crcSyncState = this._crcSync();
+    if (crcSyncState) return crcSyncState;
+
+    // try syncing using decoded audio and corelation (if audio data matches)
+    const pcmSyncState = await this._pcmSync();
+    if (pcmSyncState) return pcmSyncState;
+
+    // streams do not match (not synced)
+    // prettier-ignore
+    this._icecast[fireEvent](
+        event.WARN,
+        "Reconnected successfully after retry event.",
+        "Found no overlapping frames from previous request.",
+        "Unable to sync old and new request."
+      );
+
+    const syncQueue = this._syncQueue;
+    this.initSync();
+    this.initQueue(); // clear queue since there is a gap in data
+    return [syncQueue, NOT_SYNCED];
+  }
+
   /*
   Aligns the queue with a new incoming data by aligning the crc32 hashes 
   and then returning only the frames that do not existing on the queue.
@@ -74,15 +103,7 @@ export default class FrameQueue {
                              ^^^^^^^^^^^^^^ ^^^^
                               (sync)         (frames to return)
   */
-
-  /**
-   *
-   * @param {Array<CodecFrame|OggPage>} frames
-   * @returns Array with frames as first element, boolean indicating if the sync was successful as the second element
-   */
-  async sync(frames) {
-    this._syncQueue.push(...frames);
-
+  _crcSync() {
     // get all indexed matches for crc and check
     const syncQueueStartIndex = 0;
     const syncQueueCrc = this._syncQueue[syncQueueStartIndex].crc32;
@@ -132,35 +153,39 @@ export default class FrameQueue {
         return [newFrames, SYNCED];
       }
     }
+  }
 
-    // no crc32 matches, try matching with PCM
+  /*
+  Syncs the old and new data using correlation between decoded audio.
+  A new player will be constructed after this sync is completed.
 
-    /*
-    add method to PlayerFactory to switch player
-      pass in new codec, start time (offset of b frames)
-
-      create new player with the new codec
-
-      set timeout to start new player when start time has elapsed
-      After start, remove / stop old player, which should have already stopped since all frames would have been consumed
-
-      Could stop the player as soon as the new player can start to have a faster switch
-
-      change state from SWITCHING to PLAYING once new player starts
-
-    */
-
-    const minSyncLength = 1.5; // seconds
+                           old data  | common data | new data
+    
+    (time scale)     -2 -1 0 +1 +2
+    (old connection)  -----------------------------|
+                      ^^^^^|^^^^^^^^^|             |
+                           |         syncOffset    buffered (metadataTimestamp)
+                           syncStart
+                             |
+                             syncEnd
+  
+    (time scale)               -2 -1 0 +1 +2
+    (new connection)                 |-----------|--->
+                             |       ^^^^^^^^^^^^|^^^^
+                             playbackOffset      syncLength
+  */
+  async _pcmSync() {
+    const correlationSyncLength = 0.5; // seconds
+    const initialGranularity = 8;
 
     const samplesToDuration = (samples, rate) => samples / rate;
-    const durationToSamples = (duration, rate) => Math.round(duration * rate);
 
     if (!this._synAudioResult) {
-      const audioCtx = WebAudioPlayer.constructor.audioContext;
-
       const syncStart = performance.now();
       const buffered =
         this._player.metadataTimestamp - this._player.currentTime;
+
+      const audioCtx = WebAudioPlayer.constructor.audioContext;
 
       [this._a, this._b] = await Promise.all([
         this._a // only decode "a" once
@@ -173,16 +198,14 @@ export default class FrameQueue {
         ),
       ]);
 
-      const correlationSampleSize = this._a.sampleRate * minSyncLength;
+      const correlationSampleSize = this._a.sampleRate * correlationSyncLength;
 
-      if (this._b.length <= correlationSampleSize) {
-        console.log("need more data");
-        return [[], SYNCING]; // need more data
-      }
+      // more data is needed to meet the correlationSampleSize
+      if (this._b.length <= correlationSampleSize) return [[], SYNCING];
 
       const synAudio = new SynAudio({
         correlationSampleSize,
-        initialGranularity: 32,
+        initialGranularity,
       });
 
       const aDecoded = {
@@ -201,15 +224,6 @@ export default class FrameQueue {
 
       for (let i = 0; i < this._b.numberOfChannels; i++)
         bDecoded.channelData.push(this._b.getChannelData(i));
-
-      const aFrameLength = samplesToDuration(
-        this._queue.reduce((aac, { samples }) => samples + aac, 0),
-        this._queue[0].header.sampleRate
-      );
-      const bFrameLength = samplesToDuration(
-        this._syncQueue.reduce((aac, { samples }) => samples + aac, 0),
-        this._syncQueue[0].header.sampleRate
-      );
 
       const aDecodeLength = samplesToDuration(
         aDecoded.samplesDecoded,
@@ -247,23 +261,6 @@ export default class FrameQueue {
         buffered
       );
     }
-
-    /*
-                             old data  | common data | new data
-      
-      (time scale)     -2 -1 0 +1 +2
-      (old connection)  -----------------------------|
-                        ^^^^^|^^^^^^^^^|             |
-                             |         syncOffset    buffered (metadataTimestamp)
-                             syncStart
-                               |
-                               syncEnd
-
-      (time scale)               -2 -1 0 +1 +2
-      (new connection)                 |-----------|--->
-                               |       ^^^^^^^^^^^^|^^^^
-                               playbackOffset      syncLength
-      */
 
     // "old" time scale
     const { syncStart, syncOffset, buffered } = this._synAudioResult;
@@ -324,22 +321,6 @@ export default class FrameQueue {
     this.initSync();
     this.initQueue();
 
-    // frames, delay, overlap (buffer to wait for new player to be ready)
-
     return [this._syncQueue, PCM_SYNCED, delay];
-
-    // no matching data (not synced)
-    // prettier-ignore
-    this._icecast[fireEvent](
-        event.WARN,
-        "Reconnected successfully after retry event.",
-        "Found no overlapping frames from previous request.",
-        "Unable to sync old and new request."
-      );
-
-    const syncQueue = this._syncQueue;
-    this.initSync();
-    this.initQueue(); // clear queue since there is a gap in data
-    return [syncQueue, NOT_SYNCED];
   }
 }
