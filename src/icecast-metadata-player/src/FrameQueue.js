@@ -335,7 +335,6 @@ export default class FrameQueue {
         `Unable to synchronize after ${this._icecast.state}.`,
         e
       );
-      throw e;
     }
   }
 

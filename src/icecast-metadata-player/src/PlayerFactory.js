@@ -16,6 +16,7 @@ import {
   fireEvent,
   hasIcy,
   abortController,
+  playerState,
   SYNCED,
   PCM_SYNCED,
   SYNCING,
@@ -173,7 +174,7 @@ export default class PlayerFactory {
 
           const startNewPlayer = () => {
             oldPlayer.end();
-            this._icecast[fireEvent](event.PLAY);
+            this._icecast[playerState] = state.PLAYING;
             return this._player.start();
           };
 

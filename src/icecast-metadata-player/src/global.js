@@ -58,6 +58,7 @@ export const codecUpdateQueue = Symbol();
 export const abortController = Symbol();
 export const switchEndpointPromise = Symbol();
 export const switchRequestId = Symbol();
+export const playerState = Symbol();
 
 // sync state
 export const SYNCED = Symbol("synced");

@@ -51,6 +51,7 @@ import {
   abortController,
   switchEndpointPromise,
   switchRequestId,
+  playerState,
 } from "./global.js";
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
@@ -61,7 +62,6 @@ const EventClass = window.EventTarget || EventTargetPolyfill;
 const playerFactory = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
-const playerState = Symbol();
 
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
@@ -382,7 +382,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @description Switches the Icecast stream endpoint during playback
    * @async Resolves when the new endpoint has began returning data
    */
-  async switchEndpoint(newEndpoint) {
+  async switchEndpoint(newEndpoint, newOptions) {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
       const requestId = ++p.get(this)[switchRequestId];
 
@@ -399,14 +399,10 @@ export default class IcecastMetadataPlayer extends EventClass {
             p.get(this)[abortController].abort();
             p.get(this)[abortController] = new AbortController();
 
-            this[fireEvent](event.SWITCH);
-
             return new Promise((resolve) => {
               this.addEventListener(
                 event.PLAY,
                 () => {
-                  if (this.state === state.SWITCHING)
-                    this[playerState] = state.PLAYING;
                   resolve();
                 },
                 { once: true }
