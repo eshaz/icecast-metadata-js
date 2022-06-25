@@ -29,18 +29,13 @@ import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 export default class PlayerFactory {
-  constructor(icecast, preferredPlaybackMethod) {
+  constructor(icecast) {
     const instanceVariables = p.get(icecast);
 
     this._icecast = icecast;
+    this._audioElement = instanceVariables[audioElement];
     this._enableLogging = instanceVariables[enableLogging];
     this._enableCodecUpdate = instanceVariables[enableCodecUpdate];
-    this._audioElement = instanceVariables[audioElement];
-    this._metadataTypes = instanceVariables[metadataTypes];
-    this._icyMetaInt = instanceVariables[icyMetaInt];
-    this._icyCharacterEncoding = instanceVariables[icyCharacterEncoding];
-    this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
-    this._preferredPlaybackMethod = instanceVariables[playbackMethod];
 
     this._playbackMethod = "";
     this._player = new Player(this._icecast);
@@ -110,6 +105,7 @@ export default class PlayerFactory {
 
   async readIcecastResponse(res) {
     const inputMimeType = res.headers.get("content-type");
+    const instanceVariables = p.get(this._icecast);
 
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
@@ -139,10 +135,10 @@ export default class PlayerFactory {
         }
       },
       onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
-      metadataTypes: this._metadataTypes,
-      icyCharacterEncoding: this._icyCharacterEncoding,
-      icyDetectionTimeout: this._icyDetectionTimeout,
-      ...(this._icyMetaInt && { icyMetaInt: this._icyMetaInt }),
+      metadataTypes: instanceVariables[metadataTypes],
+      icyCharacterEncoding: instanceVariables[icyCharacterEncoding],
+      icyDetectionTimeout: instanceVariables[icyDetectionTimeout],
+      icyMetaInt: instanceVariables[icyMetaInt],
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();
@@ -212,21 +208,21 @@ export default class PlayerFactory {
 
   _buildPlayer(inputMimeType, codec) {
     // in order of preference
-    const { [this._preferredPlaybackMethod]: firstMethod, ...rest } = {
+    const { [p.get(this._icecast)[playbackMethod]]: firstMethod, ...rest } = {
       mediasource: MediaSourcePlayer,
       webaudio: WebAudioPlayer,
       html5: HTML5Player,
     };
 
-    let player, playbackMethod;
+    let player, method;
 
     for (const Player of Object.values({ firstMethod, ...rest })) {
       const support = Player.canPlayType(`${inputMimeType};codecs="${codec}"`);
 
       if (support === "probably" || support === "maybe") {
-        playbackMethod = Player.name;
+        method = Player.name;
         player = new Player(this._icecast, inputMimeType, codec);
-        return [player, playbackMethod];
+        return [player, method];
       }
     }
 

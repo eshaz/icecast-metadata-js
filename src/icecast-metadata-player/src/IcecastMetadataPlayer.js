@@ -74,6 +74,25 @@ const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 
 export default class IcecastMetadataPlayer extends EventClass {
+  static getDefaults(options) {
+    return {
+      bufferLength: options.bufferLength ?? 1,
+      icyMetaInt: options.icyMetaInt,
+      icyCharacterEncoding: options.icyCharacterEncoding,
+      icyDetectionTimeout: options.icyDetectionTimeout,
+      metadataTypes: options.metadataTypes || ["icy"],
+      hasIcy: (options.metadataTypes || ["icy"]).includes("icy"),
+      enableLogging: options.enableLogging ?? false,
+      enableCodecUpdate:
+        Boolean(options.onCodecUpdate) || options.enableCodecUpdate,
+      retryDelayRate: options.retryDelayRate ?? 0.1,
+      retryDelayMin: options.retryDelayMin ?? 0.5,
+      retryDelayMax: options.retryDelayMax ?? 2,
+      retryTimeout: options.retryTimeout ?? 30,
+      playbackMethod: options.playbackMethod || "mediasource",
+    };
+  }
+
   /**
    * @constructor
    * @param {string} endpoint Endpoint of the Icecast compatible stream
@@ -109,24 +128,25 @@ export default class IcecastMetadataPlayer extends EventClass {
   constructor(url, options = {}) {
     super();
 
+    const optionsWithDefaults = IcecastMetadataPlayer.getDefaults(options);
+
     p.set(this, {
       // options
       [endpoint]: url,
       [audioElement]: options.audioElement || new Audio(),
-      [bufferLength]: options.bufferLength || 1,
-      [icyMetaInt]: options.icyMetaInt,
-      [icyCharacterEncoding]: options.icyCharacterEncoding,
-      [icyDetectionTimeout]: options.icyDetectionTimeout,
-      [metadataTypes]: options.metadataTypes || ["icy"],
-      [hasIcy]: (options.metadataTypes || ["icy"]).includes("icy"),
-      [enableLogging]: options.enableLogging || false,
-      [enableCodecUpdate]:
-        Boolean(options.onCodecUpdate) || options.enableCodecUpdate,
-      [retryDelayRate]: (options.retryDelayRate || 0.1) + 1,
-      [retryDelayMin]: (options.retryDelayMin || 0.5) * 1000,
-      [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
-      [retryTimeout]: (options.retryTimeout || 30) * 1000,
-      [playbackMethod]: options.playbackMethod || "mediasource",
+      [bufferLength]: optionsWithDefaults.bufferLength,
+      [icyMetaInt]: optionsWithDefaults.icyMetaInt,
+      [icyCharacterEncoding]: optionsWithDefaults.icyCharacterEncoding,
+      [icyDetectionTimeout]: optionsWithDefaults.icyDetectionTimeout,
+      [metadataTypes]: optionsWithDefaults.metadataTypes,
+      [hasIcy]: optionsWithDefaults.hasIcy,
+      [enableLogging]: optionsWithDefaults.enableLogging,
+      [enableCodecUpdate]: optionsWithDefaults.enableCodecUpdate,
+      [retryDelayRate]: optionsWithDefaults.retryDelayRate,
+      [retryDelayMin]: optionsWithDefaults.retryDelayMin,
+      [retryDelayMax]: optionsWithDefaults.retryDelayMax,
+      [retryTimeout]: optionsWithDefaults.retryTimeout,
+      [playbackMethod]: optionsWithDefaults.playbackMethod,
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -395,7 +415,37 @@ export default class IcecastMetadataPlayer extends EventClass {
           ) {
             this[playerState] = state.SWITCHING;
 
-            p.get(this)[endpoint] = newEndpoint;
+            const v = p.get(this);
+
+            const optionsWithDefaults = IcecastMetadataPlayer.getDefaults({
+              bufferLength: v[bufferLength],
+              icyMetaInt: v[icyMetaInt],
+              icyCharacterEncoding: v[icyCharacterEncoding],
+              icyDetectionTimeout: v[icyDetectionTimeout],
+              metadataTypes: v[metadataTypes],
+              retryDelayRate: v[retryDelayRate],
+              retryDelayMin: v[retryDelayMin],
+              retryDelayMax: v[retryDelayMax],
+              retryTimeout: v[retryTimeout],
+              playbackMethod: v[playbackMethod],
+              ...newOptions,
+            });
+
+            Object.assign(v, {
+              [endpoint]: newEndpoint,
+              [bufferLength]: optionsWithDefaults.bufferLength,
+              [icyMetaInt]: optionsWithDefaults.icyMetaInt,
+              [icyCharacterEncoding]: optionsWithDefaults.icyCharacterEncoding,
+              [icyDetectionTimeout]: optionsWithDefaults.icyDetectionTimeout,
+              [metadataTypes]: optionsWithDefaults.metadataTypes,
+              [hasIcy]: optionsWithDefaults.hasIcy,
+              [retryDelayRate]: optionsWithDefaults.retryDelayRate,
+              [retryDelayMin]: optionsWithDefaults.retryDelayMin,
+              [retryDelayMax]: optionsWithDefaults.retryDelayMax,
+              [retryTimeout]: optionsWithDefaults.retryTimeout,
+              [playbackMethod]: optionsWithDefaults.playbackMethod,
+            });
+
             p.get(this)[abortController].abort();
             p.get(this)[abortController] = new AbortController();
 
@@ -425,8 +475,9 @@ export default class IcecastMetadataPlayer extends EventClass {
 
         const delay = Math.min(
           p.get(this)[retryDelayMin] *
-            p.get(this)[retryDelayRate] ** p.get(this)[retryAttempt]++,
-          p.get(this)[retryDelayMax]
+            1000 *
+            (p.get(this)[retryDelayRate] + 1) ** p.get(this)[retryAttempt]++,
+          p.get(this)[retryDelayMax] * 1000
         ); // exponential backoff
 
         setTimeout(() => {
@@ -479,7 +530,7 @@ export default class IcecastMetadataPlayer extends EventClass {
             this.stop();
           }
         });
-      }, p.get(this)[retryTimeout]);
+      }, p.get(this)[retryTimeout] * 1000);
 
       p.get(this)[retryAttempt] = 0;
       return true;
