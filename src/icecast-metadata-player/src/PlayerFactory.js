@@ -158,52 +158,73 @@ export default class PlayerFactory {
   }
 
   async _syncPlayer(inputMimeType, codec) {
-    console.log("switching player");
-    const handleSyncEvent = async () => {
-      const syncState = await this._player.syncStateUpdate;
-      //console.log(syncState);
+    const handleSyncEvent = (complete, cancel) => {
+      // need to handle metadata updates while syncing
 
-      switch (syncState) {
-        case PCM_SYNCED:
-        case NOT_SYNCED:
-          const oldPlayer = this._player;
+      return this._player.syncStateUpdate.then((syncState) => {
+        switch (syncState) {
+          case SYNCING:
+            return handleSyncEvent(complete, cancel);
+          case SYNCED: // synced on crc32 hashes
+            if (this._icecast.state === state.SWITCHING)
+              this._icecast[fireEvent](event.PLAY);
+            complete();
+            break;
+          case PCM_SYNCED:
+          case NOT_SYNCED:
+            const oldPlayer = this._player;
 
-          const startNewPlayer = () => {
-            oldPlayer.end();
-            this._icecast[playerState] = state.PLAYING;
-            return this._player.start();
-          };
+            // all new stream and metadata will be pushed to the new player
+            [this._player, this._playbackMethod] = this._buildPlayer(
+              inputMimeType,
+              codec
+            );
 
-          // all new stream and metadata will be pushed to the new player
-          [this._player, this._playbackMethod] = this._buildPlayer(
-            inputMimeType,
-            codec
-          );
+            this._unprocessedFrames.push(...oldPlayer.syncFrames);
 
-          this._unprocessedFrames.push(...oldPlayer.syncFrames);
+            const startNewPlayer = () => {
+              oldPlayer.end();
+              return this._player.start();
+            };
 
-          if (oldPlayer.syncDelay) {
-            await new Promise((resolve) => {
-              setTimeout(() => {
-                if (this._icecast.state === state.SWITCHING) {
-                  startNewPlayer().then(resolve);
-                }
+            if (oldPlayer.syncDelay) {
+              let delayTimeoutId;
+
+              const abort = () => {
+                clearTimeout(delayTimeoutId);
+                this._player = oldPlayer;
+                cancel();
+              };
+
+              // cancel switch event if stop is called
+              this._icecast.addEventListener(state.STOPPING, abort, {
+                once: true,
+              });
+
+              delayTimeoutId = setTimeout(() => {
+                this._icecast.removeEventListener(state.STOPPING, abort);
+
+                if (this._icecast.state === state.SWITCHING)
+                  startNewPlayer().then(complete);
               }, oldPlayer.syncDelay * 1000);
-            });
-          } else {
-            await startNewPlayer();
-          }
-
-          break;
-        case SYNCING:
-          return handleSyncEvent(); // still syncing
-        case SYNCED: // synced on crc32 hashes
-      }
+            } else {
+              startNewPlayer().then(complete);
+            }
+        }
+      });
     };
 
-    await handleSyncEvent();
+    await new Promise((complete, cancel) => {
+      // cancel switch event if stop is called
+      this._icecast.addEventListener(state.STOPPING, cancel, { once: true });
 
-    console.log("player switched");
+      handleSyncEvent(complete, cancel).then(() => {
+        this._icecast.removeEventListener(state.STOPPING, cancel);
+
+        if (this._icecast.state === state.SWITCHING)
+          this._icecast[playerState] = state.PLAYING;
+      });
+    });
   }
 
   _buildPlayer(inputMimeType, codec) {

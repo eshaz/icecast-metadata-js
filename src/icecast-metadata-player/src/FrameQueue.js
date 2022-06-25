@@ -156,13 +156,13 @@ export default class FrameQueue {
         const sliceIndex = this._crcQueue.length - this._syncPoint;
         // prettier-ignore
         this._icecast[fireEvent](
-        event.WARN,
-        `Reconnected successfully after ${this._icecast.state}.`,
-        `Found ${sliceIndex} frames (${(this._crcQueue
-          .slice(this._syncPoint)
-          .reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds) of overlapping audio data in new request.`,
-        "Synchronized old and new request."
-      );
+          event.WARN,
+          `Reconnected successfully after ${this._icecast.state}.`,
+          `Found ${sliceIndex} frames (${(this._crcQueue
+            .slice(this._syncPoint)
+            .reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds) of overlapping audio data in new request.`,
+          "Synchronized old and new request."
+        );
 
         const newFrames = this._syncQueue.slice(sliceIndex);
         this.initSync();
