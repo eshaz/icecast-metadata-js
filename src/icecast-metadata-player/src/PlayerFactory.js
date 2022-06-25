@@ -149,6 +149,9 @@ export default class PlayerFactory {
         inputMimeType,
         codec
       );
+    }
+
+    if (this._player.syncState === SYNCED) {
       this._player.start();
     } else {
       await this._syncPlayer(inputMimeType, codec);
