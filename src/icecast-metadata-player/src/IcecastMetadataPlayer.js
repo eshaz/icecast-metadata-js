@@ -325,7 +325,6 @@ export default class IcecastMetadataPlayer extends EventClass {
           .then(() => {
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
-              //this[playerState] = state.LOADING;
               return tryFetching();
             }
           })
@@ -404,7 +403,7 @@ export default class IcecastMetadataPlayer extends EventClass {
 
             return new Promise((resolve) => {
               this.addEventListener(
-                event.STREAM_START,
+                event.PLAY,
                 () => {
                   if (this.state === state.SWITCHING)
                     this[playerState] = state.PLAYING;

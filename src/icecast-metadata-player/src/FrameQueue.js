@@ -13,7 +13,8 @@ import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 export default class FrameQueue {
   constructor(icecast, player) {
-    this.CACHE_DURATION = 60000; // milliseconds of burst on connect data
+    this.CRC_DURATION = 300000; // milliseconds to cache for crc syncing
+    this.PCM_DURATION = 45000; // milliseconds to cache for pcm syncing
 
     this._icecast = icecast;
     this._player = player;
@@ -47,7 +48,7 @@ export default class FrameQueue {
     }
     indexes.push(this._absolutePosition++);
 
-    if (this._queueDuration >= this.CACHE_DURATION) {
+    if (this._queueDuration >= this.CRC_DURATION) {
       const { crc32, duration } = this._queue.shift();
       this._queueDuration -= duration;
 
@@ -82,7 +83,7 @@ export default class FrameQueue {
     // prettier-ignore
     this._icecast[fireEvent](
         event.WARN,
-        "Reconnected successfully after retry event.",
+        `Reconnected successfully after ${this._icecast.state}.`,
         "Found no overlapping frames from previous request.",
         "Unable to sync old and new request."
       );
@@ -141,7 +142,7 @@ export default class FrameQueue {
         // prettier-ignore
         this._icecast[fireEvent](
         event.WARN,
-        "Reconnected successfully after retry event.",
+        `Reconnected successfully after ${this._icecast.state}.`,
         `Found ${sliceIndex} frames (${(this._queue
           .slice(this._syncPoint)
           .reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds) of overlapping audio data in new request.`,
@@ -175,152 +176,185 @@ export default class FrameQueue {
                              playbackOffset      syncLength
   */
   async _pcmSync() {
-    const correlationSyncLength = 0.5; // seconds
-    const initialGranularity = 8;
+    try {
+      const correlationSyncLength = 0.5; // seconds
+      const initialGranularity = 7;
 
-    const samplesToDuration = (samples, rate) => samples / rate;
+      const samplesToDuration = (samples, rate) => samples / rate;
 
-    if (!this._synAudioResult) {
-      const syncStart = performance.now();
-      const buffered =
-        this._player.metadataTimestamp - this._player.currentTime;
+      if (!this._synAudioResult) {
+        const syncStart = performance.now();
+        const buffered =
+          this._player.metadataTimestamp - this._player.currentTime;
 
-      const audioCtx = WebAudioPlayer.constructor.audioContext;
+        await this._decodeQueues();
 
-      [this._a, this._b] = await Promise.all([
-        this._a // only decode "a" once
-          ? this._a
-          : audioCtx.decodeAudioData(
-              concatBuffers(this._queue.map(({ data }) => data)).buffer
-            ),
-        audioCtx.decodeAudioData(
-          concatBuffers(this._syncQueue.map(({ data }) => data)).buffer
-        ),
-      ]);
+        const correlationSampleSize =
+          this._a.sampleRate * correlationSyncLength;
 
-      const correlationSampleSize = this._a.sampleRate * correlationSyncLength;
+        // more data is needed to meet the correlationSampleSize
+        if (this._b.length <= correlationSampleSize) return [[], SYNCING];
 
-      // more data is needed to meet the correlationSampleSize
-      if (this._b.length <= correlationSampleSize) return [[], SYNCING];
+        const synAudio = new SynAudio({
+          correlationSampleSize,
+          initialGranularity,
+        });
 
-      const synAudio = new SynAudio({
-        correlationSampleSize,
-        initialGranularity,
-      });
+        const aDecoded = {
+          channelData: [],
+          samplesDecoded: this._a.length,
+          sampleRate: this._a.sampleRate,
+        };
+        const bDecoded = {
+          channelData: [],
+          samplesDecoded: this._b.length,
+          sampleRate: this._b.sampleRate,
+        };
 
-      const aDecoded = {
-        channelData: [],
-        samplesDecoded: this._a.length,
-        sampleRate: this._a.sampleRate,
-      };
-      const bDecoded = {
-        channelData: [],
-        samplesDecoded: this._b.length,
-        sampleRate: this._b.sampleRate,
-      };
+        for (let i = 0; i < this._a.numberOfChannels; i++)
+          aDecoded.channelData.push(this._a.getChannelData(i));
 
-      for (let i = 0; i < this._a.numberOfChannels; i++)
-        aDecoded.channelData.push(this._a.getChannelData(i));
+        for (let i = 0; i < this._b.numberOfChannels; i++)
+          bDecoded.channelData.push(this._b.getChannelData(i));
 
-      for (let i = 0; i < this._b.numberOfChannels; i++)
-        bDecoded.channelData.push(this._b.getChannelData(i));
+        const aDecodeLength = samplesToDuration(
+          aDecoded.samplesDecoded,
+          aDecoded.sampleRate
+        );
 
-      const aDecodeLength = samplesToDuration(
-        aDecoded.samplesDecoded,
-        aDecoded.sampleRate
-      );
+        this._synAudioResult = await synAudio.syncWorker(
+          aDecoded,
+          bDecoded,
+          aDecoded.sampleRate
+        );
 
-      this._synAudioResult = await synAudio.syncWorker(
-        aDecoded,
-        bDecoded,
-        aDecoded.sampleRate
-      );
+        const aOffset = samplesToDuration(
+          this._synAudioResult.sampleOffset,
+          aDecoded.sampleRate
+        );
+        const aBufferOffset = aDecodeLength - buffered;
 
-      const aOffset = samplesToDuration(
-        this._synAudioResult.sampleOffset,
-        aDecoded.sampleRate
-      );
-      const aBufferOffset = aDecodeLength - buffered;
+        this._synAudioResult.syncStart = syncStart;
+        this._synAudioResult.syncOffset = aOffset - aBufferOffset;
+        this._synAudioResult.buffered = buffered;
 
-      this._synAudioResult.syncStart = syncStart;
-      this._synAudioResult.syncOffset = aOffset - aBufferOffset;
-      this._synAudioResult.buffered = buffered;
+        console.log(
+          "correlation",
+          this._synAudioResult.correlation,
+          "aOffset",
+          aOffset,
+          "aDecodeLength",
+          aDecodeLength,
+          "aBufferOffset",
+          aBufferOffset,
+          "syncOffset",
+          this._synAudioResult.syncOffset,
+          "buffered",
+          buffered
+        );
+      }
 
+      // anything lower than .5 is likely not synced, but it might sound better than some random sync point
+      //if (this._synAudioResult.correlation > 0.5) {
+      // "old" time scale
+      const { syncStart, syncOffset, buffered } = this._synAudioResult;
+      const syncEnd = performance.now();
+      const syncTimeSpent = (syncEnd - syncStart) / 1000;
+
+      // "new" time scale
+      const playbackOffset = syncTimeSpent - syncOffset;
+      const syncLength =
+        this._syncQueue.reduce((aac, { duration }) => duration + aac, 0) / 1000;
+
+      if (playbackOffset > syncLength)
+        // more frames need to be cut than exist on the sync queue
+        return [[], SYNCING];
+
+      let delay;
+
+      if (playbackOffset > 0) {
+        // slice the sync frame and start immediately
+        let sliceIndex = 0;
+        for (
+          let t = 0;
+          sliceIndex < this._syncQueue.length && t < playbackOffset;
+          sliceIndex++
+        )
+          t += this._syncQueue[sliceIndex].duration;
+
+        this._syncQueue = this._syncQueue.slice(sliceIndex);
+        delay = 0;
+      } else {
+        // delay playback
+        delay = -playbackOffset;
+      }
+
+      /*
       console.log(
-        "correlation",
-        this._synAudioResult.correlation,
-        "aOffset",
-        aOffset,
-        "aDecodeLength",
-        aDecodeLength,
-        "aBufferOffset",
-        aBufferOffset,
+        "syncTimeSpent",
+        syncTimeSpent,
         "syncOffset",
-        this._synAudioResult.syncOffset,
+        syncOffset,
         "buffered",
         buffered
       );
+
+      console.log(
+        "playbackOffset",
+        playbackOffset,
+        "syncLength",
+        syncLength,
+        "delay",
+        delay,
+      );
+      */
+
+      this.initSync();
+      this.initQueue();
+
+      return [this._syncQueue, PCM_SYNCED, delay];
+      //}
+    } catch (e) {
+      this._icecast[fireEvent](
+        event.WARN,
+        `Unable to synchronize after ${this._icecast.state}.`,
+        e
+      );
     }
+  }
 
-    // "old" time scale
-    const { syncStart, syncOffset, buffered } = this._synAudioResult;
-    const syncEnd = performance.now();
-    const syncTimeSpent = (syncEnd - syncStart) / 1000;
+  async _decodeQueues() {
+    const audioCtx = WebAudioPlayer.constructor.audioContext;
+    const decodePromises = [];
 
-    // "new" time scale
-    const playbackOffset = syncTimeSpent - syncOffset;
-    const syncLength =
-      this._syncQueue.reduce((aac, { duration }) => duration + aac, 0) / 1000;
-
-    if (playbackOffset > syncLength)
-      // more frames need to be cut than exist on the sync queue
-      return [[], SYNCING];
-
-    let delay;
-
-    if (playbackOffset > 0) {
-      // slice the sync frame and start immediately
-      let sliceIndex = 0;
+    // decode the base queue only once
+    if (!this._a) {
+      // trim the old connection buffer
+      let queueSliceIndex = this._queue.length - 1;
       for (
-        let t = 0;
-        sliceIndex < this._syncQueue.length && t < playbackOffset;
-        sliceIndex++
+        let dur = 0;
+        queueSliceIndex > 0 && dur <= this.PCM_DURATION;
+        queueSliceIndex--
       )
-        t += this._syncQueue[sliceIndex].duration;
+        dur += this._queue[queueSliceIndex].duration;
 
-      this._syncQueue = this._syncQueue.slice(sliceIndex);
-      delay = 0;
+      this._queue = this._queue.slice(queueSliceIndex);
+
+      decodePromises.push(
+        audioCtx.decodeAudioData(
+          concatBuffers(this._queue.map(({ data }) => data)).buffer
+        )
+      );
     } else {
-      // delay playback
-      delay = -playbackOffset;
+      decodePromises.push(this._a);
     }
 
-    const newFramesDuration =
-      this._syncQueue.reduce((acc, s) => acc + s.duration, 0) / 1000;
-
-    console.log(
-      "syncTimeSpent",
-      syncTimeSpent,
-      "syncOffset",
-      syncOffset,
-      "buffered",
-      buffered
+    decodePromises.push(
+      audioCtx.decodeAudioData(
+        concatBuffers(this._syncQueue.map(({ data }) => data)).buffer
+      )
     );
 
-    console.log(
-      "playbackOffset",
-      playbackOffset,
-      "syncLength",
-      syncLength,
-      "delay",
-      delay,
-      "newFramesDuration",
-      newFramesDuration
-    );
-
-    this.initSync();
-    this.initQueue();
-
-    return [this._syncQueue, PCM_SYNCED, delay];
+    [this._a, this._b] = await Promise.all(decodePromises);
   }
 }

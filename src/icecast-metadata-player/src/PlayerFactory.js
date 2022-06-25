@@ -2,6 +2,7 @@ import { IcecastReadableStream } from "icecast-metadata-js";
 import CodecParser from "codec-parser";
 import {
   p,
+  state,
   event,
   audioElement,
   endpoint,
@@ -17,10 +18,8 @@ import {
   abortController,
   SYNCED,
   PCM_SYNCED,
-  PCM_SYNCING,
   SYNCING,
   NOT_SYNCED,
-  noOp,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -162,25 +161,21 @@ export default class PlayerFactory {
   }
 
   async _syncPlayer(inputMimeType, codec) {
+    console.log("switching player");
     const handleSyncEvent = async () => {
       const syncState = await this._player.syncStateUpdate;
-      console.log(syncState);
-
-      //this._player.onMetadata = noOp;
-      //this._player.onCodecUpdate = noOp;
-
-      // resolves on the next sync state update
-      // SYNCING -> should not be returned on await
-      // SYNCED -> returned if there is a perfect sync, or the player is already synced
-      // PCM_SYNCED -> returned if there is a pcm correlation sync
-      // NOT_SYNCED -> returned if there is no match between old and new
-
-      // need to handle "need more"
+      //console.log(syncState);
 
       switch (syncState) {
         case PCM_SYNCED:
         case NOT_SYNCED:
           const oldPlayer = this._player;
+
+          const startNewPlayer = () => {
+            oldPlayer.end();
+            this._icecast[fireEvent](event.PLAY);
+            return this._player.start();
+          };
 
           // all new stream and metadata will be pushed to the new player
           [this._player, this._playbackMethod] = this._buildPlayer(
@@ -190,16 +185,12 @@ export default class PlayerFactory {
 
           this._unprocessedFrames.push(...oldPlayer.syncFrames);
 
-          const startNewPlayer = () => {
-            oldPlayer.end();
-            console.log("new player");
-            return this._player.start();
-          };
-
           if (oldPlayer.syncDelay) {
             await new Promise((resolve) => {
               setTimeout(() => {
-                startNewPlayer().then(resolve);
+                if (this._icecast.state === state.SWITCHING) {
+                  startNewPlayer().then(resolve);
+                }
               }, oldPlayer.syncDelay * 1000);
             });
           } else {
@@ -214,6 +205,8 @@ export default class PlayerFactory {
     };
 
     await handleSyncEvent();
+
+    console.log("player switched");
   }
 
   _buildPlayer(inputMimeType, codec) {
