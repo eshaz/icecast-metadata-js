@@ -3,6 +3,7 @@ import SynAudio from "synaudio";
 import {
   concatBuffers,
   event,
+  state,
   fireEvent,
   SYNCED,
   PCM_SYNCED,
@@ -29,7 +30,7 @@ export default class FrameQueue {
   }
 
   initQueue() {
-    this._absoluteQueuePosition = 0;
+    this._absoluteQueueIndex = 0;
 
     this._crcQueue = [];
     this._crcQueueDuration = 0;
@@ -51,7 +52,7 @@ export default class FrameQueue {
       indexes = [];
       this._crcQueueIndexes[crc32] = indexes;
     }
-    indexes.push(this._absoluteQueuePosition++);
+    indexes.push(this._absoluteQueueIndex++);
 
     if (this._crcQueueDuration >= this.CRC_DURATION) {
       const { crc32, duration } = this._crcQueue.shift();
@@ -94,7 +95,8 @@ export default class FrameQueue {
 
     // streams do not match (not synced)
     // prettier-ignore
-    this._icecast[fireEvent](
+    if (this._icecast.state !== state.STOPPING && this._icecast.state !== state.STOPPED)
+      this._icecast[fireEvent](
         event.WARN,
         `Reconnected successfully after ${this._icecast.state}.`,
         "Found no overlapping frames from previous request.",
@@ -119,6 +121,8 @@ export default class FrameQueue {
   */
   _crcSync() {
     // get all indexed matches for crc and check
+    if (!this._syncQueue.length) return [[], SYNCING];
+
     const syncQueueStartIndex = 0;
     const syncQueueCrc = this._syncQueue[syncQueueStartIndex].crc32;
     const crcSyncPoints = this._crcQueueIndexes[syncQueueCrc];
@@ -129,7 +133,7 @@ export default class FrameQueue {
       align_queues: for (const absoluteSyncPoint of crcSyncPoints) {
         this._syncPoint =
           absoluteSyncPoint -
-          (this._absoluteQueuePosition - this._crcQueue.length);
+          (this._absoluteQueueIndex - this._crcQueue.length);
 
         for (
           let i = syncQueueStartIndex;
@@ -324,11 +328,15 @@ export default class FrameQueue {
       return [this._syncQueue, PCM_SYNCED, delay];
       //}
     } catch (e) {
-      this._icecast[fireEvent](
-        event.WARN,
-        `Unable to synchronize after ${this._icecast.state}.`,
-        e
-      );
+      if (
+        this._icecast.state !== state.STOPPING &&
+        this._icecast.state !== state.STOPPED
+      )
+        this._icecast[fireEvent](
+          event.WARN,
+          `Unable to synchronize after ${this._icecast.state}.`,
+          e
+        );
     }
   }
 
