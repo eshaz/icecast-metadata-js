@@ -53,8 +53,6 @@ export const logError = Symbol();
 
 // variables
 export const hasIcy = Symbol();
-export const icecastMetadataQueue = Symbol();
-export const codecUpdateQueue = Symbol();
 export const abortController = Symbol();
 export const switchEndpointPromise = Symbol();
 export const switchRequestId = Symbol();

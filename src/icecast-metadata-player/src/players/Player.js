@@ -1,12 +1,4 @@
-import {
-  p,
-  audioElement,
-  bufferLength,
-  icecastMetadataQueue,
-  codecUpdateQueue,
-  endpoint,
-  SYNCED,
-} from "../global.js";
+import { p, audioElement, bufferLength, endpoint, SYNCED } from "../global.js";
 
 export default class Player {
   constructor(icecast, inputMimeType, codec) {
@@ -17,8 +9,6 @@ export default class Player {
     const instanceVariables = p.get(this._icecast);
 
     this._audioElement = instanceVariables[audioElement];
-    this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
-    this._codecUpdateQueue = instanceVariables[codecUpdateQueue];
     this._endpoint = instanceVariables[endpoint];
     this._bufferLength = instanceVariables[bufferLength];
 
@@ -29,13 +19,6 @@ export default class Player {
     this._syncStatePromise = new Promise((resolve) => {
       resolve = this._syncStateResolve;
     });
-
-    this._startMetadata = () => {
-      const currentTime = this.currentTime;
-
-      this._icecastMetadataQueue.startQueue(currentTime);
-      this._codecUpdateQueue.startQueue(currentTime);
-    };
   }
 
   static parseMimeType(mimeType) {
@@ -159,6 +142,35 @@ export default class Player {
    */
   get currentTime() {
     return 0;
+  }
+
+  get icecastMetadataQueue() {
+    return this._icecastMetadataQueue;
+  }
+
+  set icecastMetadataQueue(icecastMetadataQueue) {
+    this._icecastMetadataQueue = icecastMetadataQueue;
+  }
+
+  get codecUpdateQueue() {
+    return this._codecUpdateQueue;
+  }
+
+  set codecUpdateQueue(codecUpdateQueue) {
+    this._codecUpdateQueue = codecUpdateQueue;
+  }
+
+  get metadataQueue() {
+    return this._icecastMetadataQueue
+      ? this._icecastMetadataQueue.metadataQueue
+      : [];
+  }
+
+  _startMetadataQueues() {
+    const currentTime = this.currentTime;
+
+    this._icecastMetadataQueue.startQueue(currentTime);
+    this._codecUpdateQueue.startQueue(currentTime);
   }
 
   /**

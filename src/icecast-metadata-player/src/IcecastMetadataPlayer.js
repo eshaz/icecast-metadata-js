@@ -18,7 +18,6 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-import { IcecastMetadataQueue } from "icecast-metadata-js";
 import {
   p,
   noOp,
@@ -46,8 +45,6 @@ import {
   logError,
   // variables
   hasIcy,
-  icecastMetadataQueue,
-  codecUpdateQueue,
   abortController,
   switchEndpointPromise,
   switchRequestId,
@@ -171,17 +168,6 @@ export default class IcecastMetadataPlayer extends EventClass {
         },
       },
       // variables
-      [icecastMetadataQueue]: new IcecastMetadataQueue({
-        onMetadataUpdate: (...args) => this[fireEvent](event.METADATA, ...args),
-        onMetadataEnqueue: (...args) =>
-          this[fireEvent](event.METADATA_ENQUEUE, ...args),
-        paused: true,
-      }),
-      [codecUpdateQueue]: new IcecastMetadataQueue({
-        onMetadataUpdate: (...args) =>
-          this[fireEvent](event.CODEC_UPDATE, ...args),
-        paused: true,
-      }),
       [endPlayback]: () => {
         clearTimeout(p.get(this)[retryTimeoutId]);
         this.removeEventListener(event.STREAM_START, p.get(this)[endPlayback]);
@@ -284,7 +270,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @returns {Array<Metadata>} Array of enqueued metadata objects in FILO order
    */
   get metadataQueue() {
-    return p.get(this)[icecastMetadataQueue].metadataQueue;
+    return p.get(this)[playerFactory].player.metadataQueue;
   }
 
   /**

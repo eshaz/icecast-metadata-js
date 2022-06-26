@@ -206,7 +206,7 @@ export default class WebAudioPlayer extends Player {
           this._icecast[fireEvent](event.PLAY_READY);
           this._playbackStartTime = performance.now();
 
-          this._startMetadata();
+          this._startMetadataQueues();
           this._icecast[fireEvent](event.PLAY);
           this._playReady = true;
         } else {

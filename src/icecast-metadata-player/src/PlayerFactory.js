@@ -1,5 +1,9 @@
-import { IcecastReadableStream } from "icecast-metadata-js";
+import {
+  IcecastMetadataQueue,
+  IcecastReadableStream,
+} from "icecast-metadata-js";
 import CodecParser from "codec-parser";
+
 import {
   p,
   state,
@@ -145,6 +149,7 @@ export default class PlayerFactory {
     const codec = await codecPromise;
 
     if (!this._player.isAudioPlayer) {
+      this._newMetadataQueues();
       [this._player, this._playbackMethod] = this._buildPlayer(
         inputMimeType,
         codec
@@ -161,9 +166,16 @@ export default class PlayerFactory {
   }
 
   async _syncPlayer(inputMimeType, codec) {
+    const oldIcecastMetadataQueue = this._player.icecastMetadataQueue;
+    const oldCodecUpdateQueue = this._player.codecUpdateQueue;
+
+    this._newMetadataQueues();
+    // intercept all new metadata updates
+    this._player.icecastMetadataQueue = this._icecastMetadataQueue;
+    this._player.codecUpdateQueue = this._codecUpdateQueue;
+
     const handleSyncEvent = (complete, cancel) => {
       // need to handle metadata updates while syncing
-
       return this._player.syncStateUpdate.then((syncState) => {
         switch (syncState) {
           case SYNCING:
@@ -171,13 +183,21 @@ export default class PlayerFactory {
           case SYNCED: // synced on crc32 hashes
             if (this._icecast.state === state.SWITCHING)
               this._icecast[fireEvent](event.PLAY);
+
+            // put old queues back since audio data is crc synced
+            this._icecastMetadataQueue.purgeMetadataQueue();
+            this._codecUpdateQueue.purgeMetadataQueue();
+            this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
+            this._player.codecUpdateQueue = oldCodecUpdateQueue;
             complete();
             break;
           case PCM_SYNCED:
           case NOT_SYNCED:
             const oldPlayer = this._player;
+            // put old queues back so they can be purged when the player is ended
+            oldPlayer.icecastMetadataQueue = oldIcecastMetadataQueue;
+            oldPlayer.codecUpdateQueue = oldCodecUpdateQueue;
 
-            // all new stream and metadata will be pushed to the new player
             [this._player, this._playbackMethod] = this._buildPlayer(
               inputMimeType,
               codec
@@ -220,7 +240,12 @@ export default class PlayerFactory {
     let cancel;
     await new Promise((complete, reject) => {
       // cancel switch event if stop is called
-      cancel = reject;
+      cancel = () => {
+        oldIcecastMetadataQueue.purgeQueue();
+        oldCodecUpdateQueue.purgeQueue();
+        reject();
+      };
+
       this._icecast.addEventListener(state.STOPPING, cancel, { once: true });
 
       handleSyncEvent(complete, cancel);
@@ -230,6 +255,22 @@ export default class PlayerFactory {
 
     if (this._icecast.state === state.SWITCHING)
       this._icecast[playerState] = state.PLAYING;
+  }
+
+  _newMetadataQueues() {
+    this._icecastMetadataQueue = new IcecastMetadataQueue({
+      onMetadataUpdate: (...args) =>
+        this._icecast[fireEvent](event.METADATA, ...args),
+      onMetadataEnqueue: (...args) =>
+        this._icecast[fireEvent](event.METADATA_ENQUEUE, ...args),
+      paused: true,
+    });
+
+    this._codecUpdateQueue = new IcecastMetadataQueue({
+      onMetadataUpdate: (...args) =>
+        this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
+      paused: true,
+    });
   }
 
   _buildPlayer(inputMimeType, codec) {
@@ -248,6 +289,9 @@ export default class PlayerFactory {
       if (support === "probably" || support === "maybe") {
         method = Player.name;
         player = new Player(this._icecast, inputMimeType, codec);
+        player.icecastMetadataQueue = this._icecastMetadataQueue;
+        player.codecUpdateQueue = this._codecUpdateQueue;
+
         return [player, method];
       }
     }

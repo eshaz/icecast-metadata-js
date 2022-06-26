@@ -237,7 +237,7 @@ export default class MediaSourcePlayer extends Player {
           this._audioElement.addEventListener(
             "playing",
             () => {
-              this._startMetadata();
+              this._startMetadataQueues();
               this._icecast[fireEvent](event.PLAY);
             },
             { once: true }
