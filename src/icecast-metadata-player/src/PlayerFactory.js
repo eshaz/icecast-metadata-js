@@ -207,10 +207,10 @@ export default class PlayerFactory {
 
             const startNewPlayer = () => {
               oldPlayer.end();
-              return this._player.start();
+              return this._player.start(Math.max(0, -oldPlayer.syncDelay));
             };
 
-            if (oldPlayer.syncDelay) {
+            if (oldPlayer.syncDelay >= 0) {
               let delayTimeoutId;
 
               const abort = () => {

@@ -167,16 +167,14 @@ export default class Player {
   }
 
   _startMetadataQueues() {
-    const currentTime = this.currentTime;
-
-    this._icecastMetadataQueue.startQueue(currentTime);
-    this._codecUpdateQueue.startQueue(currentTime);
+    this._icecastMetadataQueue.startQueue(this._metadataOffset);
+    this._codecUpdateQueue.startQueue(this._metadataOffset);
   }
 
   /**
    * @abstract
    */
-  async start(metadataOffset = 0) {
+  async start(metadataOffset) {
     this._metadataOffset = metadataOffset;
   }
 

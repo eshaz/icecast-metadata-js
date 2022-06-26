@@ -283,7 +283,7 @@ export default class FrameQueue {
         // more frames need to be cut than exist on the sync queue
         return [[], SYNCING];
 
-      let delay;
+      const delay = -playbackOffset;
 
       if (playbackOffset > 0) {
         // slice the sync frame and start immediately
@@ -296,10 +296,6 @@ export default class FrameQueue {
           t += this._syncQueue[sliceIndex].duration;
 
         this._syncQueue = this._syncQueue.slice(sliceIndex);
-        delay = 0;
-      } else {
-        // delay playback
-        delay = -playbackOffset;
       }
 
       /*
