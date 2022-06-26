@@ -6,6 +6,7 @@ import {
   state,
   event,
   SYNCED,
+  PCM_SYNCED,
   SYNCING,
   NOT_SYNCED,
   fireEvent,
@@ -18,18 +19,13 @@ export default class WebAudioPlayer extends Player {
 
     [event.RETRY, event.SWITCH].forEach((e) =>
       this._icecast.addEventListener(e, () => {
-        this._syncState = NOT_SYNCED;
+        this.syncState = NOT_SYNCED;
       })
     );
 
-    this._icecast.addEventListener(event.STREAM_START, () => {
-      if (!this._wasmDecoder) this._getWasmDecoder();
-    });
-
     this._audioContext = WebAudioPlayer.constructor.audioContext;
 
-    this._getWasmDecoder();
-    this.end();
+    this._init();
   }
 
   static canPlayType(mimeType) {
@@ -73,7 +69,7 @@ export default class WebAudioPlayer extends Player {
     return (performance.now() - this._playbackStartTime) / 1000 || 0;
   }
 
-  _getWasmDecoder() {
+  _init() {
     switch (this._codec) {
       case "mpeg":
         this._wasmDecoder = new MPEGDecoderWebWorker();
@@ -82,16 +78,10 @@ export default class WebAudioPlayer extends Player {
         this._wasmDecoder = new OpusDecoderWebWorker();
         break;
     }
-
     this._wasmReady = this._wasmDecoder.ready;
-  }
-
-  async end() {
-    super.end();
 
     this._syncState = SYNCED;
-    this._syncSuccessful = false;
-    this._frameQueue = new FrameQueue(this._icecast);
+    this._frameQueue = new FrameQueue(this._icecast, this);
 
     this._currentTime = 0;
     this._decodedSample = 0;
@@ -100,58 +90,72 @@ export default class WebAudioPlayer extends Player {
     this._playbackStartTime = undefined;
     this._playReady = false;
 
-    if (
-      this._icecast.state === state.STOPPING ||
-      this._icecast.state === state.STOPPED
-    ) {
-      if (this._wasmDecoder) {
-        const decoder = this._wasmDecoder;
-        this._wasmReady.then(() => {
-          decoder.free();
-        });
-        this._wasmDecoder = null;
-      }
+    this._playPromise = new Promise((resolve) => {
+      this._playStart = resolve;
+    });
+  }
 
-      if (this._mediaStream) {
-        // disconnect the currently playing media stream
-        this._mediaStream.disconnect();
-        this._mediaStream = null;
-      }
+  async start(metadataOffset) {
+    super.start(metadataOffset);
+    this._playStart();
+  }
 
-      this._audioElement.srcObject = new MediaStream();
+  async end() {
+    super.end();
+
+    if (this._wasmDecoder) {
+      const decoder = this._wasmDecoder;
+      decoder.ready.then(() => decoder.free());
+
+      this._wasmDecoder = null;
     }
+
+    if (this._mediaStream) {
+      // disconnect the currently playing media stream
+      this._mediaStream.disconnect();
+      this._mediaStream = null;
+    }
+
+    this._audioElement.srcObject = new MediaStream();
   }
 
   async onStream(oggPages) {
     let frames = oggPages.flatMap((oggPage) => oggPage.codecFrames || oggPage);
 
-    switch (this._syncState) {
+    switch (this.syncState) {
       case NOT_SYNCED:
         this._frameQueue.initSync();
-        this._syncState = SYNCING;
+        this.syncState = SYNCING;
       case SYNCING:
-        [frames, this._syncSuccessful] = await this._frameQueue.sync(frames);
+        [this.syncFrames, this.syncState, this.syncDelay] =
+          await this._frameQueue.sync(frames);
+        frames = this.syncFrames;
+    }
 
-        if (frames.length) {
-          this._syncState = SYNCED;
-
-          if (!this._syncSuccessful) await this.end();
-        }
+    switch (this.syncState) {
+      case PCM_SYNCED:
+        break;
       case SYNCED:
+        // when frames are present, we should already know the codec and have the mse audio mimetype determined
         if (frames.length) {
           this._currentTime = frames[frames.length - 1].totalDuration;
 
-          await this._wasmReady;
-          this._decodeAndPlay(frames);
+          this._decode(frames).then((decoded) => this._play(decoded));
         }
-      default:
-        this._frameQueue.addAll(frames); // always add frames
+
+        this._frameQueue.addAll(frames);
+        break;
     }
   }
 
-  async _decodeAndPlay(frames) {
-    const { channelData, samplesDecoded, sampleRate } =
-      await this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
+  async _decode(frames) {
+    await this._wasmReady;
+
+    return this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
+  }
+
+  async _play({ channelData, samplesDecoded, sampleRate }) {
+    await this._playPromise;
 
     if (
       this._icecast.state !== state.STOPPING &&
