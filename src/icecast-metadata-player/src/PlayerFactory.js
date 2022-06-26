@@ -42,7 +42,11 @@ export default class PlayerFactory {
     this._enableCodecUpdate = instanceVariables[enableCodecUpdate];
 
     this._playbackMethod = "";
+
+    this._newMetadataQueues();
     this._player = new Player(this._icecast);
+    this._player.icecastMetadataQueue = this._icecastMetadataQueue;
+    this._player.codecUpdateQueue = this._codecUpdateQueue;
     this._player.enablePlayButton(PlayerFactory.supportedPlaybackMethods);
 
     this._unprocessedFrames = [];
@@ -149,7 +153,6 @@ export default class PlayerFactory {
     const codec = await codecPromise;
 
     if (!this._player.isAudioPlayer) {
-      this._newMetadataQueues();
       [this._player, this._playbackMethod] = this._buildPlayer(
         inputMimeType,
         codec
