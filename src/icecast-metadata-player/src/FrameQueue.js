@@ -218,12 +218,10 @@ export default class FrameQueue {
         const aDecoded = {
           channelData: [],
           samplesDecoded: this._a.length,
-          sampleRate: this._a.sampleRate,
         };
         const bDecoded = {
           channelData: [],
           samplesDecoded: this._b.length,
-          sampleRate: this._b.sampleRate,
         };
 
         for (let i = 0; i < this._a.numberOfChannels; i++)
@@ -234,18 +232,14 @@ export default class FrameQueue {
 
         const aDecodeLength = samplesToDuration(
           aDecoded.samplesDecoded,
-          aDecoded.sampleRate
+          this._a.sampleRate
         );
 
-        this._synAudioResult = await synAudio.syncWorker(
-          aDecoded,
-          bDecoded,
-          aDecoded.sampleRate
-        );
+        this._synAudioResult = await synAudio.syncWorker(aDecoded, bDecoded);
 
         const aOffset = samplesToDuration(
           this._synAudioResult.sampleOffset,
-          aDecoded.sampleRate
+          this._a.sampleRate
         );
         const aBufferOffset = aDecodeLength - buffered;
 
