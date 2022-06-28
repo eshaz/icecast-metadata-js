@@ -210,7 +210,9 @@ export default class PlayerFactory {
 
             const startNewPlayer = () => {
               oldPlayer.end();
-              return this._player.start(Math.max(0, oldPlayer.syncDelay));
+              return this._player.start(
+                Math.max(0, oldPlayer.syncDelay / 1000)
+              );
             };
 
             if (oldPlayer.syncDelay >= 0) {
@@ -232,7 +234,7 @@ export default class PlayerFactory {
 
                 if (this._icecast.state === state.SWITCHING)
                   startNewPlayer().then(complete);
-              }, oldPlayer.syncDelay * 1000);
+              }, oldPlayer.syncDelay);
             } else {
               startNewPlayer().then(complete);
             }

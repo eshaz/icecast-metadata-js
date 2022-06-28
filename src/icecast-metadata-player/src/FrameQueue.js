@@ -86,8 +86,8 @@ export default class FrameQueue {
     this._syncQueue.push(...frames);
 
     // try syncing using crc32 hashes (if the stream data matches exactly)
-    const crcSyncState = this._crcSync();
-    if (crcSyncState) return crcSyncState;
+    //const crcSyncState = this._crcSync();
+    //if (crcSyncState) return crcSyncState;
 
     // try syncing using decoded audio and corelation (if audio data matches)
     const pcmSyncState = await this._pcmSync();
@@ -277,26 +277,34 @@ export default class FrameQueue {
       // "new" time scale
       const buffered =
         this._player.metadataTimestamp - this._player.currentTime;
-      const delay = syncOffset - buffered;
 
-      const syncLength =
-        this._syncQueue.reduce((aac, { duration }) => duration + aac, 0) / 1000;
+
+      const syncLength = this._syncQueue.reduce(
+        (aac, { duration }) => duration + aac,
+        0
+      );
+      let delay = (syncOffset - buffered) * 1000;
 
       if (delay > syncLength)
         // more frames need to be cut than exist on the sync queue
         return [[], SYNCING];
 
+      const frameOverlap = 2;
       if (delay < 0) {
-        // slice the sync frame and start immediately
+        // slice the sync frame with 'n' frame overlap and start immediately
         let sliceIndex = 0;
         for (
           let t = 0;
-          sliceIndex < this._syncQueue.length && t < -delay;
+          sliceIndex < this._syncQueue.length - frameOverlap && t < -delay;
           sliceIndex++
         )
           t += this._syncQueue[sliceIndex].duration;
 
-        this._syncQueue = this._syncQueue.slice(sliceIndex);
+        this._syncQueue = this._syncQueue.slice(sliceIndex - frameOverlap);
+      } else {
+        // delay start with 'n' frame overlap
+        for (let i = 0; i < frameOverlap && i < this._syncQueue.length; i++)
+          delay -= this._syncQueue[sliceIndex].duration;
       }
 
       console.log("syncOffset", syncOffset, "buffered", buffered);
