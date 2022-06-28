@@ -255,15 +255,15 @@ export default class FrameQueue {
           this._a.sampleRate
         );
 
-        this._synAudioResult.syncOffset = aOffset - aDecodeLength; // if negative, sync is before playback, positive, sync after playback
+        this._synAudioResult.syncOffset = aDecodeLength - aOffset; // time from sync to end of buffer
 
         console.log(
           "correlation",
           this._synAudioResult.correlation,
-          "aOffset",
-          aOffset,
           "aDecodeLength",
           aDecodeLength,
+          "aOffset",
+          aOffset,
           "syncOffset",
           this._synAudioResult.syncOffset
         );
@@ -278,12 +278,11 @@ export default class FrameQueue {
       const buffered =
         this._player.metadataTimestamp - this._player.currentTime;
 
-
       const syncLength = this._syncQueue.reduce(
         (aac, { duration }) => duration + aac,
         0
       );
-      let delay = (syncOffset - buffered) * 1000;
+      let delay = (buffered - syncOffset) * 1000; // if negative, sync is before playback, positive, sync after playback
 
       if (delay > syncLength)
         // more frames need to be cut than exist on the sync queue
@@ -295,25 +294,23 @@ export default class FrameQueue {
         let sliceIndex = 0;
         for (
           let t = 0;
-          sliceIndex < this._syncQueue.length - frameOverlap && t < -delay;
+          sliceIndex < this._syncQueue.length - frameOverlap && t >= delay;
           sliceIndex++
         )
-          t += this._syncQueue[sliceIndex].duration;
+          t -= this._syncQueue[sliceIndex].duration;
 
         this._syncQueue = this._syncQueue.slice(sliceIndex - frameOverlap);
       } else {
         // delay start with 'n' frame overlap
         for (let i = 0; i < frameOverlap && i < this._syncQueue.length; i++)
-          delay -= this._syncQueue[sliceIndex].duration;
+          delay -= this._syncQueue[i].duration;
       }
 
-      console.log("syncOffset", syncOffset, "buffered", buffered);
-
       console.log(
-        "playbackOffset",
-        delay,
-        "syncLength",
-        syncLength,
+        "syncOffset",
+        syncOffset,
+        "buffered",
+        buffered,
         "delay",
         delay
       );
@@ -322,7 +319,7 @@ export default class FrameQueue {
       this._icecast[fireEvent](
         event.WARN,
         `Reconnected successfully after ${this._icecast.state}.`,
-        `Found ${((this._syncQueue.reduce((acc, { duration }) => acc + duration, 0) + delay) / 1000).toFixed(3)} seconds of overlapping audio data in new request.`,
+        `Found ${(this._syncQueue.reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds of overlapping audio data in new request.`,
         `Synchronized old and new request with ${(Math.round(correlation * 10000) / 100).toFixed(2)}% confidence.`
       );
 
