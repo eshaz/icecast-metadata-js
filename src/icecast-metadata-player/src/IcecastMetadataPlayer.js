@@ -71,22 +71,34 @@ const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 
 export default class IcecastMetadataPlayer extends EventClass {
-  static getDefaults(options) {
+  static getDefaults(options, instance = {}) {
     return {
-      bufferLength: options.bufferLength ?? 1,
-      icyMetaInt: options.icyMetaInt,
-      icyCharacterEncoding: options.icyCharacterEncoding,
-      icyDetectionTimeout: options.icyDetectionTimeout,
-      metadataTypes: options.metadataTypes || ["icy"],
-      hasIcy: (options.metadataTypes || ["icy"]).includes("icy"),
-      enableLogging: options.enableLogging ?? false,
-      enableCodecUpdate:
-        Boolean(options.onCodecUpdate) || options.enableCodecUpdate,
-      retryDelayRate: options.retryDelayRate ?? 0.1,
-      retryDelayMin: options.retryDelayMin ?? 0.5,
-      retryDelayMax: options.retryDelayMax ?? 2,
-      retryTimeout: options.retryTimeout ?? 30,
-      playbackMethod: options.playbackMethod || "mediasource",
+      [bufferLength]: options.bufferLength ?? instance[bufferLength] ?? 1,
+      [icyMetaInt]: options.icyMetaInt ?? instance[icyMetaInt],
+      [icyCharacterEncoding]:
+        options.icyCharacterEncoding ?? instance[icyCharacterEncoding],
+      [icyDetectionTimeout]:
+        options.icyDetectionTimeout ?? instance[icyDetectionTimeout],
+      [metadataTypes]: (options.metadataTypes ?? instance[metadataTypes]) || [
+        "icy",
+      ],
+      [hasIcy]: (
+        (options.metadataTypes ?? instance[metadataTypes]) || ["icy"]
+      ).includes("icy"),
+      [enableLogging]:
+        options.enableLogging ?? instance[enableLogging] ?? false,
+      [enableCodecUpdate]: Boolean(
+        options.enableCodecUpdate ??
+          instance[enableCodecUpdate] ??
+          options.onCodecUpdate
+      ),
+      [retryDelayRate]:
+        options.retryDelayRate ?? instance[retryDelayRate] ?? 0.1,
+      [retryDelayMin]: options.retryDelayMin ?? instance[retryDelayMin] ?? 0.5,
+      [retryDelayMax]: options.retryDelayMax ?? instance[retryDelayMax] ?? 2,
+      [retryTimeout]: options.retryTimeout ?? instance[retryTimeout] ?? 30,
+      [playbackMethod]:
+        (options.playbackMethod ?? instance[playbackMethod]) || "mediasource",
     };
   }
 
@@ -119,31 +131,18 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @callback options.onStreamEnd Called when the stream request completes
    * @callback options.onStop Called when the stream is completely stopped and all cleanup operations are complete
    * @callback options.onRetry Called when a connection retry is attempted
-   * @callback options.onRetryTimeout Called when when connections attempts have timed out
+   * @callback options.onRetryTimeout Called when connections attempts have timed out
+   * @callback options.onSwitch Called when a switch event is triggered
    * @callback options.onCodecUpdate Called when the audio codec information has changed
    */
   constructor(url, options = {}) {
     super();
 
-    const optionsWithDefaults = IcecastMetadataPlayer.getDefaults(options);
-
     p.set(this, {
       // options
       [endpoint]: url,
       [audioElement]: options.audioElement || new Audio(),
-      [bufferLength]: optionsWithDefaults.bufferLength,
-      [icyMetaInt]: optionsWithDefaults.icyMetaInt,
-      [icyCharacterEncoding]: optionsWithDefaults.icyCharacterEncoding,
-      [icyDetectionTimeout]: optionsWithDefaults.icyDetectionTimeout,
-      [metadataTypes]: optionsWithDefaults.metadataTypes,
-      [hasIcy]: optionsWithDefaults.hasIcy,
-      [enableLogging]: optionsWithDefaults.enableLogging,
-      [enableCodecUpdate]: optionsWithDefaults.enableCodecUpdate,
-      [retryDelayRate]: optionsWithDefaults.retryDelayRate,
-      [retryDelayMin]: optionsWithDefaults.retryDelayMin,
-      [retryDelayMax]: optionsWithDefaults.retryDelayMax,
-      [retryTimeout]: optionsWithDefaults.retryTimeout,
-      [playbackMethod]: optionsWithDefaults.playbackMethod,
+      ...IcecastMetadataPlayer.getDefaults(options),
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -395,54 +394,24 @@ export default class IcecastMetadataPlayer extends EventClass {
       p.get(this)[switchEndpointPromise] = p
         .get(this)
         [switchEndpointPromise].then(() => {
+          const instance = p.get(this);
+
           if (
             (this.state === state.PLAYING || this.state === state.RETRYING) &&
-            requestId === p.get(this)[switchRequestId] // only execute if this is latest request
+            requestId === instance[switchRequestId] // only execute if this is latest request
           ) {
             this[playerState] = state.SWITCHING;
 
-            const v = p.get(this);
-
-            const optionsWithDefaults = IcecastMetadataPlayer.getDefaults({
-              bufferLength: v[bufferLength],
-              icyMetaInt: v[icyMetaInt],
-              icyCharacterEncoding: v[icyCharacterEncoding],
-              icyDetectionTimeout: v[icyDetectionTimeout],
-              metadataTypes: v[metadataTypes],
-              retryDelayRate: v[retryDelayRate],
-              retryDelayMin: v[retryDelayMin],
-              retryDelayMax: v[retryDelayMax],
-              retryTimeout: v[retryTimeout],
-              playbackMethod: v[playbackMethod],
-              ...newOptions,
-            });
-
-            Object.assign(v, {
+            Object.assign(instance, {
               [endpoint]: newEndpoint,
-              [bufferLength]: optionsWithDefaults.bufferLength,
-              [icyMetaInt]: optionsWithDefaults.icyMetaInt,
-              [icyCharacterEncoding]: optionsWithDefaults.icyCharacterEncoding,
-              [icyDetectionTimeout]: optionsWithDefaults.icyDetectionTimeout,
-              [metadataTypes]: optionsWithDefaults.metadataTypes,
-              [hasIcy]: optionsWithDefaults.hasIcy,
-              [retryDelayRate]: optionsWithDefaults.retryDelayRate,
-              [retryDelayMin]: optionsWithDefaults.retryDelayMin,
-              [retryDelayMax]: optionsWithDefaults.retryDelayMax,
-              [retryTimeout]: optionsWithDefaults.retryTimeout,
-              [playbackMethod]: optionsWithDefaults.playbackMethod,
+              ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
             });
 
-            p.get(this)[abortController].abort();
-            p.get(this)[abortController] = new AbortController();
+            instance[abortController].abort();
+            instance[abortController] = new AbortController();
 
             return new Promise((resolve) => {
-              this.addEventListener(
-                event.PLAY,
-                () => {
-                  resolve();
-                },
-                { once: true }
-              );
+              this.addEventListener(event.PLAY, resolve, { once: true });
             });
           }
         });
