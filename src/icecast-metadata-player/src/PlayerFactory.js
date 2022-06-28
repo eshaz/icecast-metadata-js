@@ -208,36 +208,30 @@ export default class PlayerFactory {
 
             this._unprocessedFrames.push(...oldPlayer.syncFrames);
 
-            const startNewPlayer = () => {
-              oldPlayer.end();
-              return this._player.start(
-                Math.max(0, oldPlayer.syncDelay / 1000)
-              );
+            let delayTimeoutId;
+
+            const abort = () => {
+              clearTimeout(delayTimeoutId);
+              this._player = oldPlayer;
+              cancel();
             };
 
-            if (oldPlayer.syncDelay >= 0) {
-              let delayTimeoutId;
+            // cancel switch event if stop is called
+            this._icecast.addEventListener(state.STOPPING, abort, {
+              once: true,
+            });
 
-              const abort = () => {
-                clearTimeout(delayTimeoutId);
-                this._player = oldPlayer;
-                cancel();
-              };
+            // start player after delay or immediately
+            delayTimeoutId = setTimeout(() => {
+              if (this._icecast.state === state.SWITCHING) {
+                oldPlayer.end();
+                this._player
+                  .start(Math.max(0, oldPlayer.syncDelay / 1000))
+                  .then(complete);
+              }
 
-              // cancel switch event if stop is called
-              this._icecast.addEventListener(state.STOPPING, abort, {
-                once: true,
-              });
-
-              delayTimeoutId = setTimeout(() => {
-                this._icecast.removeEventListener(state.STOPPING, abort);
-
-                if (this._icecast.state === state.SWITCHING)
-                  startNewPlayer().then(complete);
-              }, oldPlayer.syncDelay);
-            } else {
-              startNewPlayer().then(complete);
-            }
+              this._icecast.removeEventListener(state.STOPPING, abort);
+            }, Math.max(oldPlayer.syncDelay, 0));
         }
       });
     };

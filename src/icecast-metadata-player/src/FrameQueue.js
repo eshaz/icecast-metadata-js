@@ -27,6 +27,8 @@ export default class FrameQueue {
   initSync() {
     this._syncQueue = [];
     this._synAudioResult = null;
+    this._a = null;
+    this._b = null;
   }
 
   initQueue() {
@@ -86,8 +88,8 @@ export default class FrameQueue {
     this._syncQueue.push(...frames);
 
     // try syncing using crc32 hashes (if the stream data matches exactly)
-    //const crcSyncState = this._crcSync();
-    //if (crcSyncState) return crcSyncState;
+    const crcSyncState = this._crcSync();
+    if (crcSyncState) return crcSyncState;
 
     // try syncing using decoded audio and corelation (if audio data matches)
     const pcmSyncState = await this._pcmSync();
@@ -105,7 +107,7 @@ export default class FrameQueue {
 
     const syncQueue = this._syncQueue;
     this.initSync();
-    this.initQueue(); // clear queue since there is a gap in data
+    this.initQueue();
     return [syncQueue, NOT_SYNCED];
   }
 
@@ -127,28 +129,24 @@ export default class FrameQueue {
     const syncQueueCrc = this._syncQueue[syncQueueStartIndex].crc32;
     const crcSyncPoints = this._crcQueueIndexes[syncQueueCrc];
 
-    let matched, outOfFrames;
+    let matched, outOfFrames, syncPoint;
 
     if (crcSyncPoints) {
       align_queues: for (const absoluteSyncPoint of crcSyncPoints) {
-        this._syncPoint =
+        syncPoint =
           absoluteSyncPoint -
           (this._absoluteQueueIndex - this._crcQueue.length);
 
         for (
           let i = syncQueueStartIndex;
-          i < this._syncQueue.length &&
-          this._syncPoint + i < this._crcQueue.length;
+          i < this._syncQueue.length && syncPoint + i < this._crcQueue.length;
           i++
         )
-          if (
-            this._crcQueue[this._syncPoint + i].crc32 !==
-            this._syncQueue[i].crc32
-          )
+          if (this._crcQueue[syncPoint + i].crc32 !== this._syncQueue[i].crc32)
             continue align_queues; // failed to match
 
         outOfFrames =
-          this._syncPoint + this._syncQueue.length <= this._crcQueue.length;
+          syncPoint + this._syncQueue.length <= this._crcQueue.length;
         matched = true;
         break; // full match
       }
@@ -157,13 +155,13 @@ export default class FrameQueue {
       if (outOfFrames) return [[], SYNCING];
 
       if (matched) {
-        const sliceIndex = this._crcQueue.length - this._syncPoint;
+        const sliceIndex = this._crcQueue.length - syncPoint;
         // prettier-ignore
         this._icecast[fireEvent](
           event.WARN,
           `Reconnected successfully after ${this._icecast.state}.`,
           `Found ${sliceIndex} frames (${(this._crcQueue
-            .slice(this._syncPoint)
+            .slice(syncPoint)
             .reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds) of overlapping audio data in new request.`,
           "Synchronized old and new request."
         );
@@ -184,15 +182,12 @@ export default class FrameQueue {
     (time scale)     -2 -1 0 +1 +2
     (old connection)  -----------------------------|
                       ^^^^^|^^^^^^^^^|             |
-                           |         syncOffset    buffered (metadataTimestamp)
-                           syncStart
-                             |
-                             syncEnd
+                           |         sampleOffsetFromEnd    buffered (metadataTimestamp)
   
     (time scale)               -2 -1 0 +1 +2
     (new connection)                 |-----------|--->
                              |       ^^^^^^^^^^^^|^^^^
-                             playbackOffset      syncLength
+                             delay               syncLength
   */
   async _pcmSync() {
     try {
@@ -230,49 +225,24 @@ export default class FrameQueue {
         for (let i = 0; i < this._b.numberOfChannels; i++)
           bDecoded.channelData.push(this._b.getChannelData(i));
 
-        const aDecodeLength = samplesToDuration(
-          aDecoded.samplesDecoded,
-          this._a.sampleRate
-        );
-
-        const start = performance.now();
-
         this._synAudioResult = await synAudio.syncWorkerConcurrent(
           aDecoded,
           bDecoded,
           Math.max(navigator.hardwareConcurrency - 1, 1)
         );
 
-        const end = performance.now();
-
-        console.log(
-          "correlation rate",
-          ((aDecodeLength * 1000) / (end - start)) * 100
-        );
-
-        const aOffset = samplesToDuration(
-          this._synAudioResult.sampleOffset,
-          this._a.sampleRate
-        );
-
-        this._synAudioResult.syncOffset = aDecodeLength - aOffset; // time from sync to end of buffer
-
-        console.log(
-          "correlation",
-          this._synAudioResult.correlation,
-          "aDecodeLength",
-          aDecodeLength,
-          "aOffset",
-          aOffset,
-          "syncOffset",
-          this._synAudioResult.syncOffset
-        );
+        this._synAudioResult.sampleOffsetFromEnd =
+          samplesToDuration(aDecoded.samplesDecoded, this._a.sampleRate) -
+          samplesToDuration(
+            this._synAudioResult.sampleOffset,
+            this._a.sampleRate
+          ); // total a samples decoded - sample offset (sampleOffset from end of buffer)
       }
 
       // anything lower than .5 is likely not synced, but it might sound better than some random sync point
       //if (this._synAudioResult.correlation > 0.5) {
       // "old" time scale
-      const { correlation, syncOffset } = this._synAudioResult;
+      const { correlation, sampleOffsetFromEnd } = this._synAudioResult;
 
       // "new" time scale
       const buffered =
@@ -282,7 +252,7 @@ export default class FrameQueue {
         (aac, { duration }) => duration + aac,
         0
       );
-      let delay = (buffered - syncOffset) * 1000; // if negative, sync is before playback, positive, sync after playback
+      let delay = (buffered - sampleOffsetFromEnd) * 1000; // if negative, sync is before playback, positive, sync after playback
 
       if (delay > syncLength)
         // more frames need to be cut than exist on the sync queue
@@ -306,20 +276,10 @@ export default class FrameQueue {
           delay -= this._syncQueue[i].duration;
       }
 
-      console.log(
-        "syncOffset",
-        syncOffset,
-        "buffered",
-        buffered,
-        "delay",
-        delay
-      );
-
       // prettier-ignore
       this._icecast[fireEvent](
         event.WARN,
         `Reconnected successfully after ${this._icecast.state}.`,
-        `Found ${(this._syncQueue.reduce((acc, { duration }) => acc + duration, 0) / 1000).toFixed(3)} seconds of overlapping audio data in new request.`,
         `Synchronized old and new request with ${(Math.round(correlation * 10000) / 100).toFixed(2)}% confidence.`
       );
 
