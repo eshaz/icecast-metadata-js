@@ -13,12 +13,6 @@ export default class HTML5Player extends Player {
       if (!this._playReady) this.end();
     });
 
-    [event.RETRY, event.SWITCH].forEach((e) =>
-      this._icecast.addEventListener(e, () => {
-        this.syncState = NOT_SYNCED;
-      })
-    );
-
     this._init();
   }
 

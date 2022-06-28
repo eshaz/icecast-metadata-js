@@ -17,12 +17,6 @@ export default class WebAudioPlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    [event.RETRY, event.SWITCH].forEach((e) =>
-      this._icecast.addEventListener(e, () => {
-        this.syncState = NOT_SYNCED;
-      })
-    );
-
     this._audioContext = WebAudioPlayer.constructor.audioContext;
 
     this._init();

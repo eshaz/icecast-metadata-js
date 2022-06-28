@@ -135,7 +135,7 @@ const App = () => {
 
       setStation(newStation);
     },
-    [icecast, audioElement, sendCastMessage]
+    [icecast, station, audioElement, sendCastMessage]
   );
 
   const play = useCallback(() => {

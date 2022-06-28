@@ -20,12 +20,6 @@ export default class MediaSourcePlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    [event.RETRY, event.SWITCH].forEach((e) =>
-      this._icecast.addEventListener(e, () => {
-        this.syncState = NOT_SYNCED;
-      })
-    );
-
     this._init();
   }
 
@@ -188,13 +182,9 @@ export default class MediaSourcePlayer extends Player {
       if (!sourceBuffer.updating) {
         resolve();
       } else {
-        this._mediaSource.sourceBuffers[0].addEventListener(
-          "updateend",
-          resolve,
-          {
-            once: true,
-          }
-        );
+        sourceBuffer.addEventListener("updateend", resolve, {
+          once: true,
+        });
       }
     });
   }
@@ -223,11 +213,12 @@ export default class MediaSourcePlayer extends Player {
       this._sourceBufferQueue.push(chunk);
 
       try {
-        for await (const sourceBuffer of this._sourceBufferQueue) {
-          this._mediaSource.sourceBuffers[0].appendBuffer(sourceBuffer);
+        while (this._sourceBufferQueue.length) {
+          this._mediaSource.sourceBuffers[0].appendBuffer(
+            this._sourceBufferQueue.shift()
+          );
           await this._waitForSourceBuffer();
         }
-        this._sourceBufferQueue = [];
       } catch (e) {
         if (e.name !== "QuotaExceededError") throw e;
       }

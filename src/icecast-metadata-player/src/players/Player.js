@@ -1,4 +1,12 @@
-import { p, audioElement, bufferLength, endpoint, SYNCED } from "../global.js";
+import {
+  p,
+  event,
+  audioElement,
+  bufferLength,
+  endpoint,
+  SYNCED,
+  NOT_SYNCED,
+} from "../global.js";
 
 export default class Player {
   constructor(icecast, inputMimeType, codec) {
@@ -14,6 +22,10 @@ export default class Player {
 
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;
+
+    this._notSyncedHandler = () => {
+      this.syncState = NOT_SYNCED;
+    };
 
     this._syncState = SYNCED;
     this._syncStatePromise = new Promise((resolve) => {
@@ -176,12 +188,20 @@ export default class Player {
    */
   async start(metadataOffset) {
     this._metadataOffset = metadataOffset;
+
+    [event.RETRY, event.SWITCH].forEach((e) =>
+      this._icecast.addEventListener(e, this._notSyncedHandler)
+    );
   }
 
   /**
    * @abstract
    */
   async end() {
+    [event.RETRY, event.SWITCH].forEach((e) =>
+      this._icecast.removeEventListener(e, this._notSyncedHandler)
+    );
+
     this._icecastMetadataQueue.purgeMetadataQueue();
     this._codecUpdateQueue.purgeMetadataQueue();
   }
