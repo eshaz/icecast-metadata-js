@@ -210,7 +210,7 @@ export default class PlayerFactory {
 
             const startNewPlayer = () => {
               oldPlayer.end();
-              return this._player.start(Math.max(0, -oldPlayer.syncDelay));
+              return this._player.start(Math.max(0, oldPlayer.syncDelay));
             };
 
             if (oldPlayer.syncDelay >= 0) {
@@ -244,8 +244,8 @@ export default class PlayerFactory {
     await new Promise((complete, reject) => {
       // cancel switch event if stop is called
       cancel = () => {
-        oldIcecastMetadataQueue.purgeQueue();
-        oldCodecUpdateQueue.purgeQueue();
+        oldIcecastMetadataQueue.purgeMetadataQueue();
+        oldCodecUpdateQueue.purgeMetadataQueue();
         reject();
       };
 
