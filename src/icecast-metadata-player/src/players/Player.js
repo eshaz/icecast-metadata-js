@@ -7,6 +7,7 @@ import {
   SYNCED,
   NOT_SYNCED,
 } from "../global.js";
+import FrameQueue from "../FrameQueue.js";
 
 export default class Player {
   constructor(icecast, inputMimeType, codec) {
@@ -26,11 +27,6 @@ export default class Player {
     this._notSyncedHandler = () => {
       this.syncState = NOT_SYNCED;
     };
-
-    this._syncState = SYNCED;
-    this._syncStatePromise = new Promise((resolve) => {
-      resolve = this._syncStateResolve;
-    });
   }
 
   static parseMimeType(mimeType) {
@@ -181,6 +177,16 @@ export default class Player {
   _startMetadataQueues() {
     this._icecastMetadataQueue.startQueue(this._metadataOffset);
     this._codecUpdateQueue.startQueue(this._metadataOffset);
+  }
+
+  /**
+   * @abstract
+   */
+  async _init() {
+    this.syncState = SYNCED;
+    this.syncFrames = [];
+    this.syncDelay = null;
+    this._frameQueue = new FrameQueue(this._icecast, this);
   }
 
   /**

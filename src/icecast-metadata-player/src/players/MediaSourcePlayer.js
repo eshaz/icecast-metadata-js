@@ -11,7 +11,6 @@ import {
   NOT_SYNCED,
 } from "../global.js";
 import Player from "./Player.js";
-import FrameQueue from "../FrameQueue.js";
 
 const BUFFER = 5; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 5; // seconds before removing from SourceBuffer
@@ -75,9 +74,8 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async _init() {
-    this.syncState = SYNCED;
-    this.syncFrames = [];
-    this._frameQueue = new FrameQueue(this._icecast, this);
+    super._init();
+
     this._sourceBufferQueue = [];
     this._playReady = false;
 

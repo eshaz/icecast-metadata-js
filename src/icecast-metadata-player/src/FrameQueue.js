@@ -10,7 +10,7 @@ import {
   SYNCING,
   NOT_SYNCED,
 } from "./global.js";
-import WebAudioPlayer from "./players/WebAudioPlayer.js";
+import PlayerFactory from "./PlayerFactory.js";
 
 export default class FrameQueue {
   constructor(icecast, player) {
@@ -302,7 +302,7 @@ export default class FrameQueue {
   }
 
   async _decodeQueues() {
-    const audioCtx = WebAudioPlayer.constructor.audioContext;
+    const audioCtx = PlayerFactory.constructor.audioContext;
 
     [this._a, this._b] = await Promise.all([
       // decode the pcm queue only once

@@ -1,7 +1,7 @@
 import { OpusDecoderWebWorker } from "opus-decoder";
 import { MPEGDecoderWebWorker } from "mpg123-decoder";
 
-import FrameQueue from "../FrameQueue.js";
+import PlayerFactory from "../PlayerFactory.js";
 import {
   state,
   event,
@@ -17,7 +17,7 @@ export default class WebAudioPlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    this._audioContext = WebAudioPlayer.constructor.audioContext;
+    this._audioContext = PlayerFactory.constructor.audioContext;
 
     this._init();
   }
@@ -63,7 +63,9 @@ export default class WebAudioPlayer extends Player {
     return (performance.now() - this._playbackStartTime) / 1000 || 0;
   }
 
-  _init() {
+  async _init() {
+    super._init();
+
     switch (this._codec) {
       case "mpeg":
         this._wasmDecoder = new MPEGDecoderWebWorker();
@@ -73,9 +75,6 @@ export default class WebAudioPlayer extends Player {
         break;
     }
     this._wasmReady = this._wasmDecoder.ready;
-
-    this._syncState = SYNCED;
-    this._frameQueue = new FrameQueue(this._icecast, this);
 
     this._currentTime = 0;
     this._decodedSample = 0;
@@ -111,6 +110,8 @@ export default class WebAudioPlayer extends Player {
     }
 
     this._audioElement.srcObject = new MediaStream();
+
+    this._init();
   }
 
   async onStream(oggPages) {
@@ -211,47 +212,4 @@ export default class WebAudioPlayer extends Player {
       this._decodedSample += samplesDecoded;
     }
   }
-}
-
-// statically initialize audio context and start using a DOM event
-if (WebAudioPlayer.isSupported) {
-  const audioCtxErrorHandler = (e) => {
-    console.error(
-      "icecast-metadata-js",
-      "Failed to start the AudioContext. WebAudio playback will not be possible.",
-      e
-    );
-  };
-
-  // hack for iOS Audio element controls support
-  // iOS will only enable AudioContext.resume() when called directly from a UI event
-  // https://stackoverflow.com/questions/57510426
-  const events = ["touchstart", "touchend", "mousedown", "keydown"];
-
-  const unlock = () => {
-    events.forEach((e) => document.removeEventListener(e, unlock));
-
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-      latencyHint: "playback",
-    });
-
-    audioCtx
-      .resume()
-      .then(() => {
-        // hack for iOS to continue playing while locked
-        audioCtx
-          .createScriptProcessor(2 ** 14, 2, 2)
-          .connect(audioCtx.destination);
-
-        audioCtx.onstatechange = () => {
-          if (audioCtx.state !== "running")
-            audioCtx.resume().catch(audioCtxErrorHandler);
-        };
-      })
-      .catch(audioCtxErrorHandler);
-
-    WebAudioPlayer.constructor.audioContext = audioCtx;
-  };
-
-  events.forEach((e) => document.addEventListener(e, unlock));
 }

@@ -305,3 +305,46 @@ export default class PlayerFactory {
     return [player, method];
   }
 }
+
+// statically initialize audio context and start using a DOM event
+if (WebAudioPlayer.isSupported) {
+  const audioCtxErrorHandler = (e) => {
+    console.error(
+      "icecast-metadata-js",
+      "Failed to start the AudioContext. WebAudio playback will not be possible.",
+      e
+    );
+  };
+
+  // hack for iOS Audio element controls support
+  // iOS will only enable AudioContext.resume() when called directly from a UI event
+  // https://stackoverflow.com/questions/57510426
+  const events = ["touchstart", "touchend", "mousedown", "keydown"];
+
+  const unlock = () => {
+    events.forEach((e) => document.removeEventListener(e, unlock));
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+      latencyHint: "playback",
+    });
+
+    audioCtx
+      .resume()
+      .then(() => {
+        // hack for iOS to continue playing while locked
+        audioCtx
+          .createScriptProcessor(2 ** 14, 2, 2)
+          .connect(audioCtx.destination);
+
+        audioCtx.onstatechange = () => {
+          if (audioCtx.state !== "running")
+            audioCtx.resume().catch(audioCtxErrorHandler);
+        };
+      })
+      .catch(audioCtxErrorHandler);
+
+    PlayerFactory.constructor.audioContext = audioCtx;
+  };
+
+  events.forEach((e) => document.addEventListener(e, unlock));
+}

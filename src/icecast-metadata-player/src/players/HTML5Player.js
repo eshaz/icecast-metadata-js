@@ -47,7 +47,9 @@ export default class HTML5Player extends Player {
     );
   }
 
-  _init() {
+  async _init() {
+    super._init();
+
     this._frame = null;
     this._audioLoadedTimestamp = 0;
     this._metadataTimestampOffset = 0;
@@ -89,14 +91,16 @@ export default class HTML5Player extends Player {
 
     this._audioElement.src = null;
     this._audioElement.srcObject = null;
+
+    this._init();
   }
 
   onStream(frames) {
     this._frame = frames[frames.length - 1] || this._frame;
 
     if (this.syncState === NOT_SYNCED) {
+      // syncing not implemented in html5 playback method
       this.syncState = NOT_SYNCED;
-      this.syncFrames = [];
     }
   }
 }
