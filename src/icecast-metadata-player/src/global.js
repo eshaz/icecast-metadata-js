@@ -54,8 +54,6 @@ export const logError = Symbol();
 // variables
 export const hasIcy = Symbol();
 export const abortController = Symbol();
-export const switchEndpointPromise = Symbol();
-export const switchRequestId = Symbol();
 export const playerState = Symbol();
 
 // sync state

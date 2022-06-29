@@ -46,8 +46,6 @@ import {
   // variables
   hasIcy,
   abortController,
-  switchEndpointPromise,
-  switchRequestId,
   playerState,
 } from "./global.js";
 
@@ -69,6 +67,7 @@ const onAudioWaiting = Symbol();
 const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
+const switchEndpointCancel = Symbol();
 
 export default class IcecastMetadataPlayer extends EventClass {
   static getDefaults(options, instance = {}) {
@@ -232,8 +231,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           this[playerState] = state.PLAYING;
         }
       },
-      [switchEndpointPromise]: Promise.resolve(),
-      [switchRequestId]: 0,
+      [switchEndpointCancel]: noOp,
     });
 
     this[attachAudioElement]();
@@ -389,34 +387,30 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   async switchEndpoint(newEndpoint, newOptions) {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
-      const requestId = ++p.get(this)[switchRequestId];
+      const instance = p.get(this);
 
-      p.get(this)[switchEndpointPromise] = p
-        .get(this)
-        [switchEndpointPromise].then(() => {
-          const instance = p.get(this);
+      // cancel any pending switch request
+      instance[switchEndpointCancel]();
+      this[playerState] = state.SWITCHING;
 
-          if (
-            (this.state === state.PLAYING || this.state === state.RETRYING) &&
-            requestId === instance[switchRequestId] // only execute if this is latest request
-          ) {
-            this[playerState] = state.SWITCHING;
+      Object.assign(instance, {
+        [endpoint]: newEndpoint,
+        ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
+      });
 
-            Object.assign(instance, {
-              [endpoint]: newEndpoint,
-              ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
-            });
+      instance[abortController].abort();
+      instance[abortController] = new AbortController();
 
-            instance[abortController].abort();
-            instance[abortController] = new AbortController();
-
-            return new Promise((resolve) => {
-              this.addEventListener(event.PLAY, resolve, { once: true });
-            });
-          }
-        });
-
-      return p.get(this)[switchEndpointPromise];
+      let cancelled = false;
+      return new Promise((complete, cancel) => {
+        p.get(this)[switchEndpointCancel] = () => {
+          cancelled = true;
+          cancel();
+        };
+        this.addEventListener(event.PLAY, complete, { once: true });
+      }).catch((e) => {
+        if (!cancelled) throw e;
+      });
     }
   }
 

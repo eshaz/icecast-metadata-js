@@ -290,17 +290,18 @@ export default class PlayerFactory {
         player = new Player(this._icecast, inputMimeType, codec);
         player.icecastMetadataQueue = this._icecastMetadataQueue;
         player.codecUpdateQueue = this._codecUpdateQueue;
-
-        return [player, method];
+        break;
       }
     }
 
-    if (player) {
+    if (!player) {
       throw new Error(
         `Your browser does not support this audio codec ${inputMimeType}${
           codec && `;codecs="${codec}"`
         }`
       );
     }
+
+    return [player, method];
   }
 }
