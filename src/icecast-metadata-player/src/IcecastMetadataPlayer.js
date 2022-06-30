@@ -334,7 +334,7 @@ export default class IcecastMetadataPlayer extends EventClass {
             }
           })
           .catch(async (e) => {
-            if (e.name !== "AbortError") {
+            if (e?.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
                 this[fireEvent](event.RETRY);
                 return tryFetching();
@@ -389,23 +389,22 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   async switchEndpoint(newEndpoint, newOptions) {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
+      const instance = p.get(this);
+      Object.assign(instance, {
+        [endpoint]: newEndpoint,
+        ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
+      });
+
       const requestId = ++p.get(this)[switchRequestId];
 
       p.get(this)[switchEndpointPromise] = p
         .get(this)
         [switchEndpointPromise].then(() => {
-          const instance = p.get(this);
-
           if (
             (this.state === state.PLAYING || this.state === state.RETRYING) &&
             requestId === instance[switchRequestId] // only execute if this is latest request
           ) {
             this[playerState] = state.SWITCHING;
-
-            Object.assign(instance, {
-              [endpoint]: newEndpoint,
-              ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
-            });
 
             instance[abortController].abort();
             instance[abortController] = new AbortController();

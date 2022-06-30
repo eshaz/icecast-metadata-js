@@ -184,9 +184,6 @@ export default class PlayerFactory {
           case SYNCING:
             return handleSyncEvent(complete, cancel);
           case SYNCED: // synced on crc32 hashes
-            if (this._icecast.state === state.SWITCHING)
-              this._icecast[fireEvent](event.PLAY);
-
             // put old queues back since audio data is crc synced
             this._icecastMetadataQueue.purgeMetadataQueue();
             this._codecUpdateQueue.purgeMetadataQueue();
@@ -223,7 +220,10 @@ export default class PlayerFactory {
 
             // start player after delay or immediately
             delayTimeoutId = setTimeout(() => {
-              if (this._icecast.state === state.SWITCHING) {
+              if (
+                this._icecast.state === state.SWITCHING ||
+                this._icecast.state === state.RETRYING
+              ) {
                 oldPlayer.end();
                 this._player
                   .start(Math.max(0, oldPlayer.syncDelay / 1000))
@@ -254,8 +254,10 @@ export default class PlayerFactory {
     });
 
     this._icecast.removeEventListener(state.STOPPING, cancel);
-
-    if (this._icecast.state === state.SWITCHING)
+    if (
+      this._icecast.state === state.SWITCHING ||
+      this._icecast.state === state.RETRYING
+    )
       this._icecast[playerState] = state.PLAYING;
   }
 
