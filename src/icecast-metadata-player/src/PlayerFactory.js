@@ -210,14 +210,14 @@ export default class PlayerFactory {
 
             let delayTimeoutId;
 
-            const abort = () => {
+            const stoppingHandler = () => {
               clearTimeout(delayTimeoutId);
               this._player = oldPlayer;
               cancel();
             };
 
             // cancel switch event if stop is called
-            this._icecast.addEventListener(state.STOPPING, abort, {
+            this._icecast.addEventListener(state.STOPPING, stoppingHandler, {
               once: true,
             });
 
@@ -230,7 +230,10 @@ export default class PlayerFactory {
                   .then(complete);
               }
 
-              this._icecast.removeEventListener(state.STOPPING, abort);
+              this._icecast.removeEventListener(
+                state.STOPPING,
+                stoppingHandler
+              );
             }, Math.max(oldPlayer.syncDelay, 0));
         }
       });

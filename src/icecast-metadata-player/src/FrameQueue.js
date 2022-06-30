@@ -26,6 +26,8 @@ export default class FrameQueue {
 
   initSync() {
     this._syncQueue = [];
+    this._syncQueueDuration = 0;
+
     this._synAudioResult = null;
     this._a = null;
     this._b = null;
@@ -33,6 +35,7 @@ export default class FrameQueue {
 
   initQueue() {
     this._absoluteQueueIndex = 0;
+    this._absoluteQueueDuration = 0;
 
     this._crcQueue = [];
     this._crcQueueDuration = 0;
@@ -42,11 +45,16 @@ export default class FrameQueue {
     this._pcmQueueDuration = 0;
   }
 
+  get buffered() {
+    return this._absoluteQueueDuration / 1000 - this._player.currentTime;
+  }
+
   add(frame) {
     // crc queue
     const { crc32, duration } = frame;
     this._crcQueue.push({ crc32, duration });
     this._crcQueueDuration += duration;
+    this._absoluteQueueDuration += duration;
 
     // update queue index
     let indexes = this._crcQueueIndexes[crc32];
@@ -80,12 +88,19 @@ export default class FrameQueue {
     frames.forEach((frame) => this.add(frame));
   }
 
+  _addAllSyncQueue(frames) {
+    for (const frame of frames) {
+      this._syncQueueDuration += frame.duration;
+      this._syncQueue.push(frame);
+    }
+  }
+
   /**
    *
    * @param {Array<CodecFrame|OggPage>} frames
    */
   async sync(frames) {
-    this._syncQueue.push(...frames);
+    this._addAllSyncQueue(frames);
 
     // try syncing using crc32 hashes (if the stream data matches exactly)
     const crcSyncState = this._crcSync();
@@ -197,46 +212,29 @@ export default class FrameQueue {
       const samplesToDuration = (samples, rate) => samples / rate;
 
       if (!this._synAudioResult) {
-        await this._decodeQueues();
+        const [pcmQueueDecoded, syncQueueDecoded, sampleRate] =
+          await this._decodeQueues();
 
-        const correlationSampleSize =
-          this._a.sampleRate * correlationSyncLength;
+        const correlationSampleSize = sampleRate * correlationSyncLength;
 
         // more data is needed to meet the correlationSampleSize
-        if (this._b.length <= correlationSampleSize) return [[], SYNCING];
+        if (syncQueueDecoded.samplesDecoded <= correlationSampleSize)
+          return [[], SYNCING];
 
         const synAudio = new SynAudio({
           correlationSampleSize,
           initialGranularity,
         });
 
-        const aDecoded = {
-          channelData: [],
-          samplesDecoded: this._a.length,
-        };
-        const bDecoded = {
-          channelData: [],
-          samplesDecoded: this._b.length,
-        };
-
-        for (let i = 0; i < this._a.numberOfChannels; i++)
-          aDecoded.channelData.push(this._a.getChannelData(i));
-
-        for (let i = 0; i < this._b.numberOfChannels; i++)
-          bDecoded.channelData.push(this._b.getChannelData(i));
-
         this._synAudioResult = await synAudio.syncWorkerConcurrent(
-          aDecoded,
-          bDecoded,
+          pcmQueueDecoded,
+          syncQueueDecoded,
           Math.max(navigator.hardwareConcurrency - 1, 1)
         );
 
         this._synAudioResult.sampleOffsetFromEnd =
-          samplesToDuration(aDecoded.samplesDecoded, this._a.sampleRate) -
-          samplesToDuration(
-            this._synAudioResult.sampleOffset,
-            this._a.sampleRate
-          ); // total a samples decoded - sample offset (sampleOffset from end of buffer)
+          samplesToDuration(pcmQueueDecoded.samplesDecoded, sampleRate) -
+          samplesToDuration(this._synAudioResult.sampleOffset, sampleRate); // total a samples decoded - sample offset (sampleOffset from end of buffer)
       }
 
       // anything lower than .5 is likely not synced, but it might sound better than some random sync point
@@ -245,16 +243,9 @@ export default class FrameQueue {
       const { correlation, sampleOffsetFromEnd } = this._synAudioResult;
 
       // "new" time scale
-      const buffered =
-        this._player.metadataTimestamp - this._player.currentTime;
+      let delay = (this.buffered - sampleOffsetFromEnd) * 1000; // if negative, sync is before playback, positive, sync after playback
 
-      const syncLength = this._syncQueue.reduce(
-        (aac, { duration }) => duration + aac,
-        0
-      );
-      let delay = (buffered - sampleOffsetFromEnd) * 1000; // if negative, sync is before playback, positive, sync after playback
-
-      if (delay > syncLength)
+      if (delay > this._syncQueueDuration)
         // more frames need to be cut than exist on the sync queue
         return [[], SYNCING];
 
@@ -302,18 +293,33 @@ export default class FrameQueue {
   }
 
   async _decodeQueues() {
-    const audioCtx = PlayerFactory.constructor.audioContext;
+    const decode = (queue) =>
+      PlayerFactory.constructor.audioContext.decodeAudioData(
+        concatBuffers(queue.map(({ data }) => data)).buffer
+      );
 
     [this._a, this._b] = await Promise.all([
       // decode the pcm queue only once
-      this._a
-        ? this._a
-        : audioCtx.decodeAudioData(
-            concatBuffers(this._pcmQueue.map(({ data }) => data)).buffer
-          ),
-      audioCtx.decodeAudioData(
-        concatBuffers(this._syncQueue.map(({ data }) => data)).buffer
-      ),
+      this._a ? this._a : decode(this._pcmQueue),
+      decode(this._syncQueue),
     ]);
+
+    const getDecodedAudio = (decodedAudioData) => {
+      const decoded = {
+        channelData: [],
+        samplesDecoded: decodedAudioData.length,
+      };
+
+      for (let i = 0; i < decodedAudioData.numberOfChannels; i++)
+        decoded.channelData.push(decodedAudioData.getChannelData(i));
+
+      return decoded;
+    };
+
+    return [
+      getDecodedAudio(this._a),
+      getDecodedAudio(this._b),
+      this._a.sampleRate,
+    ];
   }
 }
