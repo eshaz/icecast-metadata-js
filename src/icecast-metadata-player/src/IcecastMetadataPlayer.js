@@ -398,7 +398,7 @@ export default class IcecastMetadataPlayer extends EventClass {
 
   /**
    * @description Switches the Icecast stream endpoint during playback
-   * @async Resolves when the new endpoint has began returning data
+   * @async Resolves when playback begins from the new source
    */
   async switchEndpoint(newEndpoint, newOptions) {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {

@@ -204,8 +204,8 @@ export default class FrameQueue {
                              |       ^^^^^^^^^^^^|^^^^
                              delay               syncLength
   */
-  async _pcmSync() {
-    try {
+  _pcmSync() {
+    const sync = async () => {
       const correlationSyncLength = 1; // seconds
       const initialGranularity = 7;
 
@@ -238,7 +238,6 @@ export default class FrameQueue {
       }
 
       // anything lower than .5 is likely not synced, but it might sound better than some random sync point
-      //if (this._synAudioResult.correlation > 0.5) {
       // "old" time scale
       const { correlation, sampleOffsetFromEnd } = this._synAudioResult;
 
@@ -278,18 +277,38 @@ export default class FrameQueue {
       this.initQueue();
 
       return [this._syncQueue, PCM_SYNCED, delay];
-      //}
-    } catch (e) {
-      if (
-        this._icecast.state !== state.STOPPING &&
-        this._icecast.state !== state.STOPPED
-      )
-        this._icecast[fireEvent](
-          event.WARN,
-          `Unable to synchronize after ${this._icecast.state}.`,
-          e
+    };
+
+    let promiseTimeout;
+
+    return new Promise(async (resolve, reject) => {
+      const currentBuffered = this.buffered;
+
+      // abort syncing if the audio stops playing while sync is in progress
+      promiseTimeout = setTimeout(() => {
+        reject(
+          `Buffer underrun after syncing for ${currentBuffered.toFixed(
+            2
+          )} seconds.`
         );
-    }
+      }, currentBuffered * 1000);
+
+      sync().then(resolve);
+    })
+      .catch((e) => {
+        if (
+          this._icecast.state !== state.STOPPING &&
+          this._icecast.state !== state.STOPPED
+        )
+          this._icecast[fireEvent](
+            event.WARN,
+            `Unable to synchronize after ${this._icecast.state}.`,
+            e
+          );
+      })
+      .finally(() => {
+        clearTimeout(promiseTimeout);
+      });
   }
 
   async _decodeQueues() {
