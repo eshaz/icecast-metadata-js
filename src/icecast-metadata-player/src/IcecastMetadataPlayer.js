@@ -175,16 +175,17 @@ export default class IcecastMetadataPlayer extends EventClass {
           p.get(this)[onAudioWaiting]
         );
 
-        if (this.state !== state.RETRYING) {
-          try {
-            p.get(this)[audioElement].pause();
-          } catch (e) {
-            p.get(this)[onAudioError](e);
-          }
+        try {
+          p.get(this)[audioElement].pause();
+        } catch (e) {
+          p.get(this)[onAudioError](e);
+        }
+
+        try {
           p.get(this)[playerResetPromise] = p
             .get(this)
             [playerFactory].player.end();
-        }
+        } catch {}
       },
       // audio element event handlers
       [onAudioPlay]: () => {
@@ -328,13 +329,15 @@ export default class IcecastMetadataPlayer extends EventClass {
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
           .then(() => {
+            console.log("then", this.state)
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
               return tryFetching();
             }
           })
           .catch(async (e) => {
-            if (e?.name !== "AbortError") {
+            console.log("catch", this.state)
+            if (e && e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
                 this[fireEvent](event.RETRY);
                 return tryFetching();
@@ -401,21 +404,14 @@ export default class IcecastMetadataPlayer extends EventClass {
         .get(this)
         [switchEndpointPromise].then(() => {
           if (
-            (this.state === state.PLAYING || this.state === state.RETRYING) &&
+            //(this.state === state.PLAYING || this.state === state.RETRYING) &&
+            ![state.SWITCHING, state.STOPPING, state.STOPPED].includes(
+              this.state
+            ) &&
             requestId === instance[switchRequestId] // only execute if this is latest request
-          ) {
-            this[playerState] = state.SWITCHING;
-
-            instance[abortController].abort();
-            instance[abortController] = new AbortController();
-
-            return new Promise((resolve) => {
-              this.addEventListener(event.PLAY, resolve, { once: true });
-            });
-          }
+          )
+            return instance[playerFactory].switchStream();
         });
-
-      return p.get(this)[switchEndpointPromise];
     }
   }
 
@@ -452,9 +448,6 @@ export default class IcecastMetadataPlayer extends EventClass {
     ) {
       this[fireEvent](event.ERROR, error.name, error);
       this[playerState] = state.RETRYING;
-      this.addEventListener(event.STREAM_START, p.get(this)[endPlayback], {
-        once: true,
-      });
 
       if (p.get(this)[hasIcy]) {
         this[fireEvent](

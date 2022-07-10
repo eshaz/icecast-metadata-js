@@ -311,7 +311,9 @@ export default class FrameQueue {
       };
 
       for (let i = 0; i < decodedAudioData.numberOfChannels; i++)
-        decoded.channelData.push(decodedAudioData.getChannelData(i));
+        decoded.channelData.push(
+          Float32Array.from(decodedAudioData.getChannelData(i))
+        );
 
       return decoded;
     };

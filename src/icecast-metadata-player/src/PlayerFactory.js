@@ -25,6 +25,7 @@ import {
   PCM_SYNCED,
   SYNCING,
   NOT_SYNCED,
+  noOp,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -53,6 +54,8 @@ export default class PlayerFactory {
     this._codecParser = undefined;
     this._inputMimeType = "";
     this._codec = "";
+
+    this._switchResolve = noOp;
   }
 
   static get supportedPlaybackMethods() {
@@ -84,12 +87,28 @@ export default class PlayerFactory {
   }
 
   async playStream() {
-    return this.fetchStream().then(async (res) => {
-      this._icecast[fireEvent](event.STREAM_START);
+    return this.fetchStream()
+      .then(async (res) => {
+        this._icecast[fireEvent](event.STREAM_START);
 
-      return this.readIcecastResponse(res).finally(() => {
-        this._icecast[fireEvent](event.STREAM_END);
+        return this.readIcecastResponse(res).finally(() => {
+          this._icecast[fireEvent](event.STREAM_END);
+        });
+      })
+      .catch((e) => {
+        if (this._icecast.state !== state.SWITCHING) throw e;
       });
+  }
+
+  async switchStream() {
+    const instanceVariables = p.get(this._icecast);
+
+    instanceVariables[playerState] = state.SWITCHING;
+    instanceVariables[abortController].abort();
+    instanceVariables[abortController] = new AbortController();
+
+    return new Promise((resolve) => {
+      this._switchResolve = resolve;
     });
   }
 
@@ -100,6 +119,8 @@ export default class PlayerFactory {
       method: "GET",
       headers: instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {},
       signal: instanceVariables[abortController].signal,
+    }).finally(() => {
+      if (this._icecast.state === state.SWITCHING) this._switchResolve();
     });
 
     if (!res.ok) {
