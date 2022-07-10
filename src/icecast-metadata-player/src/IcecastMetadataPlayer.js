@@ -64,6 +64,7 @@ const onPlayReady = Symbol();
 const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
 
+const stopPlayback = Symbol();
 const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
@@ -235,6 +236,7 @@ export default class IcecastMetadataPlayer extends EventClass {
             });
         }
       },
+      [stopPlayback]: noOp,
     });
 
     this[attachAudioElement]();
@@ -329,14 +331,14 @@ export default class IcecastMetadataPlayer extends EventClass {
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
           .then(() => {
-            console.log("then", this.state)
+            console.log("then", this.state);
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
               return tryFetching();
             }
           })
           .catch(async (e) => {
-            console.log("catch", this.state)
+            console.log("catch", this.state);
             if (e && e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
                 this[fireEvent](event.RETRY);
@@ -358,12 +360,21 @@ export default class IcecastMetadataPlayer extends EventClass {
             }
           });
 
-      tryFetching().finally(() => {
-        p.get(this)[endPlayback]();
+      new Promise((resolve, reject) => {
+        // stop any pending playback operation when stop is called
+        p.get(this)[stopPlayback] = reject;
 
-        this[fireEvent](event.STOP);
-        this[playerState] = state.STOPPED;
-      });
+        tryFetching().then(resolve);
+      })
+        .catch((e) => {
+          if (this.state !== state.STOPPING) throw e;
+        })
+        .finally(() => {
+          p.get(this)[endPlayback]();
+
+          this[fireEvent](event.STOP);
+          this[playerState] = state.STOPPED;
+        });
 
       await new Promise((resolve) => {
         this.addEventListener(event.PLAY, resolve, { once: true });
@@ -376,13 +387,17 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @async Resolves when the icecast stream has stopped
    */
   async stop() {
+    console.log("stop");
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
       this[playerState] = state.STOPPING;
       p.get(this)[abortController].abort();
+      p.get(this)[stopPlayback]();
 
       await new Promise((resolve) => {
         this.addEventListener(event.STOP, resolve, { once: true });
       });
+
+      console.log("stopped");
     }
   }
 
