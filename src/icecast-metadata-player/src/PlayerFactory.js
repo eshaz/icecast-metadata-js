@@ -219,7 +219,6 @@ export default class PlayerFactory {
     };
 
     this._syncCancel = () => {
-      console.log("cancel switch");
       canceled = true;
 
       this._icecastMetadataQueue.purgeMetadataQueue();
@@ -229,58 +228,52 @@ export default class PlayerFactory {
       this._player.codecUpdateQueue = oldCodecUpdateQueue;
 
       if (delayTimeoutId !== undefined && !playerStarted) {
-        console.log("clearing timeout");
         clearTimeout(delayTimeoutId);
         startNewPlayer();
       }
     };
 
     const handleSyncEvent = () => {
-      // need to handle metadata updates while syncing
       return this._player.syncStateUpdate.then((syncState) => {
-        console.log("sync state", syncState, "canceled", canceled);
-        if (canceled) {
-          complete();
-          return;
-        }
+        if (canceled) complete();
+        else
+          switch (syncState) {
+            case SYNCING:
+              return handleSyncEvent();
+            case SYNCED: // synced on crc32 hashes
+              // put old queues back since audio data is crc synced
+              this._icecastMetadataQueue.purgeMetadataQueue();
+              this._codecUpdateQueue.purgeMetadataQueue();
+              this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
+              this._player.codecUpdateQueue = oldCodecUpdateQueue;
 
-        switch (syncState) {
-          case SYNCING:
-            return handleSyncEvent();
-          case SYNCED: // synced on crc32 hashes
-            // put old queues back since audio data is crc synced
-            this._icecastMetadataQueue.purgeMetadataQueue();
-            this._codecUpdateQueue.purgeMetadataQueue();
-            this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
-            this._player.codecUpdateQueue = oldCodecUpdateQueue;
+              if (
+                this._icecast.state !== state.STOPPING ||
+                this._icecast.state !== state.STOPPED
+              )
+                this._icecast[playerState] = state.PLAYING;
 
-            if (
-              this._icecast.state !== state.STOPPING ||
-              this._icecast.state !== state.STOPPED
-            )
-              this._icecast[playerState] = state.PLAYING;
+              complete();
+              break;
+            case PCM_SYNCED:
+            case NOT_SYNCED:
+              // put old queues back so they can be purged when the player is ended
+              oldPlayer.icecastMetadataQueue = oldIcecastMetadataQueue;
+              oldPlayer.codecUpdateQueue = oldCodecUpdateQueue;
 
-            complete();
-            break;
-          case PCM_SYNCED:
-          case NOT_SYNCED:
-            // put old queues back so they can be purged when the player is ended
-            oldPlayer.icecastMetadataQueue = oldIcecastMetadataQueue;
-            oldPlayer.codecUpdateQueue = oldCodecUpdateQueue;
+              [this._player, this._playbackMethod] = this._buildPlayer(
+                inputMimeType,
+                codec
+              );
 
-            [this._player, this._playbackMethod] = this._buildPlayer(
-              inputMimeType,
-              codec
-            );
+              this._unprocessedFrames.push(...oldPlayer.syncFrames);
 
-            this._unprocessedFrames.push(...oldPlayer.syncFrames);
-
-            // start player after delay or immediately
-            delayTimeoutId = setTimeout(
-              startNewPlayer,
-              Math.max(oldPlayer.syncDelay, 0)
-            );
-        }
+              // start player after delay or immediately
+              delayTimeoutId = setTimeout(
+                startNewPlayer,
+                Math.max(oldPlayer.syncDelay, 0)
+              );
+          }
       });
     };
 
@@ -288,8 +281,8 @@ export default class PlayerFactory {
 
     this._syncPromise = new Promise((resolve) => {
       complete = resolve;
-      // cancel switch event if stop is called
 
+      // cancel switch event if stop is called
       stoppingHandler = () => {
         this._syncCancel();
         complete();

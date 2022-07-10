@@ -331,14 +331,12 @@ export default class IcecastMetadataPlayer extends EventClass {
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
           .then(() => {
-            console.log("then", this.state);
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
               return tryFetching();
             }
           })
           .catch(async (e) => {
-            console.log("catch", this.state);
             if (e && e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
                 this[fireEvent](event.RETRY);
@@ -387,7 +385,6 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @async Resolves when the icecast stream has stopped
    */
   async stop() {
-    console.log("stop");
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
       this[playerState] = state.STOPPING;
       p.get(this)[abortController].abort();
@@ -396,8 +393,6 @@ export default class IcecastMetadataPlayer extends EventClass {
       await new Promise((resolve) => {
         this.addEventListener(event.STOP, resolve, { once: true });
       });
-
-      console.log("stopped");
     }
   }
 
