@@ -89,8 +89,9 @@ export default class WebAudioPlayer extends Player {
   }
 
   async start(metadataOffset) {
-    super.start(metadataOffset);
+    const playing = super.start(metadataOffset);
     this._playStart();
+    await playing;
   }
 
   async end() {

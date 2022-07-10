@@ -67,8 +67,6 @@ const onAudioWaiting = Symbol();
 const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
-const switchEndpointPromise = Symbol();
-const switchRequestId = Symbol();
 
 export default class IcecastMetadataPlayer extends EventClass {
   static getDefaults(options, instance = {}) {
@@ -227,14 +225,16 @@ export default class IcecastMetadataPlayer extends EventClass {
             this.state !== state.STOPPING &&
             this.state !== state.STOPPED)
         ) {
-          audio.play().catch((e) => {
-            p.get(this)[onAudioError](e);
-          });
-          this[playerState] = state.PLAYING;
+          audio
+            .play()
+            .then(() => {
+              this[playerState] = state.PLAYING;
+            })
+            .catch((e) => {
+              p.get(this)[onAudioError](e);
+            });
         }
       },
-      [switchEndpointPromise]: Promise.resolve(),
-      [switchRequestId]: 0,
     });
 
     this[attachAudioElement]();
@@ -398,20 +398,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
       });
 
-      const requestId = ++p.get(this)[switchRequestId];
-
-      p.get(this)[switchEndpointPromise] = p
-        .get(this)
-        [switchEndpointPromise].then(() => {
-          if (
-            //(this.state === state.PLAYING || this.state === state.RETRYING) &&
-            ![state.SWITCHING, state.STOPPING, state.STOPPED].includes(
-              this.state
-            ) &&
-            requestId === instance[switchRequestId] // only execute if this is latest request
-          )
-            return instance[playerFactory].switchStream();
-        });
+      return instance[playerFactory].switchStream();
     }
   }
 

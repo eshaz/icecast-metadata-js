@@ -57,7 +57,7 @@ export default class HTML5Player extends Player {
   }
 
   async start(metadataOffset) {
-    super.start(metadataOffset);
+    const playing = super.start(metadataOffset);
 
     this._metadataLoadedTimestamp = performance.now();
     this._audioElement.src = null;
@@ -84,6 +84,8 @@ export default class HTML5Player extends Player {
       this._icecast[fireEvent](event.PLAY_READY);
       this._playReady = true;
     }
+
+    await playing;
   }
 
   async end() {

@@ -55,7 +55,8 @@ export default class PlayerFactory {
     this._inputMimeType = "";
     this._codec = "";
 
-    this._switchResolve = noOp;
+    this._syncPromise = Promise.resolve();
+    this._syncCancel = noOp;
   }
 
   static get supportedPlaybackMethods() {
@@ -101,26 +102,26 @@ export default class PlayerFactory {
   }
 
   async switchStream() {
-    const instanceVariables = p.get(this._icecast);
+    if (this._icecast.state !== state.PLAYING) {
+      this._syncCancel();
+      await this._syncPromise;
+    }
 
-    instanceVariables[playerState] = state.SWITCHING;
-    instanceVariables[abortController].abort();
-    instanceVariables[abortController] = new AbortController();
+    const instance = p.get(this._icecast);
 
-    return new Promise((resolve) => {
-      this._switchResolve = resolve;
-    });
+    instance[playerState] = state.SWITCHING;
+    instance[abortController].abort();
+    instance[abortController] = new AbortController();
   }
 
   async fetchStream() {
     const instanceVariables = p.get(this._icecast);
+    this._endpoint = instanceVariables[endpoint];
 
-    const res = await fetch(instanceVariables[endpoint], {
+    const res = await fetch(this._endpoint, {
       method: "GET",
       headers: instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {},
       signal: instanceVariables[abortController].signal,
-    }).finally(() => {
-      if (this._icecast.state === state.SWITCHING) this._switchResolve();
     });
 
     if (!res.ok) {
@@ -190,31 +191,79 @@ export default class PlayerFactory {
   }
 
   async _syncPlayer(inputMimeType, codec) {
+    let delayTimeoutId,
+      canceled = false,
+      playerStarted = false,
+      complete;
+
+    const oldPlayer = this._player;
     const oldIcecastMetadataQueue = this._player.icecastMetadataQueue;
     const oldCodecUpdateQueue = this._player.codecUpdateQueue;
 
     this._newMetadataQueues();
     // intercept all new metadata updates
-    this._player.icecastMetadataQueue = this._icecastMetadataQueue;
-    this._player.codecUpdateQueue = this._codecUpdateQueue;
+    oldPlayer.icecastMetadataQueue = this._icecastMetadataQueue;
+    oldPlayer.codecUpdateQueue = this._codecUpdateQueue;
 
-    const handleSyncEvent = (complete, cancel) => {
+    const startNewPlayer = () => {
+      playerStarted = true;
+      if (
+        this._icecast.state !== state.STOPPING ||
+        this._icecast.state !== state.STOPPED
+      ) {
+        oldPlayer.end();
+        this._player
+          .start(Math.max(0, oldPlayer.syncDelay / 1000))
+          .then(complete);
+      }
+    };
+
+    this._syncCancel = () => {
+      console.log("cancel switch");
+      canceled = true;
+
+      this._icecastMetadataQueue.purgeMetadataQueue();
+      this._codecUpdateQueue.purgeMetadataQueue();
+
+      this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
+      this._player.codecUpdateQueue = oldCodecUpdateQueue;
+
+      if (delayTimeoutId !== undefined && !playerStarted) {
+        console.log("clearing timeout");
+        clearTimeout(delayTimeoutId);
+        startNewPlayer();
+      }
+    };
+
+    const handleSyncEvent = () => {
       // need to handle metadata updates while syncing
       return this._player.syncStateUpdate.then((syncState) => {
+        console.log("sync state", syncState, "canceled", canceled);
+        if (canceled) {
+          complete();
+          return;
+        }
+
         switch (syncState) {
           case SYNCING:
-            return handleSyncEvent(complete, cancel);
+            return handleSyncEvent();
           case SYNCED: // synced on crc32 hashes
             // put old queues back since audio data is crc synced
             this._icecastMetadataQueue.purgeMetadataQueue();
             this._codecUpdateQueue.purgeMetadataQueue();
             this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
             this._player.codecUpdateQueue = oldCodecUpdateQueue;
+
+            if (
+              this._icecast.state !== state.STOPPING ||
+              this._icecast.state !== state.STOPPED
+            )
+              this._icecast[playerState] = state.PLAYING;
+
             complete();
             break;
           case PCM_SYNCED:
           case NOT_SYNCED:
-            const oldPlayer = this._player;
             // put old queues back so they can be purged when the player is ended
             oldPlayer.icecastMetadataQueue = oldIcecastMetadataQueue;
             oldPlayer.codecUpdateQueue = oldCodecUpdateQueue;
@@ -226,60 +275,34 @@ export default class PlayerFactory {
 
             this._unprocessedFrames.push(...oldPlayer.syncFrames);
 
-            let delayTimeoutId;
-
-            const stoppingHandler = () => {
-              clearTimeout(delayTimeoutId);
-              this._player = oldPlayer;
-              cancel();
-            };
-
-            // cancel switch event if stop is called
-            this._icecast.addEventListener(state.STOPPING, stoppingHandler, {
-              once: true,
-            });
-
             // start player after delay or immediately
-            delayTimeoutId = setTimeout(() => {
-              if (
-                this._icecast.state === state.SWITCHING ||
-                this._icecast.state === state.RETRYING
-              ) {
-                oldPlayer.end();
-                this._player
-                  .start(Math.max(0, oldPlayer.syncDelay / 1000))
-                  .then(complete);
-              }
-
-              this._icecast.removeEventListener(
-                state.STOPPING,
-                stoppingHandler
-              );
-            }, Math.max(oldPlayer.syncDelay, 0));
+            delayTimeoutId = setTimeout(
+              startNewPlayer,
+              Math.max(oldPlayer.syncDelay, 0)
+            );
         }
       });
     };
 
-    let cancel;
-    await new Promise((complete, reject) => {
+    let stoppingHandler;
+
+    this._syncPromise = new Promise((resolve) => {
+      complete = resolve;
       // cancel switch event if stop is called
-      cancel = () => {
-        oldIcecastMetadataQueue.purgeMetadataQueue();
-        oldCodecUpdateQueue.purgeMetadataQueue();
-        reject();
+
+      stoppingHandler = () => {
+        this._syncCancel();
+        complete();
       };
 
-      this._icecast.addEventListener(state.STOPPING, cancel, { once: true });
+      this._icecast.addEventListener(state.STOPPING, stoppingHandler, {
+        once: true,
+      });
 
-      handleSyncEvent(complete, cancel);
+      handleSyncEvent();
+    }).finally(() => {
+      this._icecast.removeEventListener(state.STOPPING, stoppingHandler);
     });
-
-    this._icecast.removeEventListener(state.STOPPING, cancel);
-    if (
-      this._icecast.state === state.SWITCHING ||
-      this._icecast.state === state.RETRYING
-    )
-      this._icecast[playerState] = state.PLAYING;
   }
 
   _newMetadataQueues() {

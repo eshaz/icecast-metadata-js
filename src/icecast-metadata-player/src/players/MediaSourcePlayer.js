@@ -88,9 +88,9 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async start(metadataOffset) {
-    super.start(metadataOffset);
-
+    const playing = super.start(metadataOffset);
     await this._attachMediaSource();
+    await playing;
   }
 
   async end() {

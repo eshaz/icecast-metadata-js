@@ -1,6 +1,7 @@
 import {
   p,
   event,
+  state,
   audioElement,
   bufferLength,
   endpoint,
@@ -198,6 +199,20 @@ export default class Player {
     [event.RETRY, event.SWITCH].forEach((e) =>
       this._icecast.addEventListener(e, this._notSyncedHandler)
     );
+
+    let resolve;
+    const playing = new Promise((r) => {
+      resolve = r;
+      [state.PLAYING, state.STOPPING].forEach((s) =>
+        this._icecast.addEventListener(s, resolve, { once: true })
+      );
+    }).finally(() => {
+      [state.PLAYING, state.STOPPING].forEach((s) =>
+        this._icecast.removeEventListener(s, resolve)
+      );
+    });
+
+    await playing;
   }
 
   /**
