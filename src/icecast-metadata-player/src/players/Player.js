@@ -1,11 +1,14 @@
 import {
   p,
+  event,
+  state,
   audioElement,
   bufferLength,
-  icecastMetadataQueue,
-  codecUpdateQueue,
   endpoint,
+  SYNCED,
+  NOT_SYNCED,
 } from "../global.js";
+import FrameQueue from "../FrameQueue.js";
 
 export default class Player {
   constructor(icecast, inputMimeType, codec) {
@@ -16,19 +19,14 @@ export default class Player {
     const instanceVariables = p.get(this._icecast);
 
     this._audioElement = instanceVariables[audioElement];
-    this._icecastMetadataQueue = instanceVariables[icecastMetadataQueue];
-    this._codecUpdateQueue = instanceVariables[codecUpdateQueue];
     this._endpoint = instanceVariables[endpoint];
     this._bufferLength = instanceVariables[bufferLength];
 
     this._codecUpdateTimestamp = 0;
     this._codecUpdateOffset = 0;
 
-    this._startMetadata = () => {
-      const currentTime = this.currentTime;
-
-      this._icecastMetadataQueue.startQueue(currentTime);
-      this._codecUpdateQueue.startQueue(currentTime);
+    this._notSyncedHandler = () => {
+      this.syncState = NOT_SYNCED;
     };
   }
 
@@ -109,6 +107,24 @@ export default class Player {
     }
   }
 
+  get syncStateUpdate() {
+    return this._syncStatePromise;
+  }
+
+  get syncState() {
+    return this._syncState;
+  }
+
+  set syncState(newState) {
+    this._syncState = newState;
+
+    if (this._syncStateResolve) this._syncStateResolve(newState);
+
+    this._syncStatePromise = new Promise((resolve) => {
+      this._syncStateResolve = resolve;
+    });
+  }
+
   /**
    * @abstract
    */
@@ -137,10 +153,79 @@ export default class Player {
     return 0;
   }
 
+  get icecastMetadataQueue() {
+    return this._icecastMetadataQueue;
+  }
+
+  set icecastMetadataQueue(icecastMetadataQueue) {
+    this._icecastMetadataQueue = icecastMetadataQueue;
+  }
+
+  get codecUpdateQueue() {
+    return this._codecUpdateQueue;
+  }
+
+  set codecUpdateQueue(codecUpdateQueue) {
+    this._codecUpdateQueue = codecUpdateQueue;
+  }
+
+  get metadataQueue() {
+    return this._icecastMetadataQueue
+      ? this._icecastMetadataQueue.metadataQueue
+      : [];
+  }
+
+  _startMetadataQueues() {
+    this._icecastMetadataQueue.startQueue(this._metadataOffset);
+    this._codecUpdateQueue.startQueue(this._metadataOffset);
+  }
+
   /**
-   * @interface
+   * @abstract
    */
-  async reset() {}
+  async _init() {
+    this.syncState = SYNCED;
+    this.syncFrames = [];
+    this.syncDelay = null;
+    this._frameQueue = new FrameQueue(this._icecast, this);
+  }
+
+  /**
+   * @abstract
+   */
+  async start(metadataOffset) {
+    this._metadataOffset = metadataOffset;
+
+    [event.RETRY, event.SWITCH].forEach((e) =>
+      this._icecast.addEventListener(e, this._notSyncedHandler)
+    );
+
+    let resolve;
+    const playing = new Promise((r) => {
+      resolve = r;
+      [state.PLAYING, state.STOPPING].forEach((s) =>
+        this._icecast.addEventListener(s, resolve, { once: true })
+      );
+    }).finally(() => {
+      [state.PLAYING, state.STOPPING].forEach((s) =>
+        this._icecast.removeEventListener(s, resolve)
+      );
+    });
+
+    await playing;
+  }
+
+  /**
+   * @abstract
+   */
+  async end() {
+    [event.RETRY, event.SWITCH].forEach((e) =>
+      this._icecast.removeEventListener(e, this._notSyncedHandler)
+    );
+
+    this._icecastMetadataQueue.purgeMetadataQueue();
+    this._codecUpdateQueue.purgeMetadataQueue();
+  }
 
   /**
    * @abstract

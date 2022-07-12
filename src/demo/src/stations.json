@@ -52,37 +52,6 @@
     ]
   },
   {
-    "name": "Pure Radio Holland - Downtempo Channel",
-    "description": "Pure Radio Holland is an internet radio station based in the Netherlands. Our goal is to give a platform for new and established artists and Dj's and provide you with the best in non-stop Electronic music.",
-    "link": "https://pureradio.eu",
-    "endpoints": [
-      {
-        "endpoint": "https://streamserver.pure-isp.eu:8040/flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg", "icestats"]
-      },
-      {
-        "endpoint": "https://streamserver.pure-isp.eu:8040/ultra",
-        "codec": "AAC 256",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://streamserver.pure-isp.eu:8040/high",
-        "codec": "MP3 128",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      },
-      {
-        "endpoint": "https://streamserver.pure-isp.eu:8040/low",
-        "codec": "AAC 64",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
-      }
-    ]
-  },
-  {
     "name": "Deep Link NYC",
     "description": "Selected House music DJ mixes and sets. On this channel you can hear many different House Music genres such as Deep, Soulful, Jazzy, Funky, Disco, Nu-Jazz and many others.",
     "link": "https://www.deeplink.stream/deep-link-radio",

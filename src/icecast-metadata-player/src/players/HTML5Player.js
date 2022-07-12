@@ -1,4 +1,4 @@
-import { state, event, fireEvent } from "../global.js";
+import { state, event, fireEvent, NOT_SYNCED } from "../global.js";
 import Player from "./Player.js";
 
 export default class HTML5Player extends Player {
@@ -10,10 +10,10 @@ export default class HTML5Player extends Player {
     this._audioElement.preload = "none";
 
     this._icecast.addEventListener(event.STREAM_START, () => {
-      if (!this._playReady) this.reset();
+      if (!this._playReady) this.end();
     });
 
-    this.reset();
+    this._init();
   }
 
   static canPlayType(mimeType) {
@@ -47,13 +47,19 @@ export default class HTML5Player extends Player {
     );
   }
 
-  async reset() {
+  async _init() {
+    super._init();
+
     this._frame = null;
-    this._metadataLoadedTimestamp = performance.now();
     this._audioLoadedTimestamp = 0;
     this._metadataTimestampOffset = 0;
     this._playReady = false;
+  }
 
+  async start(metadataOffset) {
+    const playing = super.start(metadataOffset);
+
+    this._metadataLoadedTimestamp = performance.now();
     this._audioElement.src = null;
     this._audioElement.srcObject = null;
     this._audioElement.src = this._endpoint;
@@ -69,7 +75,7 @@ export default class HTML5Player extends Player {
           this._metadataTimestampOffset =
             performance.now() - this._metadataLoadedTimestamp;
 
-          this._startMetadata();
+          this._startMetadataQueues();
           this._icecast[fireEvent](event.PLAY);
         },
         { once: true }
@@ -78,9 +84,25 @@ export default class HTML5Player extends Player {
       this._icecast[fireEvent](event.PLAY_READY);
       this._playReady = true;
     }
+
+    await playing;
+  }
+
+  async end() {
+    super.end();
+
+    this._audioElement.src = null;
+    this._audioElement.srcObject = null;
+
+    this._init();
   }
 
   onStream(frames) {
     this._frame = frames[frames.length - 1] || this._frame;
+
+    if (this.syncState === NOT_SYNCED) {
+      // syncing not implemented in html5 playback method
+      this.syncState = NOT_SYNCED;
+    }
   }
 }

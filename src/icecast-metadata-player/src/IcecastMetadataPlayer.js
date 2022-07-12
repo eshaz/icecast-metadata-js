@@ -18,7 +18,6 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-import { IcecastMetadataQueue } from "icecast-metadata-js";
 import {
   p,
   noOp,
@@ -46,9 +45,8 @@ import {
   logError,
   // variables
   hasIcy,
-  icecastMetadataQueue,
-  codecUpdateQueue,
   abortController,
+  playerState,
 } from "./global.js";
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
@@ -59,7 +57,6 @@ const EventClass = window.EventTarget || EventTargetPolyfill;
 const playerFactory = Symbol();
 const playerResetPromise = Symbol();
 const events = Symbol();
-const playerState = Symbol();
 
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
@@ -67,11 +64,43 @@ const onPlayReady = Symbol();
 const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
 
-const resetPlayback = Symbol();
+const stopPlayback = Symbol();
+const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 
 export default class IcecastMetadataPlayer extends EventClass {
+  static getDefaults(options, instance = {}) {
+    return {
+      [bufferLength]: options.bufferLength ?? instance[bufferLength] ?? 1,
+      [icyMetaInt]: options.icyMetaInt ?? instance[icyMetaInt],
+      [icyCharacterEncoding]:
+        options.icyCharacterEncoding ?? instance[icyCharacterEncoding],
+      [icyDetectionTimeout]:
+        options.icyDetectionTimeout ?? instance[icyDetectionTimeout],
+      [metadataTypes]: (options.metadataTypes ?? instance[metadataTypes]) || [
+        "icy",
+      ],
+      [hasIcy]: (
+        (options.metadataTypes ?? instance[metadataTypes]) || ["icy"]
+      ).includes("icy"),
+      [enableLogging]:
+        options.enableLogging ?? instance[enableLogging] ?? false,
+      [enableCodecUpdate]: Boolean(
+        options.enableCodecUpdate ??
+          instance[enableCodecUpdate] ??
+          options.onCodecUpdate
+      ),
+      [retryDelayRate]:
+        options.retryDelayRate ?? instance[retryDelayRate] ?? 0.1,
+      [retryDelayMin]: options.retryDelayMin ?? instance[retryDelayMin] ?? 0.5,
+      [retryDelayMax]: options.retryDelayMax ?? instance[retryDelayMax] ?? 2,
+      [retryTimeout]: options.retryTimeout ?? instance[retryTimeout] ?? 30,
+      [playbackMethod]:
+        (options.playbackMethod ?? instance[playbackMethod]) || "mediasource",
+    };
+  }
+
   /**
    * @constructor
    * @param {string} endpoint Endpoint of the Icecast compatible stream
@@ -101,7 +130,8 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @callback options.onStreamEnd Called when the stream request completes
    * @callback options.onStop Called when the stream is completely stopped and all cleanup operations are complete
    * @callback options.onRetry Called when a connection retry is attempted
-   * @callback options.onRetryTimeout Called when when connections attempts have timed out
+   * @callback options.onRetryTimeout Called when connections attempts have timed out
+   * @callback options.onSwitch Called when a switch event is triggered
    * @callback options.onCodecUpdate Called when the audio codec information has changed
    */
   constructor(url, options = {}) {
@@ -111,20 +141,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       // options
       [endpoint]: url,
       [audioElement]: options.audioElement || new Audio(),
-      [bufferLength]: options.bufferLength || 1,
-      [icyMetaInt]: options.icyMetaInt,
-      [icyCharacterEncoding]: options.icyCharacterEncoding,
-      [icyDetectionTimeout]: options.icyDetectionTimeout,
-      [metadataTypes]: options.metadataTypes || ["icy"],
-      [hasIcy]: (options.metadataTypes || ["icy"]).includes("icy"),
-      [enableLogging]: options.enableLogging || false,
-      [enableCodecUpdate]:
-        Boolean(options.onCodecUpdate) || options.enableCodecUpdate,
-      [retryDelayRate]: (options.retryDelayRate || 0.1) + 1,
-      [retryDelayMin]: (options.retryDelayMin || 0.5) * 1000,
-      [retryDelayMax]: (options.retryDelayMax || 2) * 1000,
-      [retryTimeout]: (options.retryTimeout || 30) * 1000,
-      [playbackMethod]: options.playbackMethod || "mediasource",
+      ...IcecastMetadataPlayer.getDefaults(options),
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -140,6 +157,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.STOP]: options.onStop || noOp,
         [event.RETRY]: options.onRetry || noOp,
         [event.RETRY_TIMEOUT]: options.onRetryTimeout || noOp,
+        [event.SWITCH]: options.onSwitch || noOp,
         [event.WARN]: (...messages) => {
           this[logError](console.warn, options.onWarn, messages);
         },
@@ -148,40 +166,25 @@ export default class IcecastMetadataPlayer extends EventClass {
         },
       },
       // variables
-      [icecastMetadataQueue]: new IcecastMetadataQueue({
-        onMetadataUpdate: (...args) => this[fireEvent](event.METADATA, ...args),
-        onMetadataEnqueue: (...args) =>
-          this[fireEvent](event.METADATA_ENQUEUE, ...args),
-        paused: true,
-      }),
-      [codecUpdateQueue]: new IcecastMetadataQueue({
-        onMetadataUpdate: (...args) =>
-          this[fireEvent](event.CODEC_UPDATE, ...args),
-        paused: true,
-      }),
-      [resetPlayback]: () => {
+      [endPlayback]: () => {
         clearTimeout(p.get(this)[retryTimeoutId]);
-        this.removeEventListener(
-          event.STREAM_START,
-          p.get(this)[resetPlayback]
-        );
+        this.removeEventListener(event.STREAM_START, p.get(this)[endPlayback]);
         p.get(this)[audioElement].removeEventListener(
           "waiting",
           p.get(this)[onAudioWaiting]
         );
 
-        if (this.state !== state.RETRYING) {
-          try {
-            p.get(this)[audioElement].pause();
-          } catch (e) {
-            p.get(this)[onAudioError](e);
-          }
-          p.get(this)[icecastMetadataQueue].purgeMetadataQueue();
-          p.get(this)[codecUpdateQueue].purgeMetadataQueue();
+        try {
+          p.get(this)[audioElement].pause();
+        } catch (e) {
+          p.get(this)[onAudioError](e);
+        }
+
+        try {
           p.get(this)[playerResetPromise] = p
             .get(this)
-            [playerFactory].player.reset();
-        }
+            [playerFactory].player.end();
+        } catch {}
       },
       // audio element event handlers
       [onAudioPlay]: () => {
@@ -211,7 +214,7 @@ export default class IcecastMetadataPlayer extends EventClass {
 
           this.stop();
         } else {
-          p.get(this)[resetPlayback]();
+          p.get(this)[endPlayback]();
         }
       },
       [onPlayReady]: () => {
@@ -223,12 +226,17 @@ export default class IcecastMetadataPlayer extends EventClass {
             this.state !== state.STOPPING &&
             this.state !== state.STOPPED)
         ) {
-          audio.play().catch((e) => {
-            p.get(this)[onAudioError](e);
-          });
-          this[playerState] = state.PLAYING;
+          audio
+            .play()
+            .then(() => {
+              this[playerState] = state.PLAYING;
+            })
+            .catch((e) => {
+              p.get(this)[onAudioError](e);
+            });
         }
       },
+      [stopPlayback]: noOp,
     });
 
     this[attachAudioElement]();
@@ -264,11 +272,11 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @returns {Array<Metadata>} Array of enqueued metadata objects in FILO order
    */
   get metadataQueue() {
-    return p.get(this)[icecastMetadataQueue].metadataQueue;
+    return p.get(this)[playerFactory].player.metadataQueue;
   }
 
   /**
-   * @returns {string} The current state ("loading", "playing", "stopping", "stopped", "retrying")
+   * @returns {string} The current state ("loading", "playing", "stopping", "stopped", "retrying", "switching")
    */
   get state() {
     return p.get(this)[playerState];
@@ -322,8 +330,14 @@ export default class IcecastMetadataPlayer extends EventClass {
       // prettier-ignore
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
+          .then(() => {
+            if (this.state === state.SWITCHING) {
+              this[fireEvent](event.SWITCH);
+              return tryFetching();
+            }
+          })
           .catch(async (e) => {
-            if (e.name !== "AbortError") {
+            if (e && e.name !== "AbortError") {
               if (await this[shouldRetry](e)) {
                 this[fireEvent](event.RETRY);
                 return tryFetching();
@@ -344,12 +358,21 @@ export default class IcecastMetadataPlayer extends EventClass {
             }
           });
 
-      tryFetching().finally(() => {
-        p.get(this)[resetPlayback]();
+      new Promise((resolve, reject) => {
+        // stop any pending playback operation when stop is called
+        p.get(this)[stopPlayback] = reject;
 
-        this[fireEvent](event.STOP);
-        this[playerState] = state.STOPPED;
-      });
+        tryFetching().then(resolve);
+      })
+        .catch((e) => {
+          if (this.state !== state.STOPPING) throw e;
+        })
+        .finally(() => {
+          p.get(this)[endPlayback]();
+
+          this[fireEvent](event.STOP);
+          this[playerState] = state.STOPPED;
+        });
 
       await new Promise((resolve) => {
         this.addEventListener(event.PLAY, resolve, { once: true });
@@ -359,16 +382,33 @@ export default class IcecastMetadataPlayer extends EventClass {
 
   /**
    * @description Stops playing the Icecast stream
-   * @async Resolves the icecast stream has stopped
+   * @async Resolves when the icecast stream has stopped
    */
   async stop() {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
       this[playerState] = state.STOPPING;
       p.get(this)[abortController].abort();
+      p.get(this)[stopPlayback]();
 
       await new Promise((resolve) => {
         this.addEventListener(event.STOP, resolve, { once: true });
       });
+    }
+  }
+
+  /**
+   * @description Switches the Icecast stream endpoint during playback
+   * @async Resolves when playback begins from the new source
+   */
+  async switchEndpoint(newEndpoint, newOptions) {
+    if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
+      const instance = p.get(this);
+      Object.assign(instance, {
+        [endpoint]: newEndpoint,
+        ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
+      });
+
+      return instance[playerFactory].switchStream();
     }
   }
 
@@ -382,8 +422,9 @@ export default class IcecastMetadataPlayer extends EventClass {
 
         const delay = Math.min(
           p.get(this)[retryDelayMin] *
-            p.get(this)[retryDelayRate] ** p.get(this)[retryAttempt]++,
-          p.get(this)[retryDelayMax]
+            1000 *
+            (p.get(this)[retryDelayRate] + 1) ** p.get(this)[retryAttempt]++,
+          p.get(this)[retryDelayMax] * 1000
         ); // exponential backoff
 
         setTimeout(() => {
@@ -404,9 +445,6 @@ export default class IcecastMetadataPlayer extends EventClass {
     ) {
       this[fireEvent](event.ERROR, error.name, error);
       this[playerState] = state.RETRYING;
-      this.addEventListener(event.STREAM_START, p.get(this)[resetPlayback], {
-        once: true,
-      });
 
       if (p.get(this)[hasIcy]) {
         this[fireEvent](
@@ -436,7 +474,7 @@ export default class IcecastMetadataPlayer extends EventClass {
             this.stop();
           }
         });
-      }, p.get(this)[retryTimeout]);
+      }, p.get(this)[retryTimeout] * 1000);
 
       p.get(this)[retryAttempt] = 0;
       return true;

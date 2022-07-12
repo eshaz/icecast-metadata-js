@@ -7,6 +7,7 @@ export const state = {
   STOPPING: "stopping",
   STOPPED: "stopped",
   RETRYING: "retrying",
+  SWITCHING: "switching",
 };
 
 export const event = {
@@ -23,6 +24,7 @@ export const event = {
   STOP: "stop",
   RETRY: "retry",
   RETRY_TIMEOUT: "retrytimeout",
+  SWITCH: "switch",
   WARN: "warn",
   ERROR: "error",
 };
@@ -51,14 +53,14 @@ export const logError = Symbol();
 
 // variables
 export const hasIcy = Symbol();
-export const icecastMetadataQueue = Symbol();
-export const codecUpdateQueue = Symbol();
 export const abortController = Symbol();
+export const playerState = Symbol();
 
 // sync state
-export const SYNCED = Symbol();
-export const SYNCING = Symbol();
-export const NOT_SYNCED = Symbol();
+export const SYNCED = Symbol("synced");
+export const SYNCING = Symbol("syncing");
+export const PCM_SYNCED = Symbol("pcm_synced");
+export const NOT_SYNCED = Symbol("not_synced");
 
 export const concatBuffers = (buffers) => {
   const buffer = new Uint8Array(

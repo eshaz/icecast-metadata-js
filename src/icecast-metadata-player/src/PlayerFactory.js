@@ -1,7 +1,12 @@
-import { IcecastReadableStream } from "icecast-metadata-js";
+import {
+  IcecastMetadataQueue,
+  IcecastReadableStream,
+} from "icecast-metadata-js";
 import CodecParser from "codec-parser";
+
 import {
   p,
+  state,
   event,
   audioElement,
   endpoint,
@@ -15,6 +20,12 @@ import {
   fireEvent,
   hasIcy,
   abortController,
+  playerState,
+  SYNCED,
+  PCM_SYNCED,
+  SYNCING,
+  NOT_SYNCED,
+  noOp,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -23,29 +34,29 @@ import MediaSourcePlayer from "./players/MediaSourcePlayer.js";
 import WebAudioPlayer from "./players/WebAudioPlayer.js";
 
 export default class PlayerFactory {
-  constructor(icecast, preferredPlaybackMethod) {
+  constructor(icecast) {
     const instanceVariables = p.get(icecast);
 
     this._icecast = icecast;
+    this._audioElement = instanceVariables[audioElement];
     this._enableLogging = instanceVariables[enableLogging];
     this._enableCodecUpdate = instanceVariables[enableCodecUpdate];
-    this._audioElement = instanceVariables[audioElement];
-    this._endpoint = instanceVariables[endpoint];
-    this._metadataTypes = instanceVariables[metadataTypes];
-    this._icyMetaInt = instanceVariables[icyMetaInt];
-    this._icyCharacterEncoding = instanceVariables[icyCharacterEncoding];
-    this._icyDetectionTimeout = instanceVariables[icyDetectionTimeout];
-    this._hasIcy = instanceVariables[hasIcy];
-    this._preferredPlaybackMethod = instanceVariables[playbackMethod];
 
     this._playbackMethod = "";
+
+    this._newMetadataQueues();
     this._player = new Player(this._icecast);
+    this._player.icecastMetadataQueue = this._icecastMetadataQueue;
+    this._player.codecUpdateQueue = this._codecUpdateQueue;
     this._player.enablePlayButton(PlayerFactory.supportedPlaybackMethods);
 
     this._unprocessedFrames = [];
     this._codecParser = undefined;
     this._inputMimeType = "";
     this._codec = "";
+
+    this._syncPromise = Promise.resolve();
+    this._syncCancel = noOp;
   }
 
   static get supportedPlaybackMethods() {
@@ -77,20 +88,40 @@ export default class PlayerFactory {
   }
 
   async playStream() {
-    return this.fetchStream().then(async (res) => {
-      this._icecast[fireEvent](event.STREAM_START);
+    return this.fetchStream()
+      .then(async (res) => {
+        this._icecast[fireEvent](event.STREAM_START);
 
-      return this.readIcecastResponse(res).finally(() => {
-        this._icecast[fireEvent](event.STREAM_END);
+        return this.readIcecastResponse(res).finally(() => {
+          this._icecast[fireEvent](event.STREAM_END);
+        });
+      })
+      .catch((e) => {
+        if (this._icecast.state !== state.SWITCHING) throw e;
       });
-    });
+  }
+
+  async switchStream() {
+    if (this._icecast.state !== state.PLAYING) {
+      this._syncCancel();
+      await this._syncPromise;
+    }
+
+    const instance = p.get(this._icecast);
+
+    instance[playerState] = state.SWITCHING;
+    instance[abortController].abort();
+    instance[abortController] = new AbortController();
   }
 
   async fetchStream() {
+    const instanceVariables = p.get(this._icecast);
+    this._endpoint = instanceVariables[endpoint];
+
     const res = await fetch(this._endpoint, {
       method: "GET",
-      headers: this._hasIcy ? { "Icy-MetaData": 1 } : {},
-      signal: p.get(this._icecast)[abortController].signal,
+      headers: instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {},
+      signal: instanceVariables[abortController].signal,
     });
 
     if (!res.ok) {
@@ -104,6 +135,7 @@ export default class PlayerFactory {
 
   async readIcecastResponse(res) {
     const inputMimeType = res.headers.get("content-type");
+    const instanceVariables = p.get(this._icecast);
 
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
@@ -133,45 +165,228 @@ export default class PlayerFactory {
         }
       },
       onError: (...args) => this._icecast[fireEvent](event.WARN, ...args),
-      metadataTypes: this._metadataTypes,
-      icyCharacterEncoding: this._icyCharacterEncoding,
-      icyDetectionTimeout: this._icyDetectionTimeout,
-      ...(this._icyMetaInt && { icyMetaInt: this._icyMetaInt }),
+      metadataTypes: instanceVariables[metadataTypes],
+      icyCharacterEncoding: instanceVariables[icyCharacterEncoding],
+      icyDetectionTimeout: instanceVariables[icyDetectionTimeout],
+      icyMetaInt: instanceVariables[icyMetaInt],
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();
+    const codec = await codecPromise;
 
     if (!this._player.isAudioPlayer) {
-      this._buildPlayer(inputMimeType, await codecPromise);
+      [this._player, this._playbackMethod] = this._buildPlayer(
+        inputMimeType,
+        codec
+      );
+    }
+
+    if (this._player.syncState === SYNCED) {
+      this._player.start();
+    } else {
+      await this._syncPlayer(inputMimeType, codec);
     }
 
     await icecastPromise;
   }
 
+  async _syncPlayer(inputMimeType, codec) {
+    let delayTimeoutId,
+      canceled = false,
+      playerStarted = false,
+      complete;
+
+    const oldPlayer = this._player;
+    const oldIcecastMetadataQueue = this._player.icecastMetadataQueue;
+    const oldCodecUpdateQueue = this._player.codecUpdateQueue;
+
+    this._newMetadataQueues();
+    // intercept all new metadata updates
+    oldPlayer.icecastMetadataQueue = this._icecastMetadataQueue;
+    oldPlayer.codecUpdateQueue = this._codecUpdateQueue;
+
+    const startNewPlayer = () => {
+      playerStarted = true;
+      if (
+        this._icecast.state !== state.STOPPING ||
+        this._icecast.state !== state.STOPPED
+      ) {
+        oldPlayer.end();
+        this._player
+          .start(Math.max(0, oldPlayer.syncDelay / 1000))
+          .then(complete);
+      }
+    };
+
+    this._syncCancel = () => {
+      canceled = true;
+
+      this._icecastMetadataQueue.purgeMetadataQueue();
+      this._codecUpdateQueue.purgeMetadataQueue();
+
+      this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
+      this._player.codecUpdateQueue = oldCodecUpdateQueue;
+
+      if (delayTimeoutId !== undefined && !playerStarted) {
+        clearTimeout(delayTimeoutId);
+        startNewPlayer();
+      }
+    };
+
+    const handleSyncEvent = () => {
+      return this._player.syncStateUpdate.then((syncState) => {
+        if (canceled) complete();
+        else
+          switch (syncState) {
+            case SYNCING:
+              return handleSyncEvent();
+            case SYNCED: // synced on crc32 hashes
+              // put old queues back since audio data is crc synced
+              this._icecastMetadataQueue.purgeMetadataQueue();
+              this._codecUpdateQueue.purgeMetadataQueue();
+              this._player.icecastMetadataQueue = oldIcecastMetadataQueue;
+              this._player.codecUpdateQueue = oldCodecUpdateQueue;
+
+              if (
+                this._icecast.state !== state.STOPPING ||
+                this._icecast.state !== state.STOPPED
+              )
+                this._icecast[playerState] = state.PLAYING;
+
+              complete();
+              break;
+            case PCM_SYNCED:
+            case NOT_SYNCED:
+              // put old queues back so they can be purged when the player is ended
+              oldPlayer.icecastMetadataQueue = oldIcecastMetadataQueue;
+              oldPlayer.codecUpdateQueue = oldCodecUpdateQueue;
+
+              [this._player, this._playbackMethod] = this._buildPlayer(
+                inputMimeType,
+                codec
+              );
+
+              this._unprocessedFrames.push(...oldPlayer.syncFrames);
+
+              // start player after delay or immediately
+              delayTimeoutId = setTimeout(
+                startNewPlayer,
+                Math.max(oldPlayer.syncDelay, 0)
+              );
+          }
+      });
+    };
+
+    let stoppingHandler;
+
+    this._syncPromise = new Promise((resolve) => {
+      complete = resolve;
+
+      // cancel switch event if stop is called
+      stoppingHandler = () => {
+        this._syncCancel();
+        complete();
+      };
+
+      this._icecast.addEventListener(state.STOPPING, stoppingHandler, {
+        once: true,
+      });
+
+      handleSyncEvent();
+    }).finally(() => {
+      this._icecast.removeEventListener(state.STOPPING, stoppingHandler);
+    });
+  }
+
+  _newMetadataQueues() {
+    this._icecastMetadataQueue = new IcecastMetadataQueue({
+      onMetadataUpdate: (...args) =>
+        this._icecast[fireEvent](event.METADATA, ...args),
+      onMetadataEnqueue: (...args) =>
+        this._icecast[fireEvent](event.METADATA_ENQUEUE, ...args),
+      paused: true,
+    });
+
+    this._codecUpdateQueue = new IcecastMetadataQueue({
+      onMetadataUpdate: (...args) =>
+        this._icecast[fireEvent](event.CODEC_UPDATE, ...args),
+      paused: true,
+    });
+  }
+
   _buildPlayer(inputMimeType, codec) {
     // in order of preference
-    const { [this._preferredPlaybackMethod]: firstMethod, ...rest } = {
+    const { [p.get(this._icecast)[playbackMethod]]: firstMethod, ...rest } = {
       mediasource: MediaSourcePlayer,
       webaudio: WebAudioPlayer,
       html5: HTML5Player,
     };
 
-    for (const player of Object.values({ firstMethod, ...rest })) {
-      const support = player.canPlayType(`${inputMimeType};codecs="${codec}"`);
+    let player, method;
+
+    for (const Player of Object.values({ firstMethod, ...rest })) {
+      const support = Player.canPlayType(`${inputMimeType};codecs="${codec}"`);
 
       if (support === "probably" || support === "maybe") {
-        this._playbackMethod = player.name;
-        this._player = new player(this._icecast, inputMimeType, codec);
+        method = Player.name;
+        player = new Player(this._icecast, inputMimeType, codec);
+        player.icecastMetadataQueue = this._icecastMetadataQueue;
+        player.codecUpdateQueue = this._codecUpdateQueue;
         break;
       }
     }
 
-    if (!this._player) {
+    if (!player) {
       throw new Error(
         `Your browser does not support this audio codec ${inputMimeType}${
           codec && `;codecs="${codec}"`
         }`
       );
     }
+
+    return [player, method];
   }
+}
+
+// statically initialize audio context and start using a DOM event
+if (WebAudioPlayer.isSupported) {
+  const audioCtxErrorHandler = (e) => {
+    console.error(
+      "icecast-metadata-js",
+      "Failed to start the AudioContext. WebAudio playback will not be possible.",
+      e
+    );
+  };
+
+  // hack for iOS Audio element controls support
+  // iOS will only enable AudioContext.resume() when called directly from a UI event
+  // https://stackoverflow.com/questions/57510426
+  const events = ["touchstart", "touchend", "mousedown", "keydown"];
+
+  const unlock = () => {
+    events.forEach((e) => document.removeEventListener(e, unlock));
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+      latencyHint: "playback",
+    });
+
+    audioCtx
+      .resume()
+      .then(() => {
+        // hack for iOS to continue playing while locked
+        audioCtx
+          .createScriptProcessor(2 ** 14, 2, 2)
+          .connect(audioCtx.destination);
+
+        audioCtx.onstatechange = () => {
+          if (audioCtx.state !== "running")
+            audioCtx.resume().catch(audioCtxErrorHandler);
+        };
+      })
+      .catch(audioCtxErrorHandler);
+
+    PlayerFactory.constructor.audioContext = audioCtx;
+  };
+
+  events.forEach((e) => document.addEventListener(e, unlock));
 }

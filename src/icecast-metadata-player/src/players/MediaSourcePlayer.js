@@ -6,11 +6,11 @@ import {
   fireEvent,
   concatBuffers,
   SYNCED,
+  PCM_SYNCED,
   SYNCING,
   NOT_SYNCED,
 } from "../global.js";
 import Player from "./Player.js";
-import FrameQueue from "../FrameQueue.js";
 
 const BUFFER = 5; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 5; // seconds before removing from SourceBuffer
@@ -19,11 +19,7 @@ export default class MediaSourcePlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    this.reset();
-
-    this._icecast.addEventListener(event.RETRY, () => {
-      this._syncState = NOT_SYNCED;
-    });
+    this._init();
   }
 
   static canPlayType(mimeType) {
@@ -77,9 +73,9 @@ export default class MediaSourcePlayer extends Player {
     return this._audioElement.currentTime;
   }
 
-  async reset() {
-    this._syncState = SYNCED;
-    this._frameQueue = new FrameQueue(this._icecast);
+  async _init() {
+    super._init();
+
     this._sourceBufferQueue = [];
     this._playReady = false;
 
@@ -91,25 +87,44 @@ export default class MediaSourcePlayer extends Player {
     await this._mediaSourcePromise;
   }
 
+  async start(metadataOffset) {
+    const playing = super.start(metadataOffset);
+    await this._attachMediaSource();
+    await playing;
+  }
+
+  async end() {
+    super.end();
+
+    await this._init();
+  }
+
   async onStream(frames) {
     frames = frames.flatMap((frame) => frame.codecFrames || frame);
 
     if (frames.length) {
-      switch (this._syncState) {
+      switch (this.syncState) {
         case NOT_SYNCED:
           this._frameQueue.initSync();
-          this._syncState = SYNCING;
+          this.syncState = SYNCING;
         case SYNCING:
-          [frames] = this._frameQueue.sync(frames);
-          if (frames.length) this._syncState = SYNCED;
+          [this.syncFrames, this.syncState, this.syncDelay] =
+            await this._frameQueue.sync(frames);
+          frames = this.syncFrames;
       }
 
-      this._frameQueue.addAll(frames);
+      switch (this.syncState) {
+        case PCM_SYNCED:
+          break;
+        case SYNCED:
+          // when frames are present, we should already know the codec and have the mse audio mimetype determined
+          await (
+            await this._mediaSourcePromise
+          )(frames); // wait for the source buffer to be created
 
-      // when frames are present, we should already know the codec and have the mse audio mimetype determined
-      await (
-        await this._mediaSourcePromise
-      )(frames); // wait for the source buffer to be created
+          this._frameQueue.addAll(frames);
+          break;
+      }
     }
   }
 
@@ -149,9 +164,6 @@ export default class MediaSourcePlayer extends Player {
   async _createMediaSource(mimeType) {
     await new Promise(async (resolve) => {
       this._mediaSource = new MediaSource();
-      this._audioElement.loop = false;
-      this._audioElement.src = URL.createObjectURL(this._mediaSource);
-
       this._mediaSource.addEventListener("sourceopen", resolve, {
         once: true,
       });
@@ -163,14 +175,22 @@ export default class MediaSourcePlayer extends Player {
 
   async _waitForSourceBuffer() {
     return new Promise((resolve) => {
-      this._mediaSource.sourceBuffers[0].addEventListener(
-        "updateend",
-        resolve,
-        {
+      const sourceBuffer = this._mediaSource.sourceBuffers[0];
+
+      if (!sourceBuffer.updating) {
+        resolve();
+      } else {
+        sourceBuffer.addEventListener("updateend", resolve, {
           once: true,
-        }
-      );
+        });
+      }
     });
+  }
+
+  async _attachMediaSource() {
+    this._audioElement.loop = false;
+    this._audioElement.src = URL.createObjectURL(this._mediaSource);
+    await this._mediaSourcePromise;
   }
 
   async _appendSourceBuffer(chunk) {
@@ -191,13 +211,12 @@ export default class MediaSourcePlayer extends Player {
       this._sourceBufferQueue.push(chunk);
 
       try {
-        do {
+        while (this._sourceBufferQueue.length) {
           this._mediaSource.sourceBuffers[0].appendBuffer(
-            this._sourceBufferQueue[0]
+            this._sourceBufferQueue.shift()
           );
           await this._waitForSourceBuffer();
-          this._sourceBufferQueue.shift();
-        } while (this._sourceBufferQueue.length);
+        }
       } catch (e) {
         if (e.name !== "QuotaExceededError") throw e;
       }
@@ -207,7 +226,7 @@ export default class MediaSourcePlayer extends Player {
           this._audioElement.addEventListener(
             "playing",
             () => {
-              this._startMetadata();
+              this._startMetadataQueues();
               this._icecast[fireEvent](event.PLAY);
             },
             { once: true }
