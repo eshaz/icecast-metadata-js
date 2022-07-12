@@ -109,7 +109,9 @@ export default class IcecastMetadataQueue {
       this._pendingMetadata.forEach((u) => {
         if (timestamp !== undefined) u.timestamp = timestamp;
 
-        this._enqueueMetadata(u);
+        // remove any metadata that has already elapsed
+        if (timestamp === undefined || u.timestampOffset >= u.timestamp)
+          this._enqueueMetadata(u);
       });
       this._pendingMetadata = [];
       this._paused = false;
@@ -147,8 +149,11 @@ export default class IcecastMetadataQueue {
   }
 
   _dequeueMetadata() {
-    const { metadata, timestampOffset, timestamp } =
-      this._metadataQueue.shift();
-    this._onMetadataUpdate(metadata, timestampOffset, timestamp);
+    // purging the queue is an async operation, some timeouts may still be queued in the event loop _after_ the purge call has happened
+    if (this._metadataQueue.length) {
+      const { metadata, timestampOffset, timestamp } =
+        this._metadataQueue.shift();
+      this._onMetadataUpdate(metadata, timestampOffset, timestamp);
+    }
   }
 }
