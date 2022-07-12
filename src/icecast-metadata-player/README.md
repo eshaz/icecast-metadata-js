@@ -5,6 +5,7 @@ Icecast Metadata Player is a simple to use Javascript class that plays an Icecas
   * Plays an Icecast stream using the Media Source Extensions API, HTML5 audio, and Web Assembly decoder (Ogg Opus).
   * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
   * Seamless playback during network changes (i.e. Wifi to Cell network).
+  * Seamlessly switch between endpoints during playback (i.e. moving between load balanced streams, or streams with different codecs).
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
@@ -42,6 +43,8 @@ https://github.com/eshaz/icecast-metadata-js
 * [Reconnecting](#reconnecting)
   * [Reconnect Lifecycle](#reconnect-lifecycle)
   * [Seamless Audio Playback](#seamless-audio-playback)
+* [Switching Endpoints](#switching-endpoints)
+  * [switchEndpoint Lifecycle](#switchendpoint-lifecycle)
 * [API](#api)
   * [Methods](#methods)
   * [Getters](#getters)
@@ -210,18 +213,42 @@ The audio will continue to play until the buffer runs out while reconnecting. If
 
 To increase the amount of audio that is buffered by clients, increase the `<burst-size>` setting in your Icecast server.
 
+## Switching Endpoints
+
+IcecastMetadataPlayer enables the stream endpoint to be switched during playback to any new endpoint by calling `switchEndpoint`.
+
+The new endpoint will attempt to be synchronized with playback from the previous endpoint, either by matching the frame data exactly using CRC32 hashes, or by synchronizing the PCM streams of the previous and new stream endpoints using correlation.
+
+### `switchEndpoint` lifecycle
+
+1. The old endpoint network request is aborted; however, any buffered audio will continue to play.
+1. The new endpoint network request is started.
+1. Playback will attempt to be synchronized with the new endpoint audio using two methods:
+   * **CRC Syncing** If the data is an exact match between the old and new endpoints, the stream will be synchronized using CRC32 hashes of each codec frame and playback will continue seamlessly from the new endpoint.
+     * See [codec-parser](https://github.com/eshaz/codec-parser) for the library that enables CRC syncing.
+   * **PCM Syncing** If the data does not match, both the old and new audio data will be decoded to PCM and synchronized using a correlation algorithm. The correlation coefficient (-100% worst to 100% best) will be printed to the console if `enableLogging` is set to `true`.
+     * See [synaudio](https://github.com/eshaz/synaudio) for the library that enables PCM syncing.
+1. Once the new stream is synchronized, playback will begin from the new stream.
+   * If the buffered audio runs out during synchronization, the new stream will begin to play immediately to prevent any gaps in playback.
+
 ---
 
 ## API
 
 ### Methods
 * `player.play()` *async*
-  * Plays the Icecast Stream
+  * Plays the Icecast Stream.
   * Resolves when the stream begins playing.
 
 * `player.stop()` *async*
-  * Stops playing the Icecast Stream
+  * Stops playing the Icecast Stream.
   * Resolves when the stream has stopped.
+
+* `player.switchEndpoint(endpoint, options)` *async*
+  * Switches to a new stream endpoint and synchronizes the old and new audio.
+    * See [Switching Endpoints](#switching-endpoints) for more details.
+  * `endpoint` URL for the new stream endpoint.
+  * `options` Object containing any new options to apply to the stream endpoint. All options are allowed except callbacks and the audio element. See [options](#options) for more details.
 
 * `player.detachAudioElement()`
   * Removes all internal event listeners from the audio element

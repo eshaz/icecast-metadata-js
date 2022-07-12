@@ -80,12 +80,6 @@ declare module "icecast-metadata-player" {
 
   interface IcecastMetadataPlayerOptions {
     /**
-     * Audio element to play the stream
-     * @default new Audio();
-     */
-    audioElement?: HTMLAudioElement;
-
-    /**
      * Number of seconds to buffer before starting playback
      * @default 1
      */
@@ -126,6 +120,14 @@ declare module "icecast-metadata-player" {
      * @default "mediasource"
      */
     playbackMethod?: "mediasource" | "webaudio" | "html5";
+  }
+
+  interface IcecastMetadataPlayerCallbacks {
+    /**
+     * Audio element to play the stream
+     * @default new Audio();
+     */
+    audioElement?: HTMLAudioElement;
 
     /** Called when the audio element begins playing */
     onPlay?: () => void;
@@ -157,6 +159,9 @@ declare module "icecast-metadata-player" {
     /** Called when when retry connections attempts have timed out */
     onRetryTimeout?: () => void;
 
+    /** Called when a switch event is triggered */
+    onSwitch?: () => void;
+
     /** Called with message(s) when a warning condition is met */
     onWarn?: (...messages: [string]) => void;
 
@@ -164,7 +169,9 @@ declare module "icecast-metadata-player" {
     onError?: (message: string, error?: Error) => void;
   }
 
-  /** IcecastMetadataPlayer `options` parameter when there is icy metadata */
+  /**
+   * IcecastMetadataPlayer `options` parameter when there is icy metadata
+   */
   export interface IcecastMetadataPlayerIcyOptions
     extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
@@ -182,7 +189,11 @@ declare module "icecast-metadata-player" {
      * @default 2000
      */
     icyDetectionTimeout?: number;
+  }
 
+  export interface IcecastMetadataPlayerIcyOptionsWithCallbacks
+    extends IcecastMetadataPlayerIcyOptions,
+      IcecastMetadataPlayerCallbacks {
     /** Called with metadata when synchronized with the audio */
     onMetadata?: (
       metadata: IcyMetadata,
@@ -198,12 +209,18 @@ declare module "icecast-metadata-player" {
     ) => void;
   }
 
-  /** IcecastMetadataPlayer `options` parameter when there is ogg metadata */
+  /**
+   * IcecastMetadataPlayer `options` parameter when there is ogg metadata
+   */
   export interface IcecastMetadataPlayerOggOptions
     extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
     metadataTypes: ["ogg"];
+  }
 
+  export interface IcecastMetadataPlayerOggOptionsWithCallbacks
+    extends IcecastMetadataPlayerOggOptions,
+      IcecastMetadataPlayerCallbacks {
     /** Called with metadata when synchronized with the audio */
     onMetadata?: (
       metadata: OggMetadata,
@@ -219,7 +236,9 @@ declare module "icecast-metadata-player" {
     ) => void;
   }
 
-  /** IcecastMetadataPlayer `options` parameter when there is icy and ogg metadata */
+  /**
+   * IcecastMetadataPlayer `options` parameter when there is icy and ogg metadata
+   */
   export interface IcecastMetadataPlayerIcyOggOptions
     extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
@@ -232,7 +251,11 @@ declare module "icecast-metadata-player" {
      * @default 2000
      */
     icyDetectionTimeout?: number;
+  }
 
+  export interface IcecastMetadataPlayerIcyOggOptionsWithCallbacks
+    extends IcecastMetadataPlayerIcyOggOptions,
+      IcecastMetadataPlayerCallbacks {
     /** Called with metadata when synchronized with the audio */
     onMetadata?: (
       metadata: IcyMetadata & OggMetadata,
@@ -248,12 +271,18 @@ declare module "icecast-metadata-player" {
     ) => void;
   }
 
-  /** IcecastMetadataPlayer `options` parameter when there is no metadata */
+  /**
+   * IcecastMetadataPlayer `options` parameter when there is no metadata
+   */
   export interface IcecastMetadataPlayerNoMetadataOptions
     extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
     metadataTypes: [];
+  }
 
+  export interface IcecastMetadataPlayerNoMetadataOptionsWithCallbacks
+    extends IcecastMetadataPlayerNoMetadataOptions,
+      IcecastMetadataPlayerCallbacks {
     /** Metadata callbacks are not allowed if there is no metadata being parsed */
     onMetadata?: undefined;
 
@@ -282,10 +311,10 @@ declare module "icecast-metadata-player" {
       /** HTTP(s) endpoint for the Icecast compatible stream. */
       endpoint: string,
       options?:
-        | IcecastMetadataPlayerIcyOptions
-        | IcecastMetadataPlayerOggOptions
-        | IcecastMetadataPlayerIcyOggOptions
-        | IcecastMetadataPlayerNoMetadataOptions
+        | IcecastMetadataPlayerIcyOptionsWithCallbacks
+        | IcecastMetadataPlayerOggOptionsWithCallbacks
+        | IcecastMetadataPlayerIcyOggOptionsWithCallbacks
+        | IcecastMetadataPlayerNoMetadataOptionsWithCallbacks
     );
 
     addEventListener(
@@ -302,6 +331,7 @@ declare module "icecast-metadata-player" {
         | "stop"
         | "retry"
         | "retrytimeout"
+        | "switch"
         | "warn"
         | "error",
       listener: EventListenerOrEventListenerObject | null,
@@ -322,6 +352,7 @@ declare module "icecast-metadata-player" {
         | "stop"
         | "retry"
         | "retrytimeout"
+        | "switch"
         | "warn"
         | "error",
       callback: EventListenerOrEventListenerObject | null,
@@ -335,7 +366,13 @@ declare module "icecast-metadata-player" {
     get icyMetaInt(): number;
 
     /** Returns the current state of the IcecastMetadataPlayer */
-    get state(): "loading" | "playing" | "stopping" | "stopped" | "retrying";
+    get state():
+      | "loading"
+      | "playing"
+      | "stopping"
+      | "stopped"
+      | "retrying"
+      | "switching";
 
     /** Returns the audio playback method being used */
     get playbackMethod(): "mediasource" | "webaudio" | "html5" | "";
@@ -352,6 +389,16 @@ declare module "icecast-metadata-player" {
 
     /** Stops the Icecast Stream */
     stop(): Promise<void>;
+
+    /** Switches the stream endpoint during playback */
+    switchEndpoint(
+      endpoint: string,
+      options?:
+        | IcecastMetadataPlayerIcyOptions
+        | IcecastMetadataPlayerOggOptions
+        | IcecastMetadataPlayerIcyOggOptions
+        | IcecastMetadataPlayerNoMetadataOptions
+    ): Promise<void>;
 
     /** Removes the audio element from this instance and stops the Icecast Stream */
     detachAudioElement(): Promise<void>;
