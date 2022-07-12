@@ -17,6 +17,7 @@ const SELECT_OR_PLAY = "Select a station or press play";
 const LOADING = "Loading...";
 const RECONNECTING = "Lost Connection. Reconnecting...";
 const CONNECTED = "Waiting for metadata...";
+const SWITCHING = "Switching...";
 
 const App = () => {
   const [audioElement] = useState(new Audio());
@@ -92,7 +93,6 @@ const App = () => {
           },
           onCodecUpdate: setCodecInfo,
           onPlay: () => {
-            console.log("playing");
             setPlaying(true);
           },
           onStop: () => {
@@ -116,7 +116,7 @@ const App = () => {
             setMetadata(newStation.metadataTypes.length ? CONNECTED : "");
           },
           onSwitch: () => {
-            console.log("switch");
+            setMetadata(SWITCHING);
           },
           icyDetectionTimeout: 5000,
           icyCharacterEncoding: newStation.icyCharacterEncoding,
