@@ -281,7 +281,7 @@ export default class FrameQueue {
 
     let promiseTimeout;
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const currentBuffered = this.buffered;
 
       // abort syncing if the audio stops playing while sync is in progress
@@ -293,7 +293,7 @@ export default class FrameQueue {
         );
       }, currentBuffered * 1000);
 
-      sync().then(resolve);
+      sync().then(resolve).catch(reject);
     })
       .catch((e) => {
         if (
