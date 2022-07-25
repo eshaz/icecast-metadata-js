@@ -35,7 +35,8 @@ export default class FrameQueue {
 
   initQueue() {
     this._absoluteQueueIndex = 0;
-    this._absoluteQueueDuration = 0;
+    this._absoluteQueueSamples = 0;
+    this._absoluteQueueSampleRate = 0;
 
     this._crcQueue = [];
     this._crcQueueDuration = 0;
@@ -46,15 +47,20 @@ export default class FrameQueue {
   }
 
   get buffered() {
-    return this._absoluteQueueDuration / 1000 - this._player.currentTime;
+    return (
+      this._absoluteQueueSamples / this._absoluteQueueSampleRate -
+        this._player.currentTime || 0
+    );
   }
 
   add(frame) {
     // crc queue
-    const { crc32, duration } = frame;
+    const { crc32, duration, samples } = frame;
+    this._absoluteQueueSamples += samples;
+    this._absoluteQueueSampleRate = frame.header.sampleRate;
+
     this._crcQueue.push({ crc32, duration });
     this._crcQueueDuration += duration;
-    this._absoluteQueueDuration += duration;
 
     // update queue index
     let indexes = this._crcQueueIndexes[crc32];
@@ -244,7 +250,10 @@ export default class FrameQueue {
       // "new" time scale
       let delay = (this.buffered - sampleOffsetFromEnd) * 1000; // if negative, sync is before playback, positive, sync after playback
 
-      if (delay > this._syncQueueDuration)
+      // if delay length > buffer, 
+
+      
+      if (delay > -this._syncQueueDuration)
         // more frames need to be cut than exist on the sync queue
         return [[], SYNCING];
 
