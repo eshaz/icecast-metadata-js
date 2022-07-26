@@ -248,7 +248,7 @@ export default class FrameQueue {
   async _pcmSync() {
     try {
       const correlationSyncLength = 1; // seconds
-      const initialGranularity = 7;
+      const initialGranularity = 16;
 
       const samplesToDuration = (samples, rate) => samples / rate;
 

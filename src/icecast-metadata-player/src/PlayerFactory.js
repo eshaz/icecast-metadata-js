@@ -157,9 +157,10 @@ export default class PlayerFactory {
         const frames = [...this._codecParser.parseChunk(stream)];
 
         if (this._player.isAudioPlayer) {
-          await this._player.onStream([...this._unprocessedFrames, ...frames]);
-
+          const appendedFrames = [...this._unprocessedFrames, ...frames];
           this._unprocessedFrames = [];
+
+          await this._player.onStream(appendedFrames);
         } else {
           this._unprocessedFrames.push(...frames);
         }
