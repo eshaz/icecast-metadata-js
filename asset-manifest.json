@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/icecast-metadata-js/static/css/main.addfa7d2.css",
-    "main.js": "/icecast-metadata-js/static/js/main.1291179e.js",
+    "main.css": "/icecast-metadata-js/static/css/main.d6dbee88.css",
+    "main.js": "/icecast-metadata-js/static/js/main.b194e22f.js",
     "index.html": "/icecast-metadata-js/index.html",
-    "main.addfa7d2.css.map": "/icecast-metadata-js/static/css/main.addfa7d2.css.map",
-    "main.1291179e.js.map": "/icecast-metadata-js/static/js/main.1291179e.js.map"
+    "main.d6dbee88.css.map": "/icecast-metadata-js/static/css/main.d6dbee88.css.map",
+    "main.b194e22f.js.map": "/icecast-metadata-js/static/js/main.b194e22f.js.map"
   },
   "entrypoints": [
-    "static/css/main.addfa7d2.css",
-    "static/js/main.1291179e.js"
+    "static/css/main.d6dbee88.css",
+    "static/js/main.b194e22f.js"
   ]
 }
