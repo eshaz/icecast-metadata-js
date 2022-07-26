@@ -9,6 +9,7 @@ import {
   PCM_SYNCED,
   SYNCING,
   NOT_SYNCED,
+  noOp,
 } from "./global.js";
 import PlayerFactory from "./PlayerFactory.js";
 
@@ -25,6 +26,11 @@ export default class FrameQueue {
   }
 
   initSync() {
+    clearTimeout(this._syncTimeout);
+    this._syncTimeout = null;
+    this._syncTimeoutReason = null;
+    this._crcSyncPending = false;
+
     this._syncQueue = [];
     this._syncQueueDuration = 0;
 
@@ -34,8 +40,9 @@ export default class FrameQueue {
   }
 
   initQueue() {
-    this._absoluteQueueIndex = 0;
-    this._absoluteQueueDuration = 0;
+    this._queueIndex = 0;
+    this._queueSamples = 0;
+    this._queueSampleRate = 0;
 
     this._crcQueue = [];
     this._crcQueueDuration = 0;
@@ -46,15 +53,19 @@ export default class FrameQueue {
   }
 
   get buffered() {
-    return this._absoluteQueueDuration / 1000 - this._player.currentTime;
+    return (
+      this._queueSamples / this._queueSampleRate - this._player.currentTime || 0
+    );
   }
 
   add(frame) {
     // crc queue
-    const { crc32, duration } = frame;
+    const { crc32, duration, samples } = frame;
+    this._queueSamples += samples;
+    this._queueSampleRate = frame.header.sampleRate;
+
     this._crcQueue.push({ crc32, duration });
     this._crcQueueDuration += duration;
-    this._absoluteQueueDuration += duration;
 
     // update queue index
     let indexes = this._crcQueueIndexes[crc32];
@@ -62,7 +73,7 @@ export default class FrameQueue {
       indexes = [];
       this._crcQueueIndexes[crc32] = indexes;
     }
-    indexes.push(this._absoluteQueueIndex++);
+    indexes.push(this._queueIndex++);
 
     if (this._crcQueueDuration >= this.CRC_DURATION) {
       const { crc32, duration } = this._crcQueue.shift();
@@ -100,30 +111,63 @@ export default class FrameQueue {
    * @param {Array<CodecFrame|OggPage>} frames
    */
   async sync(frames) {
+    // stop syncing if the buffer runs out
+    if (this._syncTimeout === null) {
+      const currentBuffered = this.buffered;
+
+      this._syncReject = noOp;
+      this._syncTimeout = setTimeout(() => {
+        this._syncTimeoutReason = `Buffer underrun after syncing for ${currentBuffered.toFixed(
+          2
+        )} seconds.`;
+        this._syncReject(this._syncTimeoutReason);
+      }, currentBuffered * 1000);
+    }
+
     this._addAllSyncQueue(frames);
 
-    // try syncing using crc32 hashes (if the stream data matches exactly)
-    const crcSyncState = this._crcSync();
-    if (crcSyncState) return crcSyncState;
+    return new Promise(async (resolve, reject) => {
+      if (this._syncTimeoutReason !== null) reject(this._syncTimeoutReason);
+      else this._syncReject = reject;
 
-    // try syncing using decoded audio and corelation (if audio data matches)
-    const pcmSyncState = await this._pcmSync();
-    if (pcmSyncState) return pcmSyncState;
+      let syncState;
+      // try syncing using crc32 hashes (if the stream data matches exactly)
+      if (this._crcSyncPending) syncState = this._crcSync();
 
-    // streams do not match (not synced)
-    // prettier-ignore
-    if (this._icecast.state !== state.STOPPING && this._icecast.state !== state.STOPPED)
-      this._icecast[fireEvent](
-        event.WARN,
-        `Reconnected successfully after ${this._icecast.state}.`,
-        "Found no overlapping frames from previous request.",
-        "Unable to sync old and new request."
-      );
+      // try syncing using decoded audio and corelation (if audio data matches)
+      if (!syncState) {
+        this._crcSyncPending = false;
+        syncState = await this._pcmSync();
+      }
 
-    const syncQueue = this._syncQueue;
-    this.initSync();
-    this.initQueue();
-    return [syncQueue, NOT_SYNCED];
+      // streams do not match (not synced)
+      if (!syncState) reject("Old and new request do not match.");
+      else resolve(syncState);
+    })
+      .catch((e) => {
+        if (
+          this._icecast.state !== state.STOPPING &&
+          this._icecast.state !== state.STOPPED
+        )
+          this._icecast[fireEvent](
+            event.WARN,
+            `Reconnected successfully after ${this._icecast.state}.`,
+            "Unable to sync old and new request.",
+            e
+          );
+
+        const syncQueue = this._syncQueue;
+        this.initSync();
+        this.initQueue();
+        return [syncQueue, NOT_SYNCED];
+      })
+      .then((syncState) => {
+        if ([SYNCED, PCM_SYNCED].includes(syncState[1])) {
+          this.initSync();
+        }
+
+        return syncState;
+      });
   }
 
   /*
@@ -149,8 +193,7 @@ export default class FrameQueue {
     if (crcSyncPoints) {
       align_queues: for (const absoluteSyncPoint of crcSyncPoints) {
         syncPoint =
-          absoluteSyncPoint -
-          (this._absoluteQueueIndex - this._crcQueue.length);
+          absoluteSyncPoint - (this._queueIndex - this._crcQueue.length);
 
         for (
           let i = syncQueueStartIndex;
@@ -181,9 +224,7 @@ export default class FrameQueue {
           "Synchronized old and new request."
         );
 
-        const newFrames = this._syncQueue.slice(sliceIndex);
-        this.initSync();
-        return [newFrames, SYNCED];
+        return [this._syncQueue.slice(sliceIndex), SYNCED];
       }
     }
   }
@@ -204,10 +245,10 @@ export default class FrameQueue {
                              |       ^^^^^^^^^^^^|^^^^
                              delay               syncLength
   */
-  _pcmSync() {
-    const sync = async () => {
+  async _pcmSync() {
+    try {
       const correlationSyncLength = 1; // seconds
-      const initialGranularity = 7;
+      const initialGranularity = 16;
 
       const samplesToDuration = (samples, rate) => samples / rate;
 
@@ -232,29 +273,27 @@ export default class FrameQueue {
           Math.max(navigator.hardwareConcurrency - 1, 1)
         );
 
-        this._synAudioResult.sampleOffsetFromEnd =
-          samplesToDuration(pcmQueueDecoded.samplesDecoded, sampleRate) -
-          samplesToDuration(this._synAudioResult.sampleOffset, sampleRate); // total a samples decoded - sample offset (sampleOffset from end of buffer)
+        this._synAudioResult.offsetFromEnd = samplesToDuration(
+          pcmQueueDecoded.samplesDecoded - this._synAudioResult.sampleOffset,
+          sampleRate
+        ); // total queue samples decoded - sample offset (sampleOffset from end of buffer)
       }
 
       // anything lower than .5 is likely not synced, but it might sound better than some random sync point
-      // "old" time scale
-      const { correlation, sampleOffsetFromEnd } = this._synAudioResult;
+      const { correlation, offsetFromEnd } = this._synAudioResult;
 
-      // "new" time scale
-      let delay = (this.buffered - sampleOffsetFromEnd) * 1000; // if negative, sync is before playback, positive, sync after playback
+      let delay = (this.buffered - offsetFromEnd) * 1000; // if negative, sync is before playback position, positive, sync after playback position
 
-      if (delay > this._syncQueueDuration)
-        // more frames need to be cut than exist on the sync queue
-        return [[], SYNCING];
+      // more frames need to be cut than exist on the sync queue
+      if (-delay > this._syncQueueDuration) return [[], SYNCING];
 
-      const frameOverlap = 2;
+      const frameOverlap = 0;
       if (delay < 0) {
         // slice the sync frame with 'n' frame overlap and start immediately
         let sliceIndex = 0;
         for (
           let t = 0;
-          sliceIndex < this._syncQueue.length - frameOverlap && t >= delay;
+          sliceIndex < this._syncQueue.length - frameOverlap && t > delay;
           sliceIndex++
         )
           t -= this._syncQueue[sliceIndex].duration;
@@ -273,54 +312,31 @@ export default class FrameQueue {
         `Synchronized old and new request with ${(Math.round(correlation * 10000) / 100).toFixed(2)}% confidence.`
       );
 
-      this.initSync();
       this.initQueue();
-
       return [this._syncQueue, PCM_SYNCED, delay];
-    };
-
-    let promiseTimeout;
-
-    return new Promise((resolve, reject) => {
-      const currentBuffered = this.buffered;
-
-      // abort syncing if the audio stops playing while sync is in progress
-      promiseTimeout = setTimeout(() => {
-        reject(
-          `Buffer underrun after syncing for ${currentBuffered.toFixed(
-            2
-          )} seconds.`
-        );
-      }, currentBuffered * 1000);
-
-      sync().then(resolve).catch(reject);
-    })
-      .catch((e) => {
-        if (
-          this._icecast.state !== state.STOPPING &&
-          this._icecast.state !== state.STOPPED
-        )
-          this._icecast[fireEvent](
-            event.WARN,
-            `Unable to synchronize after ${this._icecast.state}.`,
-            e
-          );
-      })
-      .finally(() => {
-        clearTimeout(promiseTimeout);
-      });
+    } catch {}
   }
 
   async _decodeQueues() {
-    const decode = (queue) =>
-      PlayerFactory.constructor.audioContext.decodeAudioData(
-        concatBuffers(queue.map(({ data }) => data)).buffer
+    const decode = (queue, timeFromEnd) => {
+      let sliceIndex = queue.length - 1;
+
+      for (
+        let duration = 0;
+        duration < timeFromEnd && sliceIndex > 0;
+        sliceIndex--
+      )
+        duration += queue[sliceIndex].duration;
+
+      return PlayerFactory.constructor.audioContext.decodeAudioData(
+        concatBuffers(queue.slice(sliceIndex).map(({ data }) => data)).buffer
       );
+    };
 
     [this._a, this._b] = await Promise.all([
-      // decode the pcm queue only once
-      this._a ? this._a : decode(this._pcmQueue),
-      decode(this._syncQueue),
+      // decode the pcm queue only once, decode only up to twice the amount of buffered audio
+      this._a ? this._a : decode(this._pcmQueue, this.buffered * 2000),
+      decode(this._syncQueue, Infinity),
     ]);
 
     const getDecodedAudio = (decodedAudioData) => {
