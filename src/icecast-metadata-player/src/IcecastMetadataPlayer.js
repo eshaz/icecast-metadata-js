@@ -52,7 +52,14 @@ import {
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
 import PlayerFactory from "./PlayerFactory.js";
 
-const EventClass = window.EventTarget || EventTargetPolyfill;
+let EventClass;
+
+try {
+  new window.EventTarget();
+  EventClass = window.EventTarget;
+} catch {
+  EventClass = EventTargetPolyfill;
+}
 
 const playerFactory = Symbol();
 const playerResetPromise = Symbol();
