@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.12.3",
+  "version": "1.12.4",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -18,7 +18,7 @@
     "update-version": "find ../demo -iname 'icecast-metadata-player*' -exec rm \"{}\" \\; && find ./ ../demo -name '.map' -prune -o -name '.git' -prune -o -name 'node_modules' -prune -o -name 'package-lock.json' -prune -o -name 'build' -prune -o -type f -printf '\\n%p:' -exec sed -i \"s/icecast-metadata-player-[0-9]*\\.[0-9]*\\.[0-9]*/icecast-metadata-player-$npm_package_version/g w /dev/fd/2\" \"{}\" \\; && cp ./build/*.js ./build/*.map ../demo/public/",
     "build": "rm -f ./build/* && webpack && npm run update-version"
   },
-  "main": "build/icecast-metadata-player-1.12.3.min.js",
+  "main": "build/icecast-metadata-player-1.12.4.min.js",
   "module": "src/IcecastMetadataPlayer.js",
   "types": "types/icecast-metadata-player.d.ts",
   "type": "module",
@@ -43,7 +43,7 @@
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "prettier": "^2.7.1",
-    "terser-webpack-plugin": "^5.3.3",
+    "terser-webpack-plugin": "^5.3.6",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0"
   },
@@ -52,7 +52,7 @@
     "icecast-metadata-js": "1.1.2",
     "mpg123-decoder": "0.3.16",
     "mse-audio-wrapper": "1.4.7",
-    "opus-decoder": "0.5.1",
-    "synaudio": "0.2.0"
+    "opus-decoder": "0.5.2",
+    "synaudio": "0.2.1"
   }
 }
