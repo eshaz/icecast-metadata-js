@@ -86,9 +86,12 @@ const App = () => {
           ...newStation,
         });
 
+        let currentMetadata = "";
+
         const player = new IcecastMetadataPlayer(newStation.endpoint, {
           onMetadata: (meta) => {
             console.log(meta);
+            currentMetadata = meta;
             setMetadata(meta);
           },
           onCodecUpdate: setCodecInfo,
@@ -97,6 +100,7 @@ const App = () => {
           },
           onStop: () => {
             setPlaying(false);
+            currentMetadata = "";
             setMetadata(SELECT_OR_PLAY);
             setCodecInfo();
           },
@@ -106,14 +110,20 @@ const App = () => {
             setCodecInfo();
           },
           onError: (error) => {
+            currentMetadata = "";
             setMetadata(error?.message || error);
             setCodecInfo();
           },
           onRetry: () => {
+            currentMetadata = "";
             setMetadata(RECONNECTING);
           },
           onStreamStart: () => {
-            setMetadata(newStation.metadataTypes.length ? CONNECTED : "");
+            setMetadata(
+              newStation.metadataTypes.length
+                ? currentMetadata || CONNECTED
+                : ""
+            );
           },
           onSwitch: () => {
             setMetadata(SWITCHING);
