@@ -1,5 +1,6 @@
 import { OpusDecoderWebWorker } from "opus-decoder";
 import { MPEGDecoderWebWorker } from "mpg123-decoder";
+import { FLACDecoderWebWorker } from "@wasm-audio-decoders/flac";
 
 import PlayerFactory from "../PlayerFactory.js";
 import {
@@ -24,8 +25,10 @@ export default class WebAudioPlayer extends Player {
 
   static canPlayType(mimeType) {
     const mapping = {
+      flac: ["audio/flac"],
       mpeg: ["audio/mpeg"],
       ogg: {
+        flac: ['audio/ogg;codecs="flac"'],
         opus: ['audio/ogg;codecs="opus"'],
       },
     };
@@ -33,7 +36,11 @@ export default class WebAudioPlayer extends Player {
     if (!WebAudioPlayer.isSupported) return "";
 
     return super.canPlayType(
-      (codec) => codec === 'audio/ogg;codecs="opus"' || codec === "audio/mpeg",
+      (codec) =>
+        codec === 'audio/ogg;codecs="opus"' ||
+        codec === 'audio/ogg;codecs="flac"' ||
+        codec === "audio/mpeg" ||
+        codec === "audio/flac",
       mimeType,
       mapping
     );
@@ -72,6 +79,9 @@ export default class WebAudioPlayer extends Player {
         break;
       case "opus":
         this._wasmDecoder = new OpusDecoderWebWorker();
+        break;
+      case "flac":
+        this._wasmDecoder = new FLACDecoderWebWorker();
         break;
     }
     this._wasmReady = this._wasmDecoder.ready;

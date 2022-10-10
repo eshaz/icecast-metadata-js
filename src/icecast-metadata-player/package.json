@@ -50,9 +50,10 @@
   "dependencies": {
     "codec-parser": "2.2.0",
     "icecast-metadata-js": "1.1.2",
-    "mpg123-decoder": "0.3.16",
+    "mpg123-decoder": "0.3.17",
     "mse-audio-wrapper": "1.4.7",
-    "opus-decoder": "0.5.2",
-    "synaudio": "0.2.2"
+    "opus-decoder": "0.5.3",
+    "@wasm-audio-decoders/flac": "0.0.1",
+    "synaudio": "0.3.0"
   }
 }
