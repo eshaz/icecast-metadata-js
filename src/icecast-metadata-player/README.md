@@ -24,7 +24,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Supported Browsers:
  * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `audio/flac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg` (Opus via [`opus-decoder`](https://github.com/eshaz/opus-decoder))
+ * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg`, (MPEG, FLAC and Opus via [`wasm-audio-decoders`](https://github.com/eshaz/wasm-audio-decoders))
  * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
@@ -75,14 +75,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.12.5.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.13.0.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```html
-   <script src="icecast-metadata-player-1.12.5.min.js"></script>
+   <script src="icecast-metadata-player-1.13.0.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -415,7 +415,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.12.5.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.12.5.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.13.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.13.0.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Common Issues
