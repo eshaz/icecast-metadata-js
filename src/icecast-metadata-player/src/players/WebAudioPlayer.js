@@ -84,7 +84,6 @@ export default class WebAudioPlayer extends Player {
         this._wasmDecoder = new FLACDecoderWebWorker();
         break;
     }
-    this._wasmReady = this._wasmDecoder.ready;
 
     this._currentTime = 0;
     this._decodedSample = 0;
@@ -155,7 +154,7 @@ export default class WebAudioPlayer extends Player {
   }
 
   async _decode(frames) {
-    await this._wasmReady;
+    await this._wasmDecoder.ready;
 
     return this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
   }
