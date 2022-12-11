@@ -27,6 +27,7 @@ import {
   endpoint,
   metadataTypes,
   playbackMethod,
+  audioContext,
   audioElement,
   bufferLength,
   icyMetaInt,
@@ -269,6 +270,13 @@ export default class IcecastMetadataPlayer extends EventClass {
   }
 
   /**
+   * @returns {AudioContext} Statically initialized internal AudioContext
+   */
+  get [audioContext]() {
+    return IcecastMetadataPlayer.constructor[audioContext];
+  }
+
+  /**
    * @returns {number} The ICY metadata interval in number of bytes for this instance
    */
   get icyMetaInt() {
@@ -504,4 +512,51 @@ export default class IcecastMetadataPlayer extends EventClass {
     }
     if (callback) callback(...messages);
   }
+}
+
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+// statically initialize audio context and start using a DOM event
+if (AudioContext && !IcecastMetadataPlayer.constructor[audioContext]) {
+  IcecastMetadataPlayer.constructor[audioContext] = "audio context pending";
+
+  const audioCtxErrorHandler = (e) => {
+    console.error(
+      "icecast-metadata-js",
+      "Failed to start the AudioContext. WebAudio playback will not be possible.",
+      e
+    );
+  };
+
+  // hack for iOS Audio element controls support
+  // iOS will only enable AudioContext.resume() when called directly from a UI event
+  // https://stackoverflow.com/questions/57510426
+  const events = ["touchstart", "touchend", "mousedown", "keydown"];
+
+  const unlock = () => {
+    events.forEach((e) => document.removeEventListener(e, unlock));
+
+    const audioCtx = new AudioContext({
+      latencyHint: "interactive",
+    });
+
+    audioCtx
+      .resume()
+      .then(() => {
+        // hack for iOS to continue playing while locked
+        audioCtx
+          .createScriptProcessor(2 ** 14, 2, 2)
+          .connect(audioCtx.destination);
+
+        audioCtx.onstatechange = () => {
+          if (audioCtx.state !== "running")
+            audioCtx.resume().catch(audioCtxErrorHandler);
+        };
+      })
+      .catch(audioCtxErrorHandler);
+
+    IcecastMetadataPlayer.constructor[audioContext] = audioCtx;
+  };
+
+  events.forEach((e) => document.addEventListener(e, unlock));
 }

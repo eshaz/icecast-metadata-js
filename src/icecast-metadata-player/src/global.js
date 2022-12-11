@@ -33,6 +33,7 @@ export const event = {
 export const endpoint = Symbol();
 export const metadataTypes = Symbol();
 export const playbackMethod = Symbol();
+export const audioContext = Symbol();
 export const audioElement = Symbol();
 export const bufferLength = Symbol();
 export const icyMetaInt = Symbol();

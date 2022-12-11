@@ -1,6 +1,7 @@
 import SynAudio from "synaudio";
 
 import {
+  audioContext,
   concatBuffers,
   event,
   state,
@@ -11,7 +12,6 @@ import {
   NOT_SYNCED,
   noOp,
 } from "./global.js";
-import PlayerFactory from "./PlayerFactory.js";
 
 export default class FrameQueue {
   constructor(icecast, player) {
@@ -328,7 +328,7 @@ export default class FrameQueue {
       )
         duration += queue[sliceIndex].duration;
 
-      return PlayerFactory.constructor.audioContext.decodeAudioData(
+      return this._icecast[audioContext].decodeAudioData(
         concatBuffers(queue.slice(sliceIndex).map(({ data }) => data)).buffer
       );
     };
