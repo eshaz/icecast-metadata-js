@@ -2,10 +2,10 @@ import { OpusDecoderWebWorker } from "opus-decoder";
 import { MPEGDecoderWebWorker } from "mpg123-decoder";
 import { FLACDecoderWebWorker } from "@wasm-audio-decoders/flac";
 
-import PlayerFactory from "../PlayerFactory.js";
 import {
-  state,
+  audioContext,
   event,
+  state,
   SYNCED,
   PCM_SYNCED,
   SYNCING,
@@ -18,7 +18,7 @@ export default class WebAudioPlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
 
-    this._audioContext = PlayerFactory.constructor.audioContext;
+    this._audioContext = icecast[audioContext];
 
     this._init();
   }
