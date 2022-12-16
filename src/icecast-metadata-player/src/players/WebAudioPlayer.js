@@ -20,6 +20,7 @@ export default class WebAudioPlayer extends Player {
 
     this._audioContext = icecast[audioContext];
 
+    this._createDecoder();
     this._init();
   }
 
@@ -70,9 +71,7 @@ export default class WebAudioPlayer extends Player {
     return (performance.now() - this._playbackStartTime) / 1000 || 0;
   }
 
-  async _init() {
-    super._init();
-
+  _createDecoder() {
     switch (this._codec) {
       case "mpeg":
         this._wasmDecoder = new MPEGDecoderWebWorker();
@@ -84,6 +83,10 @@ export default class WebAudioPlayer extends Player {
         this._wasmDecoder = new FLACDecoderWebWorker();
         break;
     }
+  }
+
+  async _init() {
+    super._init();
 
     this._currentTime = 0;
     this._decodedSample = 0;
