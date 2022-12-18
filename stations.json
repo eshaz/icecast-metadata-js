@@ -219,7 +219,7 @@
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/nightride.ogg",
-        "codec": "Vorbis",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg"]
       },
@@ -238,7 +238,7 @@
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/darksynth.ogg",
-        "codec": "Vorbis",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg"]
       },
@@ -257,7 +257,7 @@
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/ebsm.ogg",
-        "codec": "Vorbis",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg"]
       },
@@ -276,7 +276,7 @@
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/rekt.ogg",
-        "codec": "Vorbis",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg"]
       },
@@ -295,7 +295,7 @@
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/rektory.ogg",
-        "codec": "Vorbis",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg"]
       },
@@ -313,7 +313,7 @@
     "endpoints": [
       {
         "endpoint": "https://dnb4you.org.ru:8443/radio",
-        "codec": "Vorbis",
+        "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       }
