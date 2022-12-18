@@ -101,6 +101,8 @@ export default class WebAudioPlayer extends Player {
   }
 
   async start(metadataOffset) {
+    if (!this._wasmDecoder) this._createDecoder();
+
     const playing = super.start(metadataOffset);
     this._playStart();
     await playing;
@@ -118,11 +120,10 @@ export default class WebAudioPlayer extends Player {
 
     if (this._mediaStream) {
       // disconnect the currently playing media stream
-      this._mediaStream.disconnect();
-      this._mediaStream = null;
+      this._mediaStream.stream
+        .getTracks()
+        .forEach((track) => this._mediaStream.stream.removeTrack(track));
     }
-
-    this._audioElement.srcObject = new MediaStream();
 
     this._init();
   }

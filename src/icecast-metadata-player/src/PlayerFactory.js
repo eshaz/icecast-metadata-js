@@ -212,9 +212,11 @@ export default class PlayerFactory {
         this._icecast.state !== state.STOPPING ||
         this._icecast.state !== state.STOPPED
       ) {
-        oldPlayer.end();
+        oldPlayer.icecastMetadataQueue.purgeMetadataQueue();
+        oldPlayer.codecUpdateQueue.purgeMetadataQueue();
         this._player
           .start(Math.max(0, oldPlayer.syncDelay / 1000))
+          .then(() => oldPlayer.end())
           .then(complete);
       }
     };
