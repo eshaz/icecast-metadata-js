@@ -47,6 +47,12 @@ export default class HTML5Player extends Player {
     );
   }
 
+  get waiting() {
+    return new Promise((resolve) => {
+      this._audioElement.addEventListener("waiting", resolve, { once: true });
+    });
+  }
+
   async _init() {
     super._init();
 

@@ -349,6 +349,12 @@ export default class IcecastMetadataPlayer extends EventClass {
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
               return tryFetching();
+            } else if (
+              this.state !== state.STOPPING &&
+              this.state !== state.STOPPED
+            ) {
+              // wait for any remaining audio to play through
+              return p.get(this)[playerFactory].player.waiting;
             }
           })
           .catch(async (e) => {
@@ -361,8 +367,8 @@ export default class IcecastMetadataPlayer extends EventClass {
               p.get(this)[abortController].abort(); // stop fetch if is wasn't aborted
 
               if (
-                p.get(this)[playerState] !== state.STOPPING &&
-                p.get(this)[playerState] !== state.STOPPED
+                this.state !== state.STOPPING &&
+                this.state !== state.STOPPED
               ) {
                 this[fireEvent](
                   event.ERROR,
