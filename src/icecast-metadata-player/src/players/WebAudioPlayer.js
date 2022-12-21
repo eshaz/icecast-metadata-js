@@ -71,6 +71,41 @@ export default class WebAudioPlayer extends Player {
     return (performance.now() - this._playbackStartTime) / 1000 || 0;
   }
 
+  get waiting() {
+    return this._waitingPromise;
+  }
+
+  _updateWaiting(duration) {
+    this._bufferedDuration += duration;
+
+    let durationTimeout;
+    durationTimeout = setTimeout(() => {
+      this._bufferedDuration -= duration;
+      this._durationTimeouts.delete(durationTimeout);
+
+      if (!this._durationTimeouts.size) this._notifyWaiting();
+    }, this._bufferedDuration);
+
+    this._durationTimeouts.add(durationTimeout);
+  }
+
+  _notifyWaiting() {
+    if (this._waitingResolve) this._waitingResolve();
+
+    this._waitingPromise = new Promise((resolve) => {
+      this._waitingResolve = resolve;
+    });
+  }
+
+  _resetWaiting() {
+    if (this._durationTimeouts)
+      this._durationTimeouts.forEach((id) => clearTimeout(id));
+
+    this._durationTimeouts = new Set();
+    this._bufferedDuration = 0;
+    this._notifyWaiting();
+  }
+
   _createDecoder() {
     switch (this._codec) {
       case "mpeg":
@@ -94,6 +129,8 @@ export default class WebAudioPlayer extends Player {
     this._sampleRate = 0;
     this._playbackStartTime = undefined;
     this._playReady = false;
+
+    this._resetWaiting();
 
     this._playPromise = new Promise((resolve) => {
       this._playStart = resolve;
@@ -160,13 +197,15 @@ export default class WebAudioPlayer extends Player {
   async _decode(frames) {
     await this._wasmDecoder.ready;
 
-    return this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
+    if (this._wasmDecoder)
+      return this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
   }
 
   async _play({ channelData, samplesDecoded, sampleRate }) {
     await this._playPromise;
 
     if (
+      this._wasmDecoder &&
       this._icecast.state !== state.STOPPING &&
       this._icecast.state !== state.STOPPED &&
       samplesDecoded
@@ -209,6 +248,8 @@ export default class WebAudioPlayer extends Player {
       source.buffer = audioBuffer;
       source.connect(this._mediaStream);
       source.start(decodeDuration);
+
+      this._updateWaiting((samplesDecoded / this._sampleRate) * 1000);
 
       if (!this._playReady) {
         if (this._bufferLength <= this.metadataTimestamp) {

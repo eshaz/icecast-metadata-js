@@ -153,6 +153,10 @@ export default class Player {
     return 0;
   }
 
+  get waiting() {
+    return Promise.resolve();
+  }
+
   get icecastMetadataQueue() {
     return this._icecastMetadataQueue;
   }

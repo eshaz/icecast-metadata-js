@@ -73,6 +73,12 @@ export default class MediaSourcePlayer extends Player {
     return this._audioElement.currentTime;
   }
 
+  get waiting() {
+    return new Promise((resolve) => {
+      this._audioElement.addEventListener("waiting", resolve, { once: true });
+    });
+  }
+
   async _init() {
     super._init();
 
