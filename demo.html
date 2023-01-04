@@ -227,11 +227,11 @@
           metadataTypes,
           icyDetectionTimeout: parseInt(playerFormData.icyDetectionTimeout),
           icyCharacterEncoding: playerFormData.icyCharacterEncoding,
-          bufferLength: parseInt(playerFormData.bufferLength),
-          retryTimeout: parseInt(playerFormData.retryTimeout),
-          retryDelayRate: parseInt(playerFormData.retryDelayRate),
-          retryDelayMin: parseInt(playerFormData.retryDelayMin),
-          retryDelayMax: parseInt(playerFormData.retryDelayMax),
+          bufferLength: parseFloat(playerFormData.bufferLength),
+          retryTimeout: parseFloat(playerFormData.retryTimeout),
+          retryDelayRate: parseFloat(playerFormData.retryDelayRate),
+          retryDelayMin: parseFloat(playerFormData.retryDelayMin),
+          retryDelayMax: parseFloat(playerFormData.retryDelayMax),
           playbackMethod: playerFormData.playbackMethod,
         };
       };
