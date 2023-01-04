@@ -169,7 +169,9 @@ export default class PlayerFactory {
       metadataTypes: instanceVariables[metadataTypes],
       icyCharacterEncoding: instanceVariables[icyCharacterEncoding],
       icyDetectionTimeout: instanceVariables[icyDetectionTimeout],
-      icyMetaInt: instanceVariables[icyMetaInt],
+      ...(instanceVariables[icyMetaInt]
+        ? { icyMetaInt: instanceVariables[icyMetaInt] }
+        : {}),
     });
 
     const icecastPromise = this._icecastReadableStream.startReading();
