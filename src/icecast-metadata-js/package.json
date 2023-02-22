@@ -16,7 +16,7 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "format": "prettier --write '**/*.*js*'"
+    "format": "prettier --cache --write '**/*.*js*'"
   },
   "repository": {
     "type": "git",
