@@ -20,7 +20,7 @@
     "build": "cp ./src/stations.json ./public/stations.json && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --cache --write '**/*.js' --write '**/*.jsx' --write '**/*.json' --write '**/*.html' --write '**/*.css'",
+    "format": "prettier --cache --write \"**/*.{css,html,js,json,jsx}\"",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
