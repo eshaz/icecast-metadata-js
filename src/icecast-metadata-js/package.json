@@ -16,7 +16,7 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "format": "prettier --write '**/*.*js*'"
+    "format": "prettier --cache --write '**/*.*js*'"
   },
   "repository": {
     "type": "git",
@@ -37,9 +37,9 @@
     "url": "https://github.com/sponsors/eshaz"
   },
   "devDependencies": {
-    "@types/jest": "^29.2.6",
-    "jest": "^29.3.1",
-    "prettier": "^2.8.3",
+    "@types/jest": "^29.4.0",
+    "jest": "^29.4.3",
+    "prettier": "^2.8.4",
     "icecast-metadata-js": "file:./"
   }
 }

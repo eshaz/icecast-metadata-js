@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "audiomotion-analyzer": "^3.6.0",
+    "audiomotion-analyzer": "^3.6.1",
     "butterchurn": "^2.6.7",
     "butterchurn-presets": "^2.4.7",
     "icecast-metadata-player": "1.14.2",
@@ -13,14 +13,14 @@
   },
   "devDependencies": {
     "gh-pages": "^5.0.0",
-    "prettier": "^2.8.3"
+    "prettier": "^2.8.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "cp ./src/stations.json ./public/stations.json && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write '**/*.js' --write '**/*.jsx' --write '**/*.json' --write '**/*.html' --write '**/*.css'",
+    "format": "prettier --cache --write \"**/*.{css,html,js,json,jsx}\"",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
