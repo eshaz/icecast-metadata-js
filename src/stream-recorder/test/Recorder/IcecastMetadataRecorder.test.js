@@ -212,6 +212,51 @@ describe("Given the IcecastMetadataRecorder", () => {
       );
   });
 
+  describe("Given mp3 vbr", () => {
+    const actualPath = "../../test/temp/";
+    const expectedPath = "../../test/data/record/vbr/";
+    const expectedFileName = "isics-all";
+    const expectedFileFormat = "mp3";
+    const expectedStreamTitle = "isics-all";
+    const expectedPrependDate = true;
+
+    beforeAll(async () => {
+      const headers = new Map();
+      headers.set("content-type", "audio/mpeg");
+      headers.set("icy-metaint", "64");
+
+      await runIcecastParser(
+        {
+          actualPath,
+          expectedPath,
+          expectedFileName,
+          expectedFileFormat,
+          expectedStreamTitle,
+          expectedPrependDate,
+        },
+        headers
+      );
+    });
+
+    it("should match isics-all-vbr.mp3", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "isics-all.mp3"
+      );
+      expect(notMatch).toEqual(0);
+    });
+
+    it("should match isics-all-vbr.cue", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "isics-all.cue"
+      );
+      expect(notMatch).toEqual(0);
+    });
+  });
+
   describe("Given mp3 256k music", () => {
     const actualPath = "../../test/temp/";
     const expectedPath = "../../test/data/record/256mp3/";
