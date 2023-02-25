@@ -38,8 +38,11 @@
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
+    "icecast-metadata-js": "file:./",
     "jest": "^29.4.3",
-    "prettier": "^2.8.4",
-    "icecast-metadata-js": "file:./"
+    "prettier": "^2.8.4"
+  },
+  "dependencies": {
+    "codec-parser": "^2.2.0"
   }
 }

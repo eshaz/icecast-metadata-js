@@ -323,7 +323,7 @@ A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable st
 
 ### Usage
 
-1. To use `IcecastMetadataStream`, create a new instance with the `Icy-Br` and `Icy-MetaInt` headers from the Icecast response.
+1. To use `IcecastMetadataStream`, create a new instance with the `Icy-MetaInt` headers from the Icecast response. You may also provide the `Icy-Br` or `Content-Type` headers to enable metadata times to be detected from the stream.
 
    *Note: The GET request to the Icecast server must contain a `Icy-Metadata: 1` header to enable metadata.*
    
@@ -331,8 +331,8 @@ A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable st
    const headers = myHTTPResponse.headers;
    
    const icecastStream = new IcecastMetadataStream({
-     icyBr: parseInt(headers.get("Icy-Br")),
      icyMetaInt: parseInt(headers.get("Icy-MetaInt")),
+     mimeType: parseInt(headers.get("Content-Type")),
      ...options // See IcecastMetadataReader
    });
    ```
@@ -355,8 +355,12 @@ A NodeJS Writable stream that exposes stream and metadata via NodeJS Readable st
 ### Options
 `const icecastStream = new IcecastMetadataStream({icyBr ...options})`
 
-* `icyBr` (required)
-  * constant bitrate for the stream
+* `mimeType` (optional)
+  * Mimetype pulled from the `Content-Type` header of the Icecast stream (i.e. `audio/mpeg` or `application/ogg`)
+  * If this is provided, the metadata times will be based on the frame duration of the audio stream. (more accurate)
+* `icyBr` (optional)
+  * Constant bitrate for the stream
+  * If this is provided, the metadata times will be based on the constant bitrate of the audio stream. (less accurate)
 * `options`
   * See the constructor parameters for [`IcecastMetadataReader`](#icecastmetadatareader)
 
