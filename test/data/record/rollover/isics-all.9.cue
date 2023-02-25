@@ -5,32 +5,32 @@ REM DATE "2020-07-29T21:16:11.222Z"
 TITLE "isics-all"
 FILE "isics-all.mp3" WAVE
   TRACK 1 AUDIO
-    TITLE "2020-07-29T21:22:11.030Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
-    INDEX 01 05:59:61
+    TITLE "2020-07-29T21:22:10.862Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
+    INDEX 01 05:59:48
   TRACK 2 AUDIO
-    TITLE "2020-07-29T21:22:14.550Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1481"
-    INDEX 01 06:03:25
+    TITLE "2020-07-29T21:22:14.390Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1481"
+    INDEX 01 06:03:13
   TRACK 3 AUDIO
-    TITLE "2020-07-29T21:22:15.926Z TO:P:24605 [14002] Dallas County Law 1, Region 4 Interoperability Tac 42 FROM:2559982"
-    INDEX 01 06:04:53
+    TITLE "2020-07-29T21:22:15.758Z TO:P:24605 [14002] Dallas County Law 1, Region 4 Interoperability Tac 42 FROM:2559982"
+    INDEX 01 06:04:40
   TRACK 4 AUDIO
-    TITLE "2020-07-29T21:22:17.334Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1384"
-    INDEX 01 06:06:08
+    TITLE "2020-07-29T21:22:17.126Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1384"
+    INDEX 01 06:05:68
   TRACK 5 AUDIO
-    TITLE "2020-07-29T21:22:20.150Z TO:177 Polk County - Westcom Fire 2 FROM:1007"
-    INDEX 01 06:08:70
+    TITLE "2020-07-29T21:22:20.006Z TO:177 Polk County - Westcom Fire 2 FROM:1007"
+    INDEX 01 06:08:59
   TRACK 6 AUDIO
-    TITLE "2020-07-29T21:22:22.230Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 06:11:01
+    TITLE "2020-07-29T21:22:22.022Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 06:10:60
   TRACK 7 AUDIO
-    TITLE "2020-07-29T21:22:24.342Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1384"
-    INDEX 01 06:13:09
+    TITLE "2020-07-29T21:22:24.182Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1384"
+    INDEX 01 06:12:72
   TRACK 8 AUDIO
-    TITLE "2020-07-29T21:22:27.126Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 06:15:68
+    TITLE "2020-07-29T21:22:26.918Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 06:15:52
   TRACK 9 AUDIO
-    TITLE "2020-07-29T21:22:29.238Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1384"
-    INDEX 01 06:18:01
+    TITLE "2020-07-29T21:22:29.078Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1384"
+    INDEX 01 06:17:64
   TRACK 10 AUDIO
     TITLE "END"
-    INDEX 01 06:21:38
+    INDEX 01 06:21:23

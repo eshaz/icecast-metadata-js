@@ -76,11 +76,11 @@ export default class IcecastMetadataRecorder {
     });
   }
 
-  _getIcecast() {
+  _getIcecast(headers) {
     const icecastParams = {
       icyMetaInt:
         this._metadataInterval || parseInt(this._icyHeaders["metaint"]),
-      icyBr: this._bitrate || parseInt(this._icyHeaders["br"]),
+      mimeType: headers.get("content-type"),
     };
 
     if (!icecastParams.icyMetaInt) {
@@ -94,13 +94,13 @@ export default class IcecastMetadataRecorder {
       throw new Error("Invalid Icecast Metadata Interval");
     }
 
-    if (!icecastParams.icyBr) {
+    if (!icecastParams.mimeType) {
       console.warn(
-        `Icecast server: ${this._endpoint} did not respond with a valid Icy-Br header`
+        `Icecast server: ${this._endpoint} did not respond with a valid Content-Type header`
       );
-      console.error("Please manually specify a bitrate to record this stream");
+      console.error("Please manually specify a mimetype to record this stream");
       console.error("Received 'ICY-' headers", this._icyHeaders);
-      throw new Error("Invalid Icecast Bitrate");
+      throw new Error("Invalid Icecast Mimetype");
     }
 
     this._icecast = new IcecastMetadataStream(icecastParams);
@@ -151,7 +151,7 @@ export default class IcecastMetadataRecorder {
         this._audioFileWritable = this._openFile(this._fileName);
 
         this._getIcyHeaders(res.headers);
-        this._getIcecast();
+        this._getIcecast(res.headers);
         this._getCueWriter();
         /**
          * TEST: Pipe to a raw response to file for testing

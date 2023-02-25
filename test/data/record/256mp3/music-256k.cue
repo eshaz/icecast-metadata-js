@@ -16,4 +16,4 @@ FILE "music-256k.mp3" WAVE
   TRACK 2 AUDIO
     REM STREAMURL "http://somafm.com/logos/512/dronezone512.png"
     TITLE "Harold Budd & John Foxx - Some Way Through All The Cities"
-    INDEX 01 03:14:38
+    INDEX 01 03:14:34

@@ -31,22 +31,20 @@ describe("Given the IcecastMetadataRecorder", () => {
     global.Date.now = realDate;
   });
 
-  const matchFiles = (expectedPath, actualPath, fileName) =>
+  const matchFiles = async (expectedPath, actualPath, fileName) =>
     Promise.all([
       fs.promises.readFile(expectedPath + fileName),
       fs.promises.readFile(actualPath + fileName),
     ]).then(([expected, actual]) => Buffer.compare(expected, actual));
 
   const assertFilesMatch = (expectedPath, actualPath, fileName) => {
-    it(`should match ${fileName}`, (done) => {
-      matchFiles(expectedPath, actualPath, fileName).then((notMatch) => {
-        expect(notMatch).toBeFalsy();
-        done();
-      });
+    it(`should match ${fileName}`, async () => {
+      const notMatch = await matchFiles(expectedPath, actualPath, fileName);
+      expect(notMatch).toEqual(0);
     });
   };
 
-  const runIcecastParser = (params, headers, done) => {
+  const runIcecastParser = async (params, headers) => {
     const body = fs.createReadStream(
       `${params.expectedPath}${params.expectedFileName}.${params.expectedFileFormat}.raw`
     );
@@ -63,7 +61,11 @@ describe("Given the IcecastMetadataRecorder", () => {
       fetch,
     });
 
-    metadataRecorder.record().then(() => done());
+    metadataRecorder.errorHandler = (e) => {
+      throw e;
+    };
+
+    await metadataRecorder.record();
   };
 
   describe("Given no cue rollover", () => {
@@ -74,12 +76,13 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedStreamTitle = "isics-all";
     const expectedPrependDate = true;
 
-    beforeAll((done) => {
+    beforeAll(async () => {
       const headers = new Map();
+      headers.set("content-type", "audio/mpeg");
       headers.set("icy-br", "16");
       headers.set("icy-metaint", "64");
 
-      runIcecastParser(
+      await runIcecastParser(
         {
           actualPath,
           expectedPath,
@@ -88,23 +91,26 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedStreamTitle,
           expectedPrependDate,
         },
-        headers,
-        done
+        headers
       );
     });
 
-    it("should match isics-all.mp3", (done) => {
-      matchFiles(expectedPath, actualPath, "isics-all.mp3").then((notMatch) => {
-        expect(notMatch).toBeFalsy();
-        done();
-      });
+    it("should match isics-all.mp3", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "isics-all.mp3"
+      );
+      expect(notMatch).toEqual(0);
     });
 
-    it("should match isics-all.cue", (done) => {
-      matchFiles(expectedPath, actualPath, "isics-all.cue").then((notMatch) => {
-        expect(notMatch).toBeFalsy();
-        done();
-      });
+    it("should match isics-all.cue", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "isics-all.cue"
+      );
+      expect(notMatch).toEqual(0);
     });
   });
 
@@ -117,12 +123,13 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedPrependDate = true;
     const expectedCueRollover = 10;
 
-    beforeAll((done) => {
+    beforeAll(async () => {
       const headers = new Map();
+      headers.set("content-type", "audio/mpeg");
       headers.set("icy-br", "16");
       headers.set("icy-metaint", "64");
 
-      runIcecastParser(
+      await runIcecastParser(
         {
           actualPath,
           expectedPath,
@@ -132,23 +139,26 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedPrependDate,
           expectedCueRollover,
         },
-        headers,
-        done
+        headers
       );
     });
 
-    it("should match isics-all.mp3", (done) => {
-      matchFiles(expectedPath, actualPath, "isics-all.mp3").then((notMatch) => {
-        expect(notMatch).toBeFalsy();
-        done();
-      });
+    it("should match isics-all.mp3", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "isics-all.mp3"
+      );
+      expect(notMatch).toEqual(0);
     });
 
-    it("should match isics-all.cue", (done) => {
-      matchFiles(expectedPath, actualPath, "isics-all.cue").then((notMatch) => {
-        expect(notMatch).toBeFalsy();
-        done();
-      });
+    it("should match isics-all.cue", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "isics-all.cue"
+      );
+      expect(notMatch).toEqual(0);
     });
 
     it("should return the correct file names written", () => {
@@ -209,8 +219,9 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedFileFormat = "mp3";
     const expectedPrependDate = false;
 
-    beforeAll((done) => {
+    beforeAll(async () => {
       const headers = new Map();
+      headers.set("content-type", "audio/mpeg");
       headers.set("icy-br", "256");
       headers.set("icy-metaint", "16000");
       headers.set("icy-genre", "Techno Ambient Space");
@@ -229,7 +240,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       headers.set("icy-pub", "0");
       headers.set("icy-url", "http://somafm.com");
 
-      runIcecastParser(
+      await runIcecastParser(
         {
           actualPath,
           expectedPath,
@@ -237,27 +248,28 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileFormat,
           expectedPrependDate,
         },
-        headers,
-        done
+        headers
       );
     });
 
-    it("should match music-256k.mp3", (done) => {
-      matchFiles(expectedPath, actualPath, "music-256k.mp3").then(
-        (notMatch) => {
-          expect(notMatch).toBeFalsy();
-          done();
-        }
+    it("should match music-256k.mp3", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "music-256k.mp3"
       );
+
+      expect(notMatch).toEqual(0);
     });
 
-    it("should match music-256k.cue", (done) => {
-      matchFiles(expectedPath, actualPath, "music-256k.cue").then(
-        (notMatch) => {
-          expect(notMatch).toBeFalsy();
-          done();
-        }
+    it("should match music-256k.cue", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "music-256k.cue"
       );
+
+      expect(notMatch).toEqual(0);
     });
   });
 
@@ -270,8 +282,9 @@ describe("Given the IcecastMetadataRecorder", () => {
     const expectedPrependDate = false;
     const expectedDateEntries = true;
 
-    beforeAll((done) => {
+    beforeAll(async () => {
       const headers = new Map();
+      headers.set("content-type", "audio/aac");
       headers.set("icy-br", "128");
       headers.set("icy-metaint", "16000");
       headers.set("icy-genre", "Ambient Space");
@@ -289,7 +302,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       );
       headers.set("icy-pub", "0");
       headers.set("icy-url", "http://somafm.com");
-      runIcecastParser(
+      await runIcecastParser(
         {
           actualPath,
           expectedPath,
@@ -299,27 +312,26 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedPrependDate,
           expectedDateEntries,
         },
-        headers,
-        done
+        headers
       );
     });
 
-    it("should match music-128k.aac", (done) => {
-      matchFiles(expectedPath, actualPath, "music-128k.aac").then(
-        (notMatch) => {
-          expect(notMatch).toBeFalsy();
-          done();
-        }
+    it("should match music-128k.aac", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "music-128k.aac"
       );
+      expect(notMatch).toEqual(0);
     });
 
-    it("should match music-128k.cue", (done) => {
-      matchFiles(expectedPath, actualPath, "music-128k.cue").then(
-        (notMatch) => {
-          expect(notMatch).toBeFalsy();
-          done();
-        }
+    it("should match music-128k.cue", async () => {
+      const notMatch = await matchFiles(
+        expectedPath,
+        actualPath,
+        "music-128k.cue"
       );
+      expect(notMatch).toEqual(0);
     });
   });
 });

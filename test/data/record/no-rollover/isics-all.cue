@@ -5,779 +5,779 @@ REM DATE "2020-07-29T21:16:11.222Z"
 TITLE "isics-all"
 FILE "isics-all.mp3" WAVE
   TRACK 1 AUDIO
-    TITLE "2020-07-29T21:16:11.254Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    TITLE "2020-07-29T21:16:11.222Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
     INDEX 01 00:00:00
   TRACK 2 AUDIO
-    TITLE "2020-07-29T21:16:28.726Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
-    INDEX 01 00:17:38
+    TITLE "2020-07-29T21:16:28.574Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
+    INDEX 01 00:17:26
   TRACK 3 AUDIO
-    TITLE "2020-07-29T21:16:34.326Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
-    INDEX 01 00:23:08
+    TITLE "2020-07-29T21:16:34.190Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
+    INDEX 01 00:22:73
   TRACK 4 AUDIO
-    TITLE "2020-07-29T21:16:40.630Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 00:29:31
+    TITLE "2020-07-29T21:16:40.454Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 00:29:17
   TRACK 5 AUDIO
-    TITLE "2020-07-29T21:16:44.822Z TO:24631 Dallas County Fire/EMS Operations FROM:2520301"
-    INDEX 01 00:33:45
+    TITLE "2020-07-29T21:16:44.702Z TO:24631 Dallas County Fire/EMS Operations FROM:2520301"
+    INDEX 01 00:33:36
   TRACK 6 AUDIO
-    TITLE "2020-07-29T21:16:48.342Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 00:37:09
+    TITLE "2020-07-29T21:16:48.158Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 00:36:70
   TRACK 7 AUDIO
-    TITLE "2020-07-29T21:16:50.422Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
-    INDEX 01 00:39:15
+    TITLE "2020-07-29T21:16:50.246Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
+    INDEX 01 00:39:02
   TRACK 8 AUDIO
-    TITLE "2020-07-29T21:16:52.534Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 00:41:23
+    TITLE "2020-07-29T21:16:52.406Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 00:41:14
   TRACK 9 AUDIO
-    TITLE "2020-07-29T21:16:54.646Z TO:24631 Dallas County Fire/EMS Operations FROM:UNKNOWN"
-    INDEX 01 00:43:32
+    TITLE "2020-07-29T21:16:54.494Z TO:24631 Dallas County Fire/EMS Operations FROM:UNKNOWN"
+    INDEX 01 00:43:20
   TRACK 10 AUDIO
-    TITLE "2020-07-29T21:16:58.134Z TO:18501 Boone County Law 1 FROM:800408"
-    INDEX 01 00:46:68
+    TITLE "2020-07-29T21:16:57.950Z TO:18501 Boone County Law 1 FROM:800408"
+    INDEX 01 00:46:55
   TRACK 11 AUDIO
-    TITLE "2020-07-29T21:17:05.142Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
-    INDEX 01 00:53:69
+    TITLE "2020-07-29T21:17:05.006Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
+    INDEX 01 00:53:59
   TRACK 12 AUDIO
-    TITLE "2020-07-29T21:17:13.526Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
-    INDEX 01 01:02:23
+    TITLE "2020-07-29T21:17:13.358Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
+    INDEX 01 01:02:10
   TRACK 13 AUDIO
-    TITLE "2020-07-29T21:17:21.238Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
-    INDEX 01 01:10:01
+    TITLE "2020-07-29T21:17:21.062Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
+    INDEX 01 01:09:63
   TRACK 14 AUDIO
-    TITLE "2020-07-29T21:17:23.350Z TO:24631 Dallas County Fire/EMS Operations FROM:UNKNOWN"
-    INDEX 01 01:12:10
+    TITLE "2020-07-29T21:17:23.222Z TO:24631 Dallas County Fire/EMS Operations FROM:UNKNOWN"
+    INDEX 01 01:12:00
   TRACK 15 AUDIO
-    TITLE "2020-07-29T21:17:24.726Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 01:13:38
+    TITLE "2020-07-29T21:17:24.590Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 01:13:28
   TRACK 16 AUDIO
-    TITLE "2020-07-29T21:17:34.550Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 01:23:25
+    TITLE "2020-07-29T21:17:34.382Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 01:23:12
   TRACK 17 AUDIO
-    TITLE "2020-07-29T21:17:38.038Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 01:26:61
+    TITLE "2020-07-29T21:17:37.910Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 01:26:52
   TRACK 18 AUDIO
-    TITLE "2020-07-29T21:17:49.238Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 01:38:01
+    TITLE "2020-07-29T21:17:49.070Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 01:37:64
   TRACK 19 AUDIO
-    TITLE "2020-07-29T21:17:51.350Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 01:40:10
+    TITLE "2020-07-29T21:17:51.230Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 01:40:01
   TRACK 20 AUDIO
-    TITLE "2020-07-29T21:17:53.430Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 01:42:16
+    TITLE "2020-07-29T21:17:53.246Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 01:42:02
   TRACK 21 AUDIO
-    TITLE "2020-07-29T21:17:54.838Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 01:43:46
+    TITLE "2020-07-29T21:17:54.686Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 01:43:35
   TRACK 22 AUDIO
-    TITLE "2020-07-29T21:17:59.734Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14949"
-    INDEX 01 01:48:38
+    TITLE "2020-07-29T21:17:59.582Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14949"
+    INDEX 01 01:48:27
   TRACK 23 AUDIO
-    TITLE "2020-07-29T21:18:03.926Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 01:52:53
+    TITLE "2020-07-29T21:18:03.758Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 01:52:40
   TRACK 24 AUDIO
-    TITLE "2020-07-29T21:18:06.038Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 01:54:61
+    TITLE "2020-07-29T21:18:05.918Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 01:54:52
   TRACK 25 AUDIO
-    TITLE "2020-07-29T21:18:08.150Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1489"
-    INDEX 01 01:56:70
+    TITLE "2020-07-29T21:18:08.006Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1489"
+    INDEX 01 01:56:59
   TRACK 26 AUDIO
-    TITLE "2020-07-29T21:18:10.230Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:103"
-    INDEX 01 01:59:01
+    TITLE "2020-07-29T21:18:10.094Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:103"
+    INDEX 01 01:58:65
   TRACK 27 AUDIO
-    TITLE "2020-07-29T21:18:12.342Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1492"
-    INDEX 01 02:01:09
+    TITLE "2020-07-29T21:18:12.182Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1492"
+    INDEX 01 02:00:72
   TRACK 28 AUDIO
-    TITLE "2020-07-29T21:18:14.422Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:103"
-    INDEX 01 02:03:15
+    TITLE "2020-07-29T21:18:14.270Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:103"
+    INDEX 01 02:03:04
   TRACK 29 AUDIO
-    TITLE "2020-07-29T21:18:17.238Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1492"
-    INDEX 01 02:06:01
+    TITLE "2020-07-29T21:18:17.078Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1492"
+    INDEX 01 02:05:64
   TRACK 30 AUDIO
-    TITLE "2020-07-29T21:18:22.838Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 02:11:46
+    TITLE "2020-07-29T21:18:22.694Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 02:11:35
   TRACK 31 AUDIO
-    TITLE "2020-07-29T21:18:24.246Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
-    INDEX 01 02:13:02
+    TITLE "2020-07-29T21:18:24.062Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
+    INDEX 01 02:12:63
   TRACK 32 AUDIO
-    TITLE "2020-07-29T21:18:28.438Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:UNKNOWN"
-    INDEX 01 02:17:16
+    TITLE "2020-07-29T21:18:28.310Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:UNKNOWN"
+    INDEX 01 02:17:07
   TRACK 33 AUDIO
-    TITLE "2020-07-29T21:18:29.846Z TO:707 Dallas County - Waukee Police Car/Car FROM:8606"
-    INDEX 01 02:18:47
+    TITLE "2020-07-29T21:18:29.678Z TO:707 Dallas County - Waukee Police Car/Car FROM:8606"
+    INDEX 01 02:18:34
   TRACK 34 AUDIO
-    TITLE "2020-07-29T21:18:32.630Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
-    INDEX 01 02:21:31
+    TITLE "2020-07-29T21:18:32.486Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
+    INDEX 01 02:21:20
   TRACK 35 AUDIO
-    TITLE "2020-07-29T21:18:39.638Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 02:28:31
+    TITLE "2020-07-29T21:18:39.470Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 02:28:19
   TRACK 36 AUDIO
-    TITLE "2020-07-29T21:18:41.750Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
-    INDEX 01 02:30:40
+    TITLE "2020-07-29T21:18:41.630Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
+    INDEX 01 02:30:31
   TRACK 37 AUDIO
-    TITLE "2020-07-29T21:18:49.430Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 02:38:16
+    TITLE "2020-07-29T21:18:49.262Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 02:38:03
   TRACK 38 AUDIO
-    TITLE "2020-07-29T21:18:51.542Z TO:707 Dallas County - Waukee Police Car/Car FROM:8606"
-    INDEX 01 02:40:24
+    TITLE "2020-07-29T21:18:51.422Z TO:707 Dallas County - Waukee Police Car/Car FROM:8606"
+    INDEX 01 02:40:15
   TRACK 39 AUDIO
-    TITLE "2020-07-29T21:18:55.734Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
-    INDEX 01 02:44:38
+    TITLE "2020-07-29T21:18:55.598Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1364"
+    INDEX 01 02:44:28
   TRACK 40 AUDIO
-    TITLE "2020-07-29T21:18:58.550Z TO:91 Polk County - West Des Moines EMS FROM:1933"
-    INDEX 01 02:47:25
+    TITLE "2020-07-29T21:18:58.406Z TO:91 Polk County - West Des Moines EMS FROM:1933"
+    INDEX 01 02:47:14
   TRACK 41 AUDIO
-    TITLE "2020-07-29T21:19:02.742Z TO:91 Polk County - West Des Moines EMS FROM:123"
-    INDEX 01 02:51:39
+    TITLE "2020-07-29T21:19:02.582Z TO:91 Polk County - West Des Moines EMS FROM:123"
+    INDEX 01 02:51:27
   TRACK 42 AUDIO
-    TITLE "2020-07-29T21:19:06.230Z TO:91 Polk County - West Des Moines EMS FROM:1933"
-    INDEX 01 02:55:01
+    TITLE "2020-07-29T21:19:06.110Z TO:91 Polk County - West Des Moines EMS FROM:1933"
+    INDEX 01 02:54:67
   TRACK 43 AUDIO
-    TITLE "2020-07-29T21:19:10.422Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
-    INDEX 01 02:59:15
+    TITLE "2020-07-29T21:19:10.286Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
+    INDEX 01 02:59:05
   TRACK 44 AUDIO
-    TITLE "2020-07-29T21:19:13.238Z TO:91 Polk County - West Des Moines EMS FROM:123"
-    INDEX 01 03:02:01
+    TITLE "2020-07-29T21:19:13.094Z TO:91 Polk County - West Des Moines EMS FROM:123"
+    INDEX 01 03:01:65
   TRACK 45 AUDIO
-    TITLE "2020-07-29T21:19:15.350Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:UNKNOWN"
-    INDEX 01 03:04:10
+    TITLE "2020-07-29T21:19:15.182Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:UNKNOWN"
+    INDEX 01 03:03:72
   TRACK 46 AUDIO
-    TITLE "2020-07-29T21:19:17.430Z TO:P:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 03:06:16
+    TITLE "2020-07-29T21:19:17.270Z TO:P:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 03:06:04
   TRACK 47 AUDIO
-    TITLE "2020-07-29T21:19:37.750Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
-    INDEX 01 03:26:40
+    TITLE "2020-07-29T21:19:37.574Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
+    INDEX 01 03:26:26
   TRACK 48 AUDIO
-    TITLE "2020-07-29T21:19:41.942Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:11498"
-    INDEX 01 03:30:54
+    TITLE "2020-07-29T21:19:41.822Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:11498"
+    INDEX 01 03:30:45
   TRACK 49 AUDIO
-    TITLE "2020-07-29T21:19:52.438Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
-    INDEX 01 03:41:16
+    TITLE "2020-07-29T21:19:52.262Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
+    INDEX 01 03:41:03
   TRACK 50 AUDIO
-    TITLE "2020-07-29T21:19:54.550Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 03:43:25
+    TITLE "2020-07-29T21:19:54.422Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 03:43:15
   TRACK 51 AUDIO
-    TITLE "2020-07-29T21:19:56.630Z TO:7052 Department of Transportation - District 1 Grimes Maintenance Garage FROM:14950"
-    INDEX 01 03:45:31
+    TITLE "2020-07-29T21:19:56.510Z TO:7052 Department of Transportation - District 1 Grimes Maintenance Garage FROM:14950"
+    INDEX 01 03:45:22
   TRACK 52 AUDIO
-    TITLE "2020-07-29T21:19:58.742Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1492"
-    INDEX 01 03:47:39
+    TITLE "2020-07-29T21:19:58.598Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1492"
+    INDEX 01 03:47:28
   TRACK 53 AUDIO
-    TITLE "2020-07-29T21:20:01.526Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 03:50:23
+    TITLE "2020-07-29T21:20:01.406Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 03:50:14
   TRACK 54 AUDIO
-    TITLE "2020-07-29T21:20:05.046Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 03:53:62
+    TITLE "2020-07-29T21:20:04.862Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 03:53:48
   TRACK 55 AUDIO
-    TITLE "2020-07-29T21:20:07.126Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 03:55:68
+    TITLE "2020-07-29T21:20:06.950Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 03:55:55
   TRACK 56 AUDIO
-    TITLE "2020-07-29T21:20:29.526Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 04:18:23
+    TITLE "2020-07-29T21:20:29.342Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 04:18:09
   TRACK 57 AUDIO
-    TITLE "2020-07-29T21:20:33.750Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 04:22:40
+    TITLE "2020-07-29T21:20:33.590Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 04:22:28
   TRACK 58 AUDIO
-    TITLE "2020-07-29T21:20:35.830Z TO:18501 Boone County Law 1 FROM:899995"
-    INDEX 01 04:24:46
+    TITLE "2020-07-29T21:20:35.678Z TO:18501 Boone County Law 1 FROM:899995"
+    INDEX 01 04:24:34
   TRACK 59 AUDIO
-    TITLE "2020-07-29T21:20:42.838Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
-    INDEX 01 04:31:46
+    TITLE "2020-07-29T21:20:42.662Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
+    INDEX 01 04:31:33
   TRACK 60 AUDIO
-    TITLE "2020-07-29T21:20:46.326Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 04:35:08
+    TITLE "2020-07-29T21:20:46.190Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 04:34:73
   TRACK 61 AUDIO
-    TITLE "2020-07-29T21:20:48.438Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
-    INDEX 01 04:37:16
+    TITLE "2020-07-29T21:20:48.278Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
+    INDEX 01 04:37:04
   TRACK 62 AUDIO
-    TITLE "2020-07-29T21:20:54.742Z TO:52204 Mercy ONE Iowa Mason City Hospital FROM:10779538"
-    INDEX 01 04:43:39
+    TITLE "2020-07-29T21:20:54.614Z TO:52204 Mercy ONE Iowa Mason City Hospital FROM:10779538"
+    INDEX 01 04:43:29
   TRACK 63 AUDIO
-    TITLE "2020-07-29T21:21:06.646Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 04:55:32
+    TITLE "2020-07-29T21:21:06.494Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 04:55:20
   TRACK 64 AUDIO
-    TITLE "2020-07-29T21:21:08.726Z TO:52204 Mercy ONE Iowa Mason City Hospital FROM:10779530"
-    INDEX 01 04:57:38
+    TITLE "2020-07-29T21:21:08.582Z TO:52204 Mercy ONE Iowa Mason City Hospital FROM:10779530"
+    INDEX 01 04:57:27
   TRACK 65 AUDIO
-    TITLE "2020-07-29T21:21:10.838Z TO:91 Polk County - West Des Moines EMS FROM:1901"
-    INDEX 01 04:59:46
+    TITLE "2020-07-29T21:21:10.670Z TO:91 Polk County - West Des Moines EMS FROM:1901"
+    INDEX 01 04:59:34
   TRACK 66 AUDIO
-    TITLE "2020-07-29T21:21:14.326Z TO:177 Polk County - Westcom Fire 2 FROM:1641"
-    INDEX 01 05:03:08
+    TITLE "2020-07-29T21:21:14.198Z TO:177 Polk County - Westcom Fire 2 FROM:1641"
+    INDEX 01 05:02:73
   TRACK 67 AUDIO
-    TITLE "2020-07-29T21:21:17.142Z TO:91 Polk County - West Des Moines EMS FROM:123"
-    INDEX 01 05:05:69
+    TITLE "2020-07-29T21:21:17.006Z TO:91 Polk County - West Des Moines EMS FROM:123"
+    INDEX 01 05:05:59
   TRACK 68 AUDIO
-    TITLE "2020-07-29T21:21:19.222Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 05:08:00
+    TITLE "2020-07-29T21:21:19.094Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 05:07:65
   TRACK 69 AUDIO
-    TITLE "2020-07-29T21:21:21.334Z TO:91 Polk County - West Des Moines EMS FROM:1901"
-    INDEX 01 05:10:08
+    TITLE "2020-07-29T21:21:21.182Z TO:91 Polk County - West Des Moines EMS FROM:1901"
+    INDEX 01 05:09:72
   TRACK 70 AUDIO
-    TITLE "2020-07-29T21:21:24.150Z TO:91 Polk County - West Des Moines EMS FROM:123"
-    INDEX 01 05:12:70
+    TITLE "2020-07-29T21:21:23.990Z TO:91 Polk County - West Des Moines EMS FROM:123"
+    INDEX 01 05:12:58
   TRACK 71 AUDIO
-    TITLE "2020-07-29T21:21:26.934Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
-    INDEX 01 05:15:53
+    TITLE "2020-07-29T21:21:26.798Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
+    INDEX 01 05:15:43
   TRACK 72 AUDIO
-    TITLE "2020-07-29T21:21:29.046Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 05:17:62
+    TITLE "2020-07-29T21:21:28.886Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 05:17:50
   TRACK 73 AUDIO
-    TITLE "2020-07-29T21:21:31.126Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 05:19:68
+    TITLE "2020-07-29T21:21:30.974Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 05:19:56
   TRACK 74 AUDIO
-    TITLE "2020-07-29T21:21:33.238Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 05:22:01
+    TITLE "2020-07-29T21:21:33.062Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 05:21:63
   TRACK 75 AUDIO
-    TITLE "2020-07-29T21:21:36.726Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
-    INDEX 01 05:25:38
+    TITLE "2020-07-29T21:21:36.590Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
+    INDEX 01 05:25:28
   TRACK 76 AUDIO
-    TITLE "2020-07-29T21:21:45.142Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 05:33:69
+    TITLE "2020-07-29T21:21:45.014Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 05:33:59
   TRACK 77 AUDIO
-    TITLE "2020-07-29T21:21:47.222Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 05:36:00
+    TITLE "2020-07-29T21:21:47.102Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 05:35:66
   TRACK 78 AUDIO
-    TITLE "2020-07-29T21:21:51.446Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 05:40:17
+    TITLE "2020-07-29T21:21:51.278Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 05:40:04
   TRACK 79 AUDIO
-    TITLE "2020-07-29T21:21:59.126Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 05:47:68
+    TITLE "2020-07-29T21:21:58.982Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 05:47:57
   TRACK 80 AUDIO
-    TITLE "2020-07-29T21:22:01.942Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
-    INDEX 01 05:50:54
+    TITLE "2020-07-29T21:22:01.790Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
+    INDEX 01 05:50:43
   TRACK 81 AUDIO
-    TITLE "2020-07-29T21:22:04.726Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 05:53:38
+    TITLE "2020-07-29T21:22:04.598Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 05:53:28
   TRACK 82 AUDIO
-    TITLE "2020-07-29T21:22:06.838Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
-    INDEX 01 05:55:46
+    TITLE "2020-07-29T21:22:06.686Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
+    INDEX 01 05:55:35
   TRACK 83 AUDIO
-    TITLE "2020-07-29T21:22:15.222Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 06:04:00
+    TITLE "2020-07-29T21:22:15.038Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 06:03:61
   TRACK 84 AUDIO
-    TITLE "2020-07-29T21:22:16.630Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1394"
-    INDEX 01 06:05:31
+    TITLE "2020-07-29T21:22:16.478Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1394"
+    INDEX 01 06:05:19
   TRACK 85 AUDIO
-    TITLE "2020-07-29T21:22:19.446Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1452"
-    INDEX 01 06:08:17
+    TITLE "2020-07-29T21:22:19.286Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1452"
+    INDEX 01 06:08:05
   TRACK 86 AUDIO
-    TITLE "2020-07-29T21:22:21.526Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1394"
-    INDEX 01 06:10:23
+    TITLE "2020-07-29T21:22:21.374Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1394"
+    INDEX 01 06:10:11
   TRACK 87 AUDIO
-    TITLE "2020-07-29T21:22:25.750Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1452"
-    INDEX 01 06:14:40
+    TITLE "2020-07-29T21:22:25.622Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1452"
+    INDEX 01 06:14:30
   TRACK 88 AUDIO
-    TITLE "2020-07-29T21:22:27.830Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1452"
-    INDEX 01 06:16:46
+    TITLE "2020-07-29T21:22:27.710Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1452"
+    INDEX 01 06:16:37
   TRACK 89 AUDIO
-    TITLE "2020-07-29T21:22:29.942Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
-    INDEX 01 06:18:54
+    TITLE "2020-07-29T21:22:29.798Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
+    INDEX 01 06:18:43
   TRACK 90 AUDIO
-    TITLE "2020-07-29T21:22:32.022Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
-    INDEX 01 06:20:60
+    TITLE "2020-07-29T21:22:31.886Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
+    INDEX 01 06:20:50
   TRACK 91 AUDIO
-    TITLE "2020-07-29T21:22:35.542Z TO:49172 Polk County - Des Moines Streets FROM:12770352"
-    INDEX 01 06:24:24
+    TITLE "2020-07-29T21:22:35.414Z TO:49172 Polk County - Des Moines Streets FROM:12770352"
+    INDEX 01 06:24:14
   TRACK 92 AUDIO
-    TITLE "2020-07-29T21:22:37.622Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
-    INDEX 01 06:26:30
+    TITLE "2020-07-29T21:22:37.502Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
+    INDEX 01 06:26:21
   TRACK 93 AUDIO
-    TITLE "2020-07-29T21:22:41.846Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1394"
-    INDEX 01 06:30:47
+    TITLE "2020-07-29T21:22:41.678Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1394"
+    INDEX 01 06:30:34
   TRACK 94 AUDIO
-    TITLE "2020-07-29T21:22:46.038Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
-    INDEX 01 06:34:61
+    TITLE "2020-07-29T21:22:45.854Z TO:7 Polk County - Westcom Law Enforcement 4 FROM:1377"
+    INDEX 01 06:34:47
   TRACK 95 AUDIO
-    TITLE "2020-07-29T21:22:48.822Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
-    INDEX 01 06:37:45
+    TITLE "2020-07-29T21:22:48.662Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
+    INDEX 01 06:37:33
   TRACK 96 AUDIO
-    TITLE "2020-07-29T21:23:04.246Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
-    INDEX 01 06:53:02
+    TITLE "2020-07-29T21:23:04.070Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
+    INDEX 01 06:52:64
   TRACK 97 AUDIO
-    TITLE "2020-07-29T21:23:07.734Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 06:56:38
+    TITLE "2020-07-29T21:23:07.598Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 06:56:28
   TRACK 98 AUDIO
-    TITLE "2020-07-29T21:23:08.438Z TO:49172 Polk County - Des Moines Streets FROM:12770352"
-    INDEX 01 06:57:16
+    TITLE "2020-07-29T21:23:08.318Z TO:49172 Polk County - Des Moines Streets FROM:12770352"
+    INDEX 01 06:57:07
   TRACK 99 AUDIO
-    TITLE "2020-07-29T21:23:11.222Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
-    INDEX 01 07:00:00
+    TITLE "2020-07-29T21:23:11.054Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
+    INDEX 01 06:59:62
   TRACK 100 AUDIO
-    TITLE "2020-07-29T21:23:16.822Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
-    INDEX 01 07:05:45
+    TITLE "2020-07-29T21:23:16.670Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
+    INDEX 01 07:05:34
   TRACK 101 AUDIO
-    TITLE "2020-07-29T21:23:20.342Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 07:09:09
+    TITLE "2020-07-29T21:23:20.198Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 07:08:73
   TRACK 102 AUDIO
-    TITLE "2020-07-29T21:23:21.750Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 07:10:40
+    TITLE "2020-07-29T21:23:21.566Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 07:10:26
   TRACK 103 AUDIO
-    TITLE "2020-07-29T21:23:23.830Z TO:49172 Polk County - Des Moines Streets FROM:12770352"
-    INDEX 01 07:12:46
+    TITLE "2020-07-29T21:23:23.654Z TO:49172 Polk County - Des Moines Streets FROM:12770352"
+    INDEX 01 07:12:32
   TRACK 104 AUDIO
-    TITLE "2020-07-29T21:23:28.726Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
-    INDEX 01 07:17:38
+    TITLE "2020-07-29T21:23:28.550Z TO:49172 Polk County - Des Moines Streets FROM:12770261"
+    INDEX 01 07:17:25
   TRACK 105 AUDIO
-    TITLE "2020-07-29T21:23:30.134Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 07:18:68
+    TITLE "2020-07-29T21:23:29.990Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 07:18:58
   TRACK 106 AUDIO
-    TITLE "2020-07-29T21:23:32.950Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:7609"
-    INDEX 01 07:21:55
+    TITLE "2020-07-29T21:23:32.798Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:7609"
+    INDEX 01 07:21:43
   TRACK 107 AUDIO
-    TITLE "2020-07-29T21:23:36.438Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 07:25:16
+    TITLE "2020-07-29T21:23:36.254Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 07:25:02
   TRACK 108 AUDIO
-    TITLE "2020-07-29T21:23:37.142Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 07:25:69
+    TITLE "2020-07-29T21:23:36.974Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 07:25:56
   TRACK 109 AUDIO
-    TITLE "2020-07-29T21:23:40.630Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1441"
-    INDEX 01 07:29:31
+    TITLE "2020-07-29T21:23:40.502Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1441"
+    INDEX 01 07:29:21
   TRACK 110 AUDIO
-    TITLE "2020-07-29T21:23:43.446Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 07:32:17
+    TITLE "2020-07-29T21:23:43.310Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 07:32:07
   TRACK 111 AUDIO
-    TITLE "2020-07-29T21:23:46.230Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10862"
-    INDEX 01 07:35:01
+    TITLE "2020-07-29T21:23:46.046Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10862"
+    INDEX 01 07:34:62
   TRACK 112 AUDIO
-    TITLE "2020-07-29T21:23:49.046Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10993"
-    INDEX 01 07:37:62
+    TITLE "2020-07-29T21:23:48.926Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10993"
+    INDEX 01 07:37:53
   TRACK 113 AUDIO
-    TITLE "2020-07-29T21:23:51.126Z TO:18513 Boone County Incident 5E FROM:899995"
-    INDEX 01 07:39:68
+    TITLE "2020-07-29T21:23:50.942Z TO:18513 Boone County Incident 5E FROM:899995"
+    INDEX 01 07:39:54
   TRACK 114 AUDIO
-    TITLE "2020-07-29T21:23:52.534Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10365"
-    INDEX 01 07:41:23
+    TITLE "2020-07-29T21:23:52.382Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10365"
+    INDEX 01 07:41:12
   TRACK 115 AUDIO
-    TITLE "2020-07-29T21:23:55.350Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:UNKNOWN"
-    INDEX 01 07:44:10
+    TITLE "2020-07-29T21:23:55.190Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:UNKNOWN"
+    INDEX 01 07:43:73
   TRACK 116 AUDIO
-    TITLE "2020-07-29T21:23:58.134Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 07:46:68
+    TITLE "2020-07-29T21:23:57.998Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 07:46:58
   TRACK 117 AUDIO
-    TITLE "2020-07-29T21:24:00.950Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 07:49:55
+    TITLE "2020-07-29T21:24:00.806Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 07:49:44
   TRACK 118 AUDIO
-    TITLE "2020-07-29T21:24:03.030Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 07:51:61
+    TITLE "2020-07-29T21:24:02.894Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 07:51:50
   TRACK 119 AUDIO
-    TITLE "2020-07-29T21:24:10.038Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1487"
-    INDEX 01 07:58:61
+    TITLE "2020-07-29T21:24:09.878Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1487"
+    INDEX 01 07:58:49
   TRACK 120 AUDIO
-    TITLE "2020-07-29T21:24:13.526Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 08:02:23
+    TITLE "2020-07-29T21:24:13.406Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 08:02:14
   TRACK 121 AUDIO
-    TITLE "2020-07-29T21:24:15.638Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 08:04:31
+    TITLE "2020-07-29T21:24:15.494Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 08:04:20
   TRACK 122 AUDIO
-    TITLE "2020-07-29T21:24:17.750Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1487"
-    INDEX 01 08:06:40
+    TITLE "2020-07-29T21:24:17.582Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1487"
+    INDEX 01 08:06:27
   TRACK 123 AUDIO
-    TITLE "2020-07-29T21:24:24.022Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 08:12:60
+    TITLE "2020-07-29T21:24:23.846Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 08:12:47
   TRACK 124 AUDIO
-    TITLE "2020-07-29T21:24:26.134Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1487"
-    INDEX 01 08:14:68
+    TITLE "2020-07-29T21:24:26.006Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1487"
+    INDEX 01 08:14:59
   TRACK 125 AUDIO
-    TITLE "2020-07-29T21:24:27.542Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
-    INDEX 01 08:16:24
+    TITLE "2020-07-29T21:24:27.374Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
+    INDEX 01 08:16:11
   TRACK 126 AUDIO
-    TITLE "2020-07-29T21:24:31.734Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
-    INDEX 01 08:20:38
+    TITLE "2020-07-29T21:24:31.550Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
+    INDEX 01 08:20:25
   TRACK 127 AUDIO
-    TITLE "2020-07-29T21:24:34.550Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
-    INDEX 01 08:23:25
+    TITLE "2020-07-29T21:24:34.430Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
+    INDEX 01 08:23:16
   TRACK 128 AUDIO
-    TITLE "2020-07-29T21:24:37.334Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
-    INDEX 01 08:26:08
+    TITLE "2020-07-29T21:24:37.166Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
+    INDEX 01 08:25:71
   TRACK 129 AUDIO
-    TITLE "2020-07-29T21:24:42.934Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
-    INDEX 01 08:31:53
+    TITLE "2020-07-29T21:24:42.782Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
+    INDEX 01 08:31:42
   TRACK 130 AUDIO
-    TITLE "2020-07-29T21:24:45.046Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
-    INDEX 01 08:33:62
+    TITLE "2020-07-29T21:24:44.870Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
+    INDEX 01 08:33:49
   TRACK 131 AUDIO
-    TITLE "2020-07-29T21:24:47.830Z TO:59908 Warren County Law 1 FROM:9111291"
-    INDEX 01 08:36:46
+    TITLE "2020-07-29T21:24:47.678Z TO:59908 Warren County Law 1 FROM:9111291"
+    INDEX 01 08:36:34
   TRACK 132 AUDIO
-    TITLE "2020-07-29T21:24:49.942Z TO:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 08:38:54
+    TITLE "2020-07-29T21:24:49.766Z TO:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 08:38:41
   TRACK 133 AUDIO
-    TITLE "2020-07-29T21:24:52.022Z TO:59908 Warren County Law 1 FROM:9111301"
-    INDEX 01 08:40:60
+    TITLE "2020-07-29T21:24:51.854Z TO:59908 Warren County Law 1 FROM:9111301"
+    INDEX 01 08:40:47
   TRACK 134 AUDIO
-    TITLE "2020-07-29T21:24:53.430Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
-    INDEX 01 08:42:16
+    TITLE "2020-07-29T21:24:53.294Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
+    INDEX 01 08:42:05
   TRACK 135 AUDIO
-    TITLE "2020-07-29T21:24:56.246Z TO:59908 Warren County Law 1 FROM:9119100"
-    INDEX 01 08:45:02
+    TITLE "2020-07-29T21:24:56.102Z TO:59908 Warren County Law 1 FROM:9119100"
+    INDEX 01 08:44:66
   TRACK 136 AUDIO
-    TITLE "2020-07-29T21:24:58.326Z TO:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 08:47:08
+    TITLE "2020-07-29T21:24:58.190Z TO:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 08:46:73
   TRACK 137 AUDIO
-    TITLE "2020-07-29T21:25:01.846Z TO:59908 Warren County Law 1 FROM:9119100"
-    INDEX 01 08:50:47
+    TITLE "2020-07-29T21:25:01.718Z TO:59908 Warren County Law 1 FROM:9119100"
+    INDEX 01 08:50:37
   TRACK 138 AUDIO
-    TITLE "2020-07-29T21:25:03.926Z TO:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 08:52:53
+    TITLE "2020-07-29T21:25:03.806Z TO:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 08:52:44
   TRACK 139 AUDIO
-    TITLE "2020-07-29T21:25:07.446Z TO:59908 Warren County Law 1 FROM:9110110"
-    INDEX 01 08:56:17
+    TITLE "2020-07-29T21:25:07.262Z TO:59908 Warren County Law 1 FROM:9110110"
+    INDEX 01 08:56:03
   TRACK 140 AUDIO
-    TITLE "2020-07-29T21:25:09.526Z TO:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 08:58:23
+    TITLE "2020-07-29T21:25:09.350Z TO:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 08:58:10
   TRACK 141 AUDIO
-    TITLE "2020-07-29T21:25:11.638Z TO:59908 Warren County Law 1 FROM:9110251"
-    INDEX 01 09:00:31
+    TITLE "2020-07-29T21:25:11.510Z TO:59908 Warren County Law 1 FROM:9110251"
+    INDEX 01 09:00:22
   TRACK 142 AUDIO
-    TITLE "2020-07-29T21:25:12.342Z TO:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 09:01:09
+    TITLE "2020-07-29T21:25:12.158Z TO:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 09:00:70
   TRACK 143 AUDIO
-    TITLE "2020-07-29T21:25:15.126Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 09:03:68
+    TITLE "2020-07-29T21:25:14.966Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 09:03:56
   TRACK 144 AUDIO
-    TITLE "2020-07-29T21:25:17.238Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:UNKNOWN"
-    INDEX 01 09:06:01
+    TITLE "2020-07-29T21:25:17.054Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:UNKNOWN"
+    INDEX 01 09:05:62
   TRACK 145 AUDIO
-    TITLE "2020-07-29T21:25:19.350Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 09:08:10
+    TITLE "2020-07-29T21:25:19.214Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 09:07:74
   TRACK 146 AUDIO
-    TITLE "2020-07-29T21:25:20.726Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 09:09:38
+    TITLE "2020-07-29T21:25:20.582Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 09:09:27
   TRACK 147 AUDIO
-    TITLE "2020-07-29T21:25:35.446Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 09:24:17
+    TITLE "2020-07-29T21:25:35.270Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 09:24:04
   TRACK 148 AUDIO
-    TITLE "2020-07-29T21:25:37.526Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
-    INDEX 01 09:26:23
+    TITLE "2020-07-29T21:25:37.358Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
+    INDEX 01 09:26:10
   TRACK 149 AUDIO
-    TITLE "2020-07-29T21:25:43.830Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
-    INDEX 01 09:32:46
+    TITLE "2020-07-29T21:25:43.694Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
+    INDEX 01 09:32:35
   TRACK 150 AUDIO
-    TITLE "2020-07-29T21:25:54.326Z TO:177 Polk County - Westcom Fire 2 FROM:1005"
-    INDEX 01 09:43:08
+    TITLE "2020-07-29T21:25:54.206Z TO:177 Polk County - Westcom Fire 2 FROM:1005"
+    INDEX 01 09:42:74
   TRACK 151 AUDIO
-    TITLE "2020-07-29T21:26:04.150Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
-    INDEX 01 09:52:70
+    TITLE "2020-07-29T21:26:03.998Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
+    INDEX 01 09:52:58
   TRACK 152 AUDIO
-    TITLE "2020-07-29T21:26:10.422Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
-    INDEX 01 09:59:15
+    TITLE "2020-07-29T21:26:10.262Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
+    INDEX 01 09:59:03
   TRACK 153 AUDIO
-    TITLE "2020-07-29T21:26:16.726Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
-    INDEX 01 10:05:38
+    TITLE "2020-07-29T21:26:16.598Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
+    INDEX 01 10:05:28
   TRACK 154 AUDIO
-    TITLE "2020-07-29T21:26:26.550Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
-    INDEX 01 10:15:25
+    TITLE "2020-07-29T21:26:26.390Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
+    INDEX 01 10:15:13
   TRACK 155 AUDIO
-    TITLE "2020-07-29T21:26:32.822Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
-    INDEX 01 10:21:45
+    TITLE "2020-07-29T21:26:32.654Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
+    INDEX 01 10:21:32
   TRACK 156 AUDIO
-    TITLE "2020-07-29T21:26:43.350Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 10:32:10
+    TITLE "2020-07-29T21:26:43.166Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 10:31:71
   TRACK 157 AUDIO
-    TITLE "2020-07-29T21:26:47.542Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 10:36:24
+    TITLE "2020-07-29T21:26:47.414Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 10:36:14
   TRACK 158 AUDIO
-    TITLE "2020-07-29T21:26:50.326Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5082"
-    INDEX 01 10:39:08
+    TITLE "2020-07-29T21:26:50.150Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5082"
+    INDEX 01 10:38:70
   TRACK 159 AUDIO
-    TITLE "2020-07-29T21:26:52.438Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 10:41:16
+    TITLE "2020-07-29T21:26:52.310Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 10:41:07
   TRACK 160 AUDIO
-    TITLE "2020-07-29T21:26:53.846Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 10:42:47
+    TITLE "2020-07-29T21:26:53.678Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 10:42:34
   TRACK 161 AUDIO
-    TITLE "2020-07-29T21:27:01.526Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
-    INDEX 01 10:50:23
+    TITLE "2020-07-29T21:27:01.382Z TO:475 Polk County - Urbandale Fire 1 FROM:1005"
+    INDEX 01 10:50:12
   TRACK 162 AUDIO
-    TITLE "2020-07-29T21:27:21.846Z TO:177 Polk County - Westcom Fire 2 FROM:1005"
-    INDEX 01 11:10:47
+    TITLE "2020-07-29T21:27:21.686Z TO:177 Polk County - Westcom Fire 2 FROM:1005"
+    INDEX 01 11:10:35
   TRACK 163 AUDIO
-    TITLE "2020-07-29T21:27:42.134Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
-    INDEX 01 11:30:68
+    TITLE "2020-07-29T21:27:41.990Z TO:175 Polk County - Westcom Fire 1 FROM:1005"
+    INDEX 01 11:30:58
   TRACK 164 AUDIO
-    TITLE "2020-07-29T21:28:02.422Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 11:51:15
+    TITLE "2020-07-29T21:28:02.294Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 11:51:05
   TRACK 165 AUDIO
-    TITLE "2020-07-29T21:28:03.126Z TO:177 Polk County - Westcom Fire 2 FROM:UNKNOWN"
-    INDEX 01 11:51:68
+    TITLE "2020-07-29T21:28:02.942Z TO:177 Polk County - Westcom Fire 2 FROM:UNKNOWN"
+    INDEX 01 11:51:54
   TRACK 166 AUDIO
-    TITLE "2020-07-29T21:28:04.534Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5082"
-    INDEX 01 11:53:23
+    TITLE "2020-07-29T21:28:04.382Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5082"
+    INDEX 01 11:53:12
   TRACK 167 AUDIO
-    TITLE "2020-07-29T21:28:06.646Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 11:55:32
+    TITLE "2020-07-29T21:28:06.470Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 11:55:19
   TRACK 168 AUDIO
-    TITLE "2020-07-29T21:28:10.134Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5101"
-    INDEX 01 11:58:68
+    TITLE "2020-07-29T21:28:09.998Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5101"
+    INDEX 01 11:58:58
   TRACK 169 AUDIO
-    TITLE "2020-07-29T21:28:14.326Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
-    INDEX 01 12:03:08
+    TITLE "2020-07-29T21:28:14.174Z TO:177 Polk County - Westcom Fire 2 FROM:1932"
+    INDEX 01 12:02:71
   TRACK 170 AUDIO
-    TITLE "2020-07-29T21:28:17.142Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 12:05:69
+    TITLE "2020-07-29T21:28:16.982Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 12:05:57
   TRACK 171 AUDIO
-    TITLE "2020-07-29T21:28:19.222Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 12:08:00
+    TITLE "2020-07-29T21:28:19.070Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 12:07:64
   TRACK 172 AUDIO
-    TITLE "2020-07-29T21:28:32.534Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
-    INDEX 01 12:21:23
+    TITLE "2020-07-29T21:28:32.390Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
+    INDEX 01 12:21:13
   TRACK 173 AUDIO
-    TITLE "2020-07-29T21:28:36.022Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 12:24:60
+    TITLE "2020-07-29T21:28:35.846Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 12:24:47
   TRACK 174 AUDIO
-    TITLE "2020-07-29T21:28:36.726Z TO:177 Polk County - Westcom Fire 2 FROM:4371"
-    INDEX 01 12:25:38
+    TITLE "2020-07-29T21:28:36.566Z TO:177 Polk County - Westcom Fire 2 FROM:4371"
+    INDEX 01 12:25:26
   TRACK 175 AUDIO
-    TITLE "2020-07-29T21:28:38.838Z TO:177 Polk County - Westcom Fire 2 FROM:UNKNOWN"
-    INDEX 01 12:27:46
+    TITLE "2020-07-29T21:28:38.654Z TO:177 Polk County - Westcom Fire 2 FROM:UNKNOWN"
+    INDEX 01 12:27:32
   TRACK 176 AUDIO
-    TITLE "2020-07-29T21:28:40.246Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 12:29:02
+    TITLE "2020-07-29T21:28:40.094Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 12:28:65
   TRACK 177 AUDIO
-    TITLE "2020-07-29T21:28:42.326Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 12:31:08
+    TITLE "2020-07-29T21:28:42.182Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 12:30:72
   TRACK 178 AUDIO
-    TITLE "2020-07-29T21:28:46.550Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1487"
-    INDEX 01 12:35:25
+    TITLE "2020-07-29T21:28:46.430Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1487"
+    INDEX 01 12:35:16
   TRACK 179 AUDIO
-    TITLE "2020-07-29T21:28:50.038Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 12:38:61
+    TITLE "2020-07-29T21:28:49.886Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 12:38:50
   TRACK 180 AUDIO
-    TITLE "2020-07-29T21:28:52.150Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 12:40:70
+    TITLE "2020-07-29T21:28:51.974Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 12:40:56
   TRACK 181 AUDIO
-    TITLE "2020-07-29T21:28:59.126Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 12:47:68
+    TITLE "2020-07-29T21:28:58.958Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 12:47:55
   TRACK 182 AUDIO
-    TITLE "2020-07-29T21:29:13.142Z TO:177 Polk County - Westcom Fire 2 FROM:4369"
-    INDEX 01 13:01:69
+    TITLE "2020-07-29T21:29:12.998Z TO:177 Polk County - Westcom Fire 2 FROM:4369"
+    INDEX 01 13:01:58
   TRACK 183 AUDIO
-    TITLE "2020-07-29T21:29:17.334Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 13:06:08
+    TITLE "2020-07-29T21:29:17.174Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 13:05:71
   TRACK 184 AUDIO
-    TITLE "2020-07-29T21:29:21.526Z TO:177 Polk County - Westcom Fire 2 FROM:UNKNOWN"
-    INDEX 01 13:10:23
+    TITLE "2020-07-29T21:29:21.350Z TO:177 Polk County - Westcom Fire 2 FROM:UNKNOWN"
+    INDEX 01 13:10:10
   TRACK 185 AUDIO
-    TITLE "2020-07-29T21:29:22.934Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 13:11:53
+    TITLE "2020-07-29T21:29:22.790Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 13:11:43
   TRACK 186 AUDIO
-    TITLE "2020-07-29T21:29:25.046Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 13:13:62
+    TITLE "2020-07-29T21:29:24.878Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 13:13:49
   TRACK 187 AUDIO
-    TITLE "2020-07-29T21:29:27.830Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 13:16:46
+    TITLE "2020-07-29T21:29:27.686Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 13:16:35
   TRACK 188 AUDIO
-    TITLE "2020-07-29T21:29:29.238Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
-    INDEX 01 13:18:01
+    TITLE "2020-07-29T21:29:29.054Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1441"
+    INDEX 01 13:17:62
   TRACK 189 AUDIO
-    TITLE "2020-07-29T21:29:34.134Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:UNKNOWN"
-    INDEX 01 13:22:68
+    TITLE "2020-07-29T21:29:33.950Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:UNKNOWN"
+    INDEX 01 13:22:55
   TRACK 190 AUDIO
-    TITLE "2020-07-29T21:29:35.542Z Scanning ...."
-    INDEX 01 13:24:24
+    TITLE "2020-07-29T21:29:35.390Z Scanning ...."
+    INDEX 01 13:24:13
   TRACK 191 AUDIO
-    TITLE "2020-07-29T21:29:40.438Z TO:177 Polk County - Westcom Fire 2 FROM:4371"
-    INDEX 01 13:29:16
+    TITLE "2020-07-29T21:29:40.286Z TO:177 Polk County - Westcom Fire 2 FROM:4371"
+    INDEX 01 13:29:05
   TRACK 192 AUDIO
-    TITLE "2020-07-29T21:29:46.038Z TO:177 Polk County - Westcom Fire 2 FROM:103"
-    INDEX 01 13:34:61
+    TITLE "2020-07-29T21:29:45.902Z TO:177 Polk County - Westcom Fire 2 FROM:103"
+    INDEX 01 13:34:51
   TRACK 193 AUDIO
-    TITLE "2020-07-29T21:29:48.150Z Scanning ...."
-    INDEX 01 13:36:70
+    TITLE "2020-07-29T21:29:47.990Z Scanning ...."
+    INDEX 01 13:36:58
   TRACK 194 AUDIO
-    TITLE "2020-07-29T21:30:49.750Z TO:18513 Boone County Incident 5E FROM:800531"
-    INDEX 01 14:38:40
+    TITLE "2020-07-29T21:30:49.622Z TO:18513 Boone County Incident 5E FROM:800531"
+    INDEX 01 14:38:30
   TRACK 195 AUDIO
-    TITLE "2020-07-29T21:30:51.126Z Scanning ...."
-    INDEX 01 14:39:68
+    TITLE "2020-07-29T21:30:50.990Z Scanning ...."
+    INDEX 01 14:39:58
   TRACK 196 AUDIO
-    TITLE "2020-07-29T21:31:54.134Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 15:42:68
+    TITLE "2020-07-29T21:31:53.990Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 15:42:58
   TRACK 197 AUDIO
-    TITLE "2020-07-29T21:31:56.246Z Scanning ...."
-    INDEX 01 15:45:02
+    TITLE "2020-07-29T21:31:56.078Z Scanning ...."
+    INDEX 01 15:44:64
   TRACK 198 AUDIO
-    TITLE "2020-07-29T21:32:02.550Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 15:51:25
+    TITLE "2020-07-29T21:32:02.414Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 15:51:14
   TRACK 199 AUDIO
-    TITLE "2020-07-29T21:32:05.334Z Scanning ...."
-    INDEX 01 15:54:08
+    TITLE "2020-07-29T21:32:05.150Z Scanning ...."
+    INDEX 01 15:53:70
   TRACK 200 AUDIO
-    TITLE "2020-07-29T21:32:33.334Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 16:22:08
+    TITLE "2020-07-29T21:32:33.158Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 16:21:70
   TRACK 201 AUDIO
-    TITLE "2020-07-29T21:32:56.438Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 16:45:16
+    TITLE "2020-07-29T21:32:56.270Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 16:45:04
   TRACK 202 AUDIO
-    TITLE "2020-07-29T21:33:04.150Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 16:52:70
+    TITLE "2020-07-29T21:33:03.974Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 16:52:56
   TRACK 203 AUDIO
-    TITLE "2020-07-29T21:33:10.422Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 16:59:15
+    TITLE "2020-07-29T21:33:10.238Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 16:59:01
   TRACK 204 AUDIO
-    TITLE "2020-07-29T21:33:17.430Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
-    INDEX 01 17:06:16
+    TITLE "2020-07-29T21:33:17.294Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
+    INDEX 01 17:06:05
   TRACK 205 AUDIO
-    TITLE "2020-07-29T21:33:23.734Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
-    INDEX 01 17:12:38
+    TITLE "2020-07-29T21:33:23.558Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
+    INDEX 01 17:12:25
   TRACK 206 AUDIO
-    TITLE "2020-07-29T21:33:29.334Z TO:18513 Boone County Incident 5E FROM:800554"
-    INDEX 01 17:18:08
+    TITLE "2020-07-29T21:33:29.174Z TO:18513 Boone County Incident 5E FROM:800554"
+    INDEX 01 17:17:71
   TRACK 207 AUDIO
-    TITLE "2020-07-29T21:33:30.742Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 17:19:39
+    TITLE "2020-07-29T21:33:30.614Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 17:19:29
   TRACK 208 AUDIO
-    TITLE "2020-07-29T21:33:37.750Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
-    INDEX 01 17:26:40
+    TITLE "2020-07-29T21:33:37.598Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
+    INDEX 01 17:26:28
   TRACK 209 AUDIO
-    TITLE "2020-07-29T21:33:44.022Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
-    INDEX 01 17:32:60
+    TITLE "2020-07-29T21:33:43.862Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
+    INDEX 01 17:32:48
   TRACK 210 AUDIO
-    TITLE "2020-07-29T21:33:50.326Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 17:39:08
+    TITLE "2020-07-29T21:33:50.198Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 17:38:73
   TRACK 211 AUDIO
-    TITLE "2020-07-29T21:33:52.438Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 17:41:16
+    TITLE "2020-07-29T21:33:52.286Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 17:41:05
   TRACK 212 AUDIO
-    TITLE "2020-07-29T21:33:55.926Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1381"
-    INDEX 01 17:44:53
+    TITLE "2020-07-29T21:33:55.742Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1381"
+    INDEX 01 17:44:39
   TRACK 213 AUDIO
-    TITLE "2020-07-29T21:33:58.038Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 17:46:61
+    TITLE "2020-07-29T21:33:57.902Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 17:46:51
   TRACK 214 AUDIO
-    TITLE "2020-07-29T21:34:00.150Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:7609"
-    INDEX 01 17:48:70
+    TITLE "2020-07-29T21:33:59.990Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:7609"
+    INDEX 01 17:48:58
   TRACK 215 AUDIO
-    TITLE "2020-07-29T21:34:02.934Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10365"
-    INDEX 01 17:51:53
+    TITLE "2020-07-29T21:34:02.798Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10365"
+    INDEX 01 17:51:43
   TRACK 216 AUDIO
-    TITLE "2020-07-29T21:34:07.126Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 17:55:68
+    TITLE "2020-07-29T21:34:06.974Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 17:55:56
   TRACK 217 AUDIO
-    TITLE "2020-07-29T21:34:09.238Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10993"
-    INDEX 01 17:58:01
+    TITLE "2020-07-29T21:34:09.062Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10993"
+    INDEX 01 17:57:63
   TRACK 218 AUDIO
-    TITLE "2020-07-29T21:34:11.350Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10365"
-    INDEX 01 18:00:10
+    TITLE "2020-07-29T21:34:11.222Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10365"
+    INDEX 01 18:00:00
   TRACK 219 AUDIO
-    TITLE "2020-07-29T21:34:15.542Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:7609"
-    INDEX 01 18:04:24
+    TITLE "2020-07-29T21:34:15.398Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:7609"
+    INDEX 01 18:04:13
   TRACK 220 AUDIO
-    TITLE "2020-07-29T21:34:26.038Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 18:14:61
+    TITLE "2020-07-29T21:34:25.910Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 18:14:52
   TRACK 221 AUDIO
-    TITLE "2020-07-29T21:34:27.446Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
-    INDEX 01 18:16:17
+    TITLE "2020-07-29T21:34:27.278Z TO:41 Polk County - West Des Moines Fire Paging FROM:1009"
+    INDEX 01 18:16:04
   TRACK 222 AUDIO
-    TITLE "2020-07-29T21:34:59.638Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
-    INDEX 01 18:48:31
+    TITLE "2020-07-29T21:34:59.462Z TO:175 Polk County - Westcom Fire 1 FROM:1009"
+    INDEX 01 18:48:18
   TRACK 223 AUDIO
-    TITLE "2020-07-29T21:35:30.422Z TO:59908 Warren County Law 1 FROM:9110170"
-    INDEX 01 19:19:15
+    TITLE "2020-07-29T21:35:30.278Z TO:59908 Warren County Law 1 FROM:9110170"
+    INDEX 01 19:19:04
   TRACK 224 AUDIO
-    TITLE "2020-07-29T21:35:32.534Z TO:59908 Warren County Law 1 FROM:9199991"
-    INDEX 01 19:21:23
+    TITLE "2020-07-29T21:35:32.366Z TO:59908 Warren County Law 1 FROM:9199991"
+    INDEX 01 19:21:11
   TRACK 225 AUDIO
-    TITLE "2020-07-29T21:35:33.942Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
-    INDEX 01 19:22:54
+    TITLE "2020-07-29T21:35:33.806Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
+    INDEX 01 19:22:44
   TRACK 226 AUDIO
-    TITLE "2020-07-29T21:35:38.134Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
-    INDEX 01 19:26:68
+    TITLE "2020-07-29T21:35:37.982Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
+    INDEX 01 19:26:57
   TRACK 227 AUDIO
-    TITLE "2020-07-29T21:35:40.246Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14931"
-    INDEX 01 19:29:02
+    TITLE "2020-07-29T21:35:40.070Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14931"
+    INDEX 01 19:28:64
   TRACK 228 AUDIO
-    TITLE "2020-07-29T21:35:43.030Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 19:31:61
+    TITLE "2020-07-29T21:35:42.878Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 19:31:49
   TRACK 229 AUDIO
-    TITLE "2020-07-29T21:35:46.550Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 19:35:25
+    TITLE "2020-07-29T21:35:46.406Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 19:35:14
   TRACK 230 AUDIO
-    TITLE "2020-07-29T21:35:50.742Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10862"
-    INDEX 01 19:39:39
+    TITLE "2020-07-29T21:35:50.582Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10862"
+    INDEX 01 19:39:27
   TRACK 231 AUDIO
-    TITLE "2020-07-29T21:35:54.230Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 19:43:01
+    TITLE "2020-07-29T21:35:54.110Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 19:42:67
   TRACK 232 AUDIO
-    TITLE "2020-07-29T21:35:56.342Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
-    INDEX 01 19:45:09
+    TITLE "2020-07-29T21:35:56.198Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5095"
+    INDEX 01 19:44:73
   TRACK 233 AUDIO
-    TITLE "2020-07-29T21:35:58.422Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:UNKNOWN"
-    INDEX 01 19:47:15
+    TITLE "2020-07-29T21:35:58.286Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:UNKNOWN"
+    INDEX 01 19:47:05
   TRACK 234 AUDIO
-    TITLE "2020-07-29T21:36:00.534Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 19:49:23
+    TITLE "2020-07-29T21:36:00.374Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 19:49:11
   TRACK 235 AUDIO
-    TITLE "2020-07-29T21:36:02.646Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
-    INDEX 01 19:51:32
+    TITLE "2020-07-29T21:36:02.462Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14948"
+    INDEX 01 19:51:18
   TRACK 236 AUDIO
-    TITLE "2020-07-29T21:36:08.950Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
-    INDEX 01 19:57:55
+    TITLE "2020-07-29T21:36:08.798Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:5173"
+    INDEX 01 19:57:43
   TRACK 237 AUDIO
-    TITLE "2020-07-29T21:36:11.734Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
-    INDEX 01 20:00:38
+    TITLE "2020-07-29T21:36:11.606Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:UNKNOWN"
+    INDEX 01 20:00:29
   TRACK 238 AUDIO
-    TITLE "2020-07-29T21:36:13.142Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 20:01:69
+    TITLE "2020-07-29T21:36:12.974Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 20:01:56
   TRACK 239 AUDIO
-    TITLE "2020-07-29T21:36:17.334Z TO:59908 Warren County Law 1 FROM:9110151"
-    INDEX 01 20:06:08
+    TITLE "2020-07-29T21:36:17.150Z TO:59908 Warren County Law 1 FROM:9110151"
+    INDEX 01 20:05:70
   TRACK 240 AUDIO
-    TITLE "2020-07-29T21:36:20.822Z TO:18513 Boone County Incident 5E FROM:800554"
-    INDEX 01 20:09:45
+    TITLE "2020-07-29T21:36:20.678Z TO:18513 Boone County Incident 5E FROM:800554"
+    INDEX 01 20:09:34
   TRACK 241 AUDIO
-    TITLE "2020-07-29T21:36:22.230Z TO:18513 Boone County Incident 5E FROM:800554"
-    INDEX 01 20:11:01
+    TITLE "2020-07-29T21:36:22.046Z TO:18513 Boone County Incident 5E FROM:800554"
+    INDEX 01 20:10:62
   TRACK 242 AUDIO
-    TITLE "2020-07-29T21:36:24.342Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
-    INDEX 01 20:13:09
+    TITLE "2020-07-29T21:36:24.206Z TO:59908 Warren County Law 1 FROM:UNKNOWN"
+    INDEX 01 20:12:74
   TRACK 243 AUDIO
-    TITLE "2020-07-29T21:36:27.126Z TO:59908 Warren County Law 1 FROM:9110110"
-    INDEX 01 20:15:68
+    TITLE "2020-07-29T21:36:26.942Z TO:59908 Warren County Law 1 FROM:9110110"
+    INDEX 01 20:15:54
   TRACK 244 AUDIO
-    TITLE "2020-07-29T21:36:29.238Z TO:59908 Warren County Law 1 FROM:9199990"
-    INDEX 01 20:18:01
+    TITLE "2020-07-29T21:36:29.102Z TO:59908 Warren County Law 1 FROM:9199990"
+    INDEX 01 20:17:66
   TRACK 245 AUDIO
-    TITLE "2020-07-29T21:36:30.646Z TO:48696 Polk County - UnityPoint Health Security FROM:10779039"
-    INDEX 01 20:19:32
+    TITLE "2020-07-29T21:36:30.470Z TO:48696 Polk County - UnityPoint Health Security FROM:10779039"
+    INDEX 01 20:19:19
   TRACK 246 AUDIO
-    TITLE "2020-07-29T21:36:34.134Z TO:59908 Warren County Law 1 FROM:9199990"
-    INDEX 01 20:22:68
+    TITLE "2020-07-29T21:36:33.998Z TO:59908 Warren County Law 1 FROM:9199990"
+    INDEX 01 20:22:58
   TRACK 247 AUDIO
-    TITLE "2020-07-29T21:36:36.246Z TO:48696 Polk County - UnityPoint Health Security FROM:120"
-    INDEX 01 20:25:02
+    TITLE "2020-07-29T21:36:36.086Z TO:48696 Polk County - UnityPoint Health Security FROM:120"
+    INDEX 01 20:24:65
   TRACK 248 AUDIO
-    TITLE "2020-07-29T21:36:38.326Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1381"
-    INDEX 01 20:27:08
+    TITLE "2020-07-29T21:36:38.174Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1381"
+    INDEX 01 20:26:71
   TRACK 249 AUDIO
-    TITLE "2020-07-29T21:36:41.142Z TO:59908 Warren County Law 1 FROM:9110210"
-    INDEX 01 20:29:69
+    TITLE "2020-07-29T21:36:40.982Z TO:59908 Warren County Law 1 FROM:9110210"
+    INDEX 01 20:29:57
   TRACK 250 AUDIO
-    TITLE "2020-07-29T21:36:45.334Z TO:48696 Polk County - UnityPoint Health Security FROM:10779039"
-    INDEX 01 20:34:08
+    TITLE "2020-07-29T21:36:45.158Z TO:48696 Polk County - UnityPoint Health Security FROM:10779039"
+    INDEX 01 20:33:70
   TRACK 251 AUDIO
-    TITLE "2020-07-29T21:36:48.822Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
-    INDEX 01 20:37:45
+    TITLE "2020-07-29T21:36:48.686Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:1004"
+    INDEX 01 20:37:35
   TRACK 252 AUDIO
-    TITLE "2020-07-29T21:36:50.934Z TO:59908 Warren County Law 1 FROM:9199990"
-    INDEX 01 20:39:53
+    TITLE "2020-07-29T21:36:50.774Z TO:59908 Warren County Law 1 FROM:9199990"
+    INDEX 01 20:39:41
   TRACK 253 AUDIO
-    TITLE "2020-07-29T21:36:52.342Z TO:59908 Warren County Law 1 FROM:9110210"
-    INDEX 01 20:41:09
+    TITLE "2020-07-29T21:36:52.214Z TO:59908 Warren County Law 1 FROM:9110210"
+    INDEX 01 20:40:74
   TRACK 254 AUDIO
-    TITLE "2020-07-29T21:36:56.534Z TO:48696 Polk County - UnityPoint Health Security FROM:UNKNOWN"
-    INDEX 01 20:45:23
+    TITLE "2020-07-29T21:36:56.390Z TO:48696 Polk County - UnityPoint Health Security FROM:UNKNOWN"
+    INDEX 01 20:45:13
   TRACK 255 AUDIO
-    TITLE "2020-07-29T21:36:58.646Z TO:59908 Warren County Law 1 FROM:9199990"
-    INDEX 01 20:47:32
+    TITLE "2020-07-29T21:36:58.478Z TO:59908 Warren County Law 1 FROM:9199990"
+    INDEX 01 20:47:19
   TRACK 256 AUDIO
-    TITLE "2020-07-29T21:36:59.350Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
-    INDEX 01 20:48:10
+    TITLE "2020-07-29T21:36:59.198Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1006"
+    INDEX 01 20:47:73
   TRACK 257 AUDIO
-    TITLE "2020-07-29T21:37:01.430Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
-    INDEX 01 20:50:16
+    TITLE "2020-07-29T21:37:01.286Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
+    INDEX 01 20:50:05
   TRACK 258 AUDIO
-    TITLE "2020-07-29T21:37:04.950Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
-    INDEX 01 20:53:55
+    TITLE "2020-07-29T21:37:04.814Z TO:24631 Dallas County Fire/EMS Operations FROM:2520002"
+    INDEX 01 20:53:44
   TRACK 259 AUDIO
-    TITLE "2020-07-29T21:37:08.438Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1362"
-    INDEX 01 20:57:16
+    TITLE "2020-07-29T21:37:08.270Z TO:1102 Polk County - Westcom Law Enforcement 2 FROM:1362"
+    INDEX 01 20:57:04

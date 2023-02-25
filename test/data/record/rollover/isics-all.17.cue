@@ -5,32 +5,32 @@ REM DATE "2020-07-29T21:16:11.222Z"
 TITLE "isics-all"
 FILE "isics-all.mp3" WAVE
   TRACK 1 AUDIO
-    TITLE "2020-07-29T21:28:10.134Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779527"
-    INDEX 01 11:58:68
+    TITLE "2020-07-29T21:28:09.926Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779527"
+    INDEX 01 11:58:53
   TRACK 2 AUDIO
-    TITLE "2020-07-29T21:28:12.950Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14928"
-    INDEX 01 12:01:55
+    TITLE "2020-07-29T21:28:12.806Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14928"
+    INDEX 01 12:01:44
   TRACK 3 AUDIO
-    TITLE "2020-07-29T21:28:16.438Z TO:24660 Dallas County Woodward Fire Dispatch FROM:UNKNOWN"
-    INDEX 01 12:05:16
+    TITLE "2020-07-29T21:28:16.262Z TO:24660 Dallas County Woodward Fire Dispatch FROM:UNKNOWN"
+    INDEX 01 12:05:03
   TRACK 4 AUDIO
-    TITLE "2020-07-29T21:28:19.222Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779504"
-    INDEX 01 12:08:00
+    TITLE "2020-07-29T21:28:19.070Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779504"
+    INDEX 01 12:07:64
   TRACK 5 AUDIO
-    TITLE "2020-07-29T21:28:21.334Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14928"
-    INDEX 01 12:10:08
+    TITLE "2020-07-29T21:28:21.158Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14928"
+    INDEX 01 12:09:70
   TRACK 6 AUDIO
-    TITLE "2020-07-29T21:28:24.822Z TO:P:24605 [14002] Dallas County Law 1, Region 4 Interoperability Tac 42 FROM:11498"
-    INDEX 01 12:13:45
+    TITLE "2020-07-29T21:28:24.614Z TO:P:24605 [14002] Dallas County Law 1, Region 4 Interoperability Tac 42 FROM:11498"
+    INDEX 01 12:13:29
   TRACK 7 AUDIO
-    TITLE "2020-07-29T21:28:33.238Z TO:5105 Department of Public Safety - Area B Law 5B - DPS District #5 + #6 FROM:10971"
-    INDEX 01 12:22:01
+    TITLE "2020-07-29T21:28:33.038Z TO:5105 Department of Public Safety - Area B Law 5B - DPS District #5 + #6 FROM:10971"
+    INDEX 01 12:21:61
   TRACK 8 AUDIO
-    TITLE "2020-07-29T21:28:35.350Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779527"
-    INDEX 01 12:24:10
+    TITLE "2020-07-29T21:28:35.198Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779527"
+    INDEX 01 12:23:73
   TRACK 9 AUDIO
-    TITLE "2020-07-29T21:28:38.134Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779504"
-    INDEX 01 12:26:68
+    TITLE "2020-07-29T21:28:37.934Z TO:52200 Mercy ONE Iowa Ground Dispatch FROM:10779504"
+    INDEX 01 12:26:53
   TRACK 10 AUDIO
     TITLE "END"
-    INDEX 01 12:28:24
+    INDEX 01 12:28:11

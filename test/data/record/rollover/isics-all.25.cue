@@ -5,32 +5,32 @@ REM DATE "2020-07-29T21:16:11.222Z"
 TITLE "isics-all"
 FILE "isics-all.mp3" WAVE
   TRACK 1 AUDIO
-    TITLE "2020-07-29T21:32:31.222Z TO:24605 Dallas County Law 1 FROM:2559984"
-    INDEX 01 16:20:00
+    TITLE "2020-07-29T21:32:31.070Z TO:24605 Dallas County Law 1 FROM:2559984"
+    INDEX 01 16:19:64
   TRACK 2 AUDIO
-    TITLE "2020-07-29T21:32:32.630Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
-    INDEX 01 16:21:31
+    TITLE "2020-07-29T21:32:32.438Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14950"
+    INDEX 01 16:21:16
   TRACK 3 AUDIO
-    TITLE "2020-07-29T21:32:35.446Z TO:24605 Dallas County Law 1 FROM:UNKNOWN"
-    INDEX 01 16:24:17
+    TITLE "2020-07-29T21:32:35.246Z TO:24605 Dallas County Law 1 FROM:UNKNOWN"
+    INDEX 01 16:24:02
   TRACK 4 AUDIO
-    TITLE "2020-07-29T21:32:39.638Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:11498"
-    INDEX 01 16:28:31
+    TITLE "2020-07-29T21:32:39.494Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:11498"
+    INDEX 01 16:28:20
   TRACK 5 AUDIO
-    TITLE "2020-07-29T21:32:50.838Z TO:24605 Dallas County Law 1 FROM:2500048"
-    INDEX 01 16:39:46
+    TITLE "2020-07-29T21:32:50.654Z TO:24605 Dallas County Law 1 FROM:2500048"
+    INDEX 01 16:39:32
   TRACK 6 AUDIO
-    TITLE "2020-07-29T21:32:52.246Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
-    INDEX 01 16:41:02
+    TITLE "2020-07-29T21:32:52.094Z TO:5002 Department of Public Safety - Area A Law 2A - DPS District #1 FROM:10984"
+    INDEX 01 16:40:65
   TRACK 7 AUDIO
-    TITLE "2020-07-29T21:32:55.030Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 16:43:61
+    TITLE "2020-07-29T21:32:54.830Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 16:43:46
   TRACK 8 AUDIO
-    TITLE "2020-07-29T21:32:59.222Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 16:48:00
+    TITLE "2020-07-29T21:32:59.078Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 16:47:64
   TRACK 9 AUDIO
-    TITLE "2020-07-29T21:33:01.334Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:8633"
-    INDEX 01 16:50:08
+    TITLE "2020-07-29T21:33:01.166Z TO:1101 Polk County - Westcom Law Enforcement 1 FROM:8633"
+    INDEX 01 16:49:71
   TRACK 10 AUDIO
     TITLE "END"
-    INDEX 01 16:52:17
+    INDEX 01 16:52:02
