@@ -82,9 +82,11 @@ const constructIcecastMetadataReaders = (args, recorder) => {
 const signalHandler = (signal) => {
   console.log(`Received ${signal}. Cleaning up and exiting`);
 
-  recorderInstances.forEach((recorder) => recorder.stop());
-
-  process.exit(0);
+  Promise.allSettled(recorderInstances.map((recorder) => recorder.stop())).then(
+    () => {
+      process.exit(0);
+    }
+  );
 };
 
 const errorHandler = () => {
