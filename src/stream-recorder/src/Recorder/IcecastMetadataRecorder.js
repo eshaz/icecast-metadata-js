@@ -24,7 +24,7 @@ import CueWriter from "./CueWriter.js";
 
 /**
  * @description Records an Icecast Stream with Metadata into an audio file and a cue file
- * @description Icecast server must return a constant bitrate in the icyBr header
+ * @description Icecast server must return a Content-Type header
  * @param {Object} IcecastMetadataRecorder constructor parameter
  * @param {string} IcecastMetadataRecorder.output Filename to store audio and cue files
  * @param {string} IcecastMetadataRecorder.name Title of cue file
@@ -41,13 +41,13 @@ export default class IcecastMetadataRecorder {
     dateEntries,
     cueRollover,
     metadataInterval,
-    bitrate,
+    contentType,
     fetch,
   }) {
     this._fileName = output;
     this._endpoint = endpoint;
     this._metadataInterval = metadataInterval;
-    this._bitrate = bitrate;
+    this._contentType = contentType;
     this._fetch = fetch;
 
     this._cueWriterParams = {
@@ -80,7 +80,7 @@ export default class IcecastMetadataRecorder {
     const icecastParams = {
       icyMetaInt:
         this._metadataInterval || parseInt(this._icyHeaders["metaint"]),
-      mimeType: headers.get("content-type"),
+      mimeType: this._contentType || headers.get("content-type"),
     };
 
     if (!icecastParams.icyMetaInt) {

@@ -90,7 +90,7 @@ const getArgs = () =>
           assertType(stream, "archive-interval", "string");
           assertType(stream, "archive-path", "string");
           assertType(stream, "metadata-interval", "number");
-          assertType(stream, "bitrate", "number");
+          assertType(stream, "content-type", "string");
           assertCronString(stream, "archive-interval");
         });
       } else {
@@ -103,7 +103,7 @@ const getArgs = () =>
         assertType(yarg, "name", "string");
         assertType(yarg, "endpoint", "string");
         assertType(yarg, "metadata-interval", "number");
-        assertType(yarg, "bitrate", "number");
+        assertType(yarg, "content-type", "string");
       }
 
       // assert global options
@@ -238,12 +238,12 @@ const getArgs = () =>
         default: 0,
         requiresArg: true,
       },
-      bitrate: {
-        alias: "b",
+      "content-type": {
+        alias: "c",
         describe:
-          "Manually specify the stream bitrate. Only use when server does not not respond with `Icy-Br`",
-        type: "number",
-        default: 0,
+          "Manually specify the stream content type. Only use when server does not not respond with `Content-Type`",
+        type: "string",
+        default: "",
         requiresArg: true,
       },
       "--version": {
@@ -256,7 +256,7 @@ const getArgs = () =>
       "Cue Options:"
     )
     .group(["config", "streams", "output-path"], "JSON Options:")
-    .group(["metadata-interval", "bitrate"], "Advanced Options:")
+    .group(["metadata-interval", "content-type"], "Advanced Options:")
     .epilog(
       "For more information, see https://github.com/eshaz/icecast-metadata-js"
     )

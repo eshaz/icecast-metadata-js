@@ -38,7 +38,7 @@ const getIcecastMetadataArchiveRecorder = (params) =>
     prependDate: params["prepend-date"],
     dateEntries: params["date-entries"],
     metadataInterval: params["metadata-interval"],
-    bitrate: params["bitrate"],
+    contentType: params["content-type"],
     output: path.join(
       path.isAbsolute(params.output)
         ? ""
@@ -56,7 +56,7 @@ const getIcecastMetadataRecorder = (params) =>
     prependDate: params["prepend-date"],
     dateEntries: params["date-entries"],
     metadataInterval: params["metadata-interval"],
-    bitrate: params["bitrate"],
+    contentType: params["content-type"],
     output: path.join(
       path.isAbsolute(params.output)
         ? ""
