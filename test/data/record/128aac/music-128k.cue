@@ -19,4 +19,4 @@ FILE "music-128k.aac" WAVE
     REM DATE "2020-07-29T21:17Z"
     REM STREAMURL "http://somafm.com/logos/512/deepspaceone512.png"
     TITLE "SinQ - Rain"
-    INDEX 01 01:19:00
+    INDEX 01 01:18:71

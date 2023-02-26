@@ -16,20 +16,54 @@
 */
 
 import { Writable, PassThrough } from "stream";
+import CodecParser from "codec-parser";
+
 import IcecastMetadataReader from "./IcecastMetadataReader.js";
 
 export default class IcecastMetadataStream extends Writable {
   /**
    * @description NodeJS streams wrapper for IcecastMetadataReader
    * @param {object} IcecastMetadataStream constructor parameter
+   * @param {number} IcecastMetadataStream.mimeType Mimetype pulled from the `Content-Type` header of the Icecast stream (i.e. `audio/mpeg` or `application/ogg`)
    * @param {number} IcecastMetadataStream.icyMetaInt Interval in bytes of metadata updates returned by the Icecast server
    * @param {number} IcecastMetadataStream.icyBr Bitrate of audio stream used to increase accuracy when updating metadata
    * @param {number} IcecastMetadataStream.icyDetectionTimeout Duration in milliseconds to search for metadata if icyMetaInt isn't passed in
    * @param {number} IcecastMetadataStream.metadataTypes Types of metadata to capture: "icy" and/or "ogg"
    */
-  constructor({ icyBr, ...rest }) {
+  constructor({ icyBr, mimeType, ...rest }) {
     super();
+    this._mimeType = mimeType;
     this._icyBr = icyBr;
+
+    if (this._mimeType) {
+      this._codecParser = new CodecParser(mimeType, {
+        enableFrameCRC32: false,
+      });
+
+      this._currentDuration = 0;
+
+      this._handleStream = ({ stream }) => {
+        const frames = [...this._codecParser.parseChunk(stream)];
+
+        this._currentDuration = frames.length
+          ? frames[frames.length - 1].totalDuration / 1000
+          : this._currentDuration;
+
+        this._stream.push(stream);
+      };
+
+      this._getDuration = () => this._currentDuration;
+    } else {
+      this._handleStream = ({ stream }) => {
+        this._stream.push(stream);
+      };
+
+      if (this._icyBr) {
+        this._getDuration = () => this._streamBytesRead / (this._icyBr * 125);
+      } else {
+        this._getDuration = () => 0;
+      }
+    }
 
     this._stream = new PassThrough();
     this._metadata = new PassThrough({ objectMode: true });
@@ -55,14 +89,12 @@ export default class IcecastMetadataStream extends Writable {
     return this._metadata;
   }
 
-  _handleStream({ stream }) {
-    this._stream.push(stream);
-  }
-
   _handleMetadata({ metadata, stats: { streamBytesRead } }) {
+    this._streamBytesRead = streamBytesRead;
+
     this._metadata.push({
       metadata,
-      time: streamBytesRead / (this._icyBr * 125),
+      time: this._getDuration(),
     });
   }
 

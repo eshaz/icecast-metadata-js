@@ -5,32 +5,32 @@ REM DATE "2020-07-29T21:16:11.222Z"
 TITLE "isics-all"
 FILE "isics-all.mp3" WAVE
   TRACK 1 AUDIO
-    TITLE "2020-07-29T21:33:29.334Z TO:24631 Dallas County Fire/EMS Operations FROM:2520301"
-    INDEX 01 17:18:08
+    TITLE "2020-07-29T21:33:29.174Z TO:24631 Dallas County Fire/EMS Operations FROM:2520301"
+    INDEX 01 17:17:71
   TRACK 2 AUDIO
-    TITLE "2020-07-29T21:33:34.934Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
-    INDEX 01 17:23:53
+    TITLE "2020-07-29T21:33:34.790Z TO:24631 Dallas County Fire/EMS Operations FROM:2559981"
+    INDEX 01 17:23:43
   TRACK 3 AUDIO
-    TITLE "2020-07-29T21:33:37.046Z TO:91 Polk County - West Des Moines EMS FROM:123"
-    INDEX 01 17:25:62
+    TITLE "2020-07-29T21:33:36.878Z TO:91 Polk County - West Des Moines EMS FROM:123"
+    INDEX 01 17:25:49
   TRACK 4 AUDIO
-    TITLE "2020-07-29T21:33:39.126Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 17:27:68
+    TITLE "2020-07-29T21:33:38.966Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 17:27:56
   TRACK 5 AUDIO
-    TITLE "2020-07-29T21:33:43.350Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14928"
-    INDEX 01 17:32:10
+    TITLE "2020-07-29T21:33:43.142Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14928"
+    INDEX 01 17:31:69
   TRACK 6 AUDIO
-    TITLE "2020-07-29T21:33:53.142Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
-    INDEX 01 17:41:69
+    TITLE "2020-07-29T21:33:52.934Z TO:7300 Department of Transportation - District 1 Highway Helper - Des Moines Area FROM:14966"
+    INDEX 01 17:41:53
   TRACK 7 AUDIO
-    TITLE "2020-07-29T21:33:55.222Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10862"
-    INDEX 01 17:44:00
+    TITLE "2020-07-29T21:33:55.022Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:10862"
+    INDEX 01 17:43:60
   TRACK 8 AUDIO
-    TITLE "2020-07-29T21:33:58.742Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:UNKNOWN"
-    INDEX 01 17:47:39
+    TITLE "2020-07-29T21:33:58.550Z TO:5013 Department of Public Safety - Area A P16Call 13A - Capital Police FROM:UNKNOWN"
+    INDEX 01 17:47:25
   TRACK 9 AUDIO
-    TITLE "2020-07-29T21:34:00.822Z TO:24605 Dallas County Law 1 FROM:UNKNOWN"
-    INDEX 01 17:49:45
+    TITLE "2020-07-29T21:34:00.638Z TO:24605 Dallas County Law 1 FROM:UNKNOWN"
+    INDEX 01 17:49:31
   TRACK 10 AUDIO
     TITLE "END"
-    INDEX 01 17:53:09
+    INDEX 01 17:52:71

@@ -38,7 +38,7 @@ const getIcecastMetadataArchiveRecorder = (params) =>
     prependDate: params["prepend-date"],
     dateEntries: params["date-entries"],
     metadataInterval: params["metadata-interval"],
-    bitrate: params["bitrate"],
+    contentType: params["content-type"],
     output: path.join(
       path.isAbsolute(params.output)
         ? ""
@@ -56,7 +56,7 @@ const getIcecastMetadataRecorder = (params) =>
     prependDate: params["prepend-date"],
     dateEntries: params["date-entries"],
     metadataInterval: params["metadata-interval"],
-    bitrate: params["bitrate"],
+    contentType: params["content-type"],
     output: path.join(
       path.isAbsolute(params.output)
         ? ""
@@ -82,9 +82,11 @@ const constructIcecastMetadataReaders = (args, recorder) => {
 const signalHandler = (signal) => {
   console.log(`Received ${signal}. Cleaning up and exiting`);
 
-  recorderInstances.forEach((recorder) => recorder.stop());
-
-  process.exit(0);
+  Promise.allSettled(recorderInstances.map((recorder) => recorder.stop())).then(
+    () => {
+      process.exit(0);
+    }
+  );
 };
 
 const errorHandler = () => {
