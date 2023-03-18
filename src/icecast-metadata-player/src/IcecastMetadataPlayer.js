@@ -69,8 +69,8 @@ const events = Symbol();
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
 const onPlayReady = Symbol();
-const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
+const onAudioError = Symbol();
 
 const stopPlayback = Symbol();
 const endPlayback = Symbol();
@@ -172,6 +172,15 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.ERROR]: (...messages) => {
           this[logError](console.error, options.onError, messages);
         },
+        [event.PLAYBACK_ERROR]: (...messages) => {
+          if (this.state !== state.RETRYING) {
+            this[fireEvent](event.ERROR, ...messages);
+
+            this.stop();
+          } else {
+            p.get(this)[endPlayback]();
+          }
+        },
       },
       // variables
       [endPlayback]: () => {
@@ -212,18 +221,12 @@ export default class IcecastMetadataPlayer extends EventClass {
 
         const error = e?.target?.error || e;
 
-        if (this.state !== state.RETRYING) {
-          this[fireEvent](
-            event.ERROR,
-            "The audio element encountered an error." +
-              (errors[error?.code] || ""),
-            error
-          );
-
-          this.stop();
-        } else {
-          p.get(this)[endPlayback]();
-        }
+        this[fireEvent](
+          event.PLAYBACK_ERROR,
+          e,
+          "The audio element encountered an error." +
+            (errors[error?.code] || "")
+        );
       },
       [onPlayReady]: () => {
         const audio = p.get(this)[audioElement];
@@ -240,7 +243,7 @@ export default class IcecastMetadataPlayer extends EventClass {
               this[playerState] = state.PLAYING;
             })
             .catch((e) => {
-              p.get(this)[onAudioError](e);
+              this[fireEvent](event.PLAYBACK_ERROR, e, "Playback failed.");
             });
         }
       },

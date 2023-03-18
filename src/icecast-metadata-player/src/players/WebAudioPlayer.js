@@ -1,7 +1,3 @@
-import { OpusDecoderWebWorker } from "opus-decoder";
-import { MPEGDecoderWebWorker } from "mpg123-decoder";
-import { FLACDecoderWebWorker } from "@wasm-audio-decoders/flac";
-
 import {
   audioContext,
   event,
@@ -20,7 +16,6 @@ export default class WebAudioPlayer extends Player {
 
     this._audioContext = icecast[audioContext];
 
-    this._createDecoder();
     this._init();
   }
 
@@ -106,17 +101,46 @@ export default class WebAudioPlayer extends Player {
     this._notifyWaiting();
   }
 
-  _createDecoder() {
-    switch (this._codec) {
-      case "mpeg":
-        this._wasmDecoder = new MPEGDecoderWebWorker();
-        break;
-      case "opus":
-        this._wasmDecoder = new OpusDecoderWebWorker();
-        break;
-      case "flac":
-        this._wasmDecoder = new FLACDecoderWebWorker();
-        break;
+  async _createDecoder() {
+    let DecoderClass;
+
+    try {
+      switch (this._codec) {
+        case "mpeg":
+          const { MPEGDecoderWebWorker } = await import(
+            /* webpackChunkName: "webaudio-mpeg" */ "mpg123-decoder"
+          );
+          DecoderClass = MPEGDecoderWebWorker;
+          break;
+        case "opus":
+          const { OpusDecoderWebWorker } = await import(
+            /* webpackChunkName: "webaudio-opus" */ "opus-decoder"
+          );
+          DecoderClass = OpusDecoderWebWorker;
+          break;
+        case "flac":
+          const { FLACDecoderWebWorker } = await import(
+            /* webpackChunkName: "webaudio-flac" */ "@wasm-audio-decoders/flac"
+          );
+          DecoderClass = FLACDecoderWebWorker;
+          break;
+      }
+    } catch (e) {
+      this._icecast[fireEvent](
+        event.PLAYBACK_ERROR,
+        `Missing \`webaudio-${this._codec}\` dependency.`,
+        `Unable to playback playback ${this._codec} audio.`
+      );
+      return;
+    }
+
+    if (DecoderClass) {
+      this._wasmDecoder = new DecoderClass();
+    } else {
+      this._icecast[fireEvent](
+        event.PLAYBACK_ERROR,
+        "Unsupported `webaudio` playback codec: " + this._codec
+      );
     }
   }
 
@@ -138,7 +162,7 @@ export default class WebAudioPlayer extends Player {
   }
 
   async start(metadataOffset) {
-    if (!this._wasmDecoder) this._createDecoder();
+    if (!this._wasmDecoder) await this._createDecoder();
 
     const playing = super.start(metadataOffset);
     this._playStart();
