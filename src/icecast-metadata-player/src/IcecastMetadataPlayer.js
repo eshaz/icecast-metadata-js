@@ -69,8 +69,8 @@ const events = Symbol();
 const onAudioPause = Symbol();
 const onAudioPlay = Symbol();
 const onPlayReady = Symbol();
-const onAudioWaiting = Symbol();
 const onAudioError = Symbol();
+const onAudioWaiting = Symbol();
 
 const stopPlayback = Symbol();
 const endPlayback = Symbol();
