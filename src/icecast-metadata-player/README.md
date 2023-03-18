@@ -75,14 +75,23 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.14.4.min.js" download>latest build</a>.
-2. Include the file in a `<script>` tag in your html.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/">*.js files</a> for the latest build. This build is split into multiple files so your browser will download functionality as needed.
+   * **All `*.js` files must be present in the same path on your server.**
+   * You may optionally include the `*.js.map` source map files for debugging.
+     | Filename |Functionality |
+     | - | - |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.14.3-main.min.js" download>`icecast-metadata-player-1.14.3-main.min.js`</a> | Core functionality (playback, metadata) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.14.3-synaudio.min.js" download>`icecast-metadata-player-1.14.3-synaudio.min.js`</a> | Gapless playback support |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.14.3-mpeg.min.js" download>`icecast-metadata-player-1.14.3-mpeg.min.js`</a> | MPEG playback support (webaudio) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.14.3-flac.min.js" download>`icecast-metadata-player-1.14.3-flac.min.js`</a> | FLAC playback support (webaudio) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.14.3-opus.min.js" download>`icecast-metadata-player-1.14.3-opus.min.js`</a> | Opus playback support (webaudio) |
+2. Add the `icecast-metadata-player-1.14.3-main.min.js` file in a `<script>` tag in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```html
-   <script src="icecast-metadata-player-1.14.4.min.js"></script>
+   <script src="icecast-metadata-player-1.14.3-main.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;

@@ -108,19 +108,19 @@ export default class WebAudioPlayer extends Player {
       switch (this._codec) {
         case "mpeg":
           const { MPEGDecoderWebWorker } = await import(
-            /* webpackChunkName: "webaudio-mpeg" */ "mpg123-decoder"
+            /* webpackChunkName: "mpeg" */ "mpg123-decoder"
           );
           DecoderClass = MPEGDecoderWebWorker;
           break;
         case "opus":
           const { OpusDecoderWebWorker } = await import(
-            /* webpackChunkName: "webaudio-opus" */ "opus-decoder"
+            /* webpackChunkName: "opus" */ "opus-decoder"
           );
           DecoderClass = OpusDecoderWebWorker;
           break;
         case "flac":
           const { FLACDecoderWebWorker } = await import(
-            /* webpackChunkName: "webaudio-flac" */ "@wasm-audio-decoders/flac"
+            /* webpackChunkName: "flac" */ "@wasm-audio-decoders/flac"
           );
           DecoderClass = FLACDecoderWebWorker;
           break;
