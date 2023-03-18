@@ -31,7 +31,7 @@ export default {
   entry: "/src/IcecastMetadataPlayer.js",
   output: {
     path: new URL("build", import.meta.url).pathname,
-    filename: `${packageJson.name}-${packageJson.version}-[name].min.js`,
+    filename: `${packageJson.name}-${packageJson.version}.[name].min.js`,
     library: "IcecastMetadataPlayer",
     libraryExport: "default",
     libraryTarget: "var",
