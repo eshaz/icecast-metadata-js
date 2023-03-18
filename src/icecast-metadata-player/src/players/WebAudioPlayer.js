@@ -178,9 +178,7 @@ export default class WebAudioPlayer extends Player {
     super.end();
 
     if (this._wasmDecoder) {
-      const decoder = this._wasmDecoder;
-      decoder.ready.then(() => decoder.free());
-
+      this._wasmDecoder.terminate();
       this._wasmDecoder = null;
     }
 
