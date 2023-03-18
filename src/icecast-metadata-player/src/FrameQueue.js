@@ -1,5 +1,3 @@
-import SynAudio from "synaudio";
-
 import {
   audioContext,
   concatBuffers,
@@ -253,6 +251,21 @@ export default class FrameQueue {
       const samplesToDuration = (samples, rate) => samples / rate;
 
       if (!this._synAudioResult) {
+        let SynAudio;
+        try {
+          SynAudio = await import(
+            /* webpackChunkName: "synaudio" */ "synaudio"
+          );
+        } catch (e) {
+          this._icecast[fireEvent](
+            event.WARN,
+            "Failed to synchronize old and new stream",
+            "Missing `synaudio` dependency."
+          );
+
+          return;
+        }
+
         const [pcmQueueDecoded, syncQueueDecoded, sampleRate] =
           await this._decodeQueues();
 
