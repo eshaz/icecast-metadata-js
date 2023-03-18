@@ -104,6 +104,10 @@ export default class WebAudioPlayer extends Player {
   async _createDecoder() {
     let DecoderClass;
 
+    this._loadingDecoder = new Promise((resolve) => {
+      this._decoderLoaded = resolve;
+    });
+
     try {
       switch (this._codec) {
         case "mpeg":
@@ -135,6 +139,7 @@ export default class WebAudioPlayer extends Player {
     }
 
     if (DecoderClass) {
+      this._decoderLoaded();
       this._wasmDecoder = new DecoderClass();
     } else {
       this._icecast[fireEvent](
@@ -219,6 +224,7 @@ export default class WebAudioPlayer extends Player {
   }
 
   async _decode(frames) {
+    await this._loadingDecoder;
     await this._wasmDecoder.ready;
 
     if (this._wasmDecoder)
