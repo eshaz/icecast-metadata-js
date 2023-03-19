@@ -84,6 +84,7 @@ export default class MediaSourcePlayer extends Player {
 
     this._sourceBufferQueue = [];
     this._playReady = false;
+    this._processingLastPage = false;
 
     this._mediaSourcePromise = this._prepareMediaSource(
       this._inputMimeType,
@@ -106,7 +107,14 @@ export default class MediaSourcePlayer extends Player {
   }
 
   async onStream(frames) {
-    frames = frames.flatMap((frame) => frame.codecFrames || frame);
+    frames = frames.flatMap((frame) =>
+      frame.codecFrames
+        ? frame.codecFrames.map((codecFrame) => {
+            codecFrame.isLastPage = frame.isLastPage;
+            return codecFrame;
+          })
+        : frame
+    );
 
     if (frames.length) {
       switch (this.syncState) {
@@ -143,27 +151,47 @@ export default class MediaSourcePlayer extends Player {
       return async (frames) =>
         this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
     } else {
-      // wrap the audio into fragments before passing to MSE
-      const wrapper = new MSEAudioWrapper(inputMimeType, {
-        codec,
-      });
-
-      if (!MediaSource.isTypeSupported(wrapper.mimeType)) {
-        this._icecast[fireEvent](
-          event.ERROR,
-          `Media Source Extensions API in your browser does not support ${inputMimeType} or ${wrapper.mimeType}.` +
-            "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-        );
-        throw new Error(`Unsupported Media Source Codec ${wrapper.mimeType}`);
-      }
-
-      await this._createMediaSource(wrapper.mimeType);
+      this._createMSEWrapper(inputMimeType, codec);
+      await this._createMediaSource(this._wrapper.mimeType);
 
       return async (codecFrames) => {
-        const fragments = concatBuffers([...wrapper.iterator(codecFrames)]);
+        let fragments = [];
 
-        await this._appendSourceBuffer(fragments);
+        for (const frame of codecFrames) {
+          // handle new setup packet for continuous chain ogg vorbis streams
+          if (this._processingLastPage !== frame.isLastPage) {
+            if (frame.isLastPage) {
+              this._processingLastPage = true;
+            } else {
+              await this._appendSourceBuffer(concatBuffers(fragments));
+              fragments = [];
+
+              this._createMSEWrapper(inputMimeType, codec);
+
+              this._processingLastPage = false;
+            }
+          }
+
+          fragments.push(...this._wrapper.iterator([frame]));
+        }
+
+        await this._appendSourceBuffer(concatBuffers(fragments));
       };
+    }
+  }
+
+  async _createMSEWrapper(inputMimeType, codec) {
+    // wrap the audio into fragments before passing to MSE
+    this._wrapper = new MSEAudioWrapper(inputMimeType, {
+      codec,
+    });
+
+    if (!MediaSource.isTypeSupported(this._wrapper.mimeType)) {
+      this._icecast[fireEvent](
+        event.PLAYBACK_ERROR,
+        `Media Source Extensions API in your browser does not support ${inputMimeType} or ${this._wrapper.mimeType}.` +
+          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+      );
     }
   }
 

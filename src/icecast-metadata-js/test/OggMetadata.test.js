@@ -1,4 +1,4 @@
-import fs from "fs/promises";
+import fs from "fs";
 import { jest } from "@jest/globals";
 import { IcecastMetadataReader } from "icecast-metadata-js";
 import { readChunk, readChunks, concatAudio } from "./utils";
@@ -58,6 +58,46 @@ const expectedVorbisMetadata = [
       metadataLengthBytesRead: 0,
       metadataBytesRead: 455,
       currentMetadataBytesRemaining: 0,
+    },
+  },
+];
+
+const expectedVorbisChainedMetadata = [
+  {
+    metadata: {
+      ALBUM: "Wendolins Monocle",
+      ARTIST: "Owls",
+      DATE: "2022",
+      TITLE: "The Fisherman and his Soul",
+      VENDOR_STRING: "Xiph.Org libVorbis I 20200704 (Reducing Environment)",
+    },
+    stats: {
+      currentBytesRemaining: undefined,
+      currentMetadataBytesRemaining: 0,
+      currentStreamBytesRemaining: undefined,
+      metadataBytesRead: 151,
+      metadataLengthBytesRead: 0,
+      streamBytesRead: 261,
+      totalBytesRead: 261,
+    },
+  },
+  {
+    metadata: {
+      ALBUM: "Women",
+      ARTIST: "Christian Havel & Erwin Schmidt",
+      DATE: "2019",
+      GENRE: "Jazz",
+      TITLE: "Norwegian Wood",
+      VENDOR_STRING: "Xiph.Org libVorbis I 20200704 (Reducing Environment)",
+    },
+    stats: {
+      currentBytesRemaining: undefined,
+      currentMetadataBytesRemaining: 0,
+      currentStreamBytesRemaining: undefined,
+      metadataBytesRead: 319,
+      metadataLengthBytesRead: 0,
+      streamBytesRead: 2939105,
+      totalBytesRead: 2939105,
     },
   },
 ];
@@ -400,31 +440,23 @@ const expectedIcyFlacMetadata = [
   },
 ];
 
+const rawIcyFlac = fs.readFileSync(
+  "../../test/data/record/ogg/icy-flac.ogg.raw"
+);
+const icyFlac = fs.readFileSync("../../test/data/record/ogg/icy-flac.ogg");
+const oggFlac = fs.readFileSync("../../test/data/record/ogg/ogg-flac.ogg");
+const oggFlacContinuedPages = fs.readFileSync(
+  "../../test/data/record/ogg/ogg-flac-continued-pages.ogg"
+);
+const oggOpus = fs.readFileSync("../../test/data/record/ogg/opus.ogg");
+const oggVorbis = fs.readFileSync("../../test/data/record/ogg/vorbis.ogg");
+const oggVorbisChained = fs.readFileSync(
+  "../../test/data/record/ogg/vorbis.chained.ogg"
+);
+
+const flacMetaInt = 524288;
+
 describe("OGG Metadata Parsing", () => {
-  let rawIcyFlac,
-    icyFlac,
-    oggFlac,
-    oggFlacContinuedPages,
-    oggOpus,
-    oggVorbis,
-    mockOnMetadataUpdate;
-
-  const flacMetaInt = 524288;
-
-  beforeAll(async () => {
-    [rawIcyFlac, icyFlac, oggFlac, oggFlacContinuedPages, oggOpus, oggVorbis] =
-      await Promise.all([
-        fs.readFile("../../test/data/record/ogg/icy-flac.ogg.raw"),
-        fs.readFile("../../test/data/record/ogg/icy-flac.ogg"),
-        fs.readFile("../../test/data/record/ogg/ogg-flac.ogg"),
-        fs.readFile("../../test/data/record/ogg/ogg-flac-continued-pages.ogg"),
-        fs.readFile("../../test/data/record/ogg/opus.ogg"),
-        fs.readFile("../../test/data/record/ogg/vorbis.ogg"),
-      ]);
-
-    mockOnMetadataUpdate = jest.fn();
-  });
-
   const getMetadata = (metadata) =>
     metadata.map((meta) => ({
       ...meta,
@@ -435,54 +467,89 @@ describe("OGG Metadata Parsing", () => {
       },
     }));
 
+  const test_ReadingChunks = (
+    testName,
+    testData,
+    metadataTypes,
+    expectedMetadata
+  ) => {
+    it(
+      testName +
+        " should return the correct audio and metadata given it is read in chunks of size 10000",
+      () => {
+        const reader = new IcecastMetadataReader({ metadataTypes });
+
+        const returnedValues = readChunks(reader, testData, 10000);
+        const returnedMetadata = getMetadata(returnedValues.metadata);
+        const returnedAudio = concatAudio([returnedValues]);
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+        expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
+      }
+    );
+
+    it(
+      testName +
+        " should return the correct audio and metadata given it is read in chunks of size 4000",
+      () => {
+        const reader = new IcecastMetadataReader({ metadataTypes });
+
+        const returnedValues = readChunks(reader, testData, 4000);
+        const returnedMetadata = getMetadata(returnedValues.metadata);
+        const returnedAudio = concatAudio([returnedValues]);
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+        expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
+      }
+    );
+
+    it(
+      testName +
+        " should return the correct audio and metadata given it is read in chunks of size 10",
+      () => {
+        const reader = new IcecastMetadataReader({ metadataTypes });
+
+        const returnedValues = readChunks(reader, testData, 10);
+        const returnedMetadata = getMetadata(returnedValues.metadata);
+        const returnedAudio = concatAudio([returnedValues]);
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+        expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
+      }
+    );
+
+    it(
+      testName +
+        " should return the correct audio given it is read in chunks of random size",
+      () => {
+        const reader = new IcecastMetadataReader({ metadataTypes });
+
+        const returnedValues = readChunks(
+          reader,
+          testData,
+          Math.floor(Math.random() * 30000)
+        );
+        const returnedMetadata = getMetadata(returnedValues.metadata);
+        const returnedAudio = concatAudio([returnedValues]);
+
+        expect(returnedMetadata).toEqual(expectedMetadata);
+        expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
+      }
+    );
+  };
+
   describe("Reading chunks", () => {
-    it("should return the correct audio and metadata given it is read in chunks of size 10000", () => {
-      const reader = new IcecastMetadataReader({ metadataTypes: ["ogg"] });
-
-      const returnedValues = readChunks(reader, oggVorbis, 10000);
-      const returnedMetadata = getMetadata(returnedValues.metadata);
-      const returnedAudio = concatAudio([returnedValues]);
-
-      expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
-    });
-
-    it("should return the correct audio and metadata given it is read in chunks of size 4000", () => {
-      const reader = new IcecastMetadataReader({ metadataTypes: ["ogg"] });
-
-      const returnedValues = readChunks(reader, oggVorbis, 4000);
-      const returnedMetadata = getMetadata(returnedValues.metadata);
-      const returnedAudio = concatAudio([returnedValues]);
-
-      expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
-    });
-
-    it("should return the correct audio and metadata given it is read in chunks of size 10", () => {
-      const reader = new IcecastMetadataReader({ metadataTypes: ["ogg"] });
-
-      const returnedValues = readChunks(reader, oggVorbis, 10);
-      const returnedMetadata = getMetadata(returnedValues.metadata);
-      const returnedAudio = concatAudio([returnedValues]);
-
-      expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
-    });
-
-    it("should return the correct audio given it is read in chunks of random size", () => {
-      const reader = new IcecastMetadataReader({ metadataTypes: ["ogg"] });
-
-      const returnedValues = readChunks(
-        reader,
-        oggVorbis,
-        Math.floor(Math.random() * 30000)
-      );
-      const returnedMetadata = getMetadata(returnedValues.metadata);
-      const returnedAudio = concatAudio([returnedValues]);
-
-      expect(returnedMetadata).toEqual(expectedVorbisMetadata);
-      expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
-    });
+    //test_ReadingChunks("rawIcyFlac", rawIcyFlac, ["ogg"], expectedIcyFlacMetadata);
+    //test_ReadingChunks("icyFlac", icyFlac, ["ogg"], expectedIcyFlacMetadata);
+    test_ReadingChunks("oggFlac", oggFlac, ["ogg"], expectedOggFlacMetadata);
+    test_ReadingChunks("oggOpus", oggOpus, ["ogg"], expectedOpusMetadata);
+    test_ReadingChunks("oggVorbis", oggVorbis, ["ogg"], expectedVorbisMetadata);
+    test_ReadingChunks(
+      "oggVorbisChained",
+      oggVorbisChained,
+      ["ogg"],
+      expectedVorbisChainedMetadata
+    );
   });
 
   describe("Codecs", () => {
@@ -496,6 +563,19 @@ describe("OGG Metadata Parsing", () => {
 
         expect(returnedMetadata).toEqual(expectedVorbisMetadata);
         expect(Buffer.compare(returnedAudio, oggVorbis)).toEqual(0);
+      });
+    });
+
+    describe("Ogg Vorbis Chained", () => {
+      it("should return the correct audio and metadata", () => {
+        const reader = new IcecastMetadataReader({ metadataTypes: ["ogg"] });
+
+        const returnedValues = readChunk(reader, oggVorbisChained);
+        const returnedMetadata = getMetadata(returnedValues.metadata);
+        const returnedAudio = concatAudio([returnedValues]);
+
+        expect(returnedMetadata).toEqual(expectedVorbisChainedMetadata);
+        expect(Buffer.compare(returnedAudio, oggVorbisChained)).toEqual(0);
       });
     });
 
