@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.14.3",
+  "version": "1.14.4",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -18,7 +18,7 @@
     "update-version": "find ../demo -iname 'icecast-metadata-player*' -exec rm \"{}\" \\; && find ./ ../demo -name '.map' -prune -o -name '.git' -prune -o -name 'node_modules' -prune -o -name 'package-lock.json' -prune -o -name 'build' -prune -o -type f -printf '\\n%p:' -exec sed -i \"s/icecast-metadata-player-[0-9]*\\.[0-9]*\\.[0-9]*/icecast-metadata-player-$npm_package_version/g w /dev/fd/2\" \"{}\" \\; && cp ./build/*.js ./build/*.map ../demo/public/",
     "build": "rm -f ./build/* && webpack && npm run update-version"
   },
-  "main": "build/icecast-metadata-player-1.14.3.min.js",
+  "main": "build/icecast-metadata-player-1.14.4.min.js",
   "module": "src/IcecastMetadataPlayer.js",
   "types": "types/icecast-metadata-player.d.ts",
   "type": "module",
@@ -49,11 +49,11 @@
   },
   "dependencies": {
     "codec-parser": "2.2.0",
-    "icecast-metadata-js": "1.2.0",
-    "mpg123-decoder": "0.4.3",
+    "icecast-metadata-js": "1.2.1",
+    "mpg123-decoder": "0.4.4",
     "mse-audio-wrapper": "1.4.7",
-    "opus-decoder": "0.6.3",
-    "@wasm-audio-decoders/flac": "0.1.3",
+    "opus-decoder": "0.6.4",
+    "@wasm-audio-decoders/flac": "0.1.4",
     "synaudio": "0.3.2"
   }
 }
