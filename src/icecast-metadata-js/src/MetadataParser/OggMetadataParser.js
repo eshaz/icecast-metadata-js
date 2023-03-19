@@ -84,11 +84,12 @@ export default class OggMetadataParser extends MetadataParser {
         this._stats._currentBytesRemaining += 6;
         break;
       }
+      // not synced, rewind to the next offset to continue syncing
       syncBytes.push(bytes[0]);
 
-      this._currentPosition -= 4;
-      this._stats._totalBytesRead -= 4;
-      this._stats._currentBytesRemaining += 4;
+      this._currentPosition -= 5;
+      this._stats._totalBytesRead -= 5;
+      this._stats._currentBytesRemaining += 5;
     }
 
     if (syncBytes.length) this._addStream(Uint8Array.from(syncBytes));
