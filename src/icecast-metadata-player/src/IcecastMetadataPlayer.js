@@ -223,7 +223,6 @@ export default class IcecastMetadataPlayer extends EventClass {
 
         this[fireEvent](
           event.PLAYBACK_ERROR,
-          e,
           "The audio element encountered an error." +
             (errors[error?.code] || "")
         );
