@@ -61,13 +61,16 @@ const Butterchurn = ({ sourceNode }) => {
   }, [sourceNode, presetsList]);
 
   useLayoutEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      analyzer.current.width = window.innerWidth;
-      analyzer.current.height = window.innerHeight;
-      visualizer &&
-        visualizer.setRendererSize(window.innerWidth, window.innerHeight);
+    const resizeObserver = new ResizeObserver((entries) => {
+      window.requestAnimationFrame(() => {
+        analyzer.current.width = window.innerWidth;
+        analyzer.current.height = window.innerHeight;
+        visualizer &&
+          visualizer.setRendererSize(window.innerWidth, window.innerHeight);
+      });
     });
-    resizeObserver.observe(analyzer.current);
+
+    resizeObserver.observe(document.body);
     return () => resizeObserver.disconnect();
   }, [visualizer]);
 

@@ -31,10 +31,16 @@ const AudioMotion = ({ sourceNode }) => {
 
   useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
-      audioMotion &&
-        audioMotion.setCanvasSize(window.innerWidth, window.innerHeight + 100);
+      window.requestAnimationFrame(() => {
+        audioMotion &&
+          audioMotion.setCanvasSize(
+            window.innerWidth,
+            window.innerHeight + 100
+          );
+      });
     });
-    resizeObserver.observe(analyzer.current);
+
+    resizeObserver.observe(document.body);
     return () => resizeObserver.disconnect();
   }, [audioMotion]);
 
