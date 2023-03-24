@@ -254,7 +254,10 @@ export default class FrameQueue {
         let SynAudio;
         try {
           SynAudio = (
-            await import(/* webpackChunkName: "synaudio" */ "synaudio")
+            await import(
+              /* webpackChunkName: "synaudio", webpackPrefetch: true */
+              "synaudio"
+            )
           ).default;
         } catch (e) {
           this._icecast[fireEvent](

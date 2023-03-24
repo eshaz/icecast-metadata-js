@@ -1,5 +1,3 @@
-import MSEAudioWrapper from "mse-audio-wrapper";
-
 import {
   state,
   event,
@@ -18,6 +16,11 @@ const BUFFER_INTERVAL = 5; // seconds before removing from SourceBuffer
 export default class MediaSourcePlayer extends Player {
   constructor(icecast, inputMimeType, codec) {
     super(icecast, inputMimeType, codec);
+
+    this._MSEAudioWrapper = import(
+      /* webpackChunkName: "mediasource", webpackPrefetch: true */
+      "mse-audio-wrapper"
+    );
 
     this._init();
   }
@@ -182,7 +185,7 @@ export default class MediaSourcePlayer extends Player {
 
   async _createMSEWrapper(inputMimeType, codec) {
     // wrap the audio into fragments before passing to MSE
-    this._wrapper = new MSEAudioWrapper(inputMimeType, {
+    this._wrapper = new (await this._MSEAudioWrapper)(inputMimeType, {
       codec,
     });
 

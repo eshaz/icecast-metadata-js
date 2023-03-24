@@ -44,7 +44,14 @@ export default {
     rules: [],
   },
   optimization: {
-    chunkIds: "named",
+    splitChunks: {
+      cacheGroups: {
+        common: {
+          test: /@wasm-audio-decoders\/common/,
+          minSize: 1024,
+        },
+      },
+    },
     minimize: true,
     minimizer: [
       new TerserPlugin({
