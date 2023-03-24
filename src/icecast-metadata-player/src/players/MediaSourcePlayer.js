@@ -196,6 +196,7 @@ export default class MediaSourcePlayer extends Player {
     // wrap the audio into fragments before passing to MSE
     this._wrapper = new (await this._MSEAudioWrapper).default(inputMimeType, {
       codec,
+      preferredContainer: "fmp4",
     });
 
     if (!MediaSource.isTypeSupported(this._wrapper.mimeType)) {
