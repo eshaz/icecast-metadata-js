@@ -251,17 +251,6 @@ export default class WebAudioPlayer extends Player {
         this._audioElement.srcObject = this._mediaStream.stream; // triggers canplay event
       }
 
-      const decodeDuration =
-        (this._decodedSample + this._decodedSampleOffset) / this._sampleRate;
-
-      if (decodeDuration < this._audioContext.currentTime) {
-        // audio context time starts incrementing immediately when it's created
-        // offset needs to be accounted for to prevent overlapping sources
-        this._decodedSampleOffset += Math.floor(
-          this._audioContext.currentTime * this._sampleRate
-        );
-      }
-
       const audioBuffer = this._audioContext.createBuffer(
         channelData.length,
         samplesDecoded,
@@ -275,6 +264,20 @@ export default class WebAudioPlayer extends Player {
       const source = this._audioContext.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(this._mediaStream);
+
+      if (
+        !this._decodedSampleOffset // offset should only ever be set once at the start of playback
+      ) {
+        // audio context time starts incrementing immediately when it's created
+        // offset needs to be set at the beginning of playback to prevent overlapping sources
+        this._decodedSampleOffset = Math.floor(
+          this._audioContext.currentTime * this._sampleRate
+        );
+      }
+
+      const decodeDuration =
+        (this._decodedSample + this._decodedSampleOffset) / this._sampleRate;
+
       source.start(decodeDuration);
 
       this._updateWaiting((samplesDecoded / this._sampleRate) * 1000);
