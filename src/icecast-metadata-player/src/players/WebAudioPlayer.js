@@ -26,6 +26,7 @@ export default class WebAudioPlayer extends Player {
       ogg: {
         flac: ['audio/ogg;codecs="flac"'],
         opus: ['audio/ogg;codecs="opus"'],
+        vorbis: ['audio/ogg;codecs="vorbis"'],
       },
     };
 
@@ -35,6 +36,7 @@ export default class WebAudioPlayer extends Player {
       (codec) =>
         codec === 'audio/ogg;codecs="opus"' ||
         codec === 'audio/ogg;codecs="flac"' ||
+        codec === 'audio/ogg;codecs="vorbis"' ||
         codec === "audio/mpeg" ||
         codec === "audio/flac",
       mimeType,
@@ -128,12 +130,18 @@ export default class WebAudioPlayer extends Player {
           );
           DecoderClass = FLACDecoderWebWorker;
           break;
+        case "vorbis":
+          const { OggVorbisDecoderWebWorker } = await import(
+            /* webpackChunkName: "vorbis" */ "@wasm-audio-decoders/ogg-vorbis"
+          );
+          DecoderClass = OggVorbisDecoderWebWorker;
+          break;
       }
     } catch (e) {
       this._icecast[fireEvent](
         event.PLAYBACK_ERROR,
         `Missing \`webaudio-${this._codec}\` dependency.`,
-        `Unable to playback playback ${this._codec} audio.`
+        `Unable to playback playback \`${this._codec}\` audio.`
       );
       return;
     }
@@ -192,48 +200,58 @@ export default class WebAudioPlayer extends Player {
     this._init();
   }
 
-  async onStream(oggPages) {
-    let frames = oggPages.flatMap((oggPage) => oggPage.codecFrames || oggPage);
+  async onStream(frames) {
+    if (this._codec !== "vorbis") {
+      frames = frames.flatMap((oggPage) => oggPage.codecFrames || oggPage);
 
-    switch (this.syncState) {
-      case NOT_SYNCED:
-        this._frameQueue.initSync();
-        this.syncState = SYNCING;
-      case SYNCING:
-        [this.syncFrames, this.syncState, this.syncDelay] =
-          await this._frameQueue.sync(frames);
-        frames = this.syncFrames;
+      switch (this.syncState) {
+        case NOT_SYNCED:
+          this._frameQueue.initSync();
+          this.syncState = SYNCING;
+        case SYNCING:
+          [this.syncFrames, this.syncState, this.syncDelay] =
+            await this._frameQueue.sync(frames);
+          frames = this.syncFrames;
+      }
     }
 
     switch (this.syncState) {
       case PCM_SYNCED:
         break;
       case SYNCED:
-        // when frames are present, we should already know the codec and have the mse audio mimetype determined
         if (frames.length) {
           this._currentTime = frames[frames.length - 1].totalDuration;
 
-          this._decode(frames).then((decoded) => this._play(decoded));
+          this._decodeAndPlay(frames);
         }
-
-        this._frameQueue.addAll(frames);
-        break;
     }
   }
 
-  async _decode(frames) {
+  async _decodeAndPlay(frames) {
     await this._loadingDecoder;
-    await this._wasmDecoder.ready;
 
-    if (this._wasmDecoder)
-      return this._wasmDecoder.decodeFrames(frames.map((f) => f.data));
+    if (this._wasmDecoder) {
+      await this._wasmDecoder.ready;
+
+      let decodePromise;
+
+      if (this._codec === "vorbis") {
+        decodePromise = this._wasmDecoder.decodeOggPages(frames);
+      } else {
+        decodePromise = this._wasmDecoder.decodeFrames(
+          frames.map((f) => f.data)
+        );
+        this._frameQueue.addAll(frames);
+      }
+
+      decodePromise.then((decoded) => this._play(decoded));
+    }
   }
 
   async _play({ channelData, samplesDecoded, sampleRate }) {
     await this._playPromise;
 
     if (
-      this._wasmDecoder &&
       this._icecast.state !== state.STOPPING &&
       this._icecast.state !== state.STOPPED &&
       samplesDecoded
