@@ -89,16 +89,25 @@ export default class MediaSourcePlayer extends Player {
     this._playReady = false;
     this._processingLastPage = false;
 
-    this._mediaSourcePromise = this._prepareMediaSource(
+    this._mediaSourceCreated = new Promise((resolve) => {
+      this._mediaSourceCreatedNotify = resolve;
+    });
+
+    this._mediaSourceOpen = new Promise((resolve) => {
+      this._mediaSourceOpenNotify = resolve;
+    });
+
+    this._addFrames = this._prepareMediaSource(
       this._inputMimeType,
       this._codec
     );
 
-    await this._mediaSourcePromise;
+    await this._mediaSourceOpen;
   }
 
   async start(metadataOffset) {
     const playing = super.start(metadataOffset);
+    await this._mediaSourceCreated;
     await this._attachMediaSource();
     await playing;
   }
@@ -135,9 +144,8 @@ export default class MediaSourcePlayer extends Player {
           break;
         case SYNCED:
           // when frames are present, we should already know the codec and have the mse audio mimetype determined
-          await (
-            await this._mediaSourcePromise
-          )(frames); // wait for the source buffer to be created
+          await this._mediaSourceOpen;
+          await this._addFrames(frames); // wait for the source buffer to be created
 
           this._frameQueue.addAll(frames);
           break;
@@ -145,22 +153,23 @@ export default class MediaSourcePlayer extends Player {
     }
   }
 
-  async _prepareMediaSource(inputMimeType, codec) {
+  _prepareMediaSource(inputMimeType, codec) {
     if (MediaSource.isTypeSupported(inputMimeType)) {
       // pass the audio directly to MSE
 
-      await this._createMediaSource(inputMimeType);
+      this._createMediaSource(inputMimeType);
 
       return async (frames) =>
         this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
     } else {
-      this._createMSEWrapper(inputMimeType, codec);
-      await this._createMediaSource(this._wrapper.mimeType);
+      this._createMSEWrapper(inputMimeType, codec).then(() => {
+        this._createMediaSource(this._wrapper.mimeType);
+      });
 
       return async (codecFrames) => {
         let fragments = [];
 
-        for (const frame of codecFrames) {
+        for await (const frame of codecFrames) {
           // handle new setup packet for continuous chain ogg vorbis streams
           if (this._processingLastPage !== frame.isLastPage) {
             if (frame.isLastPage) {
@@ -169,7 +178,7 @@ export default class MediaSourcePlayer extends Player {
               await this._appendSourceBuffer(concatBuffers(fragments));
               fragments = [];
 
-              this._createMSEWrapper(inputMimeType, codec);
+              await this._createMSEWrapper(inputMimeType, codec);
 
               this._processingLastPage = false;
             }
@@ -185,7 +194,7 @@ export default class MediaSourcePlayer extends Player {
 
   async _createMSEWrapper(inputMimeType, codec) {
     // wrap the audio into fragments before passing to MSE
-    this._wrapper = new (await this._MSEAudioWrapper)(inputMimeType, {
+    this._wrapper = new (await this._MSEAudioWrapper).default(inputMimeType, {
       codec,
     });
 
@@ -198,16 +207,27 @@ export default class MediaSourcePlayer extends Player {
     }
   }
 
-  async _createMediaSource(mimeType) {
-    await new Promise(async (resolve) => {
-      this._mediaSource = new MediaSource();
-      this._mediaSource.addEventListener("sourceopen", resolve, {
-        once: true,
-      });
-    });
+  _createMediaSource(mimeType) {
+    this._mediaSource = new MediaSource();
+    this._mediaSourceCreatedNotify();
 
-    this._sourceBufferRemoved = 0;
-    this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
+    this._mediaSource.addEventListener(
+      "sourceopen",
+      () => {
+        this._sourceBufferRemoved = 0;
+        this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
+        this._mediaSourceOpenNotify();
+      },
+      {
+        once: true,
+      }
+    );
+  }
+
+  async _attachMediaSource() {
+    this._audioElement.loop = false;
+    this._audioElement.src = URL.createObjectURL(this._mediaSource);
+    await this._mediaSourceOpen;
   }
 
   async _waitForSourceBuffer() {
@@ -222,12 +242,6 @@ export default class MediaSourcePlayer extends Player {
         });
       }
     });
-  }
-
-  async _attachMediaSource() {
-    this._audioElement.loop = false;
-    this._audioElement.src = URL.createObjectURL(this._mediaSource);
-    await this._mediaSourcePromise;
   }
 
   async _appendSourceBuffer(chunk) {
