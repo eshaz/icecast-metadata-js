@@ -162,7 +162,7 @@ export default class WebAudioPlayer extends Player {
 
     this._currentTime = 0;
     this._decodedSample = 0;
-    this._decodedSampleOffset = 0;
+    this._startSampleOffset = 0;
     this._sampleRate = 0;
     this._playbackStartTime = undefined;
     this._playReady = false;
@@ -283,20 +283,20 @@ export default class WebAudioPlayer extends Player {
       source.buffer = audioBuffer;
       source.connect(this._mediaStream);
 
-      if (
-        !this._decodedSampleOffset // offset should only ever be set once at the start of playback
-      ) {
+      const scalingFactor = 100;
+      const startSamples =
+        this._decodedSample * scalingFactor + this._startSampleOffset;
+      const audioContextSamples = Math.round(
+        this._audioContext.currentTime * this._sampleRate * scalingFactor
+      );
+
+      if (startSamples < audioContextSamples) {
         // audio context time starts incrementing immediately when it's created
-        // offset needs to be set at the beginning of playback to prevent overlapping sources
-        this._decodedSampleOffset = Math.floor(
-          this._audioContext.currentTime * this._sampleRate
-        );
+        // offset needs to be accounted for to prevent overlapping sources
+        this._startSampleOffset += audioContextSamples - startSamples;
       }
 
-      const decodeDuration =
-        (this._decodedSample + this._decodedSampleOffset) / this._sampleRate;
-
-      source.start(decodeDuration);
+      source.start(startSamples / this._sampleRate / scalingFactor);
 
       this._updateWaiting((samplesDecoded / this._sampleRate) * 1000);
 
