@@ -1,13 +1,27 @@
 {
   "files": {
     "main.css": "/icecast-metadata-js/static/css/main.d6dbee88.css",
-    "main.js": "/icecast-metadata-js/static/js/main.99397845.js",
+    "main.js": "/icecast-metadata-js/static/js/main.54576424.js",
+    "synaudio.js": "/icecast-metadata-js/static/js/synaudio.7cee0ed3.chunk.js",
+    "mediasource.js": "/icecast-metadata-js/static/js/mediasource.f9df8b20.chunk.js",
+    "mpeg.js": "/icecast-metadata-js/static/js/mpeg.a563a548.chunk.js",
+    "opus.js": "/icecast-metadata-js/static/js/opus.433802a6.chunk.js",
+    "flac.js": "/icecast-metadata-js/static/js/flac.4553ae8a.chunk.js",
+    "vorbis.js": "/icecast-metadata-js/static/js/vorbis.77050016.chunk.js",
+    "static/js/434.1dadd9ef.chunk.js": "/icecast-metadata-js/static/js/434.1dadd9ef.chunk.js",
     "index.html": "/icecast-metadata-js/index.html",
     "main.d6dbee88.css.map": "/icecast-metadata-js/static/css/main.d6dbee88.css.map",
-    "main.99397845.js.map": "/icecast-metadata-js/static/js/main.99397845.js.map"
+    "main.54576424.js.map": "/icecast-metadata-js/static/js/main.54576424.js.map",
+    "synaudio.7cee0ed3.chunk.js.map": "/icecast-metadata-js/static/js/synaudio.7cee0ed3.chunk.js.map",
+    "mediasource.f9df8b20.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.f9df8b20.chunk.js.map",
+    "mpeg.a563a548.chunk.js.map": "/icecast-metadata-js/static/js/mpeg.a563a548.chunk.js.map",
+    "opus.433802a6.chunk.js.map": "/icecast-metadata-js/static/js/opus.433802a6.chunk.js.map",
+    "flac.4553ae8a.chunk.js.map": "/icecast-metadata-js/static/js/flac.4553ae8a.chunk.js.map",
+    "vorbis.77050016.chunk.js.map": "/icecast-metadata-js/static/js/vorbis.77050016.chunk.js.map",
+    "434.1dadd9ef.chunk.js.map": "/icecast-metadata-js/static/js/434.1dadd9ef.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d6dbee88.css",
-    "static/js/main.99397845.js"
+    "static/js/main.54576424.js"
   ]
 }
