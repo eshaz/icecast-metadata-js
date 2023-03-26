@@ -24,7 +24,7 @@ https://github.com/eshaz/icecast-metadata-js
 
 ## Supported Browsers:
  * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `audio/flac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg`, (MPEG, FLAC and Opus via [`wasm-audio-decoders`](https://github.com/eshaz/wasm-audio-decoders))
+ * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg`, (MPEG, FLAC, Opus, Vorbis via [`wasm-audio-decoders`](https://github.com/eshaz/wasm-audio-decoders))
  * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
 
 *Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
