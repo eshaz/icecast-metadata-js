@@ -47,6 +47,7 @@ export default {
     splitChunks: {
       cacheGroups: {
         common: {
+          filename: `${packageJson.name}-${packageJson.version}.common.min.js`,
           test: /@wasm-audio-decoders\/common/,
           minSize: 1024,
         },
