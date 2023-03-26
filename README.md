@@ -96,13 +96,13 @@ Cross-Origin Response Sharing is a client side security mechanism to prevent scr
 
 Read more about CORS here: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
-OGG Metadata is not dependent on requesting or reading any headers, but still relies on CORS for reading the response cross-origin.
+Ogg Metadata is not dependent on requesting or reading any headers, but still relies on CORS for reading the response cross-origin.
 
 ICY metadata is dependent on being able to request and read headers (specifically the `Icy-*` headers). If you intend on serving your Icecast stream on a website that is not on the same origin as your Icecast server, you will need to add the below CORS headers.
 
 
-### CORS configuration for OGG metadata:
-* **OGG Metadata will not work in a browser without this configuration.**
+### CORS configuration for Ogg metadata:
+* **Ogg Metadata will not work in a browser without this configuration.**
 ```
 Access-Control-Allow-Origin: '*'
 Access-Control-Allow-Methods: 'GET, OPTIONS'

@@ -18,7 +18,7 @@
 import MetadataParser from "./MetadataParser.js";
 
 /**
- * @description Parses OGG metadata from an Icecast stream
+ * @description Parses Ogg metadata from an Icecast stream
  * @protected
  * @see IcecastMetadataReader
  */
@@ -69,7 +69,7 @@ export default class OggMetadataParser extends MetadataParser {
     let syncBytes = [];
     while (syncBytes.length <= 65307) {
       // max ogg page size
-      const bytes = yield* super._getNextValue(6); // Sync with OGG page without sending stream data
+      const bytes = yield* super._getNextValue(6); // Sync with Ogg page without sending stream data
       if (
         bytes[0] === 0x4f &&
         bytes[1] === 0x67 &&
@@ -96,8 +96,8 @@ export default class OggMetadataParser extends MetadataParser {
 
     if (syncBytes.length > 65307) {
       this._logError(
-        "This stream is not an OGG stream. No OGG metadata will be returned.",
-        "See https://github.com/eshaz/icecast-metadata-js for information on OGG metadata."
+        "This stream is not an Ogg stream. No Ogg metadata will be returned.",
+        "See https://github.com/eshaz/icecast-metadata-js for information on Ogg metadata."
       );
       this._onMetadataFailed("ogg");
       return false;

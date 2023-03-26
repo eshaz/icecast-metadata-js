@@ -6,7 +6,7 @@ Icecast Metadata JS is javascript (client-side and NodeJS) module that takes in 
 
 * [`IcecastMetadataReader`](#icecastmetadatareader)
   * Gets stream data and metadata from a raw Icecast response
-  * Supports ICY and OGG (Vorbis Comment) metadata
+  * Supports ICY and Ogg (Vorbis Comment) metadata
 * [`IcecastMetadataQueue`](#icecastmetadataqueue)
   * Queues metadata and schedules metadata updates
 * [`IcecastMetadataStream`](#icecastmetadatastream)
@@ -49,7 +49,7 @@ A generator that takes in raw icecast response data and return stream data and m
      };,
    });
    ```
-  IcecastMetadataReader supports reading ICY metadata, OGG (Vorbis Comment) metadata, or both. Each section below describes how to instantiate `IcecastMetadataReader` to use these different metadata types.
+  IcecastMetadataReader supports reading ICY metadata, Ogg (Vorbis Comment) metadata, or both. Each section below describes how to instantiate `IcecastMetadataReader` to use these different metadata types.
 
   ### ICY Metadata
 
@@ -68,9 +68,9 @@ A generator that takes in raw icecast response data and return stream data and m
     });
     ```
 
-  ### OGG Metadata
+  ### Ogg Metadata
 
-  * OGG (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
+  * Ogg (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
 
     ```javascript
     const icecastReader = new IcecastMetadataReader({
@@ -80,9 +80,9 @@ A generator that takes in raw icecast response data and return stream data and m
     });
     ```
 
-  ### ICY and OGG Metadata
+  ### ICY and Ogg Metadata
 
-  * ICY and OGG metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
+  * ICY and Ogg metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
 
     ```javascript
     const icecastReader = new IcecastMetadataReader({
@@ -174,8 +174,8 @@ const options = {
   * Values:
     * `[]` - Will not parse metadata
     * `["icy"]` - Parse ICY metadata only
-    * `["ogg"]` - Parse OGG (vorbis comment) metadata only
-    * `["icy", "ogg"]` - Parse both ICY and OGG metadata
+    * `["ogg"]` - Parse Ogg (vorbis comment) metadata only
+    * `["icy", "ogg"]` - Parse both ICY and Ogg metadata
   * default: `["icy"]`
 * `enableLogging`
   * Set to `true` to enable console warnings

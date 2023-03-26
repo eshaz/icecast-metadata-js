@@ -33,7 +33,7 @@ export default class IcecastMetadataReader {
    * @param {object} metadata Object containing the metadata received.
    * @param {string} [metadata.StreamTitle] (ICY) Title of the metadata update.
    * @param {string} [metadata.StreamUrl] (ICY) Url (usually album art) of the metadata update.
-   * @param {string} [metadata.TITLE] (OGG) Url Title of the metadata update.
+   * @param {string} [metadata.TITLE] (Ogg) Url Title of the metadata update.
    * @param {object} stats Object containing statistics on how many bytes were read and the current read position.
    *
    * @callback onStream

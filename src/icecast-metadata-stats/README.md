@@ -22,7 +22,7 @@ Icecast Metadata Stats is a simple to use Javascript class that queries an Iceca
 * [Usage](#usage)
 * [Sources](#sources)
   * [ICY Metadata](#icy-metadata)
-  * [OGG Metadata](#ogg-metadata)
+  * [Ogg Metadata](#ogg-metadata)
   * [/status-json.xsl](#ogg-metadata)
   * [/stats](#ogg-metadata)
   * [/7.html](#icy-and-ogg-metadata)

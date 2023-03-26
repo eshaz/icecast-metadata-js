@@ -456,7 +456,7 @@ const oggVorbisChained = fs.readFileSync(
 
 const flacMetaInt = 524288;
 
-describe("OGG Metadata Parsing", () => {
+describe("Ogg Metadata Parsing", () => {
   const getMetadata = (metadata) =>
     metadata.map((meta) => ({
       ...meta,

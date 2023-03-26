@@ -3,7 +3,7 @@
 Icecast Metadata Player is a simple to use Javascript class that plays an Icecast stream with real-time metadata updates.
 
   * Plays an Icecast stream using the Media Source Extensions API, HTML5 audio, and Web Assembly decoder (Ogg Opus).
-  * Pushes synchronized metadata updates taken from ICY metadata and OGG metadata.
+  * Pushes synchronized metadata updates taken from ICY metadata and Ogg metadata.
   * Seamless playback during network changes (i.e. Wifi to Cell network).
   * Seamlessly switch between endpoints during playback (i.e. moving between load balanced streams, or streams with different codecs).
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
@@ -36,8 +36,8 @@ https://github.com/eshaz/icecast-metadata-js
 * [Installing](#installing)
 * [Usage](#usage)
   * [ICY Metadata](#icy-metadata)
-  * [OGG Metadata](#ogg-metadata)
-  * [ICY and OGG Metadata](#icy-and-ogg-metadata)
+  * [Ogg Metadata](#ogg-metadata)
+  * [ICY and Ogg Metadata](#icy-and-ogg-metadata)
   * [Playing a Stream](#playing-a-stream)
     * [Metadata](#metadata)
 * [Reconnecting](#reconnecting)
@@ -75,17 +75,20 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player/build">*.js files</a> for the latest build. This build is split into multiple files so your browser will download functionality as needed.
-   * **All `*.js` files must be present in the same path on your server.**
-   * You may optionally include the `*.js.map` source map files for debugging.
+1. Download all of the files <a href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player/build">here</a> for the latest build and save these to a path on your server. This build is split into multiple files for faster load times by only downloading features as required.
+   * **All `*.js` files must be saved into the same path on your server.**
+   * The `*.js.map` files are optional source maps for debugging.
      | Filename |Functionality |
      | - | - |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.main.min.js" download>`icecast-metadata-player-1.15.0.main.min.js`</a> | Core functionality (playback, metadata) |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.synaudio.min.js" download>`icecast-metadata-player-1.15.0.synaudio.min.js`</a> | Gapless playback support |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.mediasource.min.js" download>`icecast-metadata-player-1.15.0.mediasource.min.js`</a> | Mediasource playback support |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.mpeg.min.js" download>`icecast-metadata-player-1.15.0.mpeg.min.js`</a> | MPEG playback support (webaudio) |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.flac.min.js" download>`icecast-metadata-player-1.15.0.flac.min.js`</a> | FLAC playback support (webaudio) |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.opus.min.js" download>`icecast-metadata-player-1.15.0.opus.min.js`</a> | Opus playback support (webaudio) |
-2. Add a `<script>` tag referencing `icecast-metadata-player-1.15.0-main.min.js` in your html.
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.vorbis.min.js" download>`icecast-metadata-player-1.15.0.vorbis.min.js`</a> | Vorbis playback support (webaudio) |
+     | *`all other *.js files`* | Shared Dependencies |
+2. Add a `<script>` tag referencing `icecast-metadata-player-1.15.0.main.min.js` in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
@@ -134,9 +137,9 @@ https://github.com/eshaz/icecast-metadata-js
     })
     ```
 
-  ### OGG Metadata
+  ### Ogg Metadata
 
-  * OGG (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
+  * Ogg (Vorbis Comment) metadata, if available, usually offers more detail than ICY metadata.
 
     ```javascript
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.opus", {
@@ -146,9 +149,9 @@ https://github.com/eshaz/icecast-metadata-js
     })
     ```
 
-  ### ICY and OGG Metadata
+  ### ICY and Ogg Metadata
 
-  * ICY and OGG metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
+  * ICY and Ogg metadata can both be read from the stream. Usually a stream will only have one or the other, but this option is possible if needed.
 
     ```javascript
     const player = new IcecastMetadataPlayer("https://stream.example.com/stream.flac", {
@@ -181,9 +184,9 @@ https://github.com/eshaz/icecast-metadata-js
     { 
       StreamTitle: "The stream's title", // ICY
       StreamUrl: "The stream's url", //     ICY
-      TITLE: "The stream's title", //       OGG
-      ARTIST: "The stream's artist", //     OGG
-      ALBUM: "The stream's album" //        OGG
+      TITLE: "The stream's title", //       Ogg
+      ARTIST: "The stream's artist", //     Ogg
+      ALBUM: "The stream's album" //        Ogg
     }
     ```
 
@@ -354,8 +357,8 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * Values:
     * `[]` - Will not parse metadata
     * `["icy"]` - **Default** Parse ICY metadata only 
-    * `["ogg"]` - Parse OGG (vorbis comment) metadata only
-    * `["icy", "ogg"]` - Parse both ICY and OGG metadata
+    * `["ogg"]` - Parse Ogg (vorbis comment) metadata only
+    * `["icy", "ogg"]` - Parse both ICY and Ogg metadata
 
   #### *Only used when `["icy"]` metadata type is enabled*
   * `icyMetaInt` (optional) **Default** *reads from the response header*
@@ -454,7 +457,7 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 * If your stream contains ICY metadata, and it is not detected, audio errors will occur. Increase the detection timeout to search longer for ICY metadata.
 * This warning could also be displayed if the stream was requested with ICY metadata, but it does not contain ICY metadata. In this case, the ICY detection will timeout and the stream will play without ICY metadata. Please update your code to no longer request ICY metadata.
 
-> This stream is not an OGG stream. No OGG metadata will be returned.
+> This stream is not an Ogg stream. No Ogg metadata will be returned.
 
 * IcecastMetadataPlayer has `"ogg"` passed into the `metadataTypes` options, but the stream response is not an ogg stream. ICY metadata and the stream will work without issues. Please remove the `"ogg"` option to remove this warning.
 
