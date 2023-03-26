@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "prettier": "^2.8.6",
+    "prettier": "^2.8.7",
     "terser-webpack-plugin": "^5.3.7",
     "webpack": "^5.76.3",
     "webpack-bundle-analyzer": "^4.8.0",
