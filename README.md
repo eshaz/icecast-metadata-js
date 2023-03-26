@@ -6,7 +6,7 @@ Icecast Metadata JS is a collection of Javascript modules for streaming audio pl
 
 ## Modules:
  * [**Icecast Metadata Player**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player#readme) *(click to read more)*
-   * Cross-platform browser library that plays Icecast compatible streams with full codec support and real-time metadata updates.
+   * Browser library that plays streaming audio with full cross-platform codec support and real-time metadata updates.
    * [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) - Install using `npm i icecast-metadata-player`
    * **LICENSE** LGPL 3.0 or Greater
  * [**Icecast Metadata JS**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js#readme) *(click to read more)*

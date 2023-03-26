@@ -1,11 +1,12 @@
 # Icecast Metadata Player
 
-Icecast Metadata Player is a simple to use Javascript class that plays an Icecast stream with real-time metadata updates.
+Icecast Metadata Player is browser library that plays streaming audio with full cross-platform codec support and real-time metadata updates.
 
-  * Plays an Icecast stream using the Media Source Extensions API, HTML5 audio, and Web Assembly decoder (Ogg Opus).
-  * Pushes synchronized metadata updates taken from ICY metadata and Ogg metadata.
+  * Plays streaming audio using [Media Source Extensions API](https://github.com/eshaz/mse-audio-wrapper), [Web Assembly audio decoders](https://github.com/eshaz/wasm-audio-decoders), and HTML5 audio.
+  * Provides synchronized ICY metadata and Ogg metadata updates.
   * Seamless playback during network changes (i.e. Wifi to Cell network).
   * Seamlessly switch between endpoints during playback (i.e. moving between load balanced streams, or streams with different codecs).
+  * Lazy loading of dependencies for faster and more efficient load times.
   * Available as an [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) and as a file to include in a `<script>` tag.
     * See [Installing](#installing)
 
@@ -20,14 +21,10 @@ https://github.com/eshaz/icecast-metadata-js
 * **FLAC** `audio/flac, application/ogg`, `audio/mp4`
 * **Opus** `application/ogg`, `audio/mp4`, `audio/webm`
 * **Vorbis** `application/ogg`, `audio/webm`
-* All other browser supported MediaSource and HTML5 Audio codecs
 
 ## Supported Browsers:
- * **Android, Chrome, Firefox, Opera** `audio/mpeg`, `audio/aac`, `audio/flac`, `application/ogg` (FLAC, Opus, Vorbis)
- * **iOS 12.4 and higher, Safari Desktop** `audio/mpeg`, `audio/aac`, `application/ogg`, (MPEG, FLAC, Opus, Vorbis via [`wasm-audio-decoders`](https://github.com/eshaz/wasm-audio-decoders))
+ * **All major browsers** (Chrome, Firefox, Opera, Android, iOS 12.4 and higher, Safari Desktop)
  * [**Check your Browser Here**](https://eshaz.github.io/icecast-metadata-js/demo.html#supported-codecs)
-
-*Media Source Extension support is expanded by wrapping the audio in the ISOBMFF (mp4) or WEBM containers using* [`mse-audio-wrapper`](https://github.com/eshaz/mse-audio-wrapper)
 
 ---
 
@@ -75,19 +72,20 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download all of the files <a href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player/build">here</a> for the latest build and save these to a path on your server. This build is split into multiple files for faster load times by only downloading features as required.
+1. Download all of the files <a href="https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player/build">here</a> for the latest build and save these to a path on your server.
+   * Each module is automatically downloaded to the browser as needed.
    * **All `*.js` files must be saved into the same path on your server.**
    * The `*.js.map` files are optional source maps for debugging.
-     | Filename |Functionality |
+     | Filename | Functionality |
      | - | - |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.main.min.js" download>`icecast-metadata-player-1.15.0.main.min.js`</a> | Core functionality (playback, metadata) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.main.min.js" download>`icecast-metadata-player-1.15.0.main.min.js`</a> | Core functionality (playback, metadata) <br> **Use this file in your `<script>` tag** |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.synaudio.min.js" download>`icecast-metadata-player-1.15.0.synaudio.min.js`</a> | Gapless playback support |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.mediasource.min.js" download>`icecast-metadata-player-1.15.0.mediasource.min.js`</a> | Mediasource playback support |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.mpeg.min.js" download>`icecast-metadata-player-1.15.0.mpeg.min.js`</a> | MPEG playback support (webaudio) |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.flac.min.js" download>`icecast-metadata-player-1.15.0.flac.min.js`</a> | FLAC playback support (webaudio) |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.opus.min.js" download>`icecast-metadata-player-1.15.0.opus.min.js`</a> | Opus playback support (webaudio) |
      | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.vorbis.min.js" download>`icecast-metadata-player-1.15.0.vorbis.min.js`</a> | Vorbis playback support (webaudio) |
-     | *`all other *.js files`* | Shared Dependencies |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.15.0.common.min.js" download>`icecast-metadata-player-1.15.0.common.min.js`</a> | Common functions (webaudio) |
 2. Add a `<script>` tag referencing `icecast-metadata-player-1.15.0.main.min.js` in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
