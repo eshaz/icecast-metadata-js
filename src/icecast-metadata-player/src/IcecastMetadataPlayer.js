@@ -340,6 +340,14 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   async play() {
     if (this.state === state.STOPPED) {
+      const playing = new Promise((resolve) => {
+        this.addEventListener(event.PLAY, resolve, { once: true });
+      });
+
+      const streamEnd = new Promise((resolve) => {
+        this.addEventListener(event.STREAM_END, resolve, { once: true });
+      });
+
       p.get(this)[abortController] = new AbortController();
       this[playerState] = state.LOADING;
       this[fireEvent](event.LOAD);
@@ -347,7 +355,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       // prettier-ignore
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
-          .then(() => {
+          .then(async () => {
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
               return tryFetching();
@@ -356,7 +364,9 @@ export default class IcecastMetadataPlayer extends EventClass {
               this.state !== state.STOPPED
             ) {
               // wait for any remaining audio to play through
-              return p.get(this)[playerFactory].player.waiting;
+              await playing;
+              await streamEnd;
+              await p.get(this)[playerFactory].player.waiting;
             }
           })
           .catch(async (e) => {
@@ -397,9 +407,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           this[playerState] = state.STOPPED;
         });
 
-      await new Promise((resolve) => {
-        this.addEventListener(event.PLAY, resolve, { once: true });
-      });
+      await playing;
     }
   }
 
