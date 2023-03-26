@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <title>Icecast Metadata JS Demo</title>
     <meta
       name="description"
       content="Icecast Metadata JS - Javascript library that reads, parses, and queues real-time metadata from an Icecast stream."
@@ -65,34 +66,36 @@
         display: flex;
       }
     </style>
+    <script>
+      // helper functions for the demo
+      let icecastMetadataPlayer, metadataEl, metadataQueueEl;
+
+      const formatTime = (seconds) =>
+        new Date(seconds * 1000).toISOString().substr(14, 8);
+
+      const formatMetadata = (metadata) =>
+        JSON.stringify(metadata, null, 1)
+          .replace(/\{\n|\n\}/g, "")
+          .replace(/^ "|\n "/g, '\n"');
+
+      const onMetadata = (metadata) => {
+        metadataEl.innerHTML = `<td><pre>${formatMetadata(
+          metadata
+        )}</pre></td>`;
+        onMetadataEnqueue();
+      };
+
+      const onMetadataEnqueue = () => {
+        metadataQueueEl.innerHTML = icecastMetadataPlayer.metadataQueue.reduce(
+          (acc, { metadata, timestampOffset }) =>
+            acc +
+            `<tr><td><pre>${formatTime(timestampOffset)}</pre></td>` +
+            `<td><pre>${formatMetadata(metadata)}</pre></td></tr>`,
+          `<th>Up Next</th>`
+        );
+      };
+    </script>
   </head>
-  <script>
-    // helper functions for the demo
-    let icecastMetadataPlayer, metadataEl, metadataQueueEl;
-
-    const formatTime = (seconds) =>
-      new Date(seconds * 1000).toISOString().substr(14, 8);
-
-    const formatMetadata = (metadata) =>
-      JSON.stringify(metadata, null, 1)
-        .replace(/\{\n|\n\}/g, "")
-        .replace(/^ "|\n "/g, '\n"');
-
-    const onMetadata = (metadata) => {
-      metadataEl.innerHTML = `<td><pre>${formatMetadata(metadata)}</pre></td>`;
-      onMetadataEnqueue();
-    };
-
-    const onMetadataEnqueue = () => {
-      metadataQueueEl.innerHTML = icecastMetadataPlayer.metadataQueue.reduce(
-        (acc, { metadata, timestampOffset }) =>
-          acc +
-          `<tr><td><pre>${formatTime(timestampOffset)}</pre></td>` +
-          `<td><pre>${formatMetadata(metadata)}</pre></td></tr>`,
-        `<th>Up Next</th>`
-      );
-    };
-  </script>
   <body
     onload="document.getElementById('endpoint').value = 'https:\/\/dsmrad.io/stream/isics-all';"
   >
@@ -127,13 +130,11 @@
       >Source for this demo</a
     >
     <p>
-      <b
-        ><a
-          >This module is a part of
-          <a href="https://github.com/eshaz/icecast-metadata-js"
-            >icecast-metadata-js</a
-          >. See the links in the header for more information.</a
-        ></b
+      <b>
+        This module is a part of
+        <a href="https://github.com/eshaz/icecast-metadata-js"
+          >icecast-metadata-js</a
+        >. See the links in the header for more information.</b
       >
     </p>
     <p>
@@ -214,8 +215,16 @@
     <hr />
     <div class="metadata-info">
       <table>
-        <th>Now Playing</th>
-        <tr id="metadata"></tr>
+        <thead>
+          <tr>
+            <th>Now Playing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="metadata">
+            <td></td>
+          </tr>
+        </tbody>
       </table>
       <table id="metadataQueue"></table>
     </div>
