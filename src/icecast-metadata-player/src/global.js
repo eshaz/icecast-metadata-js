@@ -27,6 +27,7 @@ export const event = {
   SWITCH: "switch",
   WARN: "warn",
   ERROR: "error",
+  PLAYBACK_ERROR: "playbackerror",
 };
 
 // options

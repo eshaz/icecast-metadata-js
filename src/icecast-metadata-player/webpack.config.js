@@ -6,7 +6,7 @@ const packageJson = JSON.parse(fs.readFileSync("./package.json"));
 
 const license = `
 /*! 
- * Copyright 2021-2022 Ethan Halsall
+ * Copyright 2021-2023 Ethan Halsall
  * https://github.com/eshaz/icecast-metadata-js
  *
  * This file is part of icecast-metadata-player.
@@ -31,7 +31,7 @@ export default {
   entry: "/src/IcecastMetadataPlayer.js",
   output: {
     path: new URL("build", import.meta.url).pathname,
-    filename: `${packageJson.name}-${packageJson.version}.min.js`,
+    filename: `${packageJson.name}-${packageJson.version}.[name].min.js`,
     library: "IcecastMetadataPlayer",
     libraryExport: "default",
     libraryTarget: "var",
@@ -44,6 +44,15 @@ export default {
     rules: [],
   },
   optimization: {
+    splitChunks: {
+      cacheGroups: {
+        common: {
+          filename: `${packageJson.name}-${packageJson.version}.common.min.js`,
+          test: /@wasm-audio-decoders\/common/,
+          minSize: 1024,
+        },
+      },
+    },
     minimize: true,
     minimizer: [
       new TerserPlugin({

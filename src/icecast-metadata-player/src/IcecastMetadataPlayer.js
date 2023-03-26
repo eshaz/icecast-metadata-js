@@ -1,7 +1,7 @@
 /**
  * @license
  * @see https://github.com/eshaz/icecast-metadata-js
- * @copyright 2021-2022 Ethan Halsall
+ * @copyright 2021-2023 Ethan Halsall
  *  This file is part of icecast-metadata-player.
  *
  *  icecast-metadata-player free software: you can redistribute it and/or modify
@@ -172,6 +172,15 @@ export default class IcecastMetadataPlayer extends EventClass {
         [event.ERROR]: (...messages) => {
           this[logError](console.error, options.onError, messages);
         },
+        [event.PLAYBACK_ERROR]: (...messages) => {
+          if (this.state !== state.RETRYING) {
+            this[fireEvent](event.ERROR, ...messages);
+
+            this.stop();
+          } else {
+            p.get(this)[endPlayback]();
+          }
+        },
       },
       // variables
       [endPlayback]: () => {
@@ -212,18 +221,11 @@ export default class IcecastMetadataPlayer extends EventClass {
 
         const error = e?.target?.error || e;
 
-        if (this.state !== state.RETRYING) {
-          this[fireEvent](
-            event.ERROR,
-            "The audio element encountered an error." +
-              (errors[error?.code] || ""),
-            error
-          );
-
-          this.stop();
-        } else {
-          p.get(this)[endPlayback]();
-        }
+        this[fireEvent](
+          event.PLAYBACK_ERROR,
+          "The audio element encountered an error." +
+            (errors[error?.code] || "")
+        );
       },
       [onPlayReady]: () => {
         const audio = p.get(this)[audioElement];
@@ -240,7 +242,7 @@ export default class IcecastMetadataPlayer extends EventClass {
               this[playerState] = state.PLAYING;
             })
             .catch((e) => {
-              p.get(this)[onAudioError](e);
+              this[fireEvent](event.PLAYBACK_ERROR, e, "Playback failed.");
             });
         }
       },
@@ -338,6 +340,14 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   async play() {
     if (this.state === state.STOPPED) {
+      const playing = new Promise((resolve) => {
+        this.addEventListener(event.PLAY, resolve, { once: true });
+      });
+
+      const streamEnd = new Promise((resolve) => {
+        this.addEventListener(event.STREAM_END, resolve, { once: true });
+      });
+
       p.get(this)[abortController] = new AbortController();
       this[playerState] = state.LOADING;
       this[fireEvent](event.LOAD);
@@ -345,7 +355,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       // prettier-ignore
       const tryFetching = async () =>
         p.get(this)[playerFactory].playStream()
-          .then(() => {
+          .then(async () => {
             if (this.state === state.SWITCHING) {
               this[fireEvent](event.SWITCH);
               return tryFetching();
@@ -354,7 +364,9 @@ export default class IcecastMetadataPlayer extends EventClass {
               this.state !== state.STOPPED
             ) {
               // wait for any remaining audio to play through
-              return p.get(this)[playerFactory].player.waiting;
+              await playing;
+              await streamEnd;
+              await p.get(this)[playerFactory].player.waiting;
             }
           })
           .catch(async (e) => {
@@ -395,9 +407,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           this[playerState] = state.STOPPED;
         });
 
-      await new Promise((resolve) => {
-        this.addEventListener(event.PLAY, resolve, { once: true });
-      });
+      await playing;
     }
   }
 

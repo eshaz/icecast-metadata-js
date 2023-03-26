@@ -5,3 +5,4 @@ src/**.mp3
 src/**.cue
 test/temp/*
 dist
+src/icecast-metadata-player/build/stats.json

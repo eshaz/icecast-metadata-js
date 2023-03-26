@@ -1,5 +1,3 @@
-import SynAudio from "synaudio";
-
 import {
   audioContext,
   concatBuffers,
@@ -12,6 +10,21 @@ import {
   NOT_SYNCED,
   noOp,
 } from "./global.js";
+
+// test if worker can spawn a worker for (i.e. everything but iOS)
+let canSpawnWorker;
+const spawnWorkerTest = new Worker(
+  URL.createObjectURL(
+    new Blob(["self.onmessage = () => self.postMessage(!!self.Worker)"], {
+      type: "text/javascript",
+    })
+  )
+);
+spawnWorkerTest.onmessage = (r) => {
+  canSpawnWorker = r.data;
+  spawnWorkerTest.terminate();
+};
+spawnWorkerTest.postMessage(null);
 
 export default class FrameQueue {
   constructor(icecast, player) {
@@ -253,6 +266,24 @@ export default class FrameQueue {
       const samplesToDuration = (samples, rate) => samples / rate;
 
       if (!this._synAudioResult) {
+        let SynAudio;
+        try {
+          SynAudio = (
+            await import(
+              /* webpackChunkName: "synaudio", webpackPrefetch: true */
+              "synaudio"
+            )
+          ).default;
+        } catch (e) {
+          this._icecast[fireEvent](
+            event.WARN,
+            "Failed to synchronize old and new stream",
+            "Missing `synaudio` dependency."
+          );
+
+          return;
+        }
+
         const [pcmQueueDecoded, syncQueueDecoded, sampleRate] =
           await this._decodeQueues();
 
@@ -267,11 +298,13 @@ export default class FrameQueue {
           initialGranularity,
         });
 
-        this._synAudioResult = await synAudio.syncWorkerConcurrent(
-          pcmQueueDecoded,
-          syncQueueDecoded,
-          Math.max(navigator.hardwareConcurrency - 1, 1)
-        );
+        this._synAudioResult = await (canSpawnWorker
+          ? synAudio.syncWorkerConcurrent(
+              pcmQueueDecoded,
+              syncQueueDecoded,
+              Math.max(navigator.hardwareConcurrency - 1, 1)
+            )
+          : synAudio.syncWorker(pcmQueueDecoded, syncQueueDecoded));
 
         this._synAudioResult.offsetFromEnd = samplesToDuration(
           pcmQueueDecoded.samplesDecoded - this._synAudioResult.sampleOffset,

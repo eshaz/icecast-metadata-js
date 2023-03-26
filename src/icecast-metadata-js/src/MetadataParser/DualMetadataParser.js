@@ -19,7 +19,7 @@ import IcyMetadataParser from "./IcyMetadataParser.js";
 import OggMetadataParser from "./OggMetadataParser.js";
 
 /**
- * @description Parses ICY and OGG metadata from an Icecast stream
+ * @description Parses ICY and Ogg metadata from an Icecast stream
  * @protected
  * @see IcecastMetadataReader
  */
