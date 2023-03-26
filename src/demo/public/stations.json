@@ -221,6 +221,80 @@
     ]
   },
   {
+    "name": "Dance Wave!",
+    "description": "All Dance from 2000. Global dance radio station. The hottest Dance and Club Music from across the Planet!",
+    "link": "https://dancewave.online",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/dance.opus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/dance.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/dance.flac.ogg",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/dance.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/dance.aac",
+        "codec": "AAC+",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Dance Wave Retro!",
+    "description": "All Dance before 2000!",
+    "link": "https://dancewave.online",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.opus",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.mp3",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.flac.ogg",
+        "codec": "FLAC",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.ogg",
+        "codec": "Vorbis",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg", "icestats"]
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.aac",
+        "codec": "AAC+",
+        "metadataTypes": ["icy"],
+        "statsSources": ["ogg", "icestats"]
+      }
+    ]
+  },
+  {
     "name": "Radio Sputnik",
     "description": "RadioSputnik.nl started somewhere in 2002 as a pirate radio station on the FM band (24/7) with a low power transmitter (10 Watts) and its main focus was to transmit underground house/club music. Now it’s a non profit internet radio station.",
     "link": "https://radiosputnik.nl",
