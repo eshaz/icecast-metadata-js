@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.15.0",
+  "version": "1.15.1",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -50,13 +50,13 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@wasm-audio-decoders/flac": "0.1.6",
-    "@wasm-audio-decoders/ogg-vorbis": "0.1.1",
+    "@wasm-audio-decoders/flac": "0.1.7",
+    "@wasm-audio-decoders/ogg-vorbis": "0.1.2",
     "codec-parser": "2.2.1",
     "icecast-metadata-js": "1.2.2",
-    "mpg123-decoder": "0.4.6",
+    "mpg123-decoder": "0.4.7",
     "mse-audio-wrapper": "1.4.8",
-    "opus-decoder": "0.6.6",
-    "synaudio": "0.3.3"
+    "opus-decoder": "0.6.7",
+    "synaudio": "0.3.4"
   }
 }

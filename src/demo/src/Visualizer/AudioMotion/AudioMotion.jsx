@@ -15,11 +15,24 @@ const AudioMotion = ({ sourceNode }) => {
         showScaleX: false,
         fftSize: 32768,
         mode: 1,
-        gradient: "prism",
+        gradient: "rainbow",
         showBgColor: false,
         barSpace: 0,
-        lumiBars: true,
+        //lumiBars: true,
+        smoothing: 0,
+        weightingFilter: 'D'
+        //frequencyScale: "bark"
       });
+
+      /*visualizer.registerGradient("prism", {
+        colorStops: [
+          "hsl( 0, 100%, 50% )",
+          "hsl( 60, 100%, 50% )",
+          "hsl( 120, 100%, 50% )",
+          "hsl( 180, 100%, 50% )",
+          "hsl( 240, 100%, 50% )",
+        ],
+      });*/
 
       setAudioMotion(visualizer);
 

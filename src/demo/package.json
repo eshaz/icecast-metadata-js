@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "audiomotion-analyzer": "^3.6.1",
+    "audiomotion-analyzer": "^4.0.0",
     "butterchurn": "^2.6.7",
     "butterchurn-presets": "^2.4.7",
     "icecast-metadata-player": "file:../icecast-metadata-player",
