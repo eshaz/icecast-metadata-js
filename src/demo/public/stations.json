@@ -19,6 +19,18 @@
     ]
   },
   {
+    "name": "Multichannel Stream",
+    "description": "Listen on a surround sound system for the best effect.",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.bruschotti.party/multichannel_opus.ogg",
+        "codec": "Opus 5.1",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      }
+    ]
+  },
+  {
     "name": "Iowa Public Radio - News",
     "description": "",
     "link": "https://www.iowapublicradio.org",
