@@ -156,47 +156,51 @@ export default class MediaSourcePlayer extends Player {
   _prepareMediaSource(inputMimeType, codec) {
     if (MediaSource.isTypeSupported(inputMimeType)) {
       // pass the audio directly to MSE
-
       this._createMediaSource(inputMimeType);
 
       return async (frames) =>
         this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
-    } else {
-      this._createMSEWrapper(inputMimeType, codec).then(() => {
-        this._createMediaSource(this._wrapper.mimeType);
-      });
+    }
 
-      return async (codecFrames) => {
-        let fragments = [];
+    this._createMSEWrapper(inputMimeType, codec).then(() => {
+      this._createMediaSource(this._wrapper.mimeType);
+    });
 
-        for await (const frame of codecFrames) {
-          // handle new setup packet for continuous chain ogg vorbis streams
-          if (this._processingLastPage !== frame.isLastPage) {
-            if (frame.isLastPage) {
-              this._processingLastPage = true;
-            } else {
-              await this._appendSourceBuffer(concatBuffers(fragments));
-              fragments = [];
+    return inputMimeType.match(/ogg/)
+      ? async (codecFrames) => {
+          let fragments = [];
 
-              await this._createMSEWrapper(inputMimeType, codec);
+          for await (const frame of codecFrames) {
+            // handle new setup packet for continuous chain ogg vorbis streams
+            if (this._processingLastPage !== frame.isLastPage) {
+              if (frame.isLastPage) {
+                this._processingLastPage = true;
+              } else {
+                await this._appendSourceBuffer(concatBuffers(fragments));
+                fragments = [];
 
-              this._processingLastPage = false;
+                await this._createMSEWrapper(inputMimeType, codec);
+
+                this._processingLastPage = false;
+              }
             }
+
+            fragments.push(...this._wrapper.iterator([frame]));
           }
 
-          fragments.push(...this._wrapper.iterator([frame]));
+          await this._appendSourceBuffer(concatBuffers(fragments));
         }
-
-        await this._appendSourceBuffer(concatBuffers(fragments));
-      };
-    }
+      : async (codecFrames) =>
+          this._appendSourceBuffer(
+            concatBuffers([...this._wrapper.iterator(codecFrames)])
+          );
   }
 
   async _createMSEWrapper(inputMimeType, codec) {
     // wrap the audio into fragments before passing to MSE
     this._wrapper = new (await this._MSEAudioWrapper).default(inputMimeType, {
       codec,
-      preferredContainer: "fmp4",
+      preferredContainer: "fmp4", // webm will needed for multi-channel streaming
     });
 
     if (!MediaSource.isTypeSupported(this._wrapper.mimeType)) {
