@@ -11,10 +11,11 @@ import {
 import FrameQueue from "../FrameQueue.js";
 
 export default class Player {
-  constructor(icecast, inputMimeType, codec) {
+  constructor(icecast, inputMimeType, codec, codecHeader) {
     this._icecast = icecast;
     this._inputMimeType = inputMimeType;
     this._codec = codec;
+    this._codecHeader = codecHeader;
 
     const instanceVariables = p.get(this._icecast);
 
