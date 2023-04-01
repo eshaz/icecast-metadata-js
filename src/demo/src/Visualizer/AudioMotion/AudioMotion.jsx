@@ -20,7 +20,7 @@ const AudioMotion = ({ sourceNode }) => {
         barSpace: 0,
         //lumiBars: true,
         smoothing: 0,
-        weightingFilter: 'D'
+        weightingFilter: "D",
         //frequencyScale: "bark"
       });
 

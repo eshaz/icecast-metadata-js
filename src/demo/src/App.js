@@ -70,7 +70,9 @@ const App = () => {
         icecast &&
         station &&
         icecast.state !== "stopped" &&
-        newStation.name === station.name
+        newStation.name === station.name &&
+        newStation.switchable !== false &&
+        station.switchable !== false
       ) {
         icecast.switchEndpoint(newStation.endpoint, newStation);
       } else {

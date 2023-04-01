@@ -23,10 +23,18 @@
     "description": "Listen on a surround sound system for the best effect.",
     "endpoints": [
       {
-        "endpoint": "https://stream.bruschotti.party/multichannel_opus.ogg",
+        "endpoint": "https://stream.bruschotti.party/apple_blossom.ogg",
         "codec": "Opus 5.1",
         "metadataTypes": ["ogg"],
-        "statsSources": ["ogg"]
+        "statsSources": ["ogg"],
+        "switchable": false
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/beethoven.ogg",
+        "codec": "Opus 5.0",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"],
+        "switchable": false
       }
     ]
   },
