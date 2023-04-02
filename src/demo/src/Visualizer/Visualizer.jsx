@@ -35,6 +35,9 @@ const Visualizer = ({ audioElement, selectedVisualizer }) => {
   const [sourceNode, setSourceNode] = useState();
 
   useEffect(() => {
+    audioContext.destination.channelCount =
+      audioContext.destination.maxChannelCount;
+
     const source = audioContext.createMediaElementSource(audioElement);
     source.connect(audioContext.destination);
     setSourceNode(source);
