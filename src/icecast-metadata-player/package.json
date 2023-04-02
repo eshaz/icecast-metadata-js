@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",

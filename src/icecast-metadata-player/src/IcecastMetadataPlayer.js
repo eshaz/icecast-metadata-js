@@ -556,6 +556,8 @@ if (AudioContext && !IcecastMetadataPlayer.constructor[audioContext]) {
       latencyHint: "interactive",
     });
 
+    audioCtx.destination.channelCount = audioCtx.destination.maxChannelCount;
+
     audioCtx
       .resume()
       .then(() => {
