@@ -14,8 +14,8 @@ const BUFFER = 5; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 5; // seconds before removing from SourceBuffer
 
 export default class MediaSourcePlayer extends Player {
-  constructor(icecast, inputMimeType, codec) {
-    super(icecast, inputMimeType, codec);
+  constructor(icecast, inputMimeType, codec, codecHeader) {
+    super(icecast, inputMimeType, codec, codecHeader);
 
     this._MSEAudioWrapper = import(
       /* webpackChunkName: "mediasource", webpackPrefetch: true */
@@ -162,9 +162,13 @@ export default class MediaSourcePlayer extends Player {
         this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
     }
 
-    this._createMSEWrapper(inputMimeType, codec).then(() => {
-      this._createMediaSource(this._wrapper.mimeType);
-    });
+    this._codecHeader
+      .then((codecHeader) =>
+        this._createMSEWrapper(inputMimeType, codec, codecHeader.channels)
+      )
+      .then(() => {
+        this._createMediaSource(this._wrapper.mimeType);
+      });
 
     return inputMimeType.match(/ogg/)
       ? async (codecFrames) => {
@@ -179,7 +183,12 @@ export default class MediaSourcePlayer extends Player {
                 await this._appendSourceBuffer(concatBuffers(fragments));
                 fragments = [];
 
-                await this._createMSEWrapper(inputMimeType, codec);
+                const codecHeader = await this._codecHeader;
+                await this._createMSEWrapper(
+                  inputMimeType,
+                  codec,
+                  codecHeader.channels
+                );
 
                 this._processingLastPage = false;
               }
@@ -196,11 +205,11 @@ export default class MediaSourcePlayer extends Player {
           );
   }
 
-  async _createMSEWrapper(inputMimeType, codec) {
+  async _createMSEWrapper(inputMimeType, codec, channels) {
     // wrap the audio into fragments before passing to MSE
     this._wrapper = new (await this._MSEAudioWrapper).default(inputMimeType, {
       codec,
-      preferredContainer: "fmp4", // webm will needed for multi-channel streaming
+      preferredContainer: channels > 2 ? "webm" : "fmp4",
     });
 
     if (!MediaSource.isTypeSupported(this._wrapper.mimeType)) {
@@ -219,8 +228,12 @@ export default class MediaSourcePlayer extends Player {
     this._mediaSource.addEventListener(
       "sourceopen",
       () => {
+        if (
+          this._icecast.state !== state.STOPPED &&
+          this._icecast.state !== state.STOPPING
+        )
+          this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
         this._sourceBufferRemoved = 0;
-        this._mediaSource.addSourceBuffer(mimeType).mode = "sequence";
         this._mediaSourceOpenNotify();
       },
       {

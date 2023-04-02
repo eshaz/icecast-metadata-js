@@ -11,8 +11,8 @@ import {
 import Player from "./Player.js";
 
 export default class WebAudioPlayer extends Player {
-  constructor(icecast, inputMimeType, codec) {
-    super(icecast, inputMimeType, codec);
+  constructor(icecast, inputMimeType, codec, codecHeader) {
+    super(icecast, inputMimeType, codec, codecHeader);
 
     this._audioContext = icecast[audioContext];
 
@@ -147,8 +147,9 @@ export default class WebAudioPlayer extends Player {
     }
 
     if (DecoderClass) {
+      const codecHeader = await this._codecHeader;
       this._decoderLoaded();
-      this._wasmDecoder = new DecoderClass();
+      this._wasmDecoder = new DecoderClass(codecHeader);
     } else {
       this._icecast[fireEvent](
         event.PLAYBACK_ERROR,

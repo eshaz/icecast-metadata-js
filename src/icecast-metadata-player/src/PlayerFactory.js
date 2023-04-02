@@ -137,12 +137,18 @@ export default class PlayerFactory {
     const inputMimeType = res.headers.get("content-type");
     const instanceVariables = p.get(this._icecast);
 
+    let onCodecHeader;
+    const codecHeaderPromise = new Promise((resolve) => {
+      onCodecHeader = resolve;
+    });
+
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
+        onCodec,
+        onCodecHeader,
         onCodecUpdate:
           this._enableCodecUpdate &&
           ((...args) => this._player.onCodecUpdate(...args)),
-        onCodec,
         enableLogging: this._enableLogging,
       });
     });
@@ -180,7 +186,8 @@ export default class PlayerFactory {
     if (!this._player.isAudioPlayer) {
       [this._player, this._playbackMethod] = this._buildPlayer(
         inputMimeType,
-        codec
+        codec,
+        codecHeaderPromise
       );
     }
 
@@ -319,7 +326,7 @@ export default class PlayerFactory {
     });
   }
 
-  _buildPlayer(inputMimeType, codec) {
+  _buildPlayer(inputMimeType, codec, codecHeader) {
     // in order of preference
     const { [p.get(this._icecast)[playbackMethod]]: firstMethod, ...rest } = {
       mediasource: MediaSourcePlayer,
@@ -334,7 +341,7 @@ export default class PlayerFactory {
 
       if (support === "probably" || support === "maybe") {
         method = Player.name;
-        player = new Player(this._icecast, inputMimeType, codec);
+        player = new Player(this._icecast, inputMimeType, codec, codecHeader);
         player.icecastMetadataQueue = this._icecastMetadataQueue;
         player.codecUpdateQueue = this._codecUpdateQueue;
         break;

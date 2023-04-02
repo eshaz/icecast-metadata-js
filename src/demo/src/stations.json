@@ -19,6 +19,40 @@
     ]
   },
   {
+    "name": "Multichannel Stream",
+    "description": "Listen on a surround sound system for the best effect.",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.bruschotti.party/apple_blossom.ogg",
+        "codec": "1 (Opus 5.1)",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"],
+        "switchable": false
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/chicago.ogg",
+        "codec": "2 (Opus 5.1)",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"],
+        "switchable": false
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/serve_chilled.ogg",
+        "codec": "3 (Opus 5.1)",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"],
+        "switchable": false
+      },
+      {
+        "endpoint": "https://stream.bruschotti.party/dusk_you_and_me.ogg",
+        "codec": "4 (Opus 5.1)",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"],
+        "switchable": false
+      }
+    ]
+  },
+  {
     "name": "Iowa Public Radio - News",
     "description": "",
     "link": "https://www.iowapublicradio.org",
