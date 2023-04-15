@@ -5,7 +5,11 @@ import Butterchurn from "./Butterchurn/Butterchurn";
 // eslint-disable-next-line
 import style from "./Visualizer.module.css";
 
-export const visualizers = ["butterchurn", "audiomotion", "none"];
+export const visualizers = (() =>
+  window.WebGL2RenderingContext &&
+  document.createElement("canvas").getContext("webgl2")
+    ? ["butterchurn", "audiomotion", "none"]
+    : ["audiomotion", "none"])();
 
 export const VisualizerSelector = ({
   className,
@@ -53,9 +57,7 @@ const Visualizer = ({ audioElement, selectedVisualizer }) => {
     case "audiomotion":
       return <AudioMotion sourceNode={sourceNode} />;
     case "butterchurn":
-      return window.WebGL2RenderingContext ? (
-        <Butterchurn sourceNode={sourceNode} />
-      ) : null;
+      return <Butterchurn sourceNode={sourceNode} />;
     case "none":
     default:
       return null;
