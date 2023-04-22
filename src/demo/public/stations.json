@@ -5,13 +5,13 @@
     "link": "https://dsmrad.io",
     "endpoints": [
       {
-        "endpoint": "https://dsmrad.io/stream/sara-all",
+        "endpoint": "https://dsmrad.io/stream/isics-all",
         "codec": "ISICS",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
       },
       {
-        "endpoint": "https://dsmrad.io/stream/isics-all",
+        "endpoint": "https://dsmrad.io/stream/sara-all",
         "codec": "SARA",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
