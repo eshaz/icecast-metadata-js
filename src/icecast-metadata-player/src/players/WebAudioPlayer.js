@@ -269,7 +269,7 @@ export default class WebAudioPlayer extends Player {
         this._mediaStream = this._audioContext.createMediaStreamDestination();
         this._mediaStream.channelCount =
           this._audioContext.destination.maxChannelCount;
-          
+
         this._audioElement.srcObject = this._mediaStream.stream; // triggers canplay event
       }
 

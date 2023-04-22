@@ -194,13 +194,13 @@ export default class PlayerFactory {
     if (this._player.syncState === SYNCED) {
       this._player.start();
     } else {
-      await this._syncPlayer(inputMimeType, codec);
+      await this._syncPlayer(inputMimeType, codec, codecHeaderPromise);
     }
 
     await icecastPromise;
   }
 
-  async _syncPlayer(inputMimeType, codec) {
+  async _syncPlayer(inputMimeType, codec, codecHeaderPromise) {
     let delayTimeoutId,
       canceled = false,
       playerStarted = false,
@@ -275,7 +275,8 @@ export default class PlayerFactory {
 
               [this._player, this._playbackMethod] = this._buildPlayer(
                 inputMimeType,
-                codec
+                codec,
+                codecHeaderPromise
               );
 
               this._unprocessedFrames.push(...oldPlayer.syncFrames);
