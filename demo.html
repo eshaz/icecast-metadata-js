@@ -10,7 +10,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.15.6.main.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.16.0.main.min.js"></script>
     <script src="/icecast-metadata-js/icecast-metadata-stats-0.1.7.min.js"></script>
     <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <link
@@ -179,9 +179,9 @@
     </style>
     <script>
       let playerFormData, statsFormData;
-      const stationsJson = fetch("/icecast-metadata-js/stations.json")
-        .then((res) => res.text())
-        .then((text) => JSON.parse(text));
+      const stationsJson = fetch("/icecast-metadata-js/stations.json").then(
+        (res) => res.json()
+      );
 
       // helper functions
       const formatTime = (seconds = 0) =>
@@ -232,6 +232,7 @@
           retryDelayRate: parseFloat(playerFormData.retryDelayRate),
           retryDelayMin: parseFloat(playerFormData.retryDelayMin),
           retryDelayMax: parseFloat(playerFormData.retryDelayMax),
+          endpointOrder: playerFormData.endpointOrder,
           playbackMethod: playerFormData.playbackMethod,
         };
       };
@@ -516,7 +517,7 @@
                 </fieldset>
                 <div>
                   <fieldset name="stream-endpoint" class="column">
-                    <legend>Stream Endpoint</legend>
+                    <legend>Stream Endpoints</legend>
                     <input
                       class="stream-endpoint"
                       name="endpoint"
@@ -524,6 +525,25 @@
                       type="url"
                     />
                     <select id="stations" name="stations"></select>
+                  </fieldset>
+                  <fieldset name="multiple-endpoints">
+                    <legend>Current Endpoint</legend>
+                    <div class="row" style="width: 100%">
+                      <input
+                        id="current-endpoint"
+                        disabled
+                        style="flex-grow: 1"
+                      />
+                      <select
+                        title="Order that the next endpoint will be chosen. Only applicable when multiple endpoints are present."
+                        id="endpointOrder"
+                        name="endpointOrder"
+                        style="width: 20%"
+                      >
+                        <option value="ordered">Ordered</option>
+                        <option value="random">Random</option>
+                      </select>
+                    </div>
                   </fieldset>
                   <div class="row">
                     <fieldset
@@ -874,7 +894,7 @@
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.15.6.main.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.16.0.main.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -1204,6 +1224,7 @@
     // IcecastMetadataPlayer
     const icyMetaIntEl = document.getElementById("icyMetaInt");
     const playbackMethodEl = document.getElementById("actualPlaybackMethod");
+    const currentEndpointEl = document.getElementById("current-endpoint");
     const metadataEl = document.getElementById("metadata");
     const metadataQueueEl = document.getElementById("metadataQueue");
     const currentTimeEl = document.getElementById("currentTime");
@@ -1251,6 +1272,7 @@
 
     const onStreamStart = () => {
       metadataEl.innerHTML = "";
+      currentEndpointEl.value = icecastMetadataPlayer.endpoint;
     };
 
     const onPlay = () => {
@@ -1285,18 +1307,21 @@
 
       options = getFormOptions();
 
-      icecastMetadataPlayer = new IcecastMetadataPlayer(options.endpoint, {
-        ...options,
-        enableLogging: true,
-        onStreamStart,
-        onPlay,
-        onStop,
-        onMetadata,
-        onMetadataEnqueue,
-        onCodecUpdate: enableCodecUpdate && onCodecUpdate,
-        onError,
-        onSwitch,
-      });
+      icecastMetadataPlayer = new IcecastMetadataPlayer(
+        options.endpoint.split(","),
+        {
+          ...options,
+          enableLogging: true,
+          onStreamStart,
+          onPlay,
+          onStop,
+          onMetadata,
+          onMetadataEnqueue,
+          onCodecUpdate: enableCodecUpdate && onCodecUpdate,
+          onError,
+          onSwitch,
+        }
+      );
 
       icecastMetadataPlayer.addEventListener("metadata", (...args) => {
         console.log(args);
@@ -1334,7 +1359,7 @@
       if (icecastMetadataPlayer) {
         const options = getFormOptions();
 
-        icecastMetadataPlayer.switchEndpoint(options.endpoint, options);
+        icecastMetadataPlayer.switchEndpoint(null, options);
       }
     });
   </script>

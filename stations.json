@@ -450,7 +450,13 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/groovesalad-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/groovesalad-256-mp3",
+          "https://ice2.somafm.com/groovesalad-256-mp3",
+          "https://ice4.somafm.com/groovesalad-256-mp3",
+          "https://ice5.somafm.com/groovesalad-256-mp3",
+          "https://ice6.somafm.com/groovesalad-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
