@@ -80,6 +80,12 @@ declare module "icecast-metadata-player" {
 
   interface IcecastMetadataPlayerOptions {
     /**
+     * Order to select the next endpoint when a list of endpoints is provided.
+     * @default "ordered"
+     */
+    endpointOrder?: "ordered" | "random";
+
+    /**
      * Number of seconds to buffer before starting playback
      * @default 1
      */
@@ -309,7 +315,7 @@ declare module "icecast-metadata-player" {
 
     constructor(
       /** HTTP(s) endpoint for the Icecast compatible stream. */
-      endpoint: string,
+      endpoints: string | string[],
       options?:
         | IcecastMetadataPlayerIcyOptionsWithCallbacks
         | IcecastMetadataPlayerOggOptionsWithCallbacks
@@ -362,6 +368,9 @@ declare module "icecast-metadata-player" {
     /** Returns audio element that is currently attached to this instance */
     get audioElement(): HTMLAudioElement;
 
+    /** Returns the current endpoint being played */
+    get endpoint(): string;
+
     /** Returns the detected or passed in icy metadata interval in number of bytes */
     get icyMetaInt(): number;
 
@@ -392,7 +401,7 @@ declare module "icecast-metadata-player" {
 
     /** Switches the stream endpoint during playback */
     switchEndpoint(
-      endpoint: string,
+      endpoints: string | string[],
       options?:
         | IcecastMetadataPlayerIcyOptions
         | IcecastMetadataPlayerOggOptions

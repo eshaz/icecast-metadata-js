@@ -31,7 +31,8 @@ export const event = {
 };
 
 // options
-export const endpoint = Symbol();
+export const endpoints = Symbol();
+export const endpointOrder = Symbol();
 export const metadataTypes = Symbol();
 export const playbackMethod = Symbol();
 export const audioContext = Symbol();
@@ -48,12 +49,15 @@ export const retryTimeout = Symbol();
 export const enableCodecUpdate = Symbol();
 
 // methods
+export const getNextEndpointGenerator = Symbol();
+export const getOptions = Symbol();
 export const fireEvent = Symbol();
 export const attachAudioElement = Symbol();
 export const shouldRetry = Symbol();
 export const logError = Symbol();
 
 // variables
+export const endpointGenerator = Symbol();
 export const hasIcy = Symbol();
 export const abortController = Symbol();
 export const playerState = Symbol();

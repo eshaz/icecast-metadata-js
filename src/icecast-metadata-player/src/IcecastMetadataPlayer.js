@@ -24,7 +24,7 @@ import {
   state,
   event,
   // options,
-  endpoint,
+  endpoints,
   metadataTypes,
   playbackMethod,
   audioContext,
@@ -38,13 +38,17 @@ import {
   retryDelayMin,
   retryDelayMax,
   retryDelayRate,
+  endpointOrder,
   retryTimeout,
   // methods
   fireEvent,
   attachAudioElement,
   shouldRetry,
   logError,
+  getOptions,
+  getNextEndpointGenerator,
   // variables
+  endpointGenerator,
   hasIcy,
   abortController,
   playerState,
@@ -78,8 +82,20 @@ const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 
 export default class IcecastMetadataPlayer extends EventClass {
-  static getDefaults(options, instance = {}) {
-    return {
+  static *[getNextEndpointGenerator](instance) {
+    while (true) {
+      const currentEndpoints = p.get(instance)[endpoints];
+      for (const endpoint of currentEndpoints) {
+        yield endpoint;
+        if (p.get(instance)[endpoints] !== currentEndpoints) break;
+      }
+    }
+  }
+
+  static [getOptions](urls, options, instance = {}) {
+    const newOptions = {
+      [endpoints]:
+        (urls && (Array.isArray(urls) ? urls : [urls])) ?? instance[endpoints],
       [bufferLength]: options.bufferLength ?? instance[bufferLength] ?? 1,
       [icyMetaInt]: options.icyMetaInt ?? instance[icyMetaInt],
       [icyCharacterEncoding]:
@@ -99,6 +115,8 @@ export default class IcecastMetadataPlayer extends EventClass {
           instance[enableCodecUpdate] ??
           options.onCodecUpdate
       ),
+      [endpointOrder]:
+        options.endpointOrder ?? instance[endpointOrder] ?? "ordered",
       [retryDelayRate]:
         options.retryDelayRate ?? instance[retryDelayRate] ?? 0.1,
       [retryDelayMin]: options.retryDelayMin ?? instance[retryDelayMin] ?? 0.5,
@@ -107,11 +125,21 @@ export default class IcecastMetadataPlayer extends EventClass {
       [playbackMethod]:
         (options.playbackMethod ?? instance[playbackMethod]) || "mediasource",
     };
+
+    if (
+      newOptions[endpoints] !== instance[endpoints] &&
+      newOptions[endpointOrder] === "random"
+    )
+      newOptions[endpoints] = newOptions[endpoints].sort(
+        () => 0.5 - Math.random()
+      );
+
+    return newOptions;
   }
 
   /**
    * @constructor
-   * @param {string} endpoint Endpoint of the Icecast compatible stream
+   * @param {string|string[]} endpoint Endpoint(s) of the Icecast compatible stream
    * @param {object} options Options object
    * @param {HTMLAudioElement} options.audioElement Audio element to play the stream
    * @param {Array} options.metadataTypes Array of metadata types to parse
@@ -119,6 +147,7 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @param {number} options.icyMetaInt ICY metadata interval
    * @param {string} options.icyCharacterEncoding Character encoding to use for ICY metadata (defaults to "utf-8")
    * @param {number} options.icyDetectionTimeout ICY metadata detection timeout
+   * @param {string} options.endpointOrder Order that a stream endpoint will be chosen when multiple endpoints are passed in.
    * @param {number} options.retryTimeout Number of seconds to wait before giving up on retries
    * @param {number} options.retryDelayRate Percentage of seconds to increment after each retry (how quickly to increase the back-off)
    * @param {number} options.retryDelayMin Minimum number of seconds between retries (start of the exponential back-off curve)
@@ -142,14 +171,15 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @callback options.onSwitch Called when a switch event is triggered
    * @callback options.onCodecUpdate Called when the audio codec information has changed
    */
-  constructor(url, options = {}) {
+  constructor(urls, options = {}) {
     super();
 
     p.set(this, {
       // options
-      [endpoint]: url,
+      [endpointGenerator]:
+        IcecastMetadataPlayer[getNextEndpointGenerator](this),
       [audioElement]: options.audioElement || new Audio(),
-      ...IcecastMetadataPlayer.getDefaults(options),
+      ...IcecastMetadataPlayer[getOptions](urls, options),
       // callbacks
       [events]: {
         [event.PLAY]: options.onPlay || noOp,
@@ -276,6 +306,13 @@ export default class IcecastMetadataPlayer extends EventClass {
    */
   get [audioContext]() {
     return IcecastMetadataPlayer.constructor[audioContext];
+  }
+
+  /**
+   * @returns {string} Current endpoint that is being played
+   */
+  get endpoint() {
+    return p.get(this)[playerFactory].endpoint;
   }
 
   /**
@@ -431,13 +468,13 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @description Switches the Icecast stream endpoint during playback
    * @async Resolves when playback begins from the new source
    */
-  async switchEndpoint(newEndpoint, newOptions) {
+  async switchEndpoint(newEndpoints, newOptions) {
     if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
       const instance = p.get(this);
-      Object.assign(instance, {
-        [endpoint]: newEndpoint,
-        ...IcecastMetadataPlayer.getDefaults(newOptions, instance),
-      });
+      Object.assign(
+        instance,
+        IcecastMetadataPlayer[getOptions](newEndpoints, newOptions, instance)
+      );
 
       return instance[playerFactory].switchStream();
     }

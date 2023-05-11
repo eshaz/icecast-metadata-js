@@ -42,7 +42,7 @@ export default class FrameQueue {
     clearTimeout(this._syncTimeout);
     this._syncTimeout = null;
     this._syncTimeoutReason = null;
-    this._crcSyncPending = false;
+    this._crcSyncPending = true;
 
     this._syncQueue = [];
     this._syncQueueDuration = 0;
