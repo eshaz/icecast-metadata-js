@@ -207,7 +207,8 @@ See [Retry Options](#Retry-Options) to configure or disable reconnects.
 ### Reconnect Lifecycle:
 
 1. The `error` / `onError` event will be fired indicating the issue that caused the retry process to start.
-1. IcecastMetadataPlayer will retry the initial fetch request periodically using an exponential back-off strategy configurable in the `options` object.
+1. IcecastMetadataPlayer will try to fetch the next stream endpoint periodically using an exponential back-off strategy configurable in the `options` object.
+   * Each retry attempt will select the next stream endpoint when a list of stream endpoints are provided. These may be selected in the order they are provided, or in random order. See [options.endpointOrder](#options).
    * Each retry attempt will fire a `retry` / `onRetry` event.
 1. Retries will stop when either of the below conditions are met:
    * The fetch request succeeds.
@@ -227,13 +228,13 @@ To increase the amount of audio that is buffered by clients, increase the `<burs
 
 IcecastMetadataPlayer enables the stream endpoint to be switched during playback to any new endpoint by calling `switchEndpoint`.
 
-The new endpoint will attempt to be synchronized with playback from the previous endpoint, either by matching the frame data exactly using CRC32 hashes, or by synchronizing the PCM streams of the previous and new stream endpoints using correlation.
+The next endpoint will fetched and attempted to be synchronized with playback from the previous endpoint. The next endpoint is selected from either from the current list of endpoints, or the new passed in list. The transition from the old to new stream should be seamless using synchronization logic that first attempts to match the frame data exactly using CRC32 hashes, and if there is no exact match, by synchronizing the PCM streams using cross-correlation.
 
 ### `switchEndpoint` lifecycle
 
 1. The old endpoint network request is aborted; however, any buffered audio will continue to play.
 1. The new endpoint network request is started.
-1. Playback will attempt to be synchronized with the new endpoint audio using two methods:
+1. Playback will attempt to be synchronized with the next endpoint audio using two methods:
    * **CRC Syncing** If the data is an exact match between the old and new endpoints, the stream will be synchronized using CRC32 hashes of each codec frame and playback will continue seamlessly from the new endpoint.
      * See [codec-parser](https://github.com/eshaz/codec-parser) for the library that enables CRC syncing.
    * **PCM Syncing** If the data does not match, both the old and new audio data will be decoded to PCM and synchronized using a correlation algorithm. The correlation coefficient (-100% worst to 100% best) will be printed to the console if `enableLogging` is set to `true`.
@@ -254,11 +255,11 @@ The new endpoint will attempt to be synchronized with playback from the previous
   * Stops playing the Icecast Stream.
   * Resolves when the stream has stopped.
 
-* `player.switchEndpoint(endpoint, options)` *async*
+* `player.switchEndpoint(endpoints, options)` *async*
   * Switches to a new stream endpoint and synchronizes the old and new audio.
-    * See [Switching Endpoints](#switching-endpoints) for more details.
-  * `endpoint` URL for the new stream endpoint.
-  * `options` Object containing any new options to apply to the stream endpoint. All options are allowed except callbacks and the audio element. See [options](#options) for more details.
+    * See [Switching Endpoints](#switching-endpoints) for more details. This is meant to be used when 
+  * `endpoints` *optional* Single URL or Array of URLs for the new stream endpoint(s). When left empty, and when multiple stream endpoints are present on the instance, the next URL will be selected.
+  * `options` *optional* Object containing any new options to apply to the instance. All options are allowed except callbacks and the audio element. See [options](#options) for more details.
 
 * `player.detachAudioElement()`
   * Removes all internal event listeners from the audio element
@@ -275,6 +276,8 @@ The new endpoint will attempt to be synchronized with playback from the previous
 ### Getters
 * `player.audioElement`
   * Returns the HTML5 Audio element.
+* `player.endpoint`
+  * Returns the current endpoint being played.
 * `player.icyMetaInt`
   * Returns the ICY Metadata Interval of this instance.
 * `player.metadataQueue`
@@ -319,8 +322,13 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
 })
 ```
 ### Options
-* `endpoint` (required)
-  * HTTP(s) endpoint for the Icecast compatible stream.
+* `endpoints` (required)
+  * HTTP(s) endpoint or array of endpoints for the Icecast compatible stream.
+  * Multiple endpoints can be passed in for client side load balancing or failover.
+* `endpointOrder` (optional) - **default** `ordered`
+  * Order to select each endpoint when multiple endpoints are passed in.
+  * Set to `ordered` to select each endpoint in the order they were provided.
+  * Set to `random` to select each endpoint in random order.
 * `audioElement` (optional) - **Default** `new Audio()`
   * HTML5 Audio Element to use to play the Icecast stream.
 * `bufferLength` (optional) - **Default** `1`

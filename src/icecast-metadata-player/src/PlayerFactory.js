@@ -9,9 +9,9 @@ import {
   state,
   event,
   audioElement,
-  endpoint,
   enableLogging,
   enableCodecUpdate,
+  endpointGenerator,
   metadataTypes,
   icyMetaInt,
   icyCharacterEncoding,
@@ -73,6 +73,10 @@ export default class PlayerFactory {
     };
   }
 
+  get endpoint() {
+    return this._endpoint;
+  }
+
   get player() {
     return this._player;
   }
@@ -116,7 +120,7 @@ export default class PlayerFactory {
 
   async fetchStream() {
     const instanceVariables = p.get(this._icecast);
-    this._endpoint = instanceVariables[endpoint];
+    this._endpoint = instanceVariables[endpointGenerator].next().value;
 
     const res = await fetch(this._endpoint, {
       method: "GET",
@@ -342,7 +346,13 @@ export default class PlayerFactory {
 
       if (support === "probably" || support === "maybe") {
         method = Player.name;
-        player = new Player(this._icecast, inputMimeType, codec, codecHeader);
+        player = new Player(
+          this._icecast,
+          this._endpoint,
+          inputMimeType,
+          codec,
+          codecHeader
+        );
         player.icecastMetadataQueue = this._icecastMetadataQueue;
         player.codecUpdateQueue = this._codecUpdateQueue;
         break;

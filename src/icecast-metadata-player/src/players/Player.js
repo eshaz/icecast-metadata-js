@@ -4,15 +4,15 @@ import {
   state,
   audioElement,
   bufferLength,
-  endpoint,
   SYNCED,
   NOT_SYNCED,
 } from "../global.js";
 import FrameQueue from "../FrameQueue.js";
 
 export default class Player {
-  constructor(icecast, inputMimeType, codec, codecHeader) {
+  constructor(icecast, endpoint, inputMimeType, codec, codecHeader) {
     this._icecast = icecast;
+    this._endpoint = endpoint;
     this._inputMimeType = inputMimeType;
     this._codec = codec;
     this._codecHeader = codecHeader;
@@ -20,7 +20,6 @@ export default class Player {
     const instanceVariables = p.get(this._icecast);
 
     this._audioElement = instanceVariables[audioElement];
-    this._endpoint = instanceVariables[endpoint];
     this._bufferLength = instanceVariables[bufferLength];
 
     this._codecUpdateTimestamp = 0;
