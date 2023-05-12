@@ -1271,11 +1271,11 @@
     };
 
     const onStreamStart = () => {
-      metadataEl.innerHTML = "";
       currentEndpointEl.value = icecastMetadataPlayer.endpoint;
     };
 
     const onPlay = () => {
+      if (metadataEl.innerHTML === "Loading...") metadataEl.innerHTML = "";
       icyMetaIntEl.value = icecastMetadataPlayer.icyMetaInt || "";
       playbackMethodEl.value = icecastMetadataPlayer.playbackMethod;
 
@@ -1359,7 +1359,23 @@
       if (icecastMetadataPlayer) {
         const options = getFormOptions();
 
-        icecastMetadataPlayer.switchEndpoint(null, options);
+        const currentMetadata = metadataEl.innerHTML;
+        icecastMetadataPlayer.addEventListener(
+          "streamstart",
+          () => {
+            if (
+              icecastMetadataPlayer.state !== "STOPPED" ||
+              icecastMetadataPlayer.state !== "STOPPING"
+            )
+              metadataEl.innerHTML = currentMetadata;
+          },
+          { once: true }
+        );
+
+        icecastMetadataPlayer.switchEndpoint(
+          options.endpoint.split(","),
+          options
+        );
       }
     });
   </script>
