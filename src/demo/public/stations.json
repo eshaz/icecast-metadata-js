@@ -453,6 +453,7 @@
         "endpoint": [
           "https://ice1.somafm.com/groovesalad-256-mp3",
           "https://ice2.somafm.com/groovesalad-256-mp3",
+          "https://ice3.somafm.com/groovesalad-256-mp3",
           "https://ice4.somafm.com/groovesalad-256-mp3",
           "https://ice5.somafm.com/groovesalad-256-mp3",
           "https://ice6.somafm.com/groovesalad-256-mp3"
@@ -462,25 +463,53 @@
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/groovesalad-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/groovesalad-128-mp3",
+          "https://ice2.somafm.com/groovesalad-128-mp3",
+          "https://ice3.somafm.com/groovesalad-128-mp3",
+          "https://ice4.somafm.com/groovesalad-128-mp3",
+          "https://ice5.somafm.com/groovesalad-128-mp3",
+          "https://ice6.somafm.com/groovesalad-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/groovesalad-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/groovesalad-128-aac",
+          "https://ice2.somafm.com/groovesalad-128-aac",
+          "https://ice3.somafm.com/groovesalad-128-aac",
+          "https://ice4.somafm.com/groovesalad-128-aac",
+          "https://ice5.somafm.com/groovesalad-128-aac",
+          "https://ice6.somafm.com/groovesalad-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/groovesalad-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/groovesalad-64-aac",
+          "https://ice2.somafm.com/groovesalad-64-aac",
+          "https://ice3.somafm.com/groovesalad-64-aac",
+          "https://ice4.somafm.com/groovesalad-64-aac",
+          "https://ice5.somafm.com/groovesalad-64-aac",
+          "https://ice6.somafm.com/groovesalad-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/groovesalad-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/groovesalad-32-aac",
+          "https://ice2.somafm.com/groovesalad-32-aac",
+          "https://ice3.somafm.com/groovesalad-32-aac",
+          "https://ice4.somafm.com/groovesalad-32-aac",
+          "https://ice5.somafm.com/groovesalad-32-aac",
+          "https://ice6.somafm.com/groovesalad-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -494,25 +523,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/gsclassic-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/gsclassic-128-mp3",
+          "https://ice2.somafm.com/gsclassic-128-mp3",
+          "https://ice3.somafm.com/gsclassic-128-mp3",
+          "https://ice4.somafm.com/gsclassic-128-mp3",
+          "https://ice5.somafm.com/gsclassic-128-mp3",
+          "https://ice6.somafm.com/gsclassic-128-mp3"
+        ],
         "codec": "MP3 160",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/gsclassic-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/gsclassic-128-aac",
+          "https://ice2.somafm.com/gsclassic-128-aac",
+          "https://ice3.somafm.com/gsclassic-128-aac",
+          "https://ice4.somafm.com/gsclassic-128-aac",
+          "https://ice5.somafm.com/gsclassic-128-aac",
+          "https://ice6.somafm.com/gsclassic-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/gsclassic-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/gsclassic-64-aac",
+          "https://ice2.somafm.com/gsclassic-64-aac",
+          "https://ice3.somafm.com/gsclassic-64-aac",
+          "https://ice4.somafm.com/gsclassic-64-aac",
+          "https://ice5.somafm.com/gsclassic-64-aac",
+          "https://ice6.somafm.com/gsclassic-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/gsclassic-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/gsclassic-32-aac",
+          "https://ice2.somafm.com/gsclassic-32-aac",
+          "https://ice3.somafm.com/gsclassic-32-aac",
+          "https://ice4.somafm.com/gsclassic-32-aac",
+          "https://ice5.somafm.com/gsclassic-32-aac",
+          "https://ice6.somafm.com/gsclassic-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -526,31 +583,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/dronezone-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/dronezone-256-mp3",
+          "https://ice2.somafm.com/dronezone-256-mp3",
+          "https://ice3.somafm.com/dronezone-256-mp3",
+          "https://ice4.somafm.com/dronezone-256-mp3",
+          "https://ice5.somafm.com/dronezone-256-mp3",
+          "https://ice6.somafm.com/dronezone-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dronezone-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/dronezone-128-mp3",
+          "https://ice2.somafm.com/dronezone-128-mp3",
+          "https://ice3.somafm.com/dronezone-128-mp3",
+          "https://ice4.somafm.com/dronezone-128-mp3",
+          "https://ice5.somafm.com/dronezone-128-mp3",
+          "https://ice6.somafm.com/dronezone-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dronezone-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/dronezone-128-aac",
+          "https://ice2.somafm.com/dronezone-128-aac",
+          "https://ice3.somafm.com/dronezone-128-aac",
+          "https://ice4.somafm.com/dronezone-128-aac",
+          "https://ice5.somafm.com/dronezone-128-aac",
+          "https://ice6.somafm.com/dronezone-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dronezone-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/dronezone-64-aac",
+          "https://ice2.somafm.com/dronezone-64-aac",
+          "https://ice3.somafm.com/dronezone-64-aac",
+          "https://ice4.somafm.com/dronezone-64-aac",
+          "https://ice5.somafm.com/dronezone-64-aac",
+          "https://ice6.somafm.com/dronezone-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dronezone-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/dronezone-32-aac",
+          "https://ice2.somafm.com/dronezone-32-aac",
+          "https://ice3.somafm.com/dronezone-32-aac",
+          "https://ice4.somafm.com/dronezone-32-aac",
+          "https://ice5.somafm.com/dronezone-32-aac",
+          "https://ice6.somafm.com/dronezone-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -564,25 +656,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/deepspaceone-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/deepspaceone-128-mp3",
+          "https://ice2.somafm.com/deepspaceone-128-mp3",
+          "https://ice3.somafm.com/deepspaceone-128-mp3",
+          "https://ice4.somafm.com/deepspaceone-128-mp3",
+          "https://ice5.somafm.com/deepspaceone-128-mp3",
+          "https://ice6.somafm.com/deepspaceone-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/deepspaceone-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/deepspaceone-128-aac",
+          "https://ice2.somafm.com/deepspaceone-128-aac",
+          "https://ice3.somafm.com/deepspaceone-128-aac",
+          "https://ice4.somafm.com/deepspaceone-128-aac",
+          "https://ice5.somafm.com/deepspaceone-128-aac",
+          "https://ice6.somafm.com/deepspaceone-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/deepspaceone-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/deepspaceone-64-aac",
+          "https://ice2.somafm.com/deepspaceone-64-aac",
+          "https://ice3.somafm.com/deepspaceone-64-aac",
+          "https://ice4.somafm.com/deepspaceone-64-aac",
+          "https://ice5.somafm.com/deepspaceone-64-aac",
+          "https://ice6.somafm.com/deepspaceone-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/deepspaceone-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/deepspaceone-32-aac",
+          "https://ice2.somafm.com/deepspaceone-32-aac",
+          "https://ice3.somafm.com/deepspaceone-32-aac",
+          "https://ice4.somafm.com/deepspaceone-32-aac",
+          "https://ice5.somafm.com/deepspaceone-32-aac",
+          "https://ice6.somafm.com/deepspaceone-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -596,25 +716,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/spacestation-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/spacestation-128-mp3",
+          "https://ice2.somafm.com/spacestation-128-mp3",
+          "https://ice3.somafm.com/spacestation-128-mp3",
+          "https://ice4.somafm.com/spacestation-128-mp3",
+          "https://ice5.somafm.com/spacestation-128-mp3",
+          "https://ice6.somafm.com/spacestation-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/spacestation-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/spacestation-128-aac",
+          "https://ice2.somafm.com/spacestation-128-aac",
+          "https://ice3.somafm.com/spacestation-128-aac",
+          "https://ice4.somafm.com/spacestation-128-aac",
+          "https://ice5.somafm.com/spacestation-128-aac",
+          "https://ice6.somafm.com/spacestation-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/spacestation-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/spacestation-64-aac",
+          "https://ice2.somafm.com/spacestation-64-aac",
+          "https://ice3.somafm.com/spacestation-64-aac",
+          "https://ice4.somafm.com/spacestation-64-aac",
+          "https://ice5.somafm.com/spacestation-64-aac",
+          "https://ice6.somafm.com/spacestation-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/spacestation-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/spacestation-32-aac",
+          "https://ice2.somafm.com/spacestation-32-aac",
+          "https://ice3.somafm.com/spacestation-32-aac",
+          "https://ice4.somafm.com/spacestation-32-aac",
+          "https://ice5.somafm.com/spacestation-32-aac",
+          "https://ice6.somafm.com/spacestation-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -628,31 +776,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/u80s-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/u80s-256-mp3",
+          "https://ice2.somafm.com/u80s-256-mp3",
+          "https://ice3.somafm.com/u80s-256-mp3",
+          "https://ice4.somafm.com/u80s-256-mp3",
+          "https://ice5.somafm.com/u80s-256-mp3",
+          "https://ice6.somafm.com/u80s-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/u80s-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/u80s-128-mp3",
+          "https://ice2.somafm.com/u80s-128-mp3",
+          "https://ice3.somafm.com/u80s-128-mp3",
+          "https://ice4.somafm.com/u80s-128-mp3",
+          "https://ice5.somafm.com/u80s-128-mp3",
+          "https://ice6.somafm.com/u80s-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/u80s-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/u80s-128-aac",
+          "https://ice2.somafm.com/u80s-128-aac",
+          "https://ice3.somafm.com/u80s-128-aac",
+          "https://ice4.somafm.com/u80s-128-aac",
+          "https://ice5.somafm.com/u80s-128-aac",
+          "https://ice6.somafm.com/u80s-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/u80s-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/u80s-64-aac",
+          "https://ice2.somafm.com/u80s-64-aac",
+          "https://ice3.somafm.com/u80s-64-aac",
+          "https://ice4.somafm.com/u80s-64-aac",
+          "https://ice5.somafm.com/u80s-64-aac",
+          "https://ice6.somafm.com/u80s-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/u80s-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/u80s-32-aac",
+          "https://ice2.somafm.com/u80s-32-aac",
+          "https://ice3.somafm.com/u80s-32-aac",
+          "https://ice4.somafm.com/u80s-32-aac",
+          "https://ice5.somafm.com/u80s-32-aac",
+          "https://ice6.somafm.com/u80s-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -666,25 +849,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/indiepop-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/indiepop-128-mp3",
+          "https://ice2.somafm.com/indiepop-128-mp3",
+          "https://ice3.somafm.com/indiepop-128-mp3",
+          "https://ice4.somafm.com/indiepop-128-mp3",
+          "https://ice5.somafm.com/indiepop-128-mp3",
+          "https://ice6.somafm.com/indiepop-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/indiepop-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/indiepop-128-aac",
+          "https://ice2.somafm.com/indiepop-128-aac",
+          "https://ice3.somafm.com/indiepop-128-aac",
+          "https://ice4.somafm.com/indiepop-128-aac",
+          "https://ice5.somafm.com/indiepop-128-aac",
+          "https://ice6.somafm.com/indiepop-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/indiepop-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/indiepop-64-aac",
+          "https://ice2.somafm.com/indiepop-64-aac",
+          "https://ice3.somafm.com/indiepop-64-aac",
+          "https://ice4.somafm.com/indiepop-64-aac",
+          "https://ice5.somafm.com/indiepop-64-aac",
+          "https://ice6.somafm.com/indiepop-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/indiepop-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/indiepop-32-aac",
+          "https://ice2.somafm.com/indiepop-32-aac",
+          "https://ice3.somafm.com/indiepop-32-aac",
+          "https://ice4.somafm.com/indiepop-32-aac",
+          "https://ice5.somafm.com/indiepop-32-aac",
+          "https://ice6.somafm.com/indiepop-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -698,25 +909,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/secretagent-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/secretagent-128-mp3",
+          "https://ice2.somafm.com/secretagent-128-mp3",
+          "https://ice3.somafm.com/secretagent-128-mp3",
+          "https://ice4.somafm.com/secretagent-128-mp3",
+          "https://ice5.somafm.com/secretagent-128-mp3",
+          "https://ice6.somafm.com/secretagent-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/secretagent-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/secretagent-128-aac",
+          "https://ice2.somafm.com/secretagent-128-aac",
+          "https://ice3.somafm.com/secretagent-128-aac",
+          "https://ice4.somafm.com/secretagent-128-aac",
+          "https://ice5.somafm.com/secretagent-128-aac",
+          "https://ice6.somafm.com/secretagent-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/secretagent-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/secretagent-64-aac",
+          "https://ice2.somafm.com/secretagent-64-aac",
+          "https://ice3.somafm.com/secretagent-64-aac",
+          "https://ice4.somafm.com/secretagent-64-aac",
+          "https://ice5.somafm.com/secretagent-64-aac",
+          "https://ice6.somafm.com/secretagent-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/secretagent-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/secretagent-32-aac",
+          "https://ice2.somafm.com/secretagent-32-aac",
+          "https://ice3.somafm.com/secretagent-32-aac",
+          "https://ice4.somafm.com/secretagent-32-aac",
+          "https://ice5.somafm.com/secretagent-32-aac",
+          "https://ice6.somafm.com/secretagent-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -730,31 +969,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/seventies-320-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/seventies-320-mp3",
+          "https://ice2.somafm.com/seventies-320-mp3",
+          "https://ice3.somafm.com/seventies-320-mp3",
+          "https://ice4.somafm.com/seventies-320-mp3",
+          "https://ice5.somafm.com/seventies-320-mp3",
+          "https://ice6.somafm.com/seventies-320-mp3"
+        ],
         "codec": "MP3 320",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/seventies-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/seventies-128-mp3",
+          "https://ice2.somafm.com/seventies-128-mp3",
+          "https://ice3.somafm.com/seventies-128-mp3",
+          "https://ice4.somafm.com/seventies-128-mp3",
+          "https://ice5.somafm.com/seventies-128-mp3",
+          "https://ice6.somafm.com/seventies-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/seventies-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/seventies-128-aac",
+          "https://ice2.somafm.com/seventies-128-aac",
+          "https://ice3.somafm.com/seventies-128-aac",
+          "https://ice4.somafm.com/seventies-128-aac",
+          "https://ice5.somafm.com/seventies-128-aac",
+          "https://ice6.somafm.com/seventies-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/seventies-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/seventies-64-aac",
+          "https://ice2.somafm.com/seventies-64-aac",
+          "https://ice3.somafm.com/seventies-64-aac",
+          "https://ice4.somafm.com/seventies-64-aac",
+          "https://ice5.somafm.com/seventies-64-aac",
+          "https://ice6.somafm.com/seventies-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/seventies-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/seventies-32-aac",
+          "https://ice2.somafm.com/seventies-32-aac",
+          "https://ice3.somafm.com/seventies-32-aac",
+          "https://ice4.somafm.com/seventies-32-aac",
+          "https://ice5.somafm.com/seventies-32-aac",
+          "https://ice6.somafm.com/seventies-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -768,25 +1042,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/lush-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/lush-128-mp3",
+          "https://ice2.somafm.com/lush-128-mp3",
+          "https://ice3.somafm.com/lush-128-mp3",
+          "https://ice4.somafm.com/lush-128-mp3",
+          "https://ice5.somafm.com/lush-128-mp3",
+          "https://ice6.somafm.com/lush-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/lush-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/lush-128-aac",
+          "https://ice2.somafm.com/lush-128-aac",
+          "https://ice3.somafm.com/lush-128-aac",
+          "https://ice4.somafm.com/lush-128-aac",
+          "https://ice5.somafm.com/lush-128-aac",
+          "https://ice6.somafm.com/lush-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/lush-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/lush-64-aac",
+          "https://ice2.somafm.com/lush-64-aac",
+          "https://ice3.somafm.com/lush-64-aac",
+          "https://ice4.somafm.com/lush-64-aac",
+          "https://ice5.somafm.com/lush-64-aac",
+          "https://ice6.somafm.com/lush-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/lush-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/lush-32-aac",
+          "https://ice2.somafm.com/lush-32-aac",
+          "https://ice3.somafm.com/lush-32-aac",
+          "https://ice4.somafm.com/lush-32-aac",
+          "https://ice5.somafm.com/lush-32-aac",
+          "https://ice6.somafm.com/lush-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -800,25 +1102,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/folkfwd-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/folkfwd-128-mp3",
+          "https://ice2.somafm.com/folkfwd-128-mp3",
+          "https://ice3.somafm.com/folkfwd-128-mp3",
+          "https://ice4.somafm.com/folkfwd-128-mp3",
+          "https://ice5.somafm.com/folkfwd-128-mp3",
+          "https://ice6.somafm.com/folkfwd-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/folkfwd-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/folkfwd-128-aac",
+          "https://ice2.somafm.com/folkfwd-128-aac",
+          "https://ice3.somafm.com/folkfwd-128-aac",
+          "https://ice4.somafm.com/folkfwd-128-aac",
+          "https://ice5.somafm.com/folkfwd-128-aac",
+          "https://ice6.somafm.com/folkfwd-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/folkfwd-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/folkfwd-64-aac",
+          "https://ice2.somafm.com/folkfwd-64-aac",
+          "https://ice3.somafm.com/folkfwd-64-aac",
+          "https://ice4.somafm.com/folkfwd-64-aac",
+          "https://ice5.somafm.com/folkfwd-64-aac",
+          "https://ice6.somafm.com/folkfwd-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/folkfwd-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/folkfwd-32-aac",
+          "https://ice2.somafm.com/folkfwd-32-aac",
+          "https://ice3.somafm.com/folkfwd-32-aac",
+          "https://ice4.somafm.com/folkfwd-32-aac",
+          "https://ice5.somafm.com/folkfwd-32-aac",
+          "https://ice6.somafm.com/folkfwd-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -832,31 +1162,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/defcon-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/defcon-256-mp3",
+          "https://ice2.somafm.com/defcon-256-mp3",
+          "https://ice3.somafm.com/defcon-256-mp3",
+          "https://ice4.somafm.com/defcon-256-mp3",
+          "https://ice5.somafm.com/defcon-256-mp3",
+          "https://ice6.somafm.com/defcon-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/defcon-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/defcon-128-mp3",
+          "https://ice2.somafm.com/defcon-128-mp3",
+          "https://ice3.somafm.com/defcon-128-mp3",
+          "https://ice4.somafm.com/defcon-128-mp3",
+          "https://ice5.somafm.com/defcon-128-mp3",
+          "https://ice6.somafm.com/defcon-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/defcon-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/defcon-128-aac",
+          "https://ice2.somafm.com/defcon-128-aac",
+          "https://ice3.somafm.com/defcon-128-aac",
+          "https://ice4.somafm.com/defcon-128-aac",
+          "https://ice5.somafm.com/defcon-128-aac",
+          "https://ice6.somafm.com/defcon-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/defcon-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/defcon-64-aac",
+          "https://ice2.somafm.com/defcon-64-aac",
+          "https://ice3.somafm.com/defcon-64-aac",
+          "https://ice4.somafm.com/defcon-64-aac",
+          "https://ice5.somafm.com/defcon-64-aac",
+          "https://ice6.somafm.com/defcon-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/defcon-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/defcon-32-aac",
+          "https://ice2.somafm.com/defcon-32-aac",
+          "https://ice3.somafm.com/defcon-32-aac",
+          "https://ice4.somafm.com/defcon-32-aac",
+          "https://ice5.somafm.com/defcon-32-aac",
+          "https://ice6.somafm.com/defcon-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -870,25 +1235,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/beatblender-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/beatblender-128-mp3",
+          "https://ice2.somafm.com/beatblender-128-mp3",
+          "https://ice3.somafm.com/beatblender-128-mp3",
+          "https://ice4.somafm.com/beatblender-128-mp3",
+          "https://ice5.somafm.com/beatblender-128-mp3",
+          "https://ice6.somafm.com/beatblender-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/beatblender-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/beatblender-128-aac",
+          "https://ice2.somafm.com/beatblender-128-aac",
+          "https://ice3.somafm.com/beatblender-128-aac",
+          "https://ice4.somafm.com/beatblender-128-aac",
+          "https://ice5.somafm.com/beatblender-128-aac",
+          "https://ice6.somafm.com/beatblender-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/beatblender-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/beatblender-64-aac",
+          "https://ice2.somafm.com/beatblender-64-aac",
+          "https://ice3.somafm.com/beatblender-64-aac",
+          "https://ice4.somafm.com/beatblender-64-aac",
+          "https://ice5.somafm.com/beatblender-64-aac",
+          "https://ice6.somafm.com/beatblender-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/beatblender-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/beatblender-32-aac",
+          "https://ice2.somafm.com/beatblender-32-aac",
+          "https://ice3.somafm.com/beatblender-32-aac",
+          "https://ice4.somafm.com/beatblender-32-aac",
+          "https://ice5.somafm.com/beatblender-32-aac",
+          "https://ice6.somafm.com/beatblender-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -902,25 +1295,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/illstreet-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/illstreet-128-mp3",
+          "https://ice2.somafm.com/illstreet-128-mp3",
+          "https://ice3.somafm.com/illstreet-128-mp3",
+          "https://ice4.somafm.com/illstreet-128-mp3",
+          "https://ice5.somafm.com/illstreet-128-mp3",
+          "https://ice6.somafm.com/illstreet-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/illstreet-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/illstreet-128-aac",
+          "https://ice2.somafm.com/illstreet-128-aac",
+          "https://ice3.somafm.com/illstreet-128-aac",
+          "https://ice4.somafm.com/illstreet-128-aac",
+          "https://ice5.somafm.com/illstreet-128-aac",
+          "https://ice6.somafm.com/illstreet-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/illstreet-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/illstreet-64-aac",
+          "https://ice2.somafm.com/illstreet-64-aac",
+          "https://ice3.somafm.com/illstreet-64-aac",
+          "https://ice4.somafm.com/illstreet-64-aac",
+          "https://ice5.somafm.com/illstreet-64-aac",
+          "https://ice6.somafm.com/illstreet-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/illstreet-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/illstreet-32-aac",
+          "https://ice2.somafm.com/illstreet-32-aac",
+          "https://ice3.somafm.com/illstreet-32-aac",
+          "https://ice4.somafm.com/illstreet-32-aac",
+          "https://ice5.somafm.com/illstreet-32-aac",
+          "https://ice6.somafm.com/illstreet-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -934,31 +1355,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/bootliquor-320-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/bootliquor-320-mp3",
+          "https://ice2.somafm.com/bootliquor-320-mp3",
+          "https://ice3.somafm.com/bootliquor-320-mp3",
+          "https://ice4.somafm.com/bootliquor-320-mp3",
+          "https://ice5.somafm.com/bootliquor-320-mp3",
+          "https://ice6.somafm.com/bootliquor-320-mp3"
+        ],
         "codec": "MP3 320",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/bootliquor-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/bootliquor-128-mp3",
+          "https://ice2.somafm.com/bootliquor-128-mp3",
+          "https://ice3.somafm.com/bootliquor-128-mp3",
+          "https://ice4.somafm.com/bootliquor-128-mp3",
+          "https://ice5.somafm.com/bootliquor-128-mp3",
+          "https://ice6.somafm.com/bootliquor-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/bootliquor-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/bootliquor-128-aac",
+          "https://ice2.somafm.com/bootliquor-128-aac",
+          "https://ice3.somafm.com/bootliquor-128-aac",
+          "https://ice4.somafm.com/bootliquor-128-aac",
+          "https://ice5.somafm.com/bootliquor-128-aac",
+          "https://ice6.somafm.com/bootliquor-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/bootliquor-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/bootliquor-64-aac",
+          "https://ice2.somafm.com/bootliquor-64-aac",
+          "https://ice3.somafm.com/bootliquor-64-aac",
+          "https://ice4.somafm.com/bootliquor-64-aac",
+          "https://ice5.somafm.com/bootliquor-64-aac",
+          "https://ice6.somafm.com/bootliquor-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/bootliquor-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/bootliquor-32-aac",
+          "https://ice2.somafm.com/bootliquor-32-aac",
+          "https://ice3.somafm.com/bootliquor-32-aac",
+          "https://ice4.somafm.com/bootliquor-32-aac",
+          "https://ice5.somafm.com/bootliquor-32-aac",
+          "https://ice6.somafm.com/bootliquor-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -972,25 +1428,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/thistle-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/thistle-128-mp3",
+          "https://ice2.somafm.com/thistle-128-mp3",
+          "https://ice3.somafm.com/thistle-128-mp3",
+          "https://ice4.somafm.com/thistle-128-mp3",
+          "https://ice5.somafm.com/thistle-128-mp3",
+          "https://ice6.somafm.com/thistle-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/thistle-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/thistle-128-aac",
+          "https://ice2.somafm.com/thistle-128-aac",
+          "https://ice3.somafm.com/thistle-128-aac",
+          "https://ice4.somafm.com/thistle-128-aac",
+          "https://ice5.somafm.com/thistle-128-aac",
+          "https://ice6.somafm.com/thistle-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/thistle-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/thistle-64-aac",
+          "https://ice2.somafm.com/thistle-64-aac",
+          "https://ice3.somafm.com/thistle-64-aac",
+          "https://ice4.somafm.com/thistle-64-aac",
+          "https://ice5.somafm.com/thistle-64-aac",
+          "https://ice6.somafm.com/thistle-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/thistle-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/thistle-32-aac",
+          "https://ice2.somafm.com/thistle-32-aac",
+          "https://ice3.somafm.com/thistle-32-aac",
+          "https://ice4.somafm.com/thistle-32-aac",
+          "https://ice5.somafm.com/thistle-32-aac",
+          "https://ice6.somafm.com/thistle-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1004,31 +1488,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/synphaera-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/synphaera-256-mp3",
+          "https://ice2.somafm.com/synphaera-256-mp3",
+          "https://ice3.somafm.com/synphaera-256-mp3",
+          "https://ice4.somafm.com/synphaera-256-mp3",
+          "https://ice5.somafm.com/synphaera-256-mp3",
+          "https://ice6.somafm.com/synphaera-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/synphaera-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/synphaera-128-mp3",
+          "https://ice2.somafm.com/synphaera-128-mp3",
+          "https://ice3.somafm.com/synphaera-128-mp3",
+          "https://ice4.somafm.com/synphaera-128-mp3",
+          "https://ice5.somafm.com/synphaera-128-mp3",
+          "https://ice6.somafm.com/synphaera-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/synphaera-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/synphaera-128-aac",
+          "https://ice2.somafm.com/synphaera-128-aac",
+          "https://ice3.somafm.com/synphaera-128-aac",
+          "https://ice4.somafm.com/synphaera-128-aac",
+          "https://ice5.somafm.com/synphaera-128-aac",
+          "https://ice6.somafm.com/synphaera-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/synphaera-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/synphaera-64-aac",
+          "https://ice2.somafm.com/synphaera-64-aac",
+          "https://ice3.somafm.com/synphaera-64-aac",
+          "https://ice4.somafm.com/synphaera-64-aac",
+          "https://ice5.somafm.com/synphaera-64-aac",
+          "https://ice6.somafm.com/synphaera-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/synphaera-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/synphaera-32-aac",
+          "https://ice2.somafm.com/synphaera-32-aac",
+          "https://ice3.somafm.com/synphaera-32-aac",
+          "https://ice4.somafm.com/synphaera-32-aac",
+          "https://ice5.somafm.com/synphaera-32-aac",
+          "https://ice6.somafm.com/synphaera-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1042,25 +1561,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/poptron-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/poptron-128-mp3",
+          "https://ice2.somafm.com/poptron-128-mp3",
+          "https://ice3.somafm.com/poptron-128-mp3",
+          "https://ice4.somafm.com/poptron-128-mp3",
+          "https://ice5.somafm.com/poptron-128-mp3",
+          "https://ice6.somafm.com/poptron-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/poptron-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/poptron-128-aac",
+          "https://ice2.somafm.com/poptron-128-aac",
+          "https://ice3.somafm.com/poptron-128-aac",
+          "https://ice4.somafm.com/poptron-128-aac",
+          "https://ice5.somafm.com/poptron-128-aac",
+          "https://ice6.somafm.com/poptron-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/poptron-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/poptron-64-aac",
+          "https://ice2.somafm.com/poptron-64-aac",
+          "https://ice3.somafm.com/poptron-64-aac",
+          "https://ice4.somafm.com/poptron-64-aac",
+          "https://ice5.somafm.com/poptron-64-aac",
+          "https://ice6.somafm.com/poptron-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/poptron-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/poptron-32-aac",
+          "https://ice2.somafm.com/poptron-32-aac",
+          "https://ice3.somafm.com/poptron-32-aac",
+          "https://ice4.somafm.com/poptron-32-aac",
+          "https://ice5.somafm.com/poptron-32-aac",
+          "https://ice6.somafm.com/poptron-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1074,25 +1621,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/thetrip-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/thetrip-128-mp3",
+          "https://ice2.somafm.com/thetrip-128-mp3",
+          "https://ice3.somafm.com/thetrip-128-mp3",
+          "https://ice4.somafm.com/thetrip-128-mp3",
+          "https://ice5.somafm.com/thetrip-128-mp3",
+          "https://ice6.somafm.com/thetrip-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/thetrip-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/thetrip-128-aac",
+          "https://ice2.somafm.com/thetrip-128-aac",
+          "https://ice3.somafm.com/thetrip-128-aac",
+          "https://ice4.somafm.com/thetrip-128-aac",
+          "https://ice5.somafm.com/thetrip-128-aac",
+          "https://ice6.somafm.com/thetrip-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/thetrip-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/thetrip-64-aac",
+          "https://ice2.somafm.com/thetrip-64-aac",
+          "https://ice3.somafm.com/thetrip-64-aac",
+          "https://ice4.somafm.com/thetrip-64-aac",
+          "https://ice5.somafm.com/thetrip-64-aac",
+          "https://ice6.somafm.com/thetrip-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/thetrip-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/thetrip-32-aac",
+          "https://ice2.somafm.com/thetrip-32-aac",
+          "https://ice3.somafm.com/thetrip-32-aac",
+          "https://ice4.somafm.com/thetrip-32-aac",
+          "https://ice5.somafm.com/thetrip-32-aac",
+          "https://ice6.somafm.com/thetrip-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1106,31 +1681,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/sonicuniverse-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/sonicuniverse-256-mp3",
+          "https://ice2.somafm.com/sonicuniverse-256-mp3",
+          "https://ice3.somafm.com/sonicuniverse-256-mp3",
+          "https://ice4.somafm.com/sonicuniverse-256-mp3",
+          "https://ice5.somafm.com/sonicuniverse-256-mp3",
+          "https://ice6.somafm.com/sonicuniverse-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sonicuniverse-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/sonicuniverse-128-mp3",
+          "https://ice2.somafm.com/sonicuniverse-128-mp3",
+          "https://ice3.somafm.com/sonicuniverse-128-mp3",
+          "https://ice4.somafm.com/sonicuniverse-128-mp3",
+          "https://ice5.somafm.com/sonicuniverse-128-mp3",
+          "https://ice6.somafm.com/sonicuniverse-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sonicuniverse-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/sonicuniverse-128-aac",
+          "https://ice2.somafm.com/sonicuniverse-128-aac",
+          "https://ice3.somafm.com/sonicuniverse-128-aac",
+          "https://ice4.somafm.com/sonicuniverse-128-aac",
+          "https://ice5.somafm.com/sonicuniverse-128-aac",
+          "https://ice6.somafm.com/sonicuniverse-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sonicuniverse-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/sonicuniverse-64-aac",
+          "https://ice2.somafm.com/sonicuniverse-64-aac",
+          "https://ice3.somafm.com/sonicuniverse-64-aac",
+          "https://ice4.somafm.com/sonicuniverse-64-aac",
+          "https://ice5.somafm.com/sonicuniverse-64-aac",
+          "https://ice6.somafm.com/sonicuniverse-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sonicuniverse-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/sonicuniverse-32-aac",
+          "https://ice2.somafm.com/sonicuniverse-32-aac",
+          "https://ice3.somafm.com/sonicuniverse-32-aac",
+          "https://ice4.somafm.com/sonicuniverse-32-aac",
+          "https://ice5.somafm.com/sonicuniverse-32-aac",
+          "https://ice6.somafm.com/sonicuniverse-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1144,25 +1754,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/suburbsofgoa-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/suburbsofgoa-128-mp3",
+          "https://ice2.somafm.com/suburbsofgoa-128-mp3",
+          "https://ice3.somafm.com/suburbsofgoa-128-mp3",
+          "https://ice4.somafm.com/suburbsofgoa-128-mp3",
+          "https://ice5.somafm.com/suburbsofgoa-128-mp3",
+          "https://ice6.somafm.com/suburbsofgoa-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/suburbsofgoa-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/suburbsofgoa-128-aac",
+          "https://ice2.somafm.com/suburbsofgoa-128-aac",
+          "https://ice3.somafm.com/suburbsofgoa-128-aac",
+          "https://ice4.somafm.com/suburbsofgoa-128-aac",
+          "https://ice5.somafm.com/suburbsofgoa-128-aac",
+          "https://ice6.somafm.com/suburbsofgoa-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/suburbsofgoa-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/suburbsofgoa-64-aac",
+          "https://ice2.somafm.com/suburbsofgoa-64-aac",
+          "https://ice3.somafm.com/suburbsofgoa-64-aac",
+          "https://ice4.somafm.com/suburbsofgoa-64-aac",
+          "https://ice5.somafm.com/suburbsofgoa-64-aac",
+          "https://ice6.somafm.com/suburbsofgoa-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/suburbsofgoa-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/suburbsofgoa-32-aac",
+          "https://ice2.somafm.com/suburbsofgoa-32-aac",
+          "https://ice3.somafm.com/suburbsofgoa-32-aac",
+          "https://ice4.somafm.com/suburbsofgoa-32-aac",
+          "https://ice5.somafm.com/suburbsofgoa-32-aac",
+          "https://ice6.somafm.com/suburbsofgoa-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1176,31 +1814,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/dubstep-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/dubstep-256-mp3",
+          "https://ice2.somafm.com/dubstep-256-mp3",
+          "https://ice3.somafm.com/dubstep-256-mp3",
+          "https://ice4.somafm.com/dubstep-256-mp3",
+          "https://ice5.somafm.com/dubstep-256-mp3",
+          "https://ice6.somafm.com/dubstep-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dubstep-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/dubstep-128-mp3",
+          "https://ice2.somafm.com/dubstep-128-mp3",
+          "https://ice3.somafm.com/dubstep-128-mp3",
+          "https://ice4.somafm.com/dubstep-128-mp3",
+          "https://ice5.somafm.com/dubstep-128-mp3",
+          "https://ice6.somafm.com/dubstep-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dubstep-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/dubstep-128-aac",
+          "https://ice2.somafm.com/dubstep-128-aac",
+          "https://ice3.somafm.com/dubstep-128-aac",
+          "https://ice4.somafm.com/dubstep-128-aac",
+          "https://ice5.somafm.com/dubstep-128-aac",
+          "https://ice6.somafm.com/dubstep-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dubstep-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/dubstep-64-aac",
+          "https://ice2.somafm.com/dubstep-64-aac",
+          "https://ice3.somafm.com/dubstep-64-aac",
+          "https://ice4.somafm.com/dubstep-64-aac",
+          "https://ice5.somafm.com/dubstep-64-aac",
+          "https://ice6.somafm.com/dubstep-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/dubstep-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/dubstep-32-aac",
+          "https://ice2.somafm.com/dubstep-32-aac",
+          "https://ice3.somafm.com/dubstep-32-aac",
+          "https://ice4.somafm.com/dubstep-32-aac",
+          "https://ice5.somafm.com/dubstep-32-aac",
+          "https://ice6.somafm.com/dubstep-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1214,25 +1887,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/7soul-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/7soul-128-mp3",
+          "https://ice2.somafm.com/7soul-128-mp3",
+          "https://ice3.somafm.com/7soul-128-mp3",
+          "https://ice4.somafm.com/7soul-128-mp3",
+          "https://ice5.somafm.com/7soul-128-mp3",
+          "https://ice6.somafm.com/7soul-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/7soul-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/7soul-128-aac",
+          "https://ice2.somafm.com/7soul-128-aac",
+          "https://ice3.somafm.com/7soul-128-aac",
+          "https://ice4.somafm.com/7soul-128-aac",
+          "https://ice5.somafm.com/7soul-128-aac",
+          "https://ice6.somafm.com/7soul-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/7soul-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/7soul-64-aac",
+          "https://ice2.somafm.com/7soul-64-aac",
+          "https://ice3.somafm.com/7soul-64-aac",
+          "https://ice4.somafm.com/7soul-64-aac",
+          "https://ice5.somafm.com/7soul-64-aac",
+          "https://ice6.somafm.com/7soul-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/7soul-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/7soul-32-aac",
+          "https://ice2.somafm.com/7soul-32-aac",
+          "https://ice3.somafm.com/7soul-32-aac",
+          "https://ice4.somafm.com/7soul-32-aac",
+          "https://ice5.somafm.com/7soul-32-aac",
+          "https://ice6.somafm.com/7soul-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1246,25 +1947,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/fluid-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/fluid-128-mp3",
+          "https://ice2.somafm.com/fluid-128-mp3",
+          "https://ice3.somafm.com/fluid-128-mp3",
+          "https://ice4.somafm.com/fluid-128-mp3",
+          "https://ice5.somafm.com/fluid-128-mp3",
+          "https://ice6.somafm.com/fluid-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/fluid-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/fluid-128-aac",
+          "https://ice2.somafm.com/fluid-128-aac",
+          "https://ice3.somafm.com/fluid-128-aac",
+          "https://ice4.somafm.com/fluid-128-aac",
+          "https://ice5.somafm.com/fluid-128-aac",
+          "https://ice6.somafm.com/fluid-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/fluid-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/fluid-64-aac",
+          "https://ice2.somafm.com/fluid-64-aac",
+          "https://ice3.somafm.com/fluid-64-aac",
+          "https://ice4.somafm.com/fluid-64-aac",
+          "https://ice5.somafm.com/fluid-64-aac",
+          "https://ice6.somafm.com/fluid-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/fluid-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/fluid-32-aac",
+          "https://ice2.somafm.com/fluid-32-aac",
+          "https://ice3.somafm.com/fluid-32-aac",
+          "https://ice4.somafm.com/fluid-32-aac",
+          "https://ice5.somafm.com/fluid-32-aac",
+          "https://ice6.somafm.com/fluid-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1278,25 +2007,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/reggae-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/reggae-256-mp3",
+          "https://ice2.somafm.com/reggae-256-mp3",
+          "https://ice3.somafm.com/reggae-256-mp3",
+          "https://ice4.somafm.com/reggae-256-mp3",
+          "https://ice5.somafm.com/reggae-256-mp3",
+          "https://ice6.somafm.com/reggae-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/reggae-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/reggae-128-mp3",
+          "https://ice2.somafm.com/reggae-128-mp3",
+          "https://ice3.somafm.com/reggae-128-mp3",
+          "https://ice4.somafm.com/reggae-128-mp3",
+          "https://ice5.somafm.com/reggae-128-mp3",
+          "https://ice6.somafm.com/reggae-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/reggae-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/reggae-128-aac",
+          "https://ice2.somafm.com/reggae-128-aac",
+          "https://ice3.somafm.com/reggae-128-aac",
+          "https://ice4.somafm.com/reggae-128-aac",
+          "https://ice5.somafm.com/reggae-128-aac",
+          "https://ice6.somafm.com/reggae-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/reggae-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/reggae-32-aac",
+          "https://ice2.somafm.com/reggae-32-aac",
+          "https://ice3.somafm.com/reggae-32-aac",
+          "https://ice4.somafm.com/reggae-32-aac",
+          "https://ice5.somafm.com/reggae-32-aac",
+          "https://ice6.somafm.com/reggae-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1310,25 +2067,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/metal-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/metal-128-mp3",
+          "https://ice2.somafm.com/metal-128-mp3",
+          "https://ice3.somafm.com/metal-128-mp3",
+          "https://ice4.somafm.com/metal-128-mp3",
+          "https://ice5.somafm.com/metal-128-mp3",
+          "https://ice6.somafm.com/metal-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/metal-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/metal-128-aac",
+          "https://ice2.somafm.com/metal-128-aac",
+          "https://ice3.somafm.com/metal-128-aac",
+          "https://ice4.somafm.com/metal-128-aac",
+          "https://ice5.somafm.com/metal-128-aac",
+          "https://ice6.somafm.com/metal-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/metal-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/metal-64-aac",
+          "https://ice2.somafm.com/metal-64-aac",
+          "https://ice3.somafm.com/metal-64-aac",
+          "https://ice4.somafm.com/metal-64-aac",
+          "https://ice5.somafm.com/metal-64-aac",
+          "https://ice6.somafm.com/metal-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/metal-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/metal-32-aac",
+          "https://ice2.somafm.com/metal-32-aac",
+          "https://ice3.somafm.com/metal-32-aac",
+          "https://ice4.somafm.com/metal-32-aac",
+          "https://ice5.somafm.com/metal-32-aac",
+          "https://ice6.somafm.com/metal-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1342,25 +2127,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/missioncontrol-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/missioncontrol-128-mp3",
+          "https://ice2.somafm.com/missioncontrol-128-mp3",
+          "https://ice3.somafm.com/missioncontrol-128-mp3",
+          "https://ice4.somafm.com/missioncontrol-128-mp3",
+          "https://ice5.somafm.com/missioncontrol-128-mp3",
+          "https://ice6.somafm.com/missioncontrol-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/missioncontrol-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/missioncontrol-128-aac",
+          "https://ice2.somafm.com/missioncontrol-128-aac",
+          "https://ice3.somafm.com/missioncontrol-128-aac",
+          "https://ice4.somafm.com/missioncontrol-128-aac",
+          "https://ice5.somafm.com/missioncontrol-128-aac",
+          "https://ice6.somafm.com/missioncontrol-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/missioncontrol-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/missioncontrol-64-aac",
+          "https://ice2.somafm.com/missioncontrol-64-aac",
+          "https://ice3.somafm.com/missioncontrol-64-aac",
+          "https://ice4.somafm.com/missioncontrol-64-aac",
+          "https://ice5.somafm.com/missioncontrol-64-aac",
+          "https://ice6.somafm.com/missioncontrol-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/missioncontrol-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/missioncontrol-32-aac",
+          "https://ice2.somafm.com/missioncontrol-32-aac",
+          "https://ice3.somafm.com/missioncontrol-32-aac",
+          "https://ice4.somafm.com/missioncontrol-32-aac",
+          "https://ice5.somafm.com/missioncontrol-32-aac",
+          "https://ice6.somafm.com/missioncontrol-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1374,25 +2187,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/digitalis-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/digitalis-128-mp3",
+          "https://ice2.somafm.com/digitalis-128-mp3",
+          "https://ice3.somafm.com/digitalis-128-mp3",
+          "https://ice4.somafm.com/digitalis-128-mp3",
+          "https://ice5.somafm.com/digitalis-128-mp3",
+          "https://ice6.somafm.com/digitalis-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/digitalis-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/digitalis-128-aac",
+          "https://ice2.somafm.com/digitalis-128-aac",
+          "https://ice3.somafm.com/digitalis-128-aac",
+          "https://ice4.somafm.com/digitalis-128-aac",
+          "https://ice5.somafm.com/digitalis-128-aac",
+          "https://ice6.somafm.com/digitalis-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/digitalis-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/digitalis-64-aac",
+          "https://ice2.somafm.com/digitalis-64-aac",
+          "https://ice3.somafm.com/digitalis-64-aac",
+          "https://ice4.somafm.com/digitalis-64-aac",
+          "https://ice5.somafm.com/digitalis-64-aac",
+          "https://ice6.somafm.com/digitalis-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/digitalis-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/digitalis-32-aac",
+          "https://ice2.somafm.com/digitalis-32-aac",
+          "https://ice3.somafm.com/digitalis-32-aac",
+          "https://ice4.somafm.com/digitalis-32-aac",
+          "https://ice5.somafm.com/digitalis-32-aac",
+          "https://ice6.somafm.com/digitalis-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1406,31 +2247,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/cliqhop-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/cliqhop-256-mp3",
+          "https://ice2.somafm.com/cliqhop-256-mp3",
+          "https://ice3.somafm.com/cliqhop-256-mp3",
+          "https://ice4.somafm.com/cliqhop-256-mp3",
+          "https://ice5.somafm.com/cliqhop-256-mp3",
+          "https://ice6.somafm.com/cliqhop-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/cliqhop-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/cliqhop-128-mp3",
+          "https://ice2.somafm.com/cliqhop-128-mp3",
+          "https://ice3.somafm.com/cliqhop-128-mp3",
+          "https://ice4.somafm.com/cliqhop-128-mp3",
+          "https://ice5.somafm.com/cliqhop-128-mp3",
+          "https://ice6.somafm.com/cliqhop-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/cliqhop-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/cliqhop-128-aac",
+          "https://ice2.somafm.com/cliqhop-128-aac",
+          "https://ice3.somafm.com/cliqhop-128-aac",
+          "https://ice4.somafm.com/cliqhop-128-aac",
+          "https://ice5.somafm.com/cliqhop-128-aac",
+          "https://ice6.somafm.com/cliqhop-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/cliqhop-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/cliqhop-64-aac",
+          "https://ice2.somafm.com/cliqhop-64-aac",
+          "https://ice3.somafm.com/cliqhop-64-aac",
+          "https://ice4.somafm.com/cliqhop-64-aac",
+          "https://ice5.somafm.com/cliqhop-64-aac",
+          "https://ice6.somafm.com/cliqhop-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/cliqhop-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/cliqhop-32-aac",
+          "https://ice2.somafm.com/cliqhop-32-aac",
+          "https://ice3.somafm.com/cliqhop-32-aac",
+          "https://ice4.somafm.com/cliqhop-32-aac",
+          "https://ice5.somafm.com/cliqhop-32-aac",
+          "https://ice6.somafm.com/cliqhop-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1444,25 +2320,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/vaporwaves-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/vaporwaves-128-mp3",
+          "https://ice2.somafm.com/vaporwaves-128-mp3",
+          "https://ice3.somafm.com/vaporwaves-128-mp3",
+          "https://ice4.somafm.com/vaporwaves-128-mp3",
+          "https://ice5.somafm.com/vaporwaves-128-mp3",
+          "https://ice6.somafm.com/vaporwaves-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/vaporwaves-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/vaporwaves-128-aac",
+          "https://ice2.somafm.com/vaporwaves-128-aac",
+          "https://ice3.somafm.com/vaporwaves-128-aac",
+          "https://ice4.somafm.com/vaporwaves-128-aac",
+          "https://ice5.somafm.com/vaporwaves-128-aac",
+          "https://ice6.somafm.com/vaporwaves-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/vaporwaves-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/vaporwaves-64-aac",
+          "https://ice2.somafm.com/vaporwaves-64-aac",
+          "https://ice3.somafm.com/vaporwaves-64-aac",
+          "https://ice4.somafm.com/vaporwaves-64-aac",
+          "https://ice5.somafm.com/vaporwaves-64-aac",
+          "https://ice6.somafm.com/vaporwaves-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/vaporwaves-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/vaporwaves-32-aac",
+          "https://ice2.somafm.com/vaporwaves-32-aac",
+          "https://ice3.somafm.com/vaporwaves-32-aac",
+          "https://ice4.somafm.com/vaporwaves-32-aac",
+          "https://ice5.somafm.com/vaporwaves-32-aac",
+          "https://ice6.somafm.com/vaporwaves-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1476,25 +2380,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/brfm-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/brfm-128-mp3",
+          "https://ice2.somafm.com/brfm-128-mp3",
+          "https://ice3.somafm.com/brfm-128-mp3",
+          "https://ice4.somafm.com/brfm-128-mp3",
+          "https://ice5.somafm.com/brfm-128-mp3",
+          "https://ice6.somafm.com/brfm-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/brfm-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/brfm-128-aac",
+          "https://ice2.somafm.com/brfm-128-aac",
+          "https://ice3.somafm.com/brfm-128-aac",
+          "https://ice4.somafm.com/brfm-128-aac",
+          "https://ice5.somafm.com/brfm-128-aac",
+          "https://ice6.somafm.com/brfm-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/brfm-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/brfm-64-aac",
+          "https://ice2.somafm.com/brfm-64-aac",
+          "https://ice3.somafm.com/brfm-64-aac",
+          "https://ice4.somafm.com/brfm-64-aac",
+          "https://ice5.somafm.com/brfm-64-aac",
+          "https://ice6.somafm.com/brfm-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/brfm-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/brfm-32-aac",
+          "https://ice2.somafm.com/brfm-32-aac",
+          "https://ice3.somafm.com/brfm-32-aac",
+          "https://ice4.somafm.com/brfm-32-aac",
+          "https://ice5.somafm.com/brfm-32-aac",
+          "https://ice6.somafm.com/brfm-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1508,31 +2440,66 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/darkzone-256-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/darkzone-256-mp3",
+          "https://ice2.somafm.com/darkzone-256-mp3",
+          "https://ice3.somafm.com/darkzone-256-mp3",
+          "https://ice4.somafm.com/darkzone-256-mp3",
+          "https://ice5.somafm.com/darkzone-256-mp3",
+          "https://ice6.somafm.com/darkzone-256-mp3"
+        ],
         "codec": "MP3 256",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/darkzone-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/darkzone-128-mp3",
+          "https://ice2.somafm.com/darkzone-128-mp3",
+          "https://ice3.somafm.com/darkzone-128-mp3",
+          "https://ice4.somafm.com/darkzone-128-mp3",
+          "https://ice5.somafm.com/darkzone-128-mp3",
+          "https://ice6.somafm.com/darkzone-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/darkzone-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/darkzone-128-aac",
+          "https://ice2.somafm.com/darkzone-128-aac",
+          "https://ice3.somafm.com/darkzone-128-aac",
+          "https://ice4.somafm.com/darkzone-128-aac",
+          "https://ice5.somafm.com/darkzone-128-aac",
+          "https://ice6.somafm.com/darkzone-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/darkzone-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/darkzone-64-aac",
+          "https://ice2.somafm.com/darkzone-64-aac",
+          "https://ice3.somafm.com/darkzone-64-aac",
+          "https://ice4.somafm.com/darkzone-64-aac",
+          "https://ice5.somafm.com/darkzone-64-aac",
+          "https://ice6.somafm.com/darkzone-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/darkzone-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/darkzone-32-aac",
+          "https://ice2.somafm.com/darkzone-32-aac",
+          "https://ice3.somafm.com/darkzone-32-aac",
+          "https://ice4.somafm.com/darkzone-32-aac",
+          "https://ice5.somafm.com/darkzone-32-aac",
+          "https://ice6.somafm.com/darkzone-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1546,25 +2513,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/sf0133-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/sf0133-128-mp3",
+          "https://ice2.somafm.com/sf0133-128-mp3",
+          "https://ice3.somafm.com/sf0133-128-mp3",
+          "https://ice4.somafm.com/sf0133-128-mp3",
+          "https://ice5.somafm.com/sf0133-128-mp3",
+          "https://ice6.somafm.com/sf0133-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sf0133-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/sf0133-128-aac",
+          "https://ice2.somafm.com/sf0133-128-aac",
+          "https://ice3.somafm.com/sf0133-128-aac",
+          "https://ice4.somafm.com/sf0133-128-aac",
+          "https://ice5.somafm.com/sf0133-128-aac",
+          "https://ice6.somafm.com/sf0133-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sf0133-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/sf0133-64-aac",
+          "https://ice2.somafm.com/sf0133-64-aac",
+          "https://ice3.somafm.com/sf0133-64-aac",
+          "https://ice4.somafm.com/sf0133-64-aac",
+          "https://ice5.somafm.com/sf0133-64-aac",
+          "https://ice6.somafm.com/sf0133-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/sf0133-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/sf0133-32-aac",
+          "https://ice2.somafm.com/sf0133-32-aac",
+          "https://ice3.somafm.com/sf0133-32-aac",
+          "https://ice4.somafm.com/sf0133-32-aac",
+          "https://ice5.somafm.com/sf0133-32-aac",
+          "https://ice6.somafm.com/sf0133-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1578,25 +2573,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/covers-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/covers-128-mp3",
+          "https://ice2.somafm.com/covers-128-mp3",
+          "https://ice3.somafm.com/covers-128-mp3",
+          "https://ice4.somafm.com/covers-128-mp3",
+          "https://ice5.somafm.com/covers-128-mp3",
+          "https://ice6.somafm.com/covers-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/covers-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/covers-128-aac",
+          "https://ice2.somafm.com/covers-128-aac",
+          "https://ice3.somafm.com/covers-128-aac",
+          "https://ice4.somafm.com/covers-128-aac",
+          "https://ice5.somafm.com/covers-128-aac",
+          "https://ice6.somafm.com/covers-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/covers-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/covers-64-aac",
+          "https://ice2.somafm.com/covers-64-aac",
+          "https://ice3.somafm.com/covers-64-aac",
+          "https://ice4.somafm.com/covers-64-aac",
+          "https://ice5.somafm.com/covers-64-aac",
+          "https://ice6.somafm.com/covers-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/covers-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/covers-32-aac",
+          "https://ice2.somafm.com/covers-32-aac",
+          "https://ice3.somafm.com/covers-32-aac",
+          "https://ice4.somafm.com/covers-32-aac",
+          "https://ice5.somafm.com/covers-32-aac",
+          "https://ice6.somafm.com/covers-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1610,25 +2633,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/specials-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/specials-128-mp3",
+          "https://ice2.somafm.com/specials-128-mp3",
+          "https://ice3.somafm.com/specials-128-mp3",
+          "https://ice4.somafm.com/specials-128-mp3",
+          "https://ice5.somafm.com/specials-128-mp3",
+          "https://ice6.somafm.com/specials-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/specials-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/specials-128-aac",
+          "https://ice2.somafm.com/specials-128-aac",
+          "https://ice3.somafm.com/specials-128-aac",
+          "https://ice4.somafm.com/specials-128-aac",
+          "https://ice5.somafm.com/specials-128-aac",
+          "https://ice6.somafm.com/specials-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/specials-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/specials-64-aac",
+          "https://ice2.somafm.com/specials-64-aac",
+          "https://ice3.somafm.com/specials-64-aac",
+          "https://ice4.somafm.com/specials-64-aac",
+          "https://ice5.somafm.com/specials-64-aac",
+          "https://ice6.somafm.com/specials-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/specials-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/specials-32-aac",
+          "https://ice2.somafm.com/specials-32-aac",
+          "https://ice3.somafm.com/specials-32-aac",
+          "https://ice4.somafm.com/specials-32-aac",
+          "https://ice5.somafm.com/specials-32-aac",
+          "https://ice6.somafm.com/specials-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1642,25 +2693,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/n5md-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/n5md-128-mp3",
+          "https://ice2.somafm.com/n5md-128-mp3",
+          "https://ice3.somafm.com/n5md-128-mp3",
+          "https://ice4.somafm.com/n5md-128-mp3",
+          "https://ice5.somafm.com/n5md-128-mp3",
+          "https://ice6.somafm.com/n5md-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/n5md-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/n5md-128-aac",
+          "https://ice2.somafm.com/n5md-128-aac",
+          "https://ice3.somafm.com/n5md-128-aac",
+          "https://ice4.somafm.com/n5md-128-aac",
+          "https://ice5.somafm.com/n5md-128-aac",
+          "https://ice6.somafm.com/n5md-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/n5md-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/n5md-64-aac",
+          "https://ice2.somafm.com/n5md-64-aac",
+          "https://ice3.somafm.com/n5md-64-aac",
+          "https://ice4.somafm.com/n5md-64-aac",
+          "https://ice5.somafm.com/n5md-64-aac",
+          "https://ice6.somafm.com/n5md-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/n5md-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/n5md-32-aac",
+          "https://ice2.somafm.com/n5md-32-aac",
+          "https://ice3.somafm.com/n5md-32-aac",
+          "https://ice4.somafm.com/n5md-32-aac",
+          "https://ice5.somafm.com/n5md-32-aac",
+          "https://ice6.somafm.com/n5md-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1674,25 +2753,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/live-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/live-128-mp3",
+          "https://ice2.somafm.com/live-128-mp3",
+          "https://ice3.somafm.com/live-128-mp3",
+          "https://ice4.somafm.com/live-128-mp3",
+          "https://ice5.somafm.com/live-128-mp3",
+          "https://ice6.somafm.com/live-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/live-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/live-128-aac",
+          "https://ice2.somafm.com/live-128-aac",
+          "https://ice3.somafm.com/live-128-aac",
+          "https://ice4.somafm.com/live-128-aac",
+          "https://ice5.somafm.com/live-128-aac",
+          "https://ice6.somafm.com/live-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/live-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/live-64-aac",
+          "https://ice2.somafm.com/live-64-aac",
+          "https://ice3.somafm.com/live-64-aac",
+          "https://ice4.somafm.com/live-64-aac",
+          "https://ice5.somafm.com/live-64-aac",
+          "https://ice6.somafm.com/live-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/live-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/live-32-aac",
+          "https://ice2.somafm.com/live-32-aac",
+          "https://ice3.somafm.com/live-32-aac",
+          "https://ice4.somafm.com/live-32-aac",
+          "https://ice5.somafm.com/live-32-aac",
+          "https://ice6.somafm.com/live-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
@@ -1706,25 +2813,53 @@
     "codecButtonsPerGroup": 5,
     "endpoints": [
       {
-        "endpoint": "https://ice2.somafm.com/scanner-128-mp3",
+        "endpoint": [
+          "https://ice1.somafm.com/scanner-128-mp3",
+          "https://ice2.somafm.com/scanner-128-mp3",
+          "https://ice3.somafm.com/scanner-128-mp3",
+          "https://ice4.somafm.com/scanner-128-mp3",
+          "https://ice5.somafm.com/scanner-128-mp3",
+          "https://ice6.somafm.com/scanner-128-mp3"
+        ],
         "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/scanner-128-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/scanner-128-aac",
+          "https://ice2.somafm.com/scanner-128-aac",
+          "https://ice3.somafm.com/scanner-128-aac",
+          "https://ice4.somafm.com/scanner-128-aac",
+          "https://ice5.somafm.com/scanner-128-aac",
+          "https://ice6.somafm.com/scanner-128-aac"
+        ],
         "codec": "AAC 128",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/scanner-64-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/scanner-64-aac",
+          "https://ice2.somafm.com/scanner-64-aac",
+          "https://ice3.somafm.com/scanner-64-aac",
+          "https://ice4.somafm.com/scanner-64-aac",
+          "https://ice5.somafm.com/scanner-64-aac",
+          "https://ice6.somafm.com/scanner-64-aac"
+        ],
         "codec": "AAC 64",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
       },
       {
-        "endpoint": "https://ice2.somafm.com/scanner-32-aac",
+        "endpoint": [
+          "https://ice1.somafm.com/scanner-32-aac",
+          "https://ice2.somafm.com/scanner-32-aac",
+          "https://ice3.somafm.com/scanner-32-aac",
+          "https://ice4.somafm.com/scanner-32-aac",
+          "https://ice5.somafm.com/scanner-32-aac",
+          "https://ice6.somafm.com/scanner-32-aac"
+        ],
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "sevenhtml"]
