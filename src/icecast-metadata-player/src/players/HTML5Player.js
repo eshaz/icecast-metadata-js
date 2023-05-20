@@ -2,8 +2,8 @@ import { state, event, fireEvent, NOT_SYNCED } from "../global.js";
 import Player from "./Player.js";
 
 export default class HTML5Player extends Player {
-  constructor(icecast) {
-    super(icecast);
+  constructor(icecast, endpoint) {
+    super(icecast, endpoint);
 
     this._audioElement.crossOrigin = "anonymous";
     this._audioElement.loop = false;

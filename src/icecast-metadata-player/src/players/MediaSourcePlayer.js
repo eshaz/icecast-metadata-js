@@ -14,8 +14,8 @@ const BUFFER = 5; // seconds of audio to store in SourceBuffer
 const BUFFER_INTERVAL = 5; // seconds before removing from SourceBuffer
 
 export default class MediaSourcePlayer extends Player {
-  constructor(icecast, inputMimeType, codec, codecHeader) {
-    super(icecast, inputMimeType, codec, codecHeader);
+  constructor(icecast, endpoint, inputMimeType, codec, codecHeader) {
+    super(icecast, endpoint, inputMimeType, codec, codecHeader);
 
     this._MSEAudioWrapper = import(
       /* webpackChunkName: "mediasource", webpackPrefetch: true */

@@ -11,8 +11,8 @@ import {
 import Player from "./Player.js";
 
 export default class WebAudioPlayer extends Player {
-  constructor(icecast, inputMimeType, codec, codecHeader) {
-    super(icecast, inputMimeType, codec, codecHeader);
+  constructor(icecast, endpoint, inputMimeType, codec, codecHeader) {
+    super(icecast, endpoint, inputMimeType, codec, codecHeader);
 
     this._audioContext = icecast[audioContext];
 
