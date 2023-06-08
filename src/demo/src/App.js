@@ -137,7 +137,7 @@ const App = () => {
           bufferLength: newStation.bufferLength,
           audioElement,
           retryTimeout: 120,
-          endpointOrder: 'random'
+          endpointOrder: "random",
         });
 
         player.play();
