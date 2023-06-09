@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-js",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Library for Web Browsers and NodeJS that reads, parses, and synchronizes Icecast stream metadata",
   "keywords": [
     "icecast",
@@ -44,6 +44,6 @@
     "prettier": "^2.8.8"
   },
   "dependencies": {
-    "codec-parser": "2.4.1"
+    "codec-parser": "2.4.2"
   }
 }
