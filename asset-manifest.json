@@ -1,9 +1,9 @@
 {
   "files": {
     "main.css": "/icecast-metadata-js/static/css/main.d6dbee88.css",
-    "main.js": "/icecast-metadata-js/static/js/main.22e62fb6.js",
+    "main.js": "/icecast-metadata-js/static/js/main.a4270bc2.js",
     "synaudio.js": "/icecast-metadata-js/static/js/synaudio.ed16d8fb.chunk.js",
-    "mediasource.js": "/icecast-metadata-js/static/js/mediasource.b5aa3640.chunk.js",
+    "mediasource.js": "/icecast-metadata-js/static/js/mediasource.de7163d8.chunk.js",
     "mpeg.js": "/icecast-metadata-js/static/js/mpeg.215357ba.chunk.js",
     "opus.js": "/icecast-metadata-js/static/js/opus.7e3cd70e.chunk.js",
     "flac.js": "/icecast-metadata-js/static/js/flac.db29739b.chunk.js",
@@ -11,9 +11,9 @@
     "static/js/434.0ca8f334.chunk.js": "/icecast-metadata-js/static/js/434.0ca8f334.chunk.js",
     "index.html": "/icecast-metadata-js/index.html",
     "main.d6dbee88.css.map": "/icecast-metadata-js/static/css/main.d6dbee88.css.map",
-    "main.22e62fb6.js.map": "/icecast-metadata-js/static/js/main.22e62fb6.js.map",
+    "main.a4270bc2.js.map": "/icecast-metadata-js/static/js/main.a4270bc2.js.map",
     "synaudio.ed16d8fb.chunk.js.map": "/icecast-metadata-js/static/js/synaudio.ed16d8fb.chunk.js.map",
-    "mediasource.b5aa3640.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.b5aa3640.chunk.js.map",
+    "mediasource.de7163d8.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.de7163d8.chunk.js.map",
     "mpeg.215357ba.chunk.js.map": "/icecast-metadata-js/static/js/mpeg.215357ba.chunk.js.map",
     "opus.7e3cd70e.chunk.js.map": "/icecast-metadata-js/static/js/opus.7e3cd70e.chunk.js.map",
     "flac.db29739b.chunk.js.map": "/icecast-metadata-js/static/js/flac.db29739b.chunk.js.map",
@@ -22,6 +22,6 @@
   },
   "entrypoints": [
     "static/css/main.d6dbee88.css",
-    "static/js/main.22e62fb6.js"
+    "static/js/main.a4270bc2.js"
   ]
 }
