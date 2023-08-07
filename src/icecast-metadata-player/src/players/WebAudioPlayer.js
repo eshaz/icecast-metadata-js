@@ -40,7 +40,7 @@ export default class WebAudioPlayer extends Player {
         codec === "audio/mpeg" ||
         codec === "audio/flac",
       mimeType,
-      mapping
+      mapping,
     );
   }
 
@@ -48,7 +48,7 @@ export default class WebAudioPlayer extends Player {
     return Boolean(
       window.WebAssembly &&
         (window.AudioContext || window.webkitAudioContext) &&
-        window.MediaStream
+        window.MediaStream,
     );
   }
 
@@ -141,7 +141,7 @@ export default class WebAudioPlayer extends Player {
       this._icecast[fireEvent](
         event.PLAYBACK_ERROR,
         `Missing \`webaudio-${this._codec}\` dependency.`,
-        `Unable to playback playback \`${this._codec}\` audio.`
+        `Unable to playback playback \`${this._codec}\` audio.`,
       );
       return;
     }
@@ -153,7 +153,7 @@ export default class WebAudioPlayer extends Player {
     } else {
       this._icecast[fireEvent](
         event.PLAYBACK_ERROR,
-        "Unsupported `webaudio` playback codec: " + this._codec
+        "Unsupported `webaudio` playback codec: " + this._codec,
       );
     }
   }
@@ -240,7 +240,7 @@ export default class WebAudioPlayer extends Player {
         decodePromise = this._wasmDecoder.decodeOggPages(frames);
       } else {
         decodePromise = this._wasmDecoder.decodeFrames(
-          frames.map((f) => f.data)
+          frames.map((f) => f.data),
         );
         this._frameQueue.addAll(frames);
       }
@@ -276,11 +276,11 @@ export default class WebAudioPlayer extends Player {
       const audioBuffer = this._audioContext.createBuffer(
         channelData.length,
         samplesDecoded,
-        this._sampleRate
+        this._sampleRate,
       );
 
       channelData.forEach((channel, idx) =>
-        audioBuffer.getChannelData(idx).set(channel)
+        audioBuffer.getChannelData(idx).set(channel),
       );
 
       const source = this._audioContext.createBufferSource();
@@ -291,7 +291,7 @@ export default class WebAudioPlayer extends Player {
       const startSamples =
         this._decodedSample * scalingFactor + this._startSampleOffset;
       const audioContextSamples = Math.round(
-        this._audioContext.currentTime * this._sampleRate * scalingFactor
+        this._audioContext.currentTime * this._sampleRate * scalingFactor,
       );
 
       if (startSamples < audioContextSamples) {

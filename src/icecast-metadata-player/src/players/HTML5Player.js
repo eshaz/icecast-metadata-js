@@ -84,7 +84,7 @@ export default class HTML5Player extends Player {
           this._startMetadataQueues();
           this._icecast[fireEvent](event.PLAY);
         },
-        { once: true }
+        { once: true },
       );
 
       this._icecast[fireEvent](event.PLAY_READY);

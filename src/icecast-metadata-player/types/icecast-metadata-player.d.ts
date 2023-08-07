@@ -204,14 +204,14 @@ declare module "icecast-metadata-player" {
     onMetadata?: (
       metadata: IcyMetadata,
       timestampOffset: number,
-      timestamp: number
+      timestamp: number,
     ) => void;
 
     /** Called with metadata when discovered on the response */
     onMetadataEnqueue?: (
       metadata: IcyMetadata,
       timestampOffset: number,
-      timestamp: number
+      timestamp: number,
     ) => void;
   }
 
@@ -231,14 +231,14 @@ declare module "icecast-metadata-player" {
     onMetadata?: (
       metadata: OggMetadata,
       timestampOffset: number,
-      timestamp: number
+      timestamp: number,
     ) => void;
 
     /** Called with metadata when discovered on the response */
     onMetadataEnqueue?: (
       metadata: OggMetadata,
       timestampOffset: number,
-      timestamp: number
+      timestamp: number,
     ) => void;
   }
 
@@ -266,14 +266,14 @@ declare module "icecast-metadata-player" {
     onMetadata?: (
       metadata: IcyMetadata & OggMetadata,
       timestampOffset: number,
-      timestamp: number
+      timestamp: number,
     ) => void;
 
     /** Called with metadata when discovered on the response */
     onMetadataEnqueue?: (
       metadata: IcyMetadata & OggMetadata,
       timestampOffset: number,
-      timestamp: number
+      timestamp: number,
     ) => void;
   }
 
@@ -320,7 +320,7 @@ declare module "icecast-metadata-player" {
         | IcecastMetadataPlayerIcyOptionsWithCallbacks
         | IcecastMetadataPlayerOggOptionsWithCallbacks
         | IcecastMetadataPlayerIcyOggOptionsWithCallbacks
-        | IcecastMetadataPlayerNoMetadataOptionsWithCallbacks
+        | IcecastMetadataPlayerNoMetadataOptionsWithCallbacks,
     );
 
     addEventListener(
@@ -341,7 +341,7 @@ declare module "icecast-metadata-player" {
         | "warn"
         | "error",
       listener: EventListenerOrEventListenerObject | null,
-      options?: boolean | AddEventListenerOptions
+      options?: boolean | AddEventListenerOptions,
     ): void;
 
     removeEventListener(
@@ -362,7 +362,7 @@ declare module "icecast-metadata-player" {
         | "warn"
         | "error",
       callback: EventListenerOrEventListenerObject | null,
-      options?: EventListenerOptions | boolean
+      options?: EventListenerOptions | boolean,
     ): void;
 
     /** Returns audio element that is currently attached to this instance */
@@ -406,7 +406,7 @@ declare module "icecast-metadata-player" {
         | IcecastMetadataPlayerIcyOptions
         | IcecastMetadataPlayerOggOptions
         | IcecastMetadataPlayerIcyOggOptions
-        | IcecastMetadataPlayerNoMetadataOptions
+        | IcecastMetadataPlayerNoMetadataOptions,
     ): Promise<void>;
 
     /** Removes the audio element from this instance and stops the Icecast Stream */

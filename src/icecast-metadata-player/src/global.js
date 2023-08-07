@@ -70,7 +70,7 @@ export const NOT_SYNCED = Symbol("not_synced");
 
 export const concatBuffers = (buffers) => {
   const buffer = new Uint8Array(
-    buffers.reduce((acc, buf) => acc + buf.length, 0)
+    buffers.reduce((acc, buf) => acc + buf.length, 0),
   );
 
   buffers.reduce((offset, buf) => {
