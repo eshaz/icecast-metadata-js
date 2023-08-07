@@ -441,17 +441,17 @@ const expectedIcyFlacMetadata = [
 ];
 
 const rawIcyFlac = fs.readFileSync(
-  "../../test/data/record/ogg/icy-flac.ogg.raw"
+  "../../test/data/record/ogg/icy-flac.ogg.raw",
 );
 const icyFlac = fs.readFileSync("../../test/data/record/ogg/icy-flac.ogg");
 const oggFlac = fs.readFileSync("../../test/data/record/ogg/ogg-flac.ogg");
 const oggFlacContinuedPages = fs.readFileSync(
-  "../../test/data/record/ogg/ogg-flac-continued-pages.ogg"
+  "../../test/data/record/ogg/ogg-flac-continued-pages.ogg",
 );
 const oggOpus = fs.readFileSync("../../test/data/record/ogg/opus.ogg");
 const oggVorbis = fs.readFileSync("../../test/data/record/ogg/vorbis.ogg");
 const oggVorbisChained = fs.readFileSync(
-  "../../test/data/record/ogg/vorbis.chained.ogg"
+  "../../test/data/record/ogg/vorbis.chained.ogg",
 );
 
 const flacMetaInt = 524288;
@@ -471,7 +471,7 @@ describe("Ogg Metadata Parsing", () => {
     testName,
     testData,
     metadataTypes,
-    expectedMetadata
+    expectedMetadata,
   ) => {
     it(
       testName +
@@ -485,7 +485,7 @@ describe("Ogg Metadata Parsing", () => {
 
         expect(returnedMetadata).toEqual(expectedMetadata);
         expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
-      }
+      },
     );
 
     it(
@@ -500,7 +500,7 @@ describe("Ogg Metadata Parsing", () => {
 
         expect(returnedMetadata).toEqual(expectedMetadata);
         expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
-      }
+      },
     );
 
     it(
@@ -515,7 +515,7 @@ describe("Ogg Metadata Parsing", () => {
 
         expect(returnedMetadata).toEqual(expectedMetadata);
         expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
-      }
+      },
     );
 
     it(
@@ -527,14 +527,14 @@ describe("Ogg Metadata Parsing", () => {
         const returnedValues = readChunks(
           reader,
           testData,
-          Math.floor(Math.random() * 30000)
+          Math.floor(Math.random() * 30000),
         );
         const returnedMetadata = getMetadata(returnedValues.metadata);
         const returnedAudio = concatAudio([returnedValues]);
 
         expect(returnedMetadata).toEqual(expectedMetadata);
         expect(Buffer.compare(returnedAudio, testData)).toEqual(0);
-      }
+      },
     );
   };
 
@@ -548,7 +548,7 @@ describe("Ogg Metadata Parsing", () => {
       "oggVorbisChained",
       oggVorbisChained,
       ["ogg"],
-      expectedVorbisChainedMetadata
+      expectedVorbisChainedMetadata,
     );
   });
 
@@ -676,7 +676,7 @@ describe("Ogg Metadata Parsing", () => {
       });
 
       expect(
-        Buffer.compare(concatAudio([noMetadata, metadata, rest]), oggVorbis)
+        Buffer.compare(concatAudio([noMetadata, metadata, rest]), oggVorbis),
       ).toEqual(0);
     });
 

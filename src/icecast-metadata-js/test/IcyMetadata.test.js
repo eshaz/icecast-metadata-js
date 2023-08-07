@@ -87,7 +87,7 @@ describe("ICY Metadata Parsing", () => {
           currentMetadataBytesRemaining: 0,
           currentStreamBytesRemaining: 0,
           metadataLengthBytesRead: 389,
-        }
+        },
       );
       expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
@@ -110,7 +110,7 @@ describe("ICY Metadata Parsing", () => {
           currentMetadataBytesRemaining: 0,
           currentStreamBytesRemaining: 0,
           metadataLengthBytesRead: 389,
-        }
+        },
       );
       expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
@@ -133,7 +133,7 @@ describe("ICY Metadata Parsing", () => {
           currentMetadataBytesRemaining: 0,
           currentStreamBytesRemaining: 0,
           metadataLengthBytesRead: 389,
-        }
+        },
       );
       expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
@@ -143,7 +143,7 @@ describe("ICY Metadata Parsing", () => {
       const returnedValues = readChunks(
         reader,
         raw_256k,
-        Math.floor(Math.random() * 30000)
+        Math.floor(Math.random() * 30000),
       );
       const returnedAudio = concatAudio([returnedValues]);
 
@@ -186,7 +186,10 @@ describe("ICY Metadata Parsing", () => {
       });
 
       expect(
-        Buffer.compare(concatAudio([noMetadata, metadata, rest]), expected_256k)
+        Buffer.compare(
+          concatAudio([noMetadata, metadata, rest]),
+          expected_256k,
+        ),
       ).toEqual(0);
     });
 
@@ -213,7 +216,10 @@ describe("ICY Metadata Parsing", () => {
         },
       });
       expect(
-        Buffer.compare(concatAudio([noMetadata, metadata, rest]), expected_256k)
+        Buffer.compare(
+          concatAudio([noMetadata, metadata, rest]),
+          expected_256k,
+        ),
       ).toEqual(0);
     });
 
@@ -256,7 +262,7 @@ describe("ICY Metadata Parsing", () => {
         },
       });
       expect(
-        Buffer.compare(concatAudio([firstValue, secondValue]), expected_256k)
+        Buffer.compare(concatAudio([firstValue, secondValue]), expected_256k),
       ).toEqual(0);
     });
 
@@ -267,7 +273,7 @@ describe("ICY Metadata Parsing", () => {
 
       expect(values.metadata.length).toEqual(0);
       expect(
-        Buffer.compare(concatAudio([values, rest]), expected_256k)
+        Buffer.compare(concatAudio([values, rest]), expected_256k),
       ).toEqual(0);
     });
 
@@ -278,7 +284,7 @@ describe("ICY Metadata Parsing", () => {
 
       expect(values.metadata.length).toEqual(1);
       expect(
-        Buffer.compare(concatAudio([values, rest]), expected_256k)
+        Buffer.compare(concatAudio([values, rest]), expected_256k),
       ).toEqual(0);
     });
 
@@ -683,7 +689,7 @@ describe("ICY Metadata Parsing", () => {
           currentMetadataBytesRemaining: 0,
           currentStreamBytesRemaining: 0,
           metadataLengthBytesRead: 389,
-        }
+        },
       );
       expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
@@ -706,7 +712,7 @@ describe("ICY Metadata Parsing", () => {
           currentMetadataBytesRemaining: 0,
           currentStreamBytesRemaining: 0,
           metadataLengthBytesRead: 389,
-        }
+        },
       );
       expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
@@ -729,7 +735,7 @@ describe("ICY Metadata Parsing", () => {
           currentMetadataBytesRemaining: 0,
           currentStreamBytesRemaining: 0,
           metadataLengthBytesRead: 389,
-        }
+        },
       );
       expect(Buffer.compare(returnedAudio, expected_256k)).toEqual(0);
     });
@@ -739,7 +745,7 @@ describe("ICY Metadata Parsing", () => {
       const returnedValues = readChunks(
         reader,
         raw_256k,
-        Math.floor(Math.random() * 30000)
+        Math.floor(Math.random() * 30000),
       );
       const returnedAudio = concatAudio([returnedValues]);
 
@@ -792,7 +798,7 @@ describe("ICY Metadata Parsing", () => {
       });
 
       expect(
-        Buffer.compare(returnedAudio, expected_raw320k_iso_8859_2)
+        Buffer.compare(returnedAudio, expected_raw320k_iso_8859_2),
       ).toEqual(0);
     });
   });

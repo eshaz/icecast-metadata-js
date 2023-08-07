@@ -116,7 +116,7 @@ export default class MetadataParser {
     if (this._enableLogging) {
       console.warn(
         "icecast-metadata-js",
-        messages.reduce((acc, message) => acc + "\n  " + message, "")
+        messages.reduce((acc, message) => acc + "\n  " + message, ""),
       );
     }
     this._onError(...messages);
@@ -131,7 +131,7 @@ export default class MetadataParser {
     if (this._streamBuffer.length) {
       const stream = MetadataParser._concatBuffersKnownLength(
         this._streamBuffer,
-        this._streamBufferLength
+        this._streamBufferLength,
       );
       this._streamBuffer = [];
       this._streamBufferLength = 0;
@@ -166,13 +166,13 @@ export default class MetadataParser {
     while (this._buffer.length - this._currentPosition < minLength) {
       this._buffer = MetadataParser._concatBuffers(
         this._buffer,
-        yield* this._readData()
+        yield* this._readData(),
       );
     }
 
     const value = this._buffer.subarray(
       this._currentPosition,
-      (minLength || this._remainingData) + this._currentPosition
+      (minLength || this._remainingData) + this._currentPosition,
     );
 
     this._stats.addBytes(value.length);

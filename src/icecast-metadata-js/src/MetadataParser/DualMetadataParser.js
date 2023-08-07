@@ -57,7 +57,7 @@ export default class DualMetadataParser {
     for await (const value of this._icyMetadataParser.asyncIterator(chunk)) {
       if (value.stream) {
         for await (const oggValue of this._oggMetadataParser.asyncIterator(
-          value.stream
+          value.stream,
         )) {
           yield oggValue;
         }

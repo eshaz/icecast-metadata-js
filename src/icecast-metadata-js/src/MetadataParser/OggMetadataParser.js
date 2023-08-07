@@ -49,7 +49,7 @@ export default class OggMetadataParser extends MetadataParser {
 
   _getUint32(data, offset = 0) {
     return new DataView(
-      Uint8Array.from([...data.subarray(offset, offset + 4)]).buffer
+      Uint8Array.from([...data.subarray(offset, offset + 4)]).buffer,
     ).getUint32(0, true);
   }
 
@@ -97,7 +97,7 @@ export default class OggMetadataParser extends MetadataParser {
     if (syncBytes.length > 65307) {
       this._logError(
         "This stream is not an Ogg stream. No Ogg metadata will be returned.",
-        "See https://github.com/eshaz/icecast-metadata-js for information on Ogg metadata."
+        "See https://github.com/eshaz/icecast-metadata-js for information on Ogg metadata.",
       );
       this._onMetadataFailed("ogg");
       return false;
@@ -110,7 +110,7 @@ export default class OggMetadataParser extends MetadataParser {
 
     this._remainingData = oggPageSegments.reduce(
       (acc, octet) => acc + octet,
-      0
+      0,
     );
     return true;
   }
@@ -171,7 +171,7 @@ export default class OggMetadataParser extends MetadataParser {
     this._stats.addMetadataBytes(4);
 
     const vendorString = this._decoder.decode(
-      yield* this._getNextValue(vendorStringLength)
+      yield* this._getNextValue(vendorStringLength),
     );
     this._stats.addMetadataBytes(vendorStringLength);
 
@@ -199,7 +199,7 @@ export default class OggMetadataParser extends MetadataParser {
         metadata[key] = metadata[key] ? `${metadata[key]}; ${val}` : val;
         return metadata;
       },
-      { VENDOR_STRING: vendorString }
+      { VENDOR_STRING: vendorString },
     );
   }
 }
