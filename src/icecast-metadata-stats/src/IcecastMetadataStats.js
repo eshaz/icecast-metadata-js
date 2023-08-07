@@ -236,7 +236,7 @@ export default class IcecastMetadataStats {
         promises.push(this.getOggMetadata());
 
       const stats = await Promise.all(promises).then((stats) =>
-        stats.reduce((acc, stat) => ({ ...acc, ...stat }), {})
+        stats.reduce((acc, stat) => ({ ...acc, ...stat }), {}),
       );
 
       p.get(this)[state] =
