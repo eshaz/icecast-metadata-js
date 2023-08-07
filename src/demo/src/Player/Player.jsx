@@ -8,7 +8,7 @@ const CodecInfo = React.memo(({ codecInfo }) => {
   if (codecInfo) {
     const title = Object.entries(codecInfo).reduce(
       (acc, [k, v]) => acc + `${k}: ${v}\x0A`,
-      ""
+      "",
     );
 
     return (

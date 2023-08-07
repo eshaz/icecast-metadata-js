@@ -39,7 +39,7 @@ const App = () => {
     (msg) => {
       castSession?.sendMessage(namespace, msg);
     },
-    [castSession]
+    [castSession],
   );
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const App = () => {
           (session) => {
             setCastSession(session);
           },
-          () => {}
+          () => {},
         );
 
         window.chrome.cast.initialize(apiConfig);
@@ -124,7 +124,7 @@ const App = () => {
             setMetadata(
               newStation.metadataTypes.length
                 ? currentMetadata || CONNECTED
-                : ""
+                : "",
             );
           },
           onSwitch: () => {
@@ -148,7 +148,7 @@ const App = () => {
 
       setStation(newStation);
     },
-    [icecast, station, audioElement, sendCastMessage]
+    [icecast, station, audioElement, sendCastMessage],
   );
 
   const play = useCallback(() => {

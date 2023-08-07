@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -23,7 +23,8 @@
         text-size-adjust: none;
       }
       body {
-        background: linear-gradient(
+        background:
+          linear-gradient(
               217deg,
               rgba(255, 0, 0, 0.3),
               rgba(255, 0, 0, 0) 70.71%
@@ -180,7 +181,7 @@
     <script>
       let playerFormData, statsFormData;
       const stationsJson = fetch("/icecast-metadata-js/stations.json").then(
-        (res) => res.json()
+        (res) => res.json(),
       );
 
       // helper functions
@@ -244,7 +245,7 @@
 
         document.playerForm.addEventListener("change", () => {
           playerFormData = Object.fromEntries(
-            new FormData(playerForm).entries()
+            new FormData(playerForm).entries(),
           );
 
           getIcecastMetadataStats();
@@ -265,7 +266,7 @@
 
         const stationsEl = document.getElementById("stations");
         const supportedTypesEl = document.getElementById(
-          "supported-codecs-table-body"
+          "supported-codecs-table-body",
         );
         const endpointEl = document.getElementById("endpoint");
 
@@ -356,7 +357,7 @@
             }
 
           playerFormData = Object.fromEntries(
-            new FormData(playerForm).entries()
+            new FormData(playerForm).entries(),
           );
           statsFormData = Object.fromEntries(new FormData(statsForm).entries());
 
@@ -378,13 +379,13 @@
       window.__onGCastApiAvailable = (loaded) => {
         if (loaded) {
           const sessionRequest = new window.chrome.cast.SessionRequest(
-            castAPIId
+            castAPIId,
           );
 
           const apiConfig = new window.chrome.cast.ApiConfig(
             sessionRequest,
             (session) => (castSession = session),
-            () => {}
+            () => {},
           );
 
           window.chrome.cast.initialize(apiConfig);
@@ -1245,16 +1246,16 @@
 
     const onCodecUpdate = (audioCodecData, duration) => {
       audioInfoEl.shadowRoot.innerHTML = `<div style="margin: 5px 0;">Last Updated: ${formatTime(
-        duration
+        duration,
       )}</div><table style="margin-top: 5px; border-collapse: collapse;">${Object.entries(
-        audioCodecData
+        audioCodecData,
       )
         .sort(([a], [b]) => a.localeCompare(b))
         .reduce(
           (acc, [key, value]) =>
             acc +
             `<tr><td style="padding-right: 10px;">${key}</td><td>${value}</td></tr>`,
-          ""
+          "",
         )}</table>`;
     };
 
@@ -1264,9 +1265,9 @@
           acc +
           `<tr><td class="time">${formatTime(timestampOffset)}</td>` +
           `<td class="metadata"><pre>${formatMetadata(
-            metadata
+            metadata,
           )}</pre></td></tr>`,
-        `<th>Update Time&nbsp</th><th class="metadata-header">Up Next</th>`
+        `<th>Update Time&nbsp</th><th class="metadata-header">Up Next</th>`,
       );
     };
 
@@ -1302,7 +1303,7 @@
     // gets a new instance of the IcecastMetadataPlayer and starts a timer
     const getIcecastMetadataPlayer = () => {
       const enableCodecUpdate = document.getElementById(
-        "isCodecUpdateEnabled"
+        "isCodecUpdateEnabled",
       ).checked;
 
       options = getFormOptions();
@@ -1320,7 +1321,7 @@
           onCodecUpdate: enableCodecUpdate && onCodecUpdate,
           onError,
           onSwitch,
-        }
+        },
       );
 
       icecastMetadataPlayer.addEventListener("metadata", (...args) => {
@@ -1369,12 +1370,12 @@
             )
               metadataEl.innerHTML = currentMetadata;
           },
-          { once: true }
+          { once: true },
         );
 
         icecastMetadataPlayer.switchEndpoint(
           options.endpoint.split(","),
-          options
+          options,
         );
       }
     });

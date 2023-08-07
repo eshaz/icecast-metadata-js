@@ -58,7 +58,7 @@ const CodecButtonGroup = ({
               changeStation={changeStation}
             />
           ))}
-      </div>
+      </div>,
     );
   }
 

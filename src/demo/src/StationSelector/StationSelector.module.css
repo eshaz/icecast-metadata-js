@@ -3,7 +3,9 @@
 }
 
 .stationLabel {
-  transition: background-color 1.5s ease, color 0.5s ease;
+  transition:
+    background-color 1.5s ease,
+    color 0.5s ease;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -71,16 +73,22 @@
 }
 
 .codecSelected {
-  transition: background-color 1.5s ease, border-color 0.5s ease;
+  transition:
+    background-color 1.5s ease,
+    border-color 0.5s ease;
   border: calc(1px + 0.5vmin) solid rgb(0, 0, 0);
 }
 
 .codecNotSelected {
-  transition: background-color 1.5s ease, border-color 0.5s ease;
+  transition:
+    background-color 1.5s ease,
+    border-color 0.5s ease;
   border: calc(1px + 0.5vmin) solid rgba(0, 0, 0, 0.357);
 }
 
 .codecNotSelectedNotPlaying {
-  transition: background-color 1.5s ease, border-color 0.5s ease;
+  transition:
+    background-color 1.5s ease,
+    border-color 0.5s ease;
   border: calc(1px + 0.5vmin) solid rgba(255, 255, 255, 0.357);
 }

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "audiomotion-analyzer": "^4.0.0",
+    "audiomotion-analyzer": "^4.1.0",
     "butterchurn": "^2.6.7",
     "butterchurn-presets": "^2.4.7",
     "icecast-metadata-player": "file:../icecast-metadata-player",
@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "gh-pages": "^5.0.0",
-    "prettier": "^2.8.8"
+    "prettier": "^3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

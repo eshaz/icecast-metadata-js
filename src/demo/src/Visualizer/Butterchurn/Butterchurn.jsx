@@ -35,7 +35,7 @@ const Butterchurn = ({ sourceNode }) => {
           height: window.innerHeight,
           pixelRatio: window.devicePixelRatio || 1,
           textureRatio: 1,
-        }
+        },
       );
 
       visualizer.connectAudio(sourceNode);
