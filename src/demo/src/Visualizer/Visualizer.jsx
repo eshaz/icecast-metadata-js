@@ -34,7 +34,7 @@ export const VisualizerSelector = ({
 
 const Visualizer = ({ audioElement, selectedVisualizer }) => {
   const [audioContext] = useState(
-    new (window.AudioContext || window.webkitAudioContext)()
+    new (window.AudioContext || window.webkitAudioContext)(),
   );
   const [sourceNode, setSourceNode] = useState();
 

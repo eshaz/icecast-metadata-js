@@ -61,7 +61,7 @@ export default class PlayerFactory {
 
   static get supportedPlaybackMethods() {
     return [MediaSourcePlayer, WebAudioPlayer, HTML5Player].map((player) =>
-      player.isSupported ? player.name : ""
+      player.isSupported ? player.name : "",
     );
   }
 
@@ -191,7 +191,7 @@ export default class PlayerFactory {
       [this._player, this._playbackMethod] = this._buildPlayer(
         inputMimeType,
         codec,
-        codecHeaderPromise
+        codecHeaderPromise,
       );
     }
 
@@ -280,7 +280,7 @@ export default class PlayerFactory {
               [this._player, this._playbackMethod] = this._buildPlayer(
                 inputMimeType,
                 codec,
-                codecHeaderPromise
+                codecHeaderPromise,
               );
 
               this._unprocessedFrames.push(...oldPlayer.syncFrames);
@@ -288,7 +288,7 @@ export default class PlayerFactory {
               // start player after delay or immediately
               delayTimeoutId = setTimeout(
                 startNewPlayer,
-                Math.max(oldPlayer.syncDelay, 0)
+                Math.max(oldPlayer.syncDelay, 0),
               );
           }
       });
@@ -351,7 +351,7 @@ export default class PlayerFactory {
           this._endpoint,
           inputMimeType,
           codec,
-          codecHeader
+          codecHeader,
         );
         player.icecastMetadataQueue = this._icecastMetadataQueue;
         player.codecUpdateQueue = this._codecUpdateQueue;
@@ -363,7 +363,7 @@ export default class PlayerFactory {
       throw new Error(
         `Your browser does not support this audio codec ${inputMimeType}${
           codec && `;codecs="${codec}"`
-        }`
+        }`,
       );
     }
 

@@ -66,7 +66,7 @@ export default class MediaSourcePlayer extends Player {
           this._mediaSource.sourceBuffers[0].timestampOffset,
           this._mediaSource.sourceBuffers[0].buffered.length
             ? this._mediaSource.sourceBuffers[0].buffered.end(0)
-            : 0
+            : 0,
         )) ||
       0
     );
@@ -99,7 +99,7 @@ export default class MediaSourcePlayer extends Player {
 
     this._addFrames = this._prepareMediaSource(
       this._inputMimeType,
-      this._codec
+      this._codec,
     );
 
     await this._mediaSourceOpen;
@@ -125,7 +125,7 @@ export default class MediaSourcePlayer extends Player {
             codecFrame.isLastPage = frame.isLastPage;
             return codecFrame;
           })
-        : frame
+        : frame,
     );
 
     if (frames.length) {
@@ -164,7 +164,7 @@ export default class MediaSourcePlayer extends Player {
 
     this._codecHeader
       .then((codecHeader) =>
-        this._createMSEWrapper(inputMimeType, codec, codecHeader.channels)
+        this._createMSEWrapper(inputMimeType, codec, codecHeader.channels),
       )
       .then(() => {
         this._createMediaSource(this._wrapper.mimeType);
@@ -187,7 +187,7 @@ export default class MediaSourcePlayer extends Player {
                 await this._createMSEWrapper(
                   inputMimeType,
                   codec,
-                  codecHeader.channels
+                  codecHeader.channels,
                 );
 
                 this._processingLastPage = false;
@@ -201,7 +201,7 @@ export default class MediaSourcePlayer extends Player {
         }
       : async (codecFrames) =>
           this._appendSourceBuffer(
-            concatBuffers([...this._wrapper.iterator(codecFrames)])
+            concatBuffers([...this._wrapper.iterator(codecFrames)]),
           );
   }
 
@@ -216,7 +216,7 @@ export default class MediaSourcePlayer extends Player {
       this._icecast[fireEvent](
         event.PLAYBACK_ERROR,
         `Media Source Extensions API in your browser does not support ${inputMimeType} or ${this._wrapper.mimeType}.` +
-          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
       );
     }
   }
@@ -238,7 +238,7 @@ export default class MediaSourcePlayer extends Player {
       },
       {
         once: true,
-      }
+      },
     );
   }
 
@@ -269,7 +269,7 @@ export default class MediaSourcePlayer extends Player {
       this._icecast[fireEvent](
         event.WARN,
         "Attempting to append audio, but MediaSource has not been or is no longer initialized",
-        "Please be sure that `detachAudioElement()` was called and awaited before reusing the element with a new IcecastMetadataPlayer instance"
+        "Please be sure that `detachAudioElement()` was called and awaited before reusing the element with a new IcecastMetadataPlayer instance",
       );
     }
 
@@ -282,7 +282,7 @@ export default class MediaSourcePlayer extends Player {
       try {
         while (this._sourceBufferQueue.length) {
           this._mediaSource.sourceBuffers[0].appendBuffer(
-            this._sourceBufferQueue.shift()
+            this._sourceBufferQueue.shift(),
           );
           await this._waitForSourceBuffer();
         }
@@ -298,7 +298,7 @@ export default class MediaSourcePlayer extends Player {
               this._startMetadataQueues();
               this._icecast[fireEvent](event.PLAY);
             },
-            { once: true }
+            { once: true },
           );
           this._icecast[fireEvent](event.PLAY_READY);
           this._playReady = true;
@@ -314,7 +314,7 @@ export default class MediaSourcePlayer extends Player {
         this._sourceBufferRemoved = performance.now();
         this._mediaSource.sourceBuffers[0].remove(
           0,
-          this._audioElement.currentTime - BUFFER + this._bufferLength
+          this._audioElement.currentTime - BUFFER + this._bufferLength,
         );
         await this._waitForSourceBuffer();
       }

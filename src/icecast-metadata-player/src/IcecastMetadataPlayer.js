@@ -113,7 +113,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [enableCodecUpdate]: Boolean(
         options.enableCodecUpdate ??
           instance[enableCodecUpdate] ??
-          options.onCodecUpdate
+          options.onCodecUpdate,
       ),
       [endpointOrder]:
         options.endpointOrder ?? instance[endpointOrder] ?? "ordered",
@@ -131,7 +131,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       newOptions[endpointOrder] === "random"
     )
       newOptions[endpoints] = newOptions[endpoints].sort(
-        () => 0.5 - Math.random()
+        () => 0.5 - Math.random(),
       );
 
     return newOptions;
@@ -218,7 +218,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         this.removeEventListener(event.STREAM_START, p.get(this)[endPlayback]);
         p.get(this)[audioElement].removeEventListener(
           "waiting",
-          p.get(this)[onAudioWaiting]
+          p.get(this)[onAudioWaiting],
         );
 
         try {
@@ -254,7 +254,7 @@ export default class IcecastMetadataPlayer extends EventClass {
         this[fireEvent](
           event.PLAYBACK_ERROR,
           "The audio element encountered an error." +
-            (errors[error?.code] || "")
+            (errors[error?.code] || ""),
         );
       },
       [onPlayReady]: () => {
@@ -473,7 +473,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       const instance = p.get(this);
       Object.assign(
         instance,
-        IcecastMetadataPlayer[getOptions](newEndpoints, newOptions, instance)
+        IcecastMetadataPlayer[getOptions](newEndpoints, newOptions, instance),
       );
 
       return instance[playerFactory].switchStream();
@@ -492,13 +492,16 @@ export default class IcecastMetadataPlayer extends EventClass {
           p.get(this)[retryDelayMin] *
             1000 *
             (p.get(this)[retryDelayRate] + 1) ** p.get(this)[retryAttempt]++,
-          p.get(this)[retryDelayMax] * 1000
+          p.get(this)[retryDelayMax] * 1000,
         ); // exponential backoff
 
-        setTimeout(() => {
-          this.removeEventListener(state.STOPPING, resolve);
-          resolve();
-        }, delay + delay * 0.3 * Math.random()); // jitter
+        setTimeout(
+          () => {
+            this.removeEventListener(state.STOPPING, resolve);
+            resolve();
+          },
+          delay + delay * 0.3 * Math.random(),
+        ); // jitter
       });
 
       // ensure the retry hasn't been cancelled while waiting
@@ -519,7 +522,7 @@ export default class IcecastMetadataPlayer extends EventClass {
           event.WARN,
           "This stream was requested with ICY metadata.",
           'If there is a CORS preflight failure, try removing "icy" from the metadataTypes option.',
-          "See https://github.com/eshaz/icecast-metadata-js#cors for more details."
+          "See https://github.com/eshaz/icecast-metadata-js#cors for more details.",
         );
       }
 
@@ -530,19 +533,22 @@ export default class IcecastMetadataPlayer extends EventClass {
           p.get(this)[onAudioWaiting],
           {
             once: true,
-          }
+          },
         );
       });
 
       // wait for whichever is longer, audio element waiting or retry timeout
-      p.get(this)[retryTimeoutId] = setTimeout(() => {
-        audioWaiting.then(() => {
-          if (p.get(this)[playerState] === state.RETRYING) {
-            this[fireEvent](event.RETRY_TIMEOUT);
-            this.stop();
-          }
-        });
-      }, p.get(this)[retryTimeout] * 1000);
+      p.get(this)[retryTimeoutId] = setTimeout(
+        () => {
+          audioWaiting.then(() => {
+            if (p.get(this)[playerState] === state.RETRYING) {
+              this[fireEvent](event.RETRY_TIMEOUT);
+              this.stop();
+            }
+          });
+        },
+        p.get(this)[retryTimeout] * 1000,
+      );
 
       p.get(this)[retryAttempt] = 0;
       return true;
@@ -560,7 +566,7 @@ export default class IcecastMetadataPlayer extends EventClass {
     if (p.get(this)[enableLogging]) {
       consoleFunction(
         "icecast-metadata-js",
-        messages.reduce((acc, message) => acc + "\n  " + message, "")
+        messages.reduce((acc, message) => acc + "\n  " + message, ""),
       );
     }
     if (callback) callback(...messages);
@@ -577,7 +583,7 @@ if (AudioContext && !IcecastMetadataPlayer.constructor[audioContext]) {
     console.error(
       "icecast-metadata-js",
       "Failed to start the AudioContext. WebAudio playback will not be possible.",
-      e
+      e,
     );
   };
 

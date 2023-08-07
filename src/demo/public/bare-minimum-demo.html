@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -7,10 +7,11 @@
       name="description"
       content="Icecast Metadata JS - Javascript library that reads, parses, and queues real-time metadata from an Icecast stream."
     />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.16.3.main.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.16.4.main.min.js"></script>
     <style>
       body {
-        background: linear-gradient(
+        background:
+          linear-gradient(
               217deg,
               rgba(255, 0, 0, 0.3),
               rgba(255, 0, 0, 0) 70.71%
@@ -80,7 +81,7 @@
 
       const onMetadata = (metadata) => {
         metadataEl.innerHTML = `<td><pre>${formatMetadata(
-          metadata
+          metadata,
         )}</pre></td>`;
         onMetadataEnqueue();
       };
@@ -91,7 +92,7 @@
             acc +
             `<tr><td><pre>${formatTime(timestampOffset)}</pre></td>` +
             `<td><pre>${formatMetadata(metadata)}</pre></td></tr>`,
-          `<th>Up Next</th>`
+          `<th>Up Next</th>`,
         );
       };
     </script>
@@ -171,7 +172,7 @@
       </ol>
       <b>Example</b>
       <pre>
-    &lt;script src="icecast-metadata-player-1.16.3.main.min.js"&gt;&lt;/script&gt;
+    &lt;script src="icecast-metadata-player-1.16.4.main.min.js"&gt;&lt;/script&gt;
     &lt;script&gt;
       const onMetadata = (metadata) =&gt; {
         document.getElementById("metadata").innerHTML = metadata.StreamTitle;

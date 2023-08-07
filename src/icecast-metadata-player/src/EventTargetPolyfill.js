@@ -8,7 +8,7 @@ export default class EventTargetPolyfill {
 
   hasEventListener(type, listener) {
     return this._listeners.some(
-      (item) => item.type === type && item.listener === listener
+      (item) => item.type === type && item.listener === listener,
     );
   }
 
@@ -22,7 +22,7 @@ export default class EventTargetPolyfill {
 
   removeEventListener(type, listener) {
     const index = this._listeners.findIndex(
-      (item) => item.type === type && item.listener === listener
+      (item) => item.type === type && item.listener === listener,
     );
     if (index >= 0) this._listeners.splice(index, 1);
     return this;

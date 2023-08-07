@@ -38,7 +38,7 @@ const readChunks = (reader, data, chunkSize) => {
 
 const concatAudio = (values) =>
   Buffer.concat(
-    values.flatMap((value) => value.stream.map(({ stream }) => stream))
+    values.flatMap((value) => value.stream.map(({ stream }) => stream)),
   );
 
 export { readChunk, readChunks, concatAudio };

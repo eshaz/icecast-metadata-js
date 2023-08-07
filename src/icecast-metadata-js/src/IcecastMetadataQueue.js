@@ -135,16 +135,19 @@ export default class IcecastMetadataQueue {
     this._onMetadataEnqueue(
       payload.metadata,
       payload.timestampOffset,
-      payload.timestamp
+      payload.timestamp,
     );
 
     if (this._isInitialMetadata) {
       this._dequeueMetadata();
       this._isInitialMetadata = false;
     } else {
-      payload._timeoutId = setTimeout(() => {
-        this._dequeueMetadata();
-      }, (payload.timestampOffset - payload.timestamp) * 1000); // trigger timeout relative to play position
+      payload._timeoutId = setTimeout(
+        () => {
+          this._dequeueMetadata();
+        },
+        (payload.timestampOffset - payload.timestamp) * 1000,
+      ); // trigger timeout relative to play position
     }
   }
 

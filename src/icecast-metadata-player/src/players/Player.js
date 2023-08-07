@@ -32,7 +32,7 @@ export default class Player {
 
   static parseMimeType(mimeType) {
     return mimeType.match(
-      /^(?:application\/|audio\/|)(?<mime>[a-zA-Z]+)(?:$|;[ ]*codecs=(?:\'|\")(?<codecs>[a-zA-Z,]+)(?:\'|\"))/
+      /^(?:application\/|audio\/|)(?<mime>[a-zA-Z]+)(?:$|;[ ]*codecs=(?:\'|\")(?<codecs>[a-zA-Z,]+)(?:\'|\"))/,
     );
   }
 
@@ -201,18 +201,18 @@ export default class Player {
     this._metadataOffset = metadataOffset;
 
     [event.RETRY, event.SWITCH].forEach((e) =>
-      this._icecast.addEventListener(e, this._notSyncedHandler)
+      this._icecast.addEventListener(e, this._notSyncedHandler),
     );
 
     let resolve;
     const playing = new Promise((r) => {
       resolve = r;
       [state.PLAYING, state.STOPPING].forEach((s) =>
-        this._icecast.addEventListener(s, resolve, { once: true })
+        this._icecast.addEventListener(s, resolve, { once: true }),
       );
     }).finally(() => {
       [state.PLAYING, state.STOPPING].forEach((s) =>
-        this._icecast.removeEventListener(s, resolve)
+        this._icecast.removeEventListener(s, resolve),
       );
     });
 
@@ -224,7 +224,7 @@ export default class Player {
    */
   async end() {
     [event.RETRY, event.SWITCH].forEach((e) =>
-      this._icecast.removeEventListener(e, this._notSyncedHandler)
+      this._icecast.removeEventListener(e, this._notSyncedHandler),
     );
 
     this._icecastMetadataQueue.purgeMetadataQueue();
@@ -245,7 +245,7 @@ export default class Player {
     this._icecastMetadataQueue.addMetadata(
       metadata,
       this.metadataTimestamp,
-      this.currentTime
+      this.currentTime,
     );
   }
 
@@ -264,7 +264,7 @@ export default class Player {
     this._codecUpdateQueue.addMetadata(
       { metadata },
       (updateTimestamp + this._codecUpdateOffset) / 1000,
-      currentTime
+      currentTime,
     );
   }
 }

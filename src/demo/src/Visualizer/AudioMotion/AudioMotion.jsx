@@ -48,7 +48,7 @@ const AudioMotion = ({ sourceNode }) => {
         audioMotion &&
           audioMotion.setCanvasSize(
             window.innerWidth,
-            window.innerHeight + 100
+            window.innerHeight + 100,
           );
       });
     });

@@ -43,7 +43,7 @@ export default class IcecastReadableStream {
         });
 
         for await (const chunk of IcecastReadableStream.asyncIterator(
-          response.body
+          response.body,
         )) {
           await icecast.asyncReadAll(chunk);
         }
@@ -75,7 +75,7 @@ export default class IcecastReadableStream {
   async startReading() {
     try {
       for await (const i of IcecastReadableStream.asyncIterator(
-        this._readableStream
+        this._readableStream,
       )) {
       }
     } catch (e) {

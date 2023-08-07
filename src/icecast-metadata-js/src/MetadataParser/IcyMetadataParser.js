@@ -66,7 +66,7 @@ export default class IcyMetadataParser extends MetadataParser {
 
     // [{key: "StreamTitle", val: "The Stream Title"}, {key: "StreamUrl", val: "https://example.com"}]
     for (const metadataElement of metadataString.match(
-      new RegExp(metadataRegex, "g")
+      new RegExp(metadataRegex, "g"),
     ) || []) {
       const match = metadataElement.match(metadataRegex);
       if (match) metadata[match["groups"]["key"]] = match["groups"]["val"];
@@ -86,7 +86,7 @@ export default class IcyMetadataParser extends MetadataParser {
 
     this._logError(
       "Passed in Icy-MetaInt is invalid. Attempting to detect ICY Metadata.",
-      "See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata."
+      "See https://github.com/eshaz/icecast-metadata-js for information on how to properly request ICY Metadata.",
     );
 
     // prettier-ignore
@@ -97,7 +97,7 @@ export default class IcyMetadataParser extends MetadataParser {
     while (startTime + this._icyDetectionTimeout > Date.now()) {
       this._buffer = MetadataParser._concatBuffers(
         this._buffer,
-        yield* this._readData()
+        yield* this._readData(),
       );
 
       // search for metadata
@@ -157,7 +157,7 @@ export default class IcyMetadataParser extends MetadataParser {
     this._stats.addMetadataBytes(metadata.length);
 
     yield* this._sendMetadata(
-      IcyMetadataParser.parseIcyMetadata(this._decoder.decode(metadata))
+      IcyMetadataParser.parseIcyMetadata(this._decoder.decode(metadata)),
     );
   }
 }
