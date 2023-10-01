@@ -98,7 +98,7 @@ Read more about CORS here: https://developer.mozilla.org/en-US/docs/Web/HTTP/COR
 
 Ogg Metadata is not dependent on requesting or reading any headers, but still relies on CORS for reading the response cross-origin.
 
-ICY metadata is dependent on being able to request and read headers (specifically the `Icy-*` headers). If you intend on serving your Icecast stream on a website that is not on the same origin as your Icecast server, you will need to add the below CORS headers.
+ICY metadata is dependent on being able to request and read headers (specifically the `Icy-*` headers). If you intend on serving your Icecast stream on a website that is not on the same origin as your Icecast server, you will need to add the below CORS HTTP response headers.
 
 
 ### CORS configuration for Ogg metadata:
@@ -109,7 +109,7 @@ Access-Control-Allow-Methods: 'GET, OPTIONS'
 Access-Control-Allow-Headers: 'Content-Type'
 ```
 
-### Bare minimum CORS configuration for ICY metadata:
+### CORS configuration for ICY metadata:
 
 * **ICY Metadata will not work in a browser without this configuration.**
 ```
@@ -118,21 +118,21 @@ Access-Control-Allow-Methods: 'GET, OPTIONS'
 Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
 ```
 
-### Preferred CORS configuration for ICY metadata:
+### CORS configuration for authenticated streams:
 
 ```
 Access-Control-Allow-Origin: '*'
+Access-Control-Allow-Credentials: 'true'
 Access-Control-Allow-Methods: 'GET, OPTIONS'
-Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata'
-Access-Control-Expose-Headers: 'Icy-MetaInt, Icy-Br, Icy-Description, Icy-Genre, Icy-Name, Ice-Audio-Info, Icy-Url, Icy-Sr, Icy-Vbr, Icy-Pub'
+Access-Control-Allow-Headers: 'Content-Type, Icy-Metadata, Authorization'
 ```
 
 ## Examples of common and invalid CORS configuration
 ---
 ### Problem
 > Invalid duplication of headers containing `*`. This is caused by a proxy such as Nginx adding additional headers to an otherwise valid CORS configuration. This will prevent any cross origin playback for your stream.
-### Fix
-> Either the CORS headers added in Icecast, or remove CORS the headers in Nginx.
+
+Example invalid CORS response headers due to invalid configuration:
 ```
 access-control-allow-credentials: *
 access-control-allow-credentials: true
@@ -141,9 +141,13 @@ access-control-allow-headers: *
 access-control-allow-origin: *
 access-control-allow-origin: *
 ```
+### Fix
+> Only add the CORS headers once, either in Icecast or in your proxy, not both.
+
+
 ---
 
-## Example Nginx reverse proxy configuration
+## Example Nginx reverse proxy configuration for ICY metadata
 ```nginx
 # Match your stream location(s)
 location ~ "^/stream/(stream.mp3|stream.ogg|stream.aac|stream.opus|stream.flac.ogg)$" {
