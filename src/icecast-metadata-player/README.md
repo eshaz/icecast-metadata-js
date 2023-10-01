@@ -342,6 +342,10 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * Sets the preferred playback method. `"mediasource", "webaudio", "html5"`
   * IcecastMetadataPlayer will attempt to use this playback method first before other methods.
   * The playback method is automatically chosen depending on browser support for the codec of the Icecast stream.
+* `authentication` (optional) **Default** *disabled*
+  * When supplied, sets the user and password to use when connecting to an authenticated stream.
+  * This sets the `Authorization` header in the HTTP request using basic auth.
+  * Example `{user: 'myuser', password: 'mypassword'}`
 
 #### Retry Options
 * `retryTimeout` (optional) - **Default** `30` seconds
@@ -442,6 +446,11 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 
 * Try setting the `icyCharacterEncoding` option to match the character encoding of the metadata.
 * A common ICY metadtata encoding other than `utf-8` is `iso-8859-2`
+
+> I have an authenticated stream, and when I supply credentials in the `authentication` option, I get a CORS error.
+
+* Ensure your Icecast server or your proxy has `Authorization` listed in the `Access-Control-Allow-Headers` header when it responses to the CORS `OPTIONS` request.
+* Example: `Access-Control-Allow-Headers: Origin, Icy-MetaData, Range, Authorization`
 
 ### Warning messages
 

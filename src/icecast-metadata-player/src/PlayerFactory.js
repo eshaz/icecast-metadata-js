@@ -26,6 +26,7 @@ import {
   SYNCING,
   NOT_SYNCED,
   noOp,
+  authentication,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -121,10 +122,18 @@ export default class PlayerFactory {
   async fetchStream() {
     const instanceVariables = p.get(this._icecast);
     this._endpoint = instanceVariables[endpointGenerator].next().value;
+    
+    const headers = instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {};
+
+    if (instanceVariables[authentication]) {
+      const auth = instanceVariables[authentication];
+      headers["Authorization"] =
+        "Basic " + btoa(auth.user + ":" + auth.password);
+    }
 
     const res = await fetch(this._endpoint, {
       method: "GET",
-      headers: instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {},
+      headers,
       signal: instanceVariables[abortController].signal,
     });
 

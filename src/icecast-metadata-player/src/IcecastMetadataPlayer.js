@@ -40,6 +40,7 @@ import {
   retryDelayRate,
   endpointOrder,
   retryTimeout,
+  authentication,
   // methods
   fireEvent,
   attachAudioElement,
@@ -124,6 +125,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       [retryTimeout]: options.retryTimeout ?? instance[retryTimeout] ?? 30,
       [playbackMethod]:
         (options.playbackMethod ?? instance[playbackMethod]) || "mediasource",
+      [authentication]: options.authentication ?? instance[authentication],
     };
 
     if (
