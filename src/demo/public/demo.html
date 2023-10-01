@@ -218,6 +218,21 @@
         }
       };
 
+      const authenticationFormControl = (el) => {
+        const authOpts = [
+          document.getElementById("authenticationUser"),
+          document.getElementById("authenticationPassword"),
+        ];
+        if (el.checked) {
+          authOpts.forEach((e) => (e.disabled = false));
+        } else {
+          authOpts.forEach((e) => {
+            e.disabled = true;
+            e.value = "";
+          });
+        }
+      };
+
       const getFormOptions = () => {
         const metadataTypes = [];
         playerFormData.icy && metadataTypes.push("icy");
@@ -235,6 +250,10 @@
           retryDelayMax: parseFloat(playerFormData.retryDelayMax),
           endpointOrder: playerFormData.endpointOrder,
           playbackMethod: playerFormData.playbackMethod,
+          authentication: playerFormData.enableAuthentication && {
+            user: playerFormData.authenticationUser,
+            password: playerFormData.authenticationPassword,
+          },
         };
       };
 
@@ -363,6 +382,9 @@
 
           icyOptionsFormControl(document.getElementById("icy"));
           retryOptionsFormControl(document.getElementById("retryTimeout"));
+          authenticationFormControl(
+            document.getElementById("enableAuthentication"),
+          );
 
           getIcecastMetadataStats();
         });
@@ -526,6 +548,35 @@
                       type="url"
                     />
                     <select id="stations" name="stations"></select>
+                  </fieldset>
+                  <fieldset
+                    name="authentication"
+                    class="row"
+                    style="flex-grow: 1; justify-content: space-between"
+                    title="Enable authentication if your stream requires you to log in."
+                  >
+                    <legend>Authentication</legend>
+                    <label for="enableAuthentication">Enable</label>
+                    <input
+                      type="checkbox"
+                      id="enableAuthentication"
+                      name="enableAuthentication"
+                      onchange="authenticationFormControl(this)"
+                    />
+                    <label for="authenticationUser">User</label>
+                    <input
+                      style="width: 7em; margin: 0"
+                      name="authenticationUser"
+                      id="authenticationUser"
+                      disabled
+                    />
+                    <label for="authenticationPassword">Password</label>
+                    <input
+                      style="width: 7em; margin: 0"
+                      name="authenticationPassword"
+                      id="authenticationPassword"
+                      disabled
+                    />
                   </fieldset>
                   <fieldset name="multiple-endpoints">
                     <legend>Current Endpoint</legend>
