@@ -122,7 +122,7 @@ export default class PlayerFactory {
   async fetchStream() {
     const instanceVariables = p.get(this._icecast);
     this._endpoint = instanceVariables[endpointGenerator].next().value;
-    
+
     const headers = instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {};
 
     if (instanceVariables[authentication]) {
