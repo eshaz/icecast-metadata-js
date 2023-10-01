@@ -47,6 +47,7 @@ export const retryDelayMin = Symbol();
 export const retryDelayMax = Symbol();
 export const retryTimeout = Symbol();
 export const enableCodecUpdate = Symbol();
+export const authentication = Symbol();
 
 // methods
 export const getNextEndpointGenerator = Symbol();

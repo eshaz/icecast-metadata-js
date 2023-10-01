@@ -78,21 +78,21 @@ https://github.com/eshaz/icecast-metadata-js
    * The `*.js.map` files are optional source maps for debugging.
      | Filename | Functionality |
      | - | - |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.main.min.js" download>`icecast-metadata-player-1.16.5.main.min.js`</a> | Core functionality (playback, metadata) <br> **Use this file in your `<script>` tag** |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.synaudio.min.js" download>`icecast-metadata-player-1.16.5.synaudio.min.js`</a> | Gapless playback support |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.mediasource.min.js" download>`icecast-metadata-player-1.16.5.mediasource.min.js`</a> | Mediasource playback support |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.mpeg.min.js" download>`icecast-metadata-player-1.16.5.mpeg.min.js`</a> | MPEG playback support (webaudio) |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.flac.min.js" download>`icecast-metadata-player-1.16.5.flac.min.js`</a> | FLAC playback support (webaudio) |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.opus.min.js" download>`icecast-metadata-player-1.16.5.opus.min.js`</a> | Opus playback support (webaudio) |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.vorbis.min.js" download>`icecast-metadata-player-1.16.5.vorbis.min.js`</a> | Vorbis playback support (webaudio) |
-     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.16.5.common.min.js" download>`icecast-metadata-player-1.16.5.common.min.js`</a> | Common functions (webaudio) |
-2. Add a `<script>` tag referencing `icecast-metadata-player-1.16.5.main.min.js` in your html.
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.main.min.js" download>`icecast-metadata-player-1.17.0.main.min.js`</a> | Core functionality (playback, metadata) <br> **Use this file in your `<script>` tag** |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.synaudio.min.js" download>`icecast-metadata-player-1.17.0.synaudio.min.js`</a> | Gapless playback support |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.mediasource.min.js" download>`icecast-metadata-player-1.17.0.mediasource.min.js`</a> | Mediasource playback support |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.mpeg.min.js" download>`icecast-metadata-player-1.17.0.mpeg.min.js`</a> | MPEG playback support (webaudio) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.flac.min.js" download>`icecast-metadata-player-1.17.0.flac.min.js`</a> | FLAC playback support (webaudio) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.opus.min.js" download>`icecast-metadata-player-1.17.0.opus.min.js`</a> | Opus playback support (webaudio) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.vorbis.min.js" download>`icecast-metadata-player-1.17.0.vorbis.min.js`</a> | Vorbis playback support (webaudio) |
+     | <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-player/build/icecast-metadata-player-1.17.0.common.min.js" download>`icecast-metadata-player-1.17.0.common.min.js`</a> | Common functions (webaudio) |
+2. Add a `<script>` tag referencing `icecast-metadata-player-1.17.0.main.min.js` in your html.
 3. `IcecastMetadataPlayer` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```html
-   <script src="icecast-metadata-player-1.16.5.main.min.js"></script>
+   <script src="icecast-metadata-player-1.17.0.main.min.js"></script>
    <script>
      const onMetadata = (metadata) => {
        document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -342,6 +342,10 @@ const player_2 = new IcecastMetadataPlayer("https://example.com/stream_2", {
   * Sets the preferred playback method. `"mediasource", "webaudio", "html5"`
   * IcecastMetadataPlayer will attempt to use this playback method first before other methods.
   * The playback method is automatically chosen depending on browser support for the codec of the Icecast stream.
+* `authentication` (optional) **Default** *disabled*
+  * When supplied, sets the user and password to use when connecting to an authenticated stream.
+  * This sets the `Authorization` header in the HTTP request using basic auth.
+  * Example `{user: 'myuser', password: 'mypassword'}`
 
 #### Retry Options
 * `retryTimeout` (optional) - **Default** `30` seconds
@@ -433,7 +437,7 @@ player.addEventListener('metadata', (event) => {
 #### Source Map
 
 IcecastMetadataPlayer builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-player-1.16.5.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.16.5.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-player-1.17.0.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-player-1.17.0.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.
 
 ### Common Issues
@@ -442,6 +446,11 @@ IcecastMetadataPlayer builds are supplied with a source map, which allows the mi
 
 * Try setting the `icyCharacterEncoding` option to match the character encoding of the metadata.
 * A common ICY metadtata encoding other than `utf-8` is `iso-8859-2`
+
+> I have an authenticated stream, and when I supply credentials in the `authentication` option, I get a CORS error.
+
+* Ensure your Icecast server or your proxy has `Authorization` listed in the `Access-Control-Allow-Headers` header when it responses to the CORS `OPTIONS` request.
+* Example: `Access-Control-Allow-Headers: Origin, Icy-MetaData, Range, Authorization`
 
 ### Warning messages
 

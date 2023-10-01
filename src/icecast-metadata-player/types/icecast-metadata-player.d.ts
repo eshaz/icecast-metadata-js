@@ -126,6 +126,14 @@ declare module "icecast-metadata-player" {
      * @default "mediasource"
      */
     playbackMethod?: "mediasource" | "webaudio" | "html5";
+
+    /**
+     * Sets authentication credentials used for authenticating to private streams
+     */
+    authentication?: {
+      user: string;
+      password: string;
+    };
   }
 
   interface IcecastMetadataPlayerCallbacks {
