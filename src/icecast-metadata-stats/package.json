@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-stats",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Simple to use Javascript class that queries an Icecast compatible server for metadata and statistics",
   "keywords": [
     "icecast",
@@ -8,12 +8,16 @@
     "metadata",
     "now playing"
   ],
-  "browser": "./src/IcecastMetadataStats.js",
+  "main": "./src/IcecastMetadataStats.js",
   "sideEffects": false,
   "scripts": {
     "format": "prettier --cache --write '**/*.*js*'",
-    "update-version": "find ../demo -iname 'icecast-metadata-stats*' -exec rm \"{}\" \\; && find ./ ../demo -name '.map' -prune -o -name '.git' -prune -o -name 'node_modules' -prune -o -name 'build' -prune -o -name 'package*' -prune -o -type f -printf '\\n%p:' -exec sed -i \"s/icecast-metadata-stats-[0-9].[0-9].[0-9]/icecast-metadata-stats-$npm_package_version/g w /dev/fd/2\" \"{}\" \\; && cp ./build/*.js ./build/*.map ../demo/public/",
-    "build": "rm -f ./build/* && webpack && npm run update-version"
+    "update-version": "find ../demo -iname 'icecast-metadata-stats*' -exec rm \"{}\" \\; && find ./ ../demo -name '.map' -prune -o -name '.git' -prune -o -name 'node_modules' -prune -o -name 'build' -prune -o -name 'package*' -prune -o -type f -printf '\\n%p:' -exec sed -i \"s/icecast-metadata-stats-[0-9]*\\.[0-9]*\\.[0-9]*/icecast-metadata-stats-$npm_package_version/g w /dev/fd/2\" \"{}\" \\; && cp ./build/*.js ./build/*.map ../demo/public/",
+    "build": "rm -f ./build/* && webpack && npm run update-version",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
@@ -28,19 +32,24 @@
   "bugs": {
     "url": "https://github.com/eshaz/icecast-metadata-js/issues"
   },
+  "type": "module",
   "homepage": "https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-stats",
   "funding": {
     "type": "individual",
     "url": "https://github.com/sponsors/eshaz"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.6",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "jest": "^29.7.0",
+    "mock-http-server": "^1.4.5",
     "prettier": "^3.0.1",
     "terser-webpack-plugin": "^5.3.6",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.0.2"
+    "webpack-cli": "^5.0.2",
+    "icecast-metadata-stats": "../"
   },
   "dependencies": {
-    "icecast-metadata-js": "1.2.7"
+    "icecast-metadata-js": "1.2.8"
   }
 }
