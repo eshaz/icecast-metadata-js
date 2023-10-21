@@ -1,10 +1,12 @@
-const path = require("path");
-const webpack = require("webpack");
-const TerserPlugin = require("terser-webpack-plugin");
-const package = require("./package.json");
+import webpack from "webpack";
+import TerserPlugin from "terser-webpack-plugin";
+import fs from "fs";
+
+const packageJson = JSON.parse(fs.readFileSync("./package.json"));
 
 const license = `
- * Copyright 2021 Ethan Halsall
+/*!
+ * Copyright 2021-2023 Ethan Halsall
  * https://github.com/eshaz/icecast-metadata-js
  *
  * This file is part of icecast-metadata-stats.
@@ -21,15 +23,15 @@ const license = `
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
-`;
+ */`;
 
-module.exports = {
+export default {
   mode: "production",
   devtool: "source-map",
   entry: "/src/IcecastMetadataStats.js",
   output: {
-    path: __dirname + "/build",
-    filename: `${package.name}-${package.version}.min.js`,
+    path: new URL("build", import.meta.url).pathname,
+    filename: `${packageJson.name}-${packageJson.version}.min.js`,
     library: "IcecastMetadataStats",
     libraryExport: "default",
     libraryTarget: "var",
@@ -45,11 +47,10 @@ module.exports = {
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        extractComments: {
-          condition: true,
-          banner: () => license,
-        },
         terserOptions: {
+          output: {
+            preamble: license,
+          },
           mangle: {
             properties: {
               regex: /^_/,

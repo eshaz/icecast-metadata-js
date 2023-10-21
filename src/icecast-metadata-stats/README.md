@@ -1,6 +1,6 @@
 # Icecast Metadata Stats
 
-Icecast Metadata Stats is a simple to use Javascript class that queries an Icecast compatible server for metadata and statistics. `IcecastMetadataStats` can be using along with [`IcecastMetadataPlayer`](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player) to show the "Now Playing" information while the stream is stopped.
+Icecast Metadata Stats is a browser and NodeJS library that queries an Icecast compatible server for metadata and statistics. `IcecastMetadataStats` can be using along with [`IcecastMetadataPlayer`](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-player) to show the "Now Playing" information while the stream is stopped.
 
   * Shows "Now Playing" information without playing audio.
   * Configurable metadata / statistics refresh interval.
@@ -23,10 +23,10 @@ Icecast Metadata Stats is a simple to use Javascript class that queries an Iceca
 * [Sources](#sources)
   * [ICY Metadata](#icy-metadata)
   * [Ogg Metadata](#ogg-metadata)
-  * [/status-json.xsl](#ogg-metadata)
-  * [/stats](#ogg-metadata)
-  * [/7.html](#icy-and-ogg-metadata)
-  * [/nextsongs](#ogg-metadata)
+  * [/status-json.xsl](#status-json.xsl)
+  * [/stats](#stats)
+  * [/7.html](#7.html)
+  * [/nextsongs](#nextsongs)
 * [API](#api)
   * [Methods](#methods)
   * [Getters](#getters)
@@ -60,14 +60,14 @@ https://github.com/eshaz/icecast-metadata-js
   ```
 
 ### Install as a standalone script
-1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.1.10.min.js" download>latest build</a>.
+1. Download the <a href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.1.11.min.js" download>latest build</a>.
 2. Include the file in a `<script>` tag in your html.
 3. `IcecastMetadataStats` is made available as a global variable in your webpage to use wherever.
 
    **Example**
 
    ```html
-   <script src="icecast-metadata-stats-0.1.10.min.js"></script>
+   <script src="icecast-metadata-stats-0.1.11.min.js"></script>
    <script>
      const onStats = (stats) => {
        document.getElementById("stats").innerHTML = stats.icy.StreamTitle;
@@ -186,6 +186,8 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
 
   This source uses the Shoutcast V2 / Icecast XML status api to query for server statistics and metadata.
 
+  **Not supported in NodeJS**
+
   * **Availability**: medium
     * Available on Shoutcast V2 and some versions of Icecast.
     * May be blocked if hosting Icecast through a reverse proxy.
@@ -231,6 +233,8 @@ IcecastMetadataStats supports multiple sources for server statistics and stream 
     ```
 
   ### `/nextsongs`
+
+  **Not supported in NodeJS**
 
   * **Availability**: low
     * Available on Shoutcast versions
@@ -344,5 +348,5 @@ const statsListener = new IcecastMetadataStats("https://example.com/stream", {
 #### Source Map
 
 IcecastMetadataStats builds are supplied with a source map, which allows the minified code to be viewed as fully formatted code in a browser debugger.
-* To enable the source map, simply copy `icecast-metadata-stats-0.1.10.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-stats-0.1.10.min.js` in your website.
+* To enable the source map, simply copy `icecast-metadata-stats-0.1.11.min.js.map` located in the build folder of this project to the location along side `icecast-metadata-stats-0.1.11.min.js` in your website.
 * The source map can be used to step through and debug the code as well as see the full variable names and file origin on stack traces if you are facing any issues.

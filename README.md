@@ -10,12 +10,12 @@ Icecast Metadata JS is a collection of Javascript modules for streaming audio pl
    * [NPM Package](https://www.npmjs.com/package/icecast-metadata-player) - Install using `npm i icecast-metadata-player`
    * **LICENSE** LGPL 3.0 or Greater
  * [**Icecast Metadata JS**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-js#readme) *(click to read more)*
-   * Browser and NodeJS module for reading audio and metadata from an Icecast response body.
+   * Browser and NodeJS library for reading audio and metadata from an Icecast response body.
    * [NPM Package](https://www.npmjs.com/package/icecast-metadata-js) - Install using `npm i icecast-metadata-js`
    * This module actively used here to display real-time metadata updates: https://dsmrad.io
    * **LICENSE** LGPL 3.0 or Greater
  * [**Icecast Metadata Stats**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/icecast-metadata-stats#readme) *(click to read more)*
-   * Browser Javascript class that queries an Icecast compatible server for metadata and statistics.
+   * Browser and NodeJS library that queries an Icecast compatible server for metadata and statistics.
    * [NPM Package](https://www.npmjs.com/package/icecast-metadata-stats) - Install using `npm i icecast-metadata-stats`
    * **LICENSE** LGPL 3.0 or Greater
  * [**Stream Recorder**](https://github.com/eshaz/icecast-metadata-js/tree/master/src/stream-recorder#readme) *(click to read more)*

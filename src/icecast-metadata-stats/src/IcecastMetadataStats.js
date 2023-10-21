@@ -1,7 +1,7 @@
 /**
  * @license
  * @see https://github.com/eshaz/icecast-metadata-js
- * @copyright 2021 Ethan Halsall
+ * @copyright 2021-2023 Ethan Halsall
  *  This file is part of icecast-metadata-stats.
  *
  *  icecast-metadata-stats free software: you can redistribute it and/or modify
@@ -66,6 +66,13 @@ const intervalId = Symbol();
 // methods
 const fetchStats = Symbol();
 const getStreamMetadata = Symbol();
+
+const parseIntNanToNull = (string) => {
+  let result = parseInt(string);
+  if (isNaN(result)) result = null;
+
+  return result;
+};
 
 export default class IcecastMetadataStats {
   /**
@@ -290,19 +297,19 @@ export default class IcecastMetadataStats {
           return stats.length === 7
             ? {
                 StreamTitle: stats[6],
-                currentListeners: parseInt(stats[4]),
-                peakListeners: parseInt(stats[2]),
-                maxListeners: parseInt(stats[3]),
-                bitrate: parseInt(stats[5]),
-                status: parseInt(stats[1]),
-                serverListeners: parseInt(stats[0]),
+                currentListeners: parseIntNanToNull(stats[4]),
+                peakListeners: parseIntNanToNull(stats[2]),
+                maxListeners: parseIntNanToNull(stats[3]),
+                bitrate: parseIntNanToNull(stats[5]),
+                status: parseIntNanToNull(stats[1]),
+                serverListeners: parseIntNanToNull(stats[0]),
               }
             : {
                 StreamTitle: stats[4],
-                currentListeners: parseInt(stats[2]),
-                peakListeners: parseInt(stats[0]),
-                maxListeners: parseInt(stats[1]),
-                bitrate: parseInt(stats[3]),
+                currentListeners: parseIntNanToNull(stats[2]),
+                peakListeners: parseIntNanToNull(stats[0]),
+                maxListeners: parseIntNanToNull(stats[1]),
+                bitrate: parseIntNanToNull(stats[3]),
               };
         }),
     }).then((sevenhtml) => ({
