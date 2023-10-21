@@ -1,6 +1,6 @@
 # Icecast Metadata JS
 
-Icecast Metadata JS is javascript (client-side and NodeJS) module that takes in an Icecast response body, extracts audio data and metadata, and schedules metadata events.
+Icecast Metadata JS is javascript (client-side and NodeJS) library that takes in an Icecast response body, extracts audio data and metadata, and schedules metadata events.
 
 ## Checkout the demo [here](https://eshaz.github.io/icecast-metadata-js/)!
 
@@ -12,7 +12,7 @@ Icecast Metadata JS is javascript (client-side and NodeJS) module that takes in 
 * [`IcecastMetadataStream`](#icecastmetadatastream)
   * NodeJS streams wrapper for IcecastMetadataReader
 * [`IcecastReadableStream`](#icecastreadablestream)
-  * Browser ReadableStream wrapper for IcecastMetadataReader
+  * Browser and NodeJS ReadableStream wrapper for IcecastMetadataReader
 
 
 See the main page of this repo for other Icecast JS tools:
