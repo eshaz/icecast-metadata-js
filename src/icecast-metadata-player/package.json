@@ -1,6 +1,6 @@
 {
   "name": "icecast-metadata-player",
-  "version": "1.17.1",
+  "version": "1.17.2",
   "description": "Simple to use Javascript class that plays an Icecast stream with real-time metadata updates",
   "keywords": [
     "icecast",
@@ -19,9 +19,15 @@
     "build": "rm -f ./build/* && webpack && npm run update-version",
     "build:analyze": "rm -f ./build/* && webpack --profile --json > ./build/stats.json && webpack-bundle-analyzer ./build/stats.json"
   },
-  "main": "build/icecast-metadata-player-1.14.4.min.js",
-  "module": "src/IcecastMetadataPlayer.js",
-  "types": "types/icecast-metadata-player.d.ts",
+  "main": "./build/icecast-metadata-player-1.14.4.min.js",
+  "module": "./src/IcecastMetadataPlayer.js",
+  "types": "./types/icecast-metadata-player.d.ts",
+  "exports": {
+    "script": "./build/icecast-metadata-player-1.14.4.min.js",
+    "module": "./src/IcecastMetadataPlayer.js",
+    "types": "./types/icecast-metadata-player.d.ts",
+    "default": "./src/IcecastMetadataPlayer.js"
+  },
   "type": "module",
   "repository": {
     "type": "git",
@@ -50,13 +56,13 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@wasm-audio-decoders/flac": "0.2.1",
-    "@wasm-audio-decoders/ogg-vorbis": "0.1.12",
+    "@wasm-audio-decoders/flac": "0.2.2",
+    "@wasm-audio-decoders/ogg-vorbis": "0.1.13",
     "codec-parser": "2.4.3",
     "icecast-metadata-js": "1.2.8",
-    "mpg123-decoder": "0.4.10",
+    "mpg123-decoder": "0.4.11",
     "mse-audio-wrapper": "1.4.14",
-    "opus-decoder": "0.7.3",
+    "opus-decoder": "0.7.4",
     "synaudio": "0.3.5"
   }
 }
