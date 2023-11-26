@@ -1,27 +1,27 @@
 {
   "files": {
-    "main.css": "/icecast-metadata-js/static/css/main.d6dbee88.css",
-    "main.js": "/icecast-metadata-js/static/js/main.6b1491c1.js",
-    "synaudio.js": "/icecast-metadata-js/static/js/synaudio.8dd8e37a.chunk.js",
-    "mediasource.js": "/icecast-metadata-js/static/js/mediasource.de7163d8.chunk.js",
-    "mpeg.js": "/icecast-metadata-js/static/js/mpeg.2fa4306f.chunk.js",
-    "opus.js": "/icecast-metadata-js/static/js/opus.59821dc3.chunk.js",
-    "flac.js": "/icecast-metadata-js/static/js/flac.52ea2448.chunk.js",
-    "vorbis.js": "/icecast-metadata-js/static/js/vorbis.58ed737d.chunk.js",
-    "static/js/434.8f64eb67.chunk.js": "/icecast-metadata-js/static/js/434.8f64eb67.chunk.js",
+    "main.css": "/icecast-metadata-js/static/css/main.afda4611.css",
+    "main.js": "/icecast-metadata-js/static/js/main.924a35cc.js",
+    "synaudio.js": "/icecast-metadata-js/static/js/synaudio.382e5dd7.chunk.js",
+    "mediasource.js": "/icecast-metadata-js/static/js/mediasource.3659ef34.chunk.js",
+    "mpeg.js": "/icecast-metadata-js/static/js/mpeg.6ba4a654.chunk.js",
+    "opus.js": "/icecast-metadata-js/static/js/opus.1aa53be5.chunk.js",
+    "flac.js": "/icecast-metadata-js/static/js/flac.aa4e575b.chunk.js",
+    "vorbis.js": "/icecast-metadata-js/static/js/vorbis.3c693850.chunk.js",
+    "static/js/434.89c8b75a.chunk.js": "/icecast-metadata-js/static/js/434.89c8b75a.chunk.js",
     "index.html": "/icecast-metadata-js/index.html",
-    "main.d6dbee88.css.map": "/icecast-metadata-js/static/css/main.d6dbee88.css.map",
-    "main.6b1491c1.js.map": "/icecast-metadata-js/static/js/main.6b1491c1.js.map",
-    "synaudio.8dd8e37a.chunk.js.map": "/icecast-metadata-js/static/js/synaudio.8dd8e37a.chunk.js.map",
-    "mediasource.de7163d8.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.de7163d8.chunk.js.map",
-    "mpeg.2fa4306f.chunk.js.map": "/icecast-metadata-js/static/js/mpeg.2fa4306f.chunk.js.map",
-    "opus.59821dc3.chunk.js.map": "/icecast-metadata-js/static/js/opus.59821dc3.chunk.js.map",
-    "flac.52ea2448.chunk.js.map": "/icecast-metadata-js/static/js/flac.52ea2448.chunk.js.map",
-    "vorbis.58ed737d.chunk.js.map": "/icecast-metadata-js/static/js/vorbis.58ed737d.chunk.js.map",
-    "434.8f64eb67.chunk.js.map": "/icecast-metadata-js/static/js/434.8f64eb67.chunk.js.map"
+    "main.afda4611.css.map": "/icecast-metadata-js/static/css/main.afda4611.css.map",
+    "main.924a35cc.js.map": "/icecast-metadata-js/static/js/main.924a35cc.js.map",
+    "synaudio.382e5dd7.chunk.js.map": "/icecast-metadata-js/static/js/synaudio.382e5dd7.chunk.js.map",
+    "mediasource.3659ef34.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.3659ef34.chunk.js.map",
+    "mpeg.6ba4a654.chunk.js.map": "/icecast-metadata-js/static/js/mpeg.6ba4a654.chunk.js.map",
+    "opus.1aa53be5.chunk.js.map": "/icecast-metadata-js/static/js/opus.1aa53be5.chunk.js.map",
+    "flac.aa4e575b.chunk.js.map": "/icecast-metadata-js/static/js/flac.aa4e575b.chunk.js.map",
+    "vorbis.3c693850.chunk.js.map": "/icecast-metadata-js/static/js/vorbis.3c693850.chunk.js.map",
+    "434.89c8b75a.chunk.js.map": "/icecast-metadata-js/static/js/434.89c8b75a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d6dbee88.css",
-    "static/js/main.6b1491c1.js"
+    "static/css/main.afda4611.css",
+    "static/js/main.924a35cc.js"
   ]
 }
