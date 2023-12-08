@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import styles from "./Butterchurn.module.css";
 
-import butterchurn from "butterchurn";
-import butterchurnPresets from "butterchurn-presets";
-
 const Butterchurn = ({ sourceNode }) => {
-  const analyzer = useRef();
-  const [visualizer, setVisualizer] = useState();
+  const canvas = useRef();
+
+  const [butterchurnWorker, setButterchurnWorker] = useState();
   const [presetsList] = useState([
     "Cope - The Neverending Explosion of Red Liquid Fire", // good but too active
     "cope + martin - mother-of-pearl",
@@ -27,52 +25,100 @@ const Butterchurn = ({ sourceNode }) => {
 
   useEffect(() => {
     if (sourceNode) {
-      const visualizer = butterchurn.createVisualizer(
-        sourceNode.context, //audioContext,
-        analyzer.current,
+      const butterchurnWorker = new Worker(
+        new URL("./butterchurn-worker/butterchurn-worker.js", import.meta.url),
+      );
+      setButterchurnWorker(butterchurnWorker);
+
+      const currentCanvas =
+        "OffscreenCanvas" in window
+          ? canvas.current.transferControlToOffscreen()
+          : canvas.current;
+
+      const audioContext = sourceNode.context;
+      const references = new Map();
+      references.set(0, audioContext);
+
+      butterchurnWorker.onmessage = ({ data }) => {
+        let thisRef = references.get(data.thisRef);
+        let thatRef;
+
+        if (data.operation === "addSource") {
+          thisRef = sourceNode;
+          references.set(data.thisRef, sourceNode);
+        }
+
+        if (data.operation === "getByteTimeDomainData") {
+          const uint8Array = new Uint8Array(data.args);
+
+          thisRef.getByteTimeDomainData(uint8Array);
+          butterchurnWorker.postMessage(
+            {
+              operation: "setByteTimeDomainData",
+              fftData: uint8Array,
+              thisRef: data.thisRef,
+            },
+            [uint8Array.buffer],
+          );
+        } else {
+          if (data.args !== undefined)
+            thatRef = thisRef[data.operation](...data.args);
+          if (data.argSet !== undefined) thisRef[data.operation] = data.argSet;
+          if (data.argRef !== undefined)
+            thatRef = thisRef[data.operation](references.get(data.argRef));
+          if (data.thatRef !== undefined) references.set(data.thatRef, thatRef);
+        }
+      };
+
+      butterchurnWorker.postMessage(
         {
-          width: window.innerWidth,
-          height: window.innerHeight,
-          pixelRatio: window.devicePixelRatio || 1,
-          textureRatio: 1,
+          operation: "createVisualizer",
+          canvas: currentCanvas,
+          innerWidth: window.innerWidth,
+          innerHeight: window.innerHeight,
+          devicePixelRatio: window.devicePixelRatio,
         },
+        [currentCanvas],
       );
 
-      visualizer.connectAudio(sourceNode);
-      const presets = butterchurnPresets.getPresets();
-      setVisualizer(visualizer);
+      butterchurnWorker.postMessage({
+        operation: "loadPreset",
+        preset: presetsList[11],
+      });
 
-      visualizer.loadPreset(presets[presetsList[11]]);
+      butterchurnWorker.postMessage({
+        operation: "connectAudio",
+      });
 
       let running = true;
 
       const step = () => {
-        visualizer.render();
+        butterchurnWorker.postMessage({ operation: "render" });
         if (running) requestAnimationFrame(step);
       };
 
-      step();
+      setTimeout(() => step(), 1000);
 
       return () => {
         running = false;
-        visualizer.disconnectAudio(sourceNode);
+        butterchurnWorker.terminate();
       };
     }
   }, [sourceNode, presetsList]);
 
   useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
-      window.requestAnimationFrame(() => {
-        analyzer.current.width = window.innerWidth;
-        analyzer.current.height = window.innerHeight;
-        visualizer &&
-          visualizer.setRendererSize(window.innerWidth, window.innerHeight);
-      });
+      butterchurnWorker &&
+        butterchurnWorker.postMessage({
+          operation: "setRendererSize",
+          innerWidth: window.innerWidth,
+          innerHeight: window.innerHeight,
+        });
     });
 
     resizeObserver.observe(document.body);
     return () => resizeObserver.disconnect();
-  }, [visualizer]);
+  }, [butterchurnWorker]);
 
   /*useEffect(() => {
     window.addEventListener('keydown', () => {});
@@ -82,7 +128,7 @@ const Butterchurn = ({ sourceNode }) => {
     };
   }, []);*/
 
-  return <canvas className={styles.spectrum} ref={analyzer}></canvas>;
+  return <canvas className={styles.spectrum} ref={canvas}></canvas>;
 };
 
 export default Butterchurn;
