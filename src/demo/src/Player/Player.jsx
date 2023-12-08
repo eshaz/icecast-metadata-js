@@ -48,14 +48,7 @@ const CodecInfo = React.memo(({ codecInfo }) => {
       "",
     );
 
-  return (
-    <canvas
-      height={400}
-      ref={canvas}
-      title={title}
-      className={styles.codecInfo}
-    />
-  );
+  return <canvas ref={canvas} title={title} className={styles.codecInfo} />;
 });
 
 const Metadata = React.memo(({ metadata }) => (
