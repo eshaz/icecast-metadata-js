@@ -62,17 +62,15 @@
 }
 
 .codecInfo {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  color: #fff;
-  font-family: monospace;
+  position: absolute;
+  align-self: end;
+  width: 50%;
+  bottom: calc(15px + 1vmin);
   margin-right: calc(1px + 1vmin);
+  pointer-events: none;
 }
 
 .codecItem {
-  display: flex;
-  justify-content: flex-end;
   font-size: calc(3px + 1vmin);
   margin-right: calc(1px + 1vmin);
 }

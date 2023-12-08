@@ -190,7 +190,7 @@ const App = () => {
           playing={playing}
           metadata={metadata}
           codecInfo={codecInfo}
-        ></Player>
+        />
       </footer>
     </>
   );
