@@ -25,7 +25,7 @@ const CodecInfo = React.memo(({ codecInfo }) => {
         );
       }
     }
-  }, [canvas.current, codecInfo?.bitrate, codecInfo?.sampleRate]);
+  }, [codecInfo?.bitrate, codecInfo?.sampleRate]);
 
   useLayoutEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -39,7 +39,7 @@ const CodecInfo = React.memo(({ codecInfo }) => {
 
     resizeObserver.observe(document.body);
     return () => resizeObserver.disconnect();
-  }, [canvas.current]);
+  }, []);
 
   const title =
     codecInfo &&
