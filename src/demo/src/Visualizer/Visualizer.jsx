@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import AudioMotion from "./AudioMotion/AudioMotion";
 import Butterchurn from "./Butterchurn/Butterchurn";
+// eslint-disable-next-line
+// sets style for visualizer selector
+import style from "./Visualizer.module.css";
 
 export const visualizers = (() =>
   "WebGL2RenderingContext" in window &&
