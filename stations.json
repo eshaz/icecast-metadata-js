@@ -334,7 +334,7 @@
     "link": "https://danceclassics.co.uk",
     "endpoints": [
       {
-        "endpoint": "http://stream4.themediasite.co.uk:8000/danceclassics",
+        "endpoint": "https://stream4.themediasite.co.uk:8000/danceclassics",
         "codec": "AAC",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats"]
