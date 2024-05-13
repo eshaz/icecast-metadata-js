@@ -124,6 +124,7 @@ export default class PlayerFactory {
     this._endpoint = instanceVariables[endpointGenerator].next().value;
 
     const headers = instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {};
+    headers["Range"] = "bytes=0-";
 
     if (instanceVariables[authentication]) {
       const auth = instanceVariables[authentication];
