@@ -122,12 +122,14 @@
     "endpoints": [
       {
         "endpoint": "https://jazz.w3.at:8443/w3jazz.mp3",
+        "endpointHttp": "http://jazz.w3.at:8000/w3jazz.mp3",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["icestats"]
       },
       {
         "endpoint": "https://jazz.w3.at:8443/w3jazz.ogg",
+        "endpointHttp": "http://jazz.w3.at:8000/w3jazz.ogg",
         "codec": "Vorbis",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
@@ -172,18 +174,21 @@
     "endpoints": [
       {
         "endpoint": "https://mscp3.live-streams.nl:8362/flac.flac",
+        "endpointHttp": "http://mscp3.live-streams.nl:8360/flac.flac",
         "codec": "FLAC",
         "metadataTypes": ["ogg"],
         "statsSources": ["icestats", "ogg"]
       },
       {
         "endpoint": "https://mscp3.live-streams.nl:8362/high.aac",
+        "endpointHttp": "http://mscp3.live-streams.nl:8360/high.aac",
         "codec": "AAC",
         "metadataTypes": [],
         "statsSources": ["icestats"]
       },
       {
         "endpoint": "https://mscp3.live-streams.nl:8362/low.mp3",
+        "endpointHttp": "http://mscp3.live-streams.nl:8360/low.mp3",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["icestats"]
@@ -197,18 +202,21 @@
     "endpoints": [
       {
         "endpoint": "https://mscp3.live-streams.nl:8252/class-flac.flac",
+        "endpointHttp": "http://mscp3.live-streams.nl:8250/class-flac.flac",
         "codec": "FLAC",
         "metadataTypes": ["ogg"],
         "statsSources": ["icestats", "ogg"]
       },
       {
         "endpoint": "https://mscp3.live-streams.nl:8252/class-high.aac",
+        "endpointHttp": "http://mscp3.live-streams.nl:8250/class-high.aac",
         "codec": "AAC",
         "metadataTypes": [],
         "statsSources": ["icestats"]
       },
       {
         "endpoint": "https://mscp3.live-streams.nl:8252/class-low.mp3",
+        "endpointHttp": "http://mscp3.live-streams.nl:8250/class-low.mp3",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["icestats"]
@@ -222,18 +230,21 @@
     "endpoints": [
       {
         "endpoint": "https://mscp3.live-streams.nl:8342/jazz-flac.flac",
+        "endpointHttp": "http://mscp3.live-streams.nl:8340/jazz-flac.flac",
         "codec": "FLAC",
         "metadataTypes": ["ogg"],
         "statsSources": ["icestats", "ogg"]
       },
       {
         "endpoint": "https://mscp3.live-streams.nl:8342/jazz-high.aac",
+        "endpointHttp": "http://mscp3.live-streams.nl:8340/jazz-high.aac",
         "codec": "AAC",
         "metadataTypes": [],
         "statsSources": ["icestats"]
       },
       {
         "endpoint": "https://mscp3.live-streams.nl:8342/jazz-low.mp3",
+        "endpointHttp": "http://mscp3.live-streams.nl:8340/jazz-low.mp3",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["icestats"]
@@ -261,30 +272,35 @@
     "endpoints": [
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/dance.opus",
+        "endpointHttp": "http://stream.dancewave.online:8080/dance.opus",
         "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/dance.mp3",
+        "endpointHttp": "http://stream.dancewave.online:8080/dance.mp3",
         "codec": "MP3",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/dance.flac.ogg",
+        "endpointHttp": "http://stream.dancewave.online:8080/dance.flac.ogg",
         "codec": "FLAC",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/dance.ogg",
+        "endpointHttp": "http://stream.dancewave.online:8080/dance.ogg",
         "codec": "Vorbis",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/dance.aac",
+        "endpointHttp": "http://stream.dancewave.online:8080/dance.aac",
         "codec": "AAC+",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats"]
@@ -298,30 +314,35 @@
     "endpoints": [
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.opus",
+        "endpointHttp": "http://stream.dancewave.online:8080/retrodance.opus",
         "codec": "Opus",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.mp3",
+        "endpointHttp": "http://stream.dancewave.online:8080/retrodance.mp3",
         "codec": "MP3",
         "metadataTypes": ["icy"],
         "statsSources": ["icy", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.flac.ogg",
+        "endpointHttp": "http://stream.dancewave.online:8080/retrodance.flac.ogg",
         "codec": "FLAC",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.ogg",
+        "endpointHttp": "http://stream.dancewave.online:8080/retrodance.ogg",
         "codec": "Vorbis",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
         "endpoint": "https://stream.bruschotti.party/dancewave/retrodance.aac",
+        "endpointHttp": "http://stream.dancewave.online:8080/retrodance.aac",
         "codec": "AAC+",
         "metadataTypes": ["icy"],
         "statsSources": ["ogg", "icestats"]
@@ -348,6 +369,7 @@
     "endpoints": [
       {
         "endpoint": "https://radiosputnik.nl:8443/flac",
+        "endpointHttp": "http://radiosputnik.nl:8002/flac",
         "codec": "FLAC",
         "bufferLength": 2,
         "metadataTypes": ["ogg"],
@@ -355,6 +377,7 @@
       },
       {
         "endpoint": "https://radiosputnik.nl:8443",
+        "endpointHttp": "http://radiosputnik.nl:8002",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["icestats"]
