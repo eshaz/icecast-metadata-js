@@ -15,6 +15,7 @@ const getColor = (codec) => {
     if (codec.match(/vorbis/i)) return "green";
     if (codec.match(/aac/i)) return "red";
     if (codec.match(/flac/i)) return "blue";
+    return "yellow";
 }
 
 const getStationRow = (acc, station) => {
@@ -25,10 +26,10 @@ const getStationRow = (acc, station) => {
           <td>${station.endpoints.map(
             (endpoint) => {
                 const playlist = buildPlaylist(endpoint.endpointHttp || endpoint.endpoint);
-                const playlistName = `${station.name.replace("/", "")} ${endpoint.codec ?? ""}.m3u`;
+                const playlistName = `${station.name.replace("/", "").replace("'", "")} ${endpoint.codec ?? ""}.m3u`;
                 fs.writeFileSync(`public/vintage/${playlistName}`, playlist, {encoding: 'binary'});
 
-                return `<a download href="${playlistName}"><b style="color: ${getColor(endpoint.codec)}">${endpoint.codec}</b></a>`
+                return `<a download href="${encodeURI(playlistName)}"><b style="color: ${getColor(endpoint.codec)}">${endpoint.codec}</b></a>`
             })
             .join("|")
           }
@@ -49,16 +50,8 @@ const html = `
     <link href="RIBBONS.BMP" rel="stylesheet"/>
     <link href="title.gif" rel="stylesheet"/>
     <style>
-      @font-face {
-        font-family: mono outline;
-        font-style: normal;
-        font-weight: normal;
-        src: url(Taurus-Mono-Outline-Regular.eot);
-        src: url(Taurus-Mono-Outline-Regular.eot?#iefix),
-             url(Taurus-Mono-Outline-Regular.ttf);
-      }
       body {
-        font: 11px monospace;
+        font: 10px monospace;
         color: white;
         background-color: black;
         background-image: url("RIBBONS.BMP");
@@ -73,11 +66,11 @@ const html = `
     <div style="text-align: center;" >
       <img src="title.gif" alt="Internet Radio for vintage computers!"/>
     </div>
-    <table border="1">
+    <table style="margin-left: auto; margin-right: auto;" border="1">
       <colgroup>
           <col width="200px" />
-          <col />
-          <col width="50px"/>
+          <col width="350px" />
+          <col width="50px" />
       </colgroup>
       <tr>
         <td style="text-align: center;" colspan="3">
@@ -90,7 +83,9 @@ const html = `
         <th>Listen</th>
       </tr>
       <tbody>
-      ${stations.reduce(getStationRow, "")}
+      ${stations
+        .filter((station) => !station.name.match(/multichannel/i))
+        .reduce(getStationRow, "")}
       </tbody>
     </table>
   </body>
