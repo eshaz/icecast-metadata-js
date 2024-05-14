@@ -12,12 +12,13 @@
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
+    "@minify-html/node": "^0.15.0",
     "gh-pages": "^6.1.0",
     "prettier": "^3.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cp ./src/stations.json ./public/stations.json && react-scripts build",
+    "build": "cp ./src/stations.json ./public/stations.json && node ./build-vintage.mjs && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --cache --write \"**/*.{css,html,js,json,jsx}\"",

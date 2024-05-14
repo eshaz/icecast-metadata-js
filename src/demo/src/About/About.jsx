@@ -31,6 +31,13 @@ const About = () => (
       >
         <i>"Bare Minimum"</i> HTML Demo
       </a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <a
+        className={styles.headerLink}
+        href={`${process.env.PUBLIC_URL}/vintage`}
+      >
+        Vintage Computers
+      </a>
     </div>
   </div>
 );
