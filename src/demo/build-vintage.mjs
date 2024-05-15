@@ -57,15 +57,21 @@ const html = `
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Stream Links</title>
+    <title>Internet Radio for Vintage Computers!</title>
     <meta
       name="description"
-      content="Vintage Streaming"
+      content="Streaming radio links for old computers. Now IE6 compatible!"
     />
     <link href="title.gif" rel="stylesheet"/>
     <link href="RIBBONS.BMP" rel="stylesheet"/>
     <link href="MARBLE.BMP" rel="stylesheet"/>
     <style>
+      html,body {
+        text-size-adjust: none;
+        -webkit-text-size-adjust: none;
+        -ms-text-size-adjust: none;
+        -moz-text-size-adjust: none;
+      }
       body {
         font: 10px monospace;
         color: white;
