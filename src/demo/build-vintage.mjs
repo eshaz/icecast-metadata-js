@@ -57,16 +57,27 @@ const html = `
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=800" />
+    <meta property="og:title" content="Internet Radio for Vintage Computers!" />
+    <meta property="og:image" content="IE6.PNG" />
     <title>Internet Radio for Vintage Computers!</title>
     <meta
       name="description"
       content="Streaming radio links for old computers. Now IE6 compatible!"
     />
+    <link rel="icon" type="image/ico" href="favicon.ico">
+    <link rel="shortcut icon" type="image/ico" href="favicon.ico">
     <link href="title.gif" rel="stylesheet"/>
     <link href="RIBBONS.BMP" rel="stylesheet"/>
     <link href="MARBLE.BMP" rel="stylesheet"/>
     <style>
-      html,body {
+      html {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -o-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: pixelated;
+        image-rendering: optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
         text-size-adjust: none;
         -webkit-text-size-adjust: none;
         -ms-text-size-adjust: none;
@@ -77,23 +88,33 @@ const html = `
         color: white;
         background-color: black;
         background-image: url("RIBBONS.BMP");
+        background-size: 40%;
       }
       table {
         border-collapse: collapse;
         background-color: black;
       }
     </style>
+    <script>
+      // prevent ie from showing an error since this modern js is not supported
+      try {
+        window.onload = () => {
+          const resizeObserver = new ResizeObserver((entries) => document.body.style.zoom = Math.min(window.innerWidth / 800 * 100, 300) + "%");
+          resizeObserver.observe(document.body);
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div style="text-align: center;" >
       <img src="title.gif" alt="Internet Radio for vintage computers!"/>
     </div>
-    <div style="border: black 1px solid; max-width: 730px; margin-left: auto; margin-right: auto; background-image: url('MARBLE.BMP'); padding: 5px;">
-    <table style="margin: 0;" border="1">
+    <div style="border: black 1px solid; max-width: 775px; margin-left: auto; margin-right: auto; background-image: url('MARBLE.BMP'); padding: 5px;">
+    <table style="margin: 0; margin-left: auto; margin-right: auto;" border="1">
       <colgroup>
-          <col width="180px" />
-          <col width="410px" />
-          <col width="150px" />
+        <col width="200px" />
+        <col width="420px" />
+        <col width="150px" />
       </colgroup>
       <tr>
         <th>Station</th>
