@@ -126,7 +126,7 @@ const html = `
           .reduce(getStationRow, "")}
         <tr id="listen">
           <td style="border: 0; font-size: 14px; text-align: center; padding: 7px 0 5px; color: yellow;" colspan="3">
-            <b>*</b>Windows 95/98: download <a style="color: yellow;" href="http://ftp.zx.net.nz/pub/software/Win32/Media-Player/WinAmp/winamp524_full_emusic-7plus.exe">Winamp (version 5.24)</a> and install this <a style="color: yellow;" href="https://github.com/RamonUnch/in_opus/releases">Opus decoder</a>
+            <b>*</b>Windows 95/98: download <a style="color: yellow;" href="winamp524_full_emusic-7plus.exe">Winamp (5.24)</a> and this <a style="color: yellow;" href="in_opus_v0.912.zip">Opus decoder</a>
           </td>
         </tr>
         <tr>
