@@ -65,8 +65,8 @@ const html = `
       name="description"
       content="Streaming radio links for old computers. Now IE6 compatible!"
     />
-    <link rel="icon" type="image/ico" href="favicon.ico">
-    <link rel="shortcut icon" type="image/ico" href="favicon.ico">
+    <link rel="icon" type="image/ico" href="favicon.ico"/>
+    <link rel="shortcut icon" type="image/ico" href="favicon.ico"/>
     <link href="title.gif" rel="stylesheet"/>
     <link href="RIBBONS.BMP" rel="stylesheet"/>
     <link href="MARBLE.BMP" rel="stylesheet"/>
@@ -76,7 +76,6 @@ const html = `
         image-rendering: -o-crisp-edges;
         image-rendering: -webkit-optimize-contrast;
         image-rendering: pixelated;
-        image-rendering: optimize-contrast;
         -ms-interpolation-mode: nearest-neighbor;
         text-size-adjust: none;
         -webkit-text-size-adjust: none;
@@ -106,7 +105,7 @@ const html = `
     </script>
   </head>
   <body>
-    <div style="text-align: center;" >
+    <div style="text-align: center;">
       <img src="title.gif" alt="Internet Radio for vintage computers!"/>
     </div>
     <div style="border: black 1px solid; max-width: 775px; margin-left: auto; margin-right: auto; background-image: url('MARBLE.BMP'); padding: 5px;">
@@ -119,28 +118,29 @@ const html = `
       <tr>
         <th>Station</th>
         <th>About</th>
-        <th>Listen</th>
+        <th><a style="color: white; text-decoration: none;" href="#listen">Listen<span style="color: yellow;">*</span></a></th>
       </tr>
       <tbody>
-      ${stations
-        .filter((station) => !station.name.match(/multichannel/i))
-        .reduce(getStationRow, "")}
-      <tr>
-        <td colspan="3">
-          <div>
-            &nbsp;
-          </div>
-          <div style="font-size: 14px; text-align: center;"> 
-            Get Winamp <a href="http://ftp.zx.net.nz/pub/software/Win32/Media-Player/WinAmp/winamp524_full_emusic-7plus.exe">here (version 5.24)</a> and an Opus decoder <a href="https://github.com/RamonUnch/in_opus/releases">here</a>.
-          </div>
-          <div style="text-align: right;">
+        ${stations
+          .filter((station) => !station.name.match(/multichannel/i))
+          .reduce(getStationRow, "")}
+        <tr id="listen">
+          <td style="border: 0; font-size: 14px; text-align: center; padding: 7px 0 5px; color: yellow;" colspan="3">
+            <b>*</b>Windows 95/98: download <a style="color: yellow;" href="http://ftp.zx.net.nz/pub/software/Win32/Media-Player/WinAmp/winamp524_full_emusic-7plus.exe">Winamp (version 5.24)</a> and install this <a style="color: yellow;" href="https://github.com/RamonUnch/in_opus/releases">Opus decoder</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 0;">
+          <td style="border: 0; text-align: center;">
+            <a style="color: white; font-size: 9px;" href="https://github.com/eshaz/icecast-metadata-js/blob/master/src/demo/build-vintage.mjs">Source code for this webpage</a>
+          </td>
+          <td style="border: 0; text-align: right;">
             (c) 2024 <a style="color: white;" href="https://github.com/eshaz">Ethan Halsall</a>
-          </div>
-        </td>
-      </tr>
+          </td>
+        </tr>
       </tbody>
     </table>
-    </div
+    </div>
   </body>
 </html>
 `;
