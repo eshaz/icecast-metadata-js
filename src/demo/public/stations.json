@@ -3371,6 +3371,216 @@
     ]
   },
   {
+    "name": "Radio New Zealand - Concert",
+    "description": "RNZ (Radio New Zealand) is New Zealand's independent public service multimedia organisation.",
+    "link": "https://www.rnz.co.nz/",
+    "endpoints": [
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/Concert_aac128",
+          "https://stream-ice.radionz.co.nz/fallback-concert_aac128"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/Concert_aac128",
+          "http://radionz-ice.streamguys.com/fallback-concert_aac128"
+        ],
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/concert_aac64",
+          "https://stream-ice.radionz.co.nz/fallback-concert_aac64"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/concert_aac64",
+          "http://radionz-ice.streamguys.com/fallback-concert_aac64"
+        ],
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/concert",
+          "https://stream-ice.radionz.co.nz/fallback-concert"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/concert",
+          "http://radionz-ice.streamguys.com/fallback-concert"
+        ],
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/concert.mp3",
+          "https://stream-ice.radionz.co.nz/fallback-concert.mp3"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/concert.mp3",
+          "http://radionz-ice.streamguys.com/fallback-concert.mp3"
+        ],
+        "codec": "MP3 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      }
+    ]
+  },
+  {
+    "name": "Radio New Zealand - Pacific",
+    "description": "RNZ Pacific (formerly Radio New Zealand International or RNZI) provides vital news and information services, via its shortwave broadcasts to the South Pacific. It also provides a wide range of New Zealand programmes to listeners in the Pacific and beyond.",
+    "link": "https://www.rnz.co.nz/",
+    "endpoints": [
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/international_aac64",
+          "https://stream-ice.radionz.co.nz/fallback-international_aac64"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/international_aac64",
+          "http://radionz-ice.streamguys.com/fallback-international_aac64"
+        ],
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/international",
+          "https://stream-ice.radionz.co.nz/fallback-international"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/international",
+          "http://radionz-ice.streamguys.com/fallback-international"
+        ],
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/international.mp3",
+          "https://stream-ice.radionz.co.nz/fallback-international.mp3"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/international.mp3",
+          "http://radionz-ice.streamguys.com/fallback-international.mp3"
+        ],
+        "codec": "MP3 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      }
+    ]
+  },
+  {
+    "name": "Radio New Zealand - News",
+    "description": "The RNZ News service provides vital elements throughout our 24-hour programming schedule, bringing impartial news and information to New Zealanders every day.",
+    "link": "https://www.rnz.co.nz/",
+    "endpoints": [
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/national_aac128",
+          "https://stream-ice.radionz.co.nz/fallback-national_aac128"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/national_aac128",
+          "http://radionz-ice.streamguys.com/fallback-national_aac128"
+        ],
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/national_aac64",
+          "https://stream-ice.radionz.co.nz/fallback-national_aac64"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/national_aac64",
+          "http://radionz-ice.streamguys.com/fallback-national_aac64"
+        ],
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/national",
+          "https://stream-ice.radionz.co.nz/fallback-national"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/national",
+          "http://radionz-ice.streamguys.com/fallback-national"
+        ],
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/national.mp3",
+          "https://stream-ice.radionz.co.nz/fallback-national.mp3"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/national.mp3",
+          "http://radionz-ice.streamguys.com/fallback-national.mp3"
+        ],
+        "codec": "MP3 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      }
+    ]
+  },
+  {
+    "name": "Radio New Zealand - Parliament",
+    "description": "Live sittings of the New Zealand Parliament",
+    "link": "https://www.rnz.co.nz/",
+    "endpoints": [
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/parliament_aac64",
+          "https://stream-ice.radionz.co.nz/fallback-parliament_aac64"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/parliament_aac64",
+          "http://radionz-ice.streamguys.com/fallback-parliament_aac64"
+        ],
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/parliament",
+          "https://stream-ice.radionz.co.nz/fallback-parliament"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/parliament",
+          "http://radionz-ice.streamguys.com/fallback-parliament"
+        ],
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream-ice.radionz.co.nz/parliament.mp3",
+          "https://stream-ice.radionz.co.nz/fallback-parliament.mp3"
+        ],
+        "endpointHttp": [
+          "http://radionz-ice.streamguys.com/parliament.mp3",
+          "http://radionz-ice.streamguys.com/fallback-parliament.mp3"
+        ],
+        "codec": "MP3 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats", "icy"]
+      }
+    ]
+  },
+  {
     "name": "Czech Radio in D major (Český rozhlas D-dur)",
     "description": "A public radio broadcaster in the Czech Republic broadcasting classical music of all genres",
     "link": "https://plus.rozhlas.cz/",
