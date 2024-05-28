@@ -663,6 +663,7 @@
   {
     "name": "Nightride Darksynth",
     "link": "https://nightride.fm",
+    "description": "",
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/darksynth.ogg",
@@ -681,6 +682,7 @@
   {
     "name": "Nightride Horrorsynth",
     "link": "https://nightride.fm",
+    "description": "",
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/horrorsynth.ogg",
@@ -699,6 +701,7 @@
   {
     "name": "Nightride Spacesynth",
     "link": "https://nightride.fm",
+    "description": "",
     "endpoints": [
       {
         "endpoint": "https://stream.nightride.fm/spacesynth.ogg",
@@ -3862,6 +3865,7 @@
   },
   {
     "name": "Graffiti Urban Radio",
+    "description": "",
     "link": "https://www.urban-radio.com/",
     "endpoints": [
       {

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 
 import AudioMotion from "./AudioMotion/AudioMotion";
 import Butterchurn from "./Butterchurn/Butterchurn";
-// eslint-disable-next-line
 // sets style for visualizer selector
+// eslint-disable-next-line
 import style from "./Visualizer.module.css";
 
 export const visualizers = (() =>
