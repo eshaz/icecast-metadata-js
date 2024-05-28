@@ -18,7 +18,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cp ./src/stations.json ./public/stations.json && node ./build-vintage.mjs && react-scripts build",
+    "prebuild": "rm -rf ./public/vintage/*.m3u & cp ./src/stations.json ./public/stations.json && node ./build-vintage.mjs",
+    "build": "npm run prebuild && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --cache --write \"**/*.{css,html,js,json,jsx}\"",

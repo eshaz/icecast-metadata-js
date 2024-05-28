@@ -168,6 +168,19 @@
     ]
   },
   {
+    "name": "Seaburg 1000",
+    "description": "The Seeburg 1000 Background Music System is a phonograph designed and built by the Seeburg Corporation to play background music from special 16-2/3 RPM vinyl records in offices, restaurants, retail businesses, factories and similar locations. The Seeburg 1000 was introduced in 1959 and is enclosed in a metal cabinet 22 inches wide by 14 inches tall by 12 inches deep.",
+    "link": "https://seeburg1000.com/",
+    "endpoints": [
+      {
+        "endpoint": "http://psn3.prostreaming.net/proxy/seeburg/stream/",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
     "name": "Naim Radio",
     "description": "Naim Radio brings you an eclectic mix of superbly recorded music from the Naim Records roster. Established in 1993 it offers a diverse music mix, from contemporary singer-songwriters to classical.",
     "link": "https://www.naimaudio.com/",
@@ -246,20 +259,6 @@
         "endpoint": "https://mscp3.live-streams.nl:8342/jazz-low.mp3",
         "endpointHttp": "http://mscp3.live-streams.nl:8340/jazz-low.mp3",
         "codec": "MP3",
-        "metadataTypes": [],
-        "statsSources": ["icestats"]
-      }
-    ]
-  },
-  {
-    "name": "WFM Lounge Radio",
-    "description": "Ambient, Chillout, Funk, Jazz, Rhythm & Blues, Soul Music.",
-    "link": "https://wfmlounge.com/",
-    "endpoints": [
-      {
-        "endpoint": "https://manager.conceptradio.fr:1295/stream",
-        "codec": "MP3",
-        "bufferLength": 4,
         "metadataTypes": [],
         "statsSources": ["icestats"]
       }
@@ -363,6 +362,120 @@
     ]
   },
   {
+    "name": "Hirshmilch Progressive",
+    "description": "Since it's launch at the end of 2008 hirschmilch.de brings you free electronic music 24/7. ",
+    "link": "https://hirschmilch.de",
+    "endpoints": [
+      {
+        "endpoint": "https://hirschmilch.de:7000/progressive.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://hirschmilch.de:7000/progressive.aac",
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Hirshmilch Chillout",
+    "description": "",
+    "link": "https://hirschmilch.de",
+    "endpoints": [
+      {
+        "endpoint": "https://hirschmilch.de:7000/chillout.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://hirschmilch.de:7000/chillout.aac",
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Hirshmilch Electronic",
+    "description": "",
+    "link": "https://hirschmilch.de",
+    "endpoints": [
+      {
+        "endpoint": "https://hirschmilch.de:7000/electronic.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://hirschmilch.de:7000/electronic.aac",
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Hirshmilch Psytrance",
+    "description": "",
+    "link": "https://hirschmilch.de",
+    "endpoints": [
+      {
+        "endpoint": "https://hirschmilch.de:7000/psytrance.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://hirschmilch.de:7000/psytrance.aac",
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Hirshmilch Prog-House",
+    "description": "",
+    "link": "https://hirschmilch.de",
+    "endpoints": [
+      {
+        "endpoint": "https://hirschmilch.de:7000/prog-house.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://hirschmilch.de:7000/prog-house.aac",
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Hirshmilch Techno",
+    "description": "",
+    "link": "https://hirschmilch.de",
+    "endpoints": [
+      {
+        "endpoint": "https://hirschmilch.de:7000/techno.mp3",
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://hirschmilch.de:7000/techno.aac",
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
     "name": "Radio Sputnik",
     "description": "RadioSputnik.nl started somewhere in 2002 as a pirate radio station on the FM band (24/7) with a low power transmitter (10 Watts) and its main focus was to transmit underground house/club music. Now it’s a non profit internet radio station.",
     "link": "https://radiosputnik.nl",
@@ -380,6 +493,112 @@
         "endpointHttp": "http://radiosputnik.nl:8002",
         "codec": "MP3",
         "metadataTypes": [],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Nectarine Demoscene Radio",
+    "description": "A tribute to all the great computer & demoscene artists. We stream their music for you 24/7.",
+    "link": "https://www.scenestream.net/demovibes/",
+    "endpoints": [
+      {
+        "endpoint": [
+          "https://nectarine.ers35.net:8443/necta192.mp3",
+          "https://nectarine.inversi0n.org/necta192.mp3",
+          "https://radio.worlio.com/stream/necta192.mp3"
+        ],
+        "endpointHttp": [
+          "http://necta.burn.net:8000/nectarine",
+          "http://nectarine.ers35.net:8000/necta192.mp3",
+          "http://nectarine.shakeme.info:8000/nectarine",
+          "http://radio.worlio.com/stream/necta192.mp3"
+        ],
+        "codec": "MP3 192",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": [
+          "https://scenestream.io/necta64.mp3",
+          "https://radio.worlio.com/stream/necta64.mp3"
+        ],
+        "codec": "MP3 64",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": ["https://scenestream.io/necta128.ogg"],
+        "codec": "Vorbis 128",
+        "metadataTypes": ["ogg"],
+        "statsSources": []
+      },
+      {
+        "endpoint": ["https://scenestream.io/necta64.ogg"],
+        "codec": "Vorbis 64",
+        "metadataTypes": ["ogg"],
+        "statsSources": []
+      },
+      {
+        "endpoint": ["https://scenestream.io/opus"],
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": []
+      },
+      {
+        "endpoint": ["https://scenestream.io/necta48.aac"],
+        "codec": "AAC 256",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": ["https://radio.worlio.com/stream/necta03v.aac"],
+        "codec": "AAC 128",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Nonstop Casiopea",
+    "description": "Japanese Jazz fusion by Casiopea and T-square 24/7",
+    "link": "https://nonstopcasiopea.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://nonstopcasiopea.radioca.st/;",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "sevenhtml", "stats", "nextsongs"]
+      }
+    ]
+  },
+  {
+    "name": "Nightwave Plaza Radio",
+    "description": "Nightwave Plaza is a free 24/7 online vaporwave radio station. The broadcast also includes some future funk and experimental genres. We hope you enjoy.",
+    "link": "https://plaza.one/",
+    "endpoints": [
+      {
+        "endpoint": "https://radio.plaza.one/ogg",
+        "codec": "Opus 96",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://radio.plaza.one/ogg_low",
+        "codec": "Opus 64",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://radio.plaza.one/mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats"]
+      },
+      {
+        "endpoint": "https://radio.plaza.one/mp3_low",
+        "codec": "MP3 96",
+        "metadataTypes": ["icy"],
         "statsSources": ["icestats"]
       }
     ]
@@ -404,8 +623,45 @@
     ]
   },
   {
-    "name": "Darksynth Radio",
-    "description": "Darksynth / Cyberpunk / Horror",
+    "name": "Nightride Datawave",
+    "description": "",
+    "link": "https://nightride.fm",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/datawave.ogg",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/datawave.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Nightride Chillsynth",
+    "description": "",
+    "link": "https://nightride.fm",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/chillsynth.ogg",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/chillsynth.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Nightride Darksynth",
     "link": "https://nightride.fm",
     "endpoints": [
       {
@@ -423,7 +679,43 @@
     ]
   },
   {
-    "name": "EBSM",
+    "name": "Nightride Horrorsynth",
+    "link": "https://nightride.fm",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/horrorsynth.ogg",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/horrorsynth.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Nightride Spacesynth",
+    "link": "https://nightride.fm",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.nightride.fm/spacesynth.ogg",
+        "codec": "Opus",
+        "metadataTypes": ["ogg"],
+        "statsSources": ["ogg"]
+      },
+      {
+        "endpoint": "https://stream.nightride.fm/spacesynth.mp3",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Nightride EBSM",
     "description": "EBSM / Industrial / Clubbing",
     "link": "https://nightride.fm",
     "endpoints": [
@@ -442,7 +734,7 @@
     ]
   },
   {
-    "name": "REKT",
+    "name": "Nightride REKT",
     "description": "DnB / Dubstep / Electronic",
     "link": "https://nightride.fm",
     "endpoints": [
@@ -461,7 +753,7 @@
     ]
   },
   {
-    "name": "Rektory",
+    "name": "Nightride Rektory",
     "description": "Fallout / 1930s / Reefer Jazz",
     "link": "https://nightride.fm",
     "endpoints": [
@@ -474,6 +766,85 @@
       {
         "endpoint": "https://stream.nightride.fm/rektory.mp3",
         "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "9128.live",
+    "description": "9128 is a curated destination to showcase friends, artists, and labels within the ambient and electronic music community - a collective of like-minded music.",
+    "link": "https://9128.live/",
+    "endpoints": [
+      {
+        "endpoint": "https://streams.radio.co/s0aa1e6f4a/listen",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Ambient Modern",
+    "description": "an internet radio stream featuring modern organic textures",
+    "link": "https://ambientmodern.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://radio.stereoscenic.com/mod-h",
+        "codec": "MP3 256",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": [
+          "https://radio.stereoscenic.com/mod-s",
+          "https://radio.stereoscenic.com/mod-l"
+        ],
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Ambient Sleeping Pill",
+    "description": "internet radio streaming music for sleep, meditation or study; for tuning out distractions or simply relaxing; ad-free, beat-free, never too new-age or dark",
+    "link": "https://ambientsleepingpill.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://radio.stereoscenic.com/asp-h",
+        "codec": "MP3 256",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": [
+          "https://radio.stereoscenic.com/asp-s",
+          "https://radio.stereoscenic.com/asp-l"
+        ],
+        "codec": "MP3 128",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "a.m. ambient",
+    "description": "an internet radio stream featuring bright and positive ambient music",
+    "link": "https://amambient.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://radio.stereoscenic.com/ama-h",
+        "codec": "MP3 256",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": [
+          "https://radio.stereoscenic.com/ama-s",
+          "https://radio.stereoscenic.com/ama-l"
+        ],
+        "codec": "MP3 128",
         "metadataTypes": [],
         "statsSources": []
       }
@@ -3195,6 +3566,31 @@
     ]
   },
   {
+    "name": "Dublab",
+    "description": "dublab is a Los Angeles-based, community-supported internet radio station and creative collective dedicated to the growth of positive music, arts, and culture.",
+    "link": "https://www.dublab.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://dublab.out.airtime.pro/dublab_c",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://dublab.out.airtime.pro/dublab_a",
+        "codec": "MP3 160",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      },
+      {
+        "endpoint": "https://dublab.out.airtime.pro/dublab_b",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "icestats"]
+      }
+    ]
+  },
+  {
     "name": "Deephouse.FM",
     "description": "Deephouse.fm is an internet radio website that brings you the best deep house music 24/7.",
     "link": "https://www.deephouse.fm",
@@ -3209,77 +3605,214 @@
   },
   {
     "name": "Deep Link NYC",
-    "description": "Selected House music DJ mixes and sets. On this channel you can hear many different House Music genres such as Deep, Soulful, Jazzy, Funky, Disco, Nu-Jazz and many others.",
+    "description": "Selected Deep, Tech, Jazzy & Soulful House Music DJ mixes and sets!",
     "link": "https://www.deeplink.stream/deep-link-radio",
     "endpoints": [
       {
         "endpoint": "https://deeperlink.com:8102/stream",
+        "endpointHttp": "http://deeperlink.com:8100/stream",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       },
       {
         "endpoint": "https://deeperlink.com:8102/64",
-        "codec": "AAC",
+        "endpointHttp": "http://deeperlink.com:8100/64",
+        "codec": "AAC mono",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       }
     ]
   },
   {
-    "name": "Soulful Link Radio",
-    "description": "If you love vocals and soulful vibes, Soulful Link is the right radio for you. Most of the mixes and sets will cheer you up, fix your mood and make your day or night pleasant! So, press play and start singing your favorite house music tune with your favorite radio!",
+    "name": "Deep Link Soulful",
+    "description": "Selected Soulful Vocal House Music DJ mixes and sets!",
     "link": "https://www.deeplink.stream/soulful-link-radio",
     "endpoints": [
       {
         "endpoint": "https://deeperlink.com:8072/stream",
+        "endpointHttp": "http://deeperlink.com:8070/stream",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       },
       {
         "endpoint": "https://deeperlink.com:8072/64",
-        "codec": "AAC",
+        "endpointHttp": "http://deeperlink.com:8070/64",
+        "codec": "AAC mono",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       }
     ]
   },
   {
-    "name": "Jazzier Link Radio",
-    "description": "If you like Soulful House Music with a strong Jazz influence in it, this is the right channel for you! We selected some of the best DJ mixes and sets for your (and ours) pleasure, and we hope you will enjoy it every day. It's Jazz House Music, and we love it!",
+    "name": "Deep Link Jazzier",
+    "description": "Selected Jazzy Deep House Music DJ mixes and sets!",
     "link": "https://www.deeplink.stream/jazzier-link-radio",
     "endpoints": [
       {
         "endpoint": "https://deeperlink.com:8012/stream",
+        "endpointHttp": "https://deeperlink.com:8010/stream",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       },
       {
         "endpoint": "https://deeperlink.com:8012/64",
-        "codec": "AAC",
+        "endpointHttp": "https://deeperlink.com:8010/64",
+        "codec": "AAC mono",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       }
     ]
   },
   {
-    "name": "Dacha's House Mixes",
+    "name": "Deep Link Relaxed Grooves",
+    "description": "This channel is for Jazz House Music Soul Funk relaxing grooves!",
+    "link": "https://www.deeplink.stream/relaxed-grooves",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8062/stream",
+        "endpointHttp": "https://deeperlink.com:8060/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8062/64",
+        "endpointHttp": "https://deeperlink.com:8060/64",
+        "codec": "AAC mono",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Deep Link Old House Mixes",
+    "description": "Selection of Old House Music DJ mixes and sets.",
+    "link": "https://www.deeplink.stream/old-house-music-dj-mixes-sets",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8032/stream",
+        "endpointHttp": "https://deeperlink.com:8030/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8032/64",
+        "endpointHttp": "https://deeperlink.com:8030/64",
+        "codec": "AAC mono",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Deep Link Old Soulful Mixes",
+    "description": "Dig into the past, expand your House Music knowledge here on Old Soulful House Music radio channel! Relive your clubbing days memory lane and enjoy again in best Real Soulful House Music from the past!",
+    "link": "https://www.deeplink.stream/old-soulful-house-music",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8052/soulful",
+        "endpointHttp": "https://deeperlink.com:8050/soulful",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8052/64",
+        "endpointHttp": "https://deeperlink.com:8050/64",
+        "codec": "AAC mono",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Deep Link Old Deep Mixes",
+    "description": "If you like Real Deep & Soulful House Music from the past, like 30 years ago, this is the right channel for you! Maybe the sound quality is not top-notch by today's standards, but the quality of the music is very good, and it aged very well!",
+    "link": "https://www.deeplink.stream/old-deep-house-music",
+    "endpoints": [
+      {
+        "endpoint": "https://deeperlink.com:8022/deep",
+        "endpointHttp": "https://deeperlink.com:8020/deep",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      },
+      {
+        "endpoint": "https://deeperlink.com:8022/64",
+        "endpointHttp": "https://deeperlink.com:8020/64",
+        "codec": "AAC mono",
+        "metadataTypes": [],
+        "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "Deep Link Dacha's House Mixes",
     "description": "Dacha started collecting House Music in early nineties, and he is still delivering monthly DJ mixes that you can hear on this channel. It's all about pure Jazz and Deep House music with soulful vibe.",
     "link": "https://www.deeplink.stream/dacha-s-house-mixes",
     "endpoints": [
       {
         "endpoint": "https://deeperlink.com:8002/stream",
+        "endpointHttp": "https://deeperlink.com:8000/stream",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
       },
       {
         "endpoint": "https://deeperlink.com:8002/64",
-        "codec": "AAC",
+        "endpointHttp": "https://deeperlink.com:8000/64",
+        "codec": "AAC mono",
         "metadataTypes": [],
         "statsSources": ["sevenhtml"]
+      }
+    ]
+  },
+  {
+    "name": "WFM Lounge Radio",
+    "description": "Ambient, Chillout, Funk, Jazz, Rhythm & Blues, Soul Music.",
+    "link": "https://wfmlounge.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://azuracast.infocomwebservices.com/listen/wfmlounge/radio.mp3",
+        "codec": "MP3",
+        "bufferLength": 4,
+        "metadataTypes": ["icy"],
+        "statsSources": ["icestats"]
+      }
+    ]
+  },
+  {
+    "name": "Sleepscapes",
+    "description": "These streams are peaceful sounds to fall asleep to.",
+    "link": "https://www.willstare.com/sleep/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.willstare.com:8860/;",
+        "codec": "Waves",
+        "metadataTypes": [],
+        "statsSources": []
+      },
+      {
+        "endpoint": "https://stream.willstare.com:8850/;",
+        "codec": "Rain",
+        "metadataTypes": [],
+        "statsSources": []
+      }
+    ]
+  },
+  {
+    "name": "Jamendo Lounge",
+    "description": "Music to relax.",
+    "endpoints": [
+      {
+        "endpoint": "https://streamingp.shoutcast.com/JamendoLounge",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
       }
     ]
   },
@@ -3367,6 +3900,19 @@
         "codec": "MP3",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "FBi Radio",
+    "description": "FBi Radio [Free Broadcast Inc] is an independent youth broadcaster. We make radio. Good radio, with Sydney music, arts and culture being our specialty. Our mission is to shape and amplify independent culture in Sydney.",
+    "link": "https://fbiradio.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://streamer.fbiradio.com/stream",
+        "codec": "MP3",
+        "metadataTypes": [],
+        "statsSources": []
       }
     ]
   },
