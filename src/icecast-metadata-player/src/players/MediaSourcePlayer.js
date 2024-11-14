@@ -97,7 +97,7 @@ export default class MediaSourcePlayer extends Player {
       this._mediaSourceOpenNotify = resolve;
     });
 
-    this._addFrames = this._prepareMediaSource(
+    this._addFrames = await this._prepareMediaSource(
       this._inputMimeType,
       this._codec,
     );
@@ -153,56 +153,66 @@ export default class MediaSourcePlayer extends Player {
     }
   }
 
-  _prepareMediaSource(inputMimeType, codec) {
-    if (MediaSource.isTypeSupported(inputMimeType)) {
+  async _prepareMediaSource(inputMimeType, codec) {
+    const wrappedMineType = (await this._MSEAudioWrapper).getWrappedMimeType(
+      codec,
+    );
+
+    if (MediaSource.isTypeSupported(wrappedMineType)) {
+      this._codecHeader
+        .then((codecHeader) =>
+          this._createMSEWrapper(inputMimeType, codec, codecHeader.channels),
+        )
+        .then(() => {
+          this._createMediaSource(this._wrapper.mimeType);
+        });
+
+      return inputMimeType.match(/ogg/)
+        ? async (codecFrames) => {
+            let fragments = [];
+
+            for await (const frame of codecFrames) {
+              // handle new setup packet for continuous chain ogg vorbis streams
+              if (this._processingLastPage !== frame.isLastPage) {
+                if (frame.isLastPage) {
+                  this._processingLastPage = true;
+                } else {
+                  await this._appendSourceBuffer(concatBuffers(fragments));
+                  fragments = [];
+
+                  const codecHeader = await this._codecHeader;
+                  await this._createMSEWrapper(
+                    inputMimeType,
+                    codec,
+                    codecHeader.channels,
+                  );
+
+                  this._processingLastPage = false;
+                }
+              }
+
+              fragments.push(...this._wrapper.iterator([frame]));
+            }
+
+            await this._appendSourceBuffer(concatBuffers(fragments));
+          }
+        : async (codecFrames) =>
+            this._appendSourceBuffer(
+              concatBuffers([...this._wrapper.iterator(codecFrames)]),
+            );
+    } else if (MediaSource.isTypeSupported(inputMimeType)) {
       // pass the audio directly to MSE
       this._createMediaSource(inputMimeType);
 
       return async (frames) =>
         this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
+    } else {
+      this._icecast[fireEvent](
+        event.PLAYBACK_ERROR,
+        `Media Source Extensions API in your browser does not support ${inputMimeType} or ${this._wrapper.mimeType}.` +
+          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
+      );
     }
-
-    this._codecHeader
-      .then((codecHeader) =>
-        this._createMSEWrapper(inputMimeType, codec, codecHeader.channels),
-      )
-      .then(() => {
-        this._createMediaSource(this._wrapper.mimeType);
-      });
-
-    return inputMimeType.match(/ogg/)
-      ? async (codecFrames) => {
-          let fragments = [];
-
-          for await (const frame of codecFrames) {
-            // handle new setup packet for continuous chain ogg vorbis streams
-            if (this._processingLastPage !== frame.isLastPage) {
-              if (frame.isLastPage) {
-                this._processingLastPage = true;
-              } else {
-                await this._appendSourceBuffer(concatBuffers(fragments));
-                fragments = [];
-
-                const codecHeader = await this._codecHeader;
-                await this._createMSEWrapper(
-                  inputMimeType,
-                  codec,
-                  codecHeader.channels,
-                );
-
-                this._processingLastPage = false;
-              }
-            }
-
-            fragments.push(...this._wrapper.iterator([frame]));
-          }
-
-          await this._appendSourceBuffer(concatBuffers(fragments));
-        }
-      : async (codecFrames) =>
-          this._appendSourceBuffer(
-            concatBuffers([...this._wrapper.iterator(codecFrames)]),
-          );
   }
 
   async _createMSEWrapper(inputMimeType, codec, channels) {
@@ -211,14 +221,6 @@ export default class MediaSourcePlayer extends Player {
       codec,
       preferredContainer: channels > 2 ? "webm" : "fmp4",
     });
-
-    if (!MediaSource.isTypeSupported(this._wrapper.mimeType)) {
-      this._icecast[fireEvent](
-        event.PLAYBACK_ERROR,
-        `Media Source Extensions API in your browser does not support ${inputMimeType} or ${this._wrapper.mimeType}.` +
-          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
-      );
-    }
   }
 
   _createMediaSource(mimeType) {
