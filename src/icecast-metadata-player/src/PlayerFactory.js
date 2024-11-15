@@ -124,6 +124,7 @@ export default class PlayerFactory {
     this._endpoint = instanceVariables[endpointGenerator].next().value;
 
     const headers = instanceVariables[hasIcy] ? { "Icy-MetaData": 1 } : {};
+    // Work around for Icecast implementations that require range
     headers["Range"] = "bytes=0-";
 
     if (instanceVariables[authentication]) {
@@ -132,10 +133,22 @@ export default class PlayerFactory {
         "Basic " + btoa(auth.user + ":" + auth.password);
     }
 
-    const res = await fetch(this._endpoint, {
-      method: "GET",
-      headers,
-      signal: instanceVariables[abortController].signal,
+    const request = () =>
+      fetch(this._endpoint, {
+        method: "GET",
+        headers,
+        signal: instanceVariables[abortController].signal,
+      });
+
+    const res = await request().catch((e) => {
+      // work around for Safari desktop to remove Range header for CORS
+      // Even though it's a safelisted header, and this shouldn't be needed
+      // See: https://fetch.spec.whatwg.org/#cors-safelisted-request-header
+      if (e.name === "TypeError" && e.message === "Load failed") {
+        delete headers["Range"];
+        return request();
+      }
+      throw e;
     });
 
     if (!res.ok) {
