@@ -252,12 +252,27 @@ export default class IcecastMetadataPlayer extends EventClass {
         };
 
         const error = e?.target?.error || e;
+        const player = p.get(this)[playerFactory].player;
 
-        this[fireEvent](
-          event.PLAYBACK_ERROR,
-          "The audio element encountered an error." +
-            (errors[error?.code] || ""),
-        );
+        // try to switch containers when decode error is encountered with MediaSource playback
+        if (
+          player?.useNextContainer &&
+          !player?.changingContainer &&
+          error?.code > 2 &&
+          this.state !== state.STOPPING &&
+          this.state !== state.STOPPED
+        ) {
+          player.useNextContainer();
+        }
+
+        if (this.state !== state.STOPPED && !player?.changingContainer) {
+          // iOS Safari throws an error when the MediaStream is reset, but this is fine
+          this[fireEvent](
+            event.PLAYBACK_ERROR,
+            "The audio element encountered an error." +
+              (errors[error?.code] || ""),
+          );
+        }
       },
       [onPlayReady]: () => {
         const audio = p.get(this)[audioElement];
@@ -274,7 +289,7 @@ export default class IcecastMetadataPlayer extends EventClass {
               this[playerState] = state.PLAYING;
             })
             .catch((e) => {
-              this[fireEvent](event.PLAYBACK_ERROR, e, "Playback failed.");
+              p.get(this)[onAudioError](e);
             });
         }
       },

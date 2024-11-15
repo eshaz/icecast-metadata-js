@@ -22,6 +22,7 @@ export default class MediaSourcePlayer extends Player {
       "mse-audio-wrapper"
     );
 
+    this._initSupportedContainers();
     this._init();
   }
 
@@ -82,6 +83,63 @@ export default class MediaSourcePlayer extends Player {
     });
   }
 
+  get changingContainer() {
+    return this._changingContainer;
+  }
+
+  useNextContainer() {
+    const nextContainerIndex =
+      this._supportedContainers.indexOf(this._container) + 1;
+    this._container = this._supportedContainers[nextContainerIndex];
+
+    this._changingContainer = true;
+    this.enablePlayButton(["mediasource"]);
+    this._init();
+    this.start().then(() => (this._changingContainer = false));
+  }
+
+  async _initSupportedContainers() {
+    const supportedMimeTypes = new Set();
+    this._supportedContainers = [];
+    this._changingContainer = false;
+
+    let setContainer;
+    this._container = new Promise((resolve) => {
+      setContainer = resolve;
+    });
+
+    const mimeTypes = [
+      [() => this._inputMimeType, "raw"],
+      [
+        async () =>
+          (await this._MSEAudioWrapper).getWrappedMimeType(this._codec, "fmp4"),
+        "fmp4",
+      ],
+      [
+        async () =>
+          (await this._MSEAudioWrapper).getWrappedMimeType(this._codec, "webm"),
+        "webm",
+      ],
+    ];
+
+    for await (const mimeType of mimeTypes) {
+      const mseMimeType = await mimeType[0]();
+      const container = mimeType[1];
+
+      if (
+        MediaSource.isTypeSupported(mseMimeType) &&
+        !supportedMimeTypes.has(mseMimeType)
+      ) {
+        if (setContainer) {
+          setContainer(container);
+          setContainer = null;
+        }
+        supportedMimeTypes.add(mseMimeType);
+        this._supportedContainers.push(container);
+      }
+    }
+  }
+
   async _init() {
     super._init();
 
@@ -97,7 +155,10 @@ export default class MediaSourcePlayer extends Player {
       this._mediaSourceOpenNotify = resolve;
     });
 
-    this._addFrames = await this._prepareMediaSource(
+    const container = await this._container;
+    this._container = container;
+
+    this._addFrames = this._prepareMediaSource(
       this._inputMimeType,
       this._codec,
     );
@@ -153,19 +214,23 @@ export default class MediaSourcePlayer extends Player {
     }
   }
 
-  async _prepareMediaSource(inputMimeType, codec) {
-    const wrappedMineType = (await this._MSEAudioWrapper).getWrappedMimeType(
-      codec,
-    );
+  _prepareMediaSource(inputMimeType, codec) {
+    if (!this._container) {
+      this._icecast[fireEvent](
+        event.PLAYBACK_ERROR,
+        `Media Source Extensions API in your browser does not support ${inputMimeType} or ${this._wrapper.mimeType}.` +
+          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
+      );
+    } else if (this._container === "raw") {
+      // pass the audio directly to MSE
+      this._createMediaSource(inputMimeType);
 
-    if (MediaSource.isTypeSupported(wrappedMineType)) {
-      this._codecHeader
-        .then((codecHeader) =>
-          this._createMSEWrapper(inputMimeType, codec, codecHeader.channels),
-        )
-        .then(() => {
-          this._createMediaSource(this._wrapper.mimeType);
-        });
+      return async (frames) =>
+        this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
+    } else {
+      this._createMSEWrapper(inputMimeType, codec, this._container).then(() =>
+        this._createMediaSource(this._wrapper.mimeType),
+      );
 
       return inputMimeType.match(/ogg/)
         ? async (codecFrames) => {
@@ -184,7 +249,7 @@ export default class MediaSourcePlayer extends Player {
                   await this._createMSEWrapper(
                     inputMimeType,
                     codec,
-                    codecHeader.channels,
+                    this._container,
                   );
 
                   this._processingLastPage = false;
@@ -200,26 +265,14 @@ export default class MediaSourcePlayer extends Player {
             this._appendSourceBuffer(
               concatBuffers([...this._wrapper.iterator(codecFrames)]),
             );
-    } else if (MediaSource.isTypeSupported(inputMimeType)) {
-      // pass the audio directly to MSE
-      this._createMediaSource(inputMimeType);
-
-      return async (frames) =>
-        this._appendSourceBuffer(concatBuffers(frames.map((f) => f.data)));
-    } else {
-      this._icecast[fireEvent](
-        event.PLAYBACK_ERROR,
-        `Media Source Extensions API in your browser does not support ${inputMimeType} or ${this._wrapper.mimeType}.` +
-          "See: https://caniuse.com/mediasource and https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
-      );
     }
   }
 
-  async _createMSEWrapper(inputMimeType, codec, channels) {
+  async _createMSEWrapper(inputMimeType, codec, preferredContainer) {
     // wrap the audio into fragments before passing to MSE
     this._wrapper = new (await this._MSEAudioWrapper).default(inputMimeType, {
       codec,
-      preferredContainer: channels > 2 ? "webm" : "fmp4",
+      preferredContainer,
     });
   }
 
