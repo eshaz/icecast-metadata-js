@@ -6,7 +6,6 @@ export default class HTML5Player extends Player {
     super(icecast, endpoint);
 
     this._audioElement.crossOrigin = "anonymous";
-    this._audioElement.loop = false;
     this._audioElement.preload = "none";
 
     this._icecast.addEventListener(event.STREAM_START, () => {
@@ -66,6 +65,7 @@ export default class HTML5Player extends Player {
     const playing = super.start(metadataOffset);
 
     this._metadataLoadedTimestamp = performance.now();
+    this._audioElement.loop = false;
     this._audioElement.src = null;
     this._audioElement.srcObject = null;
     this._audioElement.src = this._endpoint;

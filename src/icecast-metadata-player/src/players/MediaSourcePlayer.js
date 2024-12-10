@@ -93,7 +93,7 @@ export default class MediaSourcePlayer extends Player {
     this._container = this._supportedContainers[nextContainerIndex];
 
     this._changingContainer = true;
-    this.enablePlayButton(["mediasource"]);
+    this.enablePlayButton();
     this._init();
     this.start().then(() => (this._changingContainer = false));
   }

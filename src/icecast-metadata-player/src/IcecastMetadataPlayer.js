@@ -82,6 +82,8 @@ const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
 
+const play = Symbol();
+
 export default class IcecastMetadataPlayer extends EventClass {
   static *[getNextEndpointGenerator](instance) {
     while (true) {
@@ -237,7 +239,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       },
       // audio element event handlers
       [onAudioPlay]: () => {
-        this.play();
+        this[play](onAudioPlay);
       },
       [onAudioPause]: () => {
         this.stop();
@@ -269,8 +271,8 @@ export default class IcecastMetadataPlayer extends EventClass {
           // iOS Safari throws an error when the MediaStream is reset, but this is fine
           this[fireEvent](
             event.PLAYBACK_ERROR,
-            "The audio element encountered an error." +
-              (errors[error?.code] || ""),
+            "The audio element encountered an error.",
+            errors[error?.code] || e,
           );
         }
       },
@@ -393,7 +395,15 @@ export default class IcecastMetadataPlayer extends EventClass {
    * @async Resolves when the audio element is playing
    */
   async play() {
+    return this[play]();
+  }
+
+  async [play](source) {
     if (this.state === state.STOPPED) {
+      if (source !== onAudioPlay && this.audioElement.paused)
+        // start the audio element immediately after user action to prevent iOS Safari playback permissions issues
+        this.audioElement.play();
+
       const playing = new Promise((resolve) => {
         this.addEventListener(event.PLAY, resolve, { once: true });
       });
@@ -478,6 +488,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       await new Promise((resolve) => {
         this.addEventListener(event.STOP, resolve, { once: true });
       });
+      p.get(this)[playerFactory].player.enablePlayButton();
     }
   }
 

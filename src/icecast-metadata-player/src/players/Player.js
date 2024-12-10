@@ -83,28 +83,19 @@ export default class Player {
     return "";
   }
 
-  enablePlayButton(supportedSources) {
+  enablePlayButton() {
     // set the audio element an empty source to enable the play button
     this._audioElement.removeAttribute("src");
+    this._audioElement.src = null;
     this._audioElement.srcObject = null;
+    // mp3 32kbs silence
+    this._audioElement.src =
+      "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
+      "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
+      "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
+      "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
 
-    if (supportedSources.includes("mediasource")) {
-      // MediaSourcePlayer
-      this._audioElement.src = URL.createObjectURL(new MediaSource());
-    } else if (supportedSources.includes("webaudio")) {
-      this._mediaStream = new MediaStream();
-      this._audioElement.srcObject = this._mediaStream;
-    } else if (supportedSources.includes("html5")) {
-      // HTML5Player
-      // mp3 32kbs silence
-      this._audioElement.src =
-        "data:audio/mpeg;base64,//sQxAAABFgC/SCEYACCgB9AAAAAppppVCAHBAEIgBByw9WD5+J8ufwxiDED" +
-        "sMfE+D4fwG/RUGCx6VO4awVxV3qDtQNPiXKnZUNSwKuUDR6IgaeoGg7Fg6pMQU1FMy4xMDCqqqqqqqr/+xL" +
-        "EB4PAAAGkAAAAIAAANIAAAASqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
-        "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=";
-
-      this._audioElement.loop = true;
-    }
+    this._audioElement.loop = true;
   }
 
   get syncStateUpdate() {

@@ -49,7 +49,7 @@ export default class PlayerFactory {
     this._player = new Player(this._icecast);
     this._player.icecastMetadataQueue = this._icecastMetadataQueue;
     this._player.codecUpdateQueue = this._codecUpdateQueue;
-    this._player.enablePlayButton(PlayerFactory.supportedPlaybackMethods);
+    this._player.enablePlayButton();
 
     this._unprocessedFrames = [];
     this._codecParser = undefined;
