@@ -140,11 +140,28 @@ export default class PlayerFactory {
         signal: instanceVariables[abortController].signal,
       });
 
-    const res = await request().catch((e) => {
+    const res = await request().catch(async (e) => {
       // work around for Safari desktop to remove Range header for CORS
       // Even though it's a safelisted header, and this shouldn't be needed
       // See: https://fetch.spec.whatwg.org/#cors-safelisted-request-header
-      if (e.name === "TypeError" && e.message === "Load failed") {
+      if (typeof e === "function") {
+        // Safari 14 puts this error in a function.
+        // See https://github.com/eshaz/icecast-metadata-js/issues/207
+        const promiseError = await e().catch((err) => err);
+        if (
+          typeof promiseError === "object" &&
+          promiseError.name === "TypeError" &&
+          promiseError.message ===
+            "Request header field Range is not Allowed byt Access-Control-Allow-Headers."
+        ) {
+          delete headers["Range"];
+          return request();
+        }
+      } else if (
+        typeof e === "object" &&
+        e.name === "TypeError" &&
+        e.message === "Load failed"
+      ) {
         delete headers["Range"];
         return request();
       }
