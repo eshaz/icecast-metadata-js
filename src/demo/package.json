@@ -12,9 +12,9 @@
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
-    "@minify-html/node": "^0.15.0",
-    "gh-pages": "^6.2.0",
-    "prettier": "^3.4.2"
+    "@minify-html/node": "^0.16.4",
+    "gh-pages": "^6.3.0",
+    "prettier": "^3.5.3"
   },
   "scripts": {
     "start": "react-scripts start",

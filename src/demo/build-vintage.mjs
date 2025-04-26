@@ -1,7 +1,7 @@
 
 import fs from "fs";
 import minifyHtml from "@minify-html/node";
-import stations from "./src/stations.json" assert { "type": "json" };
+import stations from "./src/stations.json" with { type: "json" };
 
 const buildPlaylist = (endpoint) => 
     (Array.isArray(endpoint)
