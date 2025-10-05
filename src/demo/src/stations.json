@@ -173,7 +173,7 @@
     "link": "https://seeburg1000.com/",
     "endpoints": [
       {
-        "endpoint": "http://psn3.prostreaming.net/proxy/seeburg/stream/",
+        "endpoint": "https://s5.reliastream.com/proxy/seeburg?mp=/stream/",
         "codec": "MP3",
         "metadataTypes": [],
         "statsSources": []
@@ -579,13 +579,13 @@
     "endpoints": [
       {
         "endpoint": "https://radio.plaza.one/ogg",
-        "codec": "Opus 96",
+        "codec": "Vorbis 128",
         "metadataTypes": ["ogg"],
         "statsSources": ["icestats"]
       },
       {
         "endpoint": "https://radio.plaza.one/ogg_low",
-        "codec": "Opus 64",
+        "codec": "Vorbis 96",
         "metadataTypes": ["ogg"],
         "statsSources": ["icestats"]
       },
@@ -3599,10 +3599,10 @@
     "link": "https://www.deephouse.fm",
     "endpoints": [
       {
-        "endpoint": "https://hoth.alonhosting.com:4650/stream",
+        "endpoint": "https://altair.streamerr.co:8124/stream?type=http&nocache=7515",
         "codec": "MP3",
-        "metadataTypes": ["icy"],
-        "statsSources": ["icy", "icestats"]
+        "metadataTypes": [],
+        "statsSources": ["icestats"]
       }
     ]
   },
@@ -3780,10 +3780,10 @@
     "link": "https://wfmlounge.com/",
     "endpoints": [
       {
-        "endpoint": "https://azuracast.infocomwebservices.com/listen/wfmlounge/radio.mp3",
+        "endpoint": "https://e-cast.digicomedia.net:1125/stream",
         "codec": "MP3",
         "bufferLength": 4,
-        "metadataTypes": ["icy"],
+        "metadataTypes": [],
         "statsSources": ["icestats"]
       }
     ]
@@ -3850,14 +3850,14 @@
     "link": "https://ice.coldstar.online/",
     "endpoints": [
       {
-        "endpoint": "https://ice.coldstar.online/high.ogg",
-        "codec": "Vorbis 256",
+        "endpoint": "https://ice.coldstar.online/high.mp3",
+        "codec": "MP3 256",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       },
       {
-        "endpoint": "https://ice.coldstar.online/low.ogg",
-        "codec": "Vorbis 96",
+        "endpoint": "https://ice.coldstar.online/low.mp3",
+        "codec": "MP3 128",
         "metadataTypes": ["ogg"],
         "statsSources": ["ogg", "icestats"]
       }
@@ -3868,12 +3868,6 @@
     "description": "",
     "link": "https://www.urban-radio.com/",
     "endpoints": [
-      {
-        "endpoint": "https://diffusion.lafrap.fr/grafopus",
-        "codec": "Opus",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg", "icestats"]
-      },
       {
         "endpoint": "https://diffusion.lafrap.fr/grafdab.mp3",
         "codec": "MP3 320",
@@ -4181,44 +4175,10 @@
     ]
   },
   {
-    "name": "Oxygen Magyar Zene",
-    "description": "Hungarian Dance Hits",
-    "link": "https://oxygenmusic.hu/ms-radios/oxygen-magyar-zene/",
-    "endpoints": [
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene",
-        "codec": "MP3 320",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_192",
-        "codec": "MP3 192",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      },
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
-        "codec": "MP3 128",
-        "metadataTypes": ["icy"],
-        "icyCharacterEncoding": "iso-8859-2",
-        "statsSources": ["icy"]
-      }
-    ]
-  },
-  {
     "name": "Oxygen Music",
     "description": "Pop / Rock / Dance / Latin / Disco",
     "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
     "endpoints": [
-      {
-        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_flac",
-        "codec": "FLAC",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["ogg"]
-      },
       {
         "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic",
         "codec": "MP3 320",
@@ -4243,6 +4203,815 @@
       {
         "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_aac",
         "codec": "MP3 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Dance",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygendance_hd",
+        "codec": "AAC 160",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygendance_sd",
+        "codec": "AAC 96",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygendance_mobil",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygendance_mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Classics",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/Classic_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/Classic_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/Classic_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/Classic_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Black Music",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/blackmusic_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/blackmusic_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/blackmusic_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/blackmusic_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Classic Rock",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenclassicrock_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenclassicrock_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenclassicrock_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenclassicrock_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Fitness",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenfitness",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenfitness_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenfitness_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenfitness_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Happy",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenhappy_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenhappy_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenhappy_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenfitness_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Indie",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenindie",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenindie_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenindie_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenindie_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Italo Hits",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenitalohits",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenitalohits_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenitalohits_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenitalohits_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Magyar Zene",
+    "description": "Hungarian Dance Hits",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-magyar-zene/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmagyarzene_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Kids",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenkids",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenkids_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenkids_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenkids_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Lounge",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlounge",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlounge_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlounge_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlounge_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Love Songs",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlovesongs",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlovesongs_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlovesongs_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenlovesongs_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Oldies",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenoldies",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenoldies_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenoldies_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenoldies_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Spencer Hill",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenspencerhillzenek",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenspencerhillzenek_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenspencerhillzenek_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenspencerhillzenek_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen 80's",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe80shits",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe80shits_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe80shits_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe80shits_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen 90's",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe90shits",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe90shits_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe90shits_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenthe90shits_heaac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Oxygen Music Balaton",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_balaton_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_balaton_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygenmusic_balaton_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "OXYGEN TAPPING GAME",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygentappinggame_hd",
+        "codec": "AAC 160",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygentappinggame_sd",
+        "codec": "AAC 96",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygentappinggame_mobil",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/oxygentappinggame_mp3",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Ozone FM",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/ozonefm_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/ozonefm_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/ozonefm_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/ozonefm_aac",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Ozone Xmas",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/xmas_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/xmas_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/xmas_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/xmas_64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "RISE FM - CLASSIC",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_CLASSIC_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_CLASSIC_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_CLASSIC_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "RISE FM - DEEPHOUSE",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_DEEPHOUSE_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_DEEPHOUSE_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_DEEPHOUSE_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "RISE FM - HITHOUSE",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_HITHOUSE_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_HITHOUSE_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_HITHOUSE_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "RISE FM - RNB",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_RNB_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_RNB_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_RNB_128",
+        "codec": "MP3 128",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "RISE FM - ROCK",
+    "link": "https://oxygenmusic.hu/ms-radios/oxygen-music/",
+    "endpoints": [
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_ROCK_320",
+        "codec": "MP3 320",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_ROCK_192",
+        "codec": "MP3 192",
+        "metadataTypes": ["icy"],
+        "icyCharacterEncoding": "iso-8859-2",
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://oxygenmusic.hu:8443/RISE_ROCK_128",
+        "codec": "MP3 128",
         "metadataTypes": ["icy"],
         "icyCharacterEncoding": "iso-8859-2",
         "statsSources": ["icy"]
@@ -4292,20 +5061,8 @@
         "statsSources": ["icy", "ogg"]
       },
       {
-        "endpoint": "https://stream.radioparadise.com/rp_192m.ogg",
+        "endpoint": "https://stream.radioparadise.com/ogg-192m",
         "codec": "Vorbis 192",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icy", "ogg"]
-      },
-      {
-        "endpoint": "https://stream.radioparadise.com/rp_96m.ogg",
-        "codec": "Vorbis 96",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icy", "ogg"]
-      },
-      {
-        "endpoint": "https://stream.radioparadise.com/rp_32.ogg",
-        "codec": "Vorbis 32",
         "metadataTypes": ["ogg"],
         "statsSources": ["icy", "ogg"]
       },
@@ -4371,12 +5128,6 @@
         "statsSources": ["icy", "ogg"]
       },
       {
-        "endpoint": "https://stream.radioparadise.com/mellow-96m.ogg",
-        "codec": "Vorbis",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icy", "ogg"]
-      },
-      {
         "endpoint": "https://stream.radioparadise.com/mellow-192",
         "codec": "MP3",
         "metadataTypes": ["icy"],
@@ -4417,12 +5168,6 @@
         "endpoint": "https://stream.radioparadise.com/rock-flacm",
         "codec": "FLAC",
         "metadataTypes": ["icy"],
-        "statsSources": ["icy", "ogg"]
-      },
-      {
-        "endpoint": "https://stream.radioparadise.com/rock-96m.ogg",
-        "codec": "Vorbis",
-        "metadataTypes": ["ogg"],
         "statsSources": ["icy", "ogg"]
       },
       {
@@ -4469,12 +5214,6 @@
         "statsSources": ["icy", "ogg"]
       },
       {
-        "endpoint": "https://stream.radioparadise.com/world-etc-96m.ogg",
-        "codec": "Vorbis 96",
-        "metadataTypes": ["ogg"],
-        "statsSources": ["icy", "ogg"]
-      },
-      {
         "endpoint": "https://stream.radioparadise.com/world-etc-192",
         "codec": "MP3",
         "metadataTypes": ["icy"],
@@ -4503,6 +5242,105 @@
         "codec": "AAC 32",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Radio Paradise Beyond",
+    "description": "",
+    "link": "https://radioparadise.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/beyond-flacm",
+        "codec": "FLAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/beyond-192",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/beyond-320",
+        "codec": "AAC 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/beyond-128",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/beyond-64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/beyond-32",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Radio Paradise Radio 2050",
+    "description": "",
+    "link": "https://radioparadise.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/radio2050-flacm",
+        "codec": "FLAC",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/radio2050-192",
+        "codec": "MP3",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/radio2050-320",
+        "codec": "AAC 320",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/radio2050-128",
+        "codec": "AAC 128",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/radio2050-64",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      },
+      {
+        "endpoint": "https://stream.radioparadise.com/radio2050-32",
+        "codec": "AAC 32",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy"]
+      }
+    ]
+  },
+  {
+    "name": "Radio Paradise Serenity",
+    "description": "",
+    "link": "https://radioparadise.com/",
+    "endpoints": [
+      {
+        "endpoint": "https://stream.radioparadise.com/serenity",
+        "codec": "AAC 64",
+        "metadataTypes": ["icy"],
+        "statsSources": ["icy", "ogg"]
       }
     ]
   }
