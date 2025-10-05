@@ -34,7 +34,7 @@ export default class MediaSourcePlayer extends Player {
       flac: ['audio/mp4;codecs="flac"'],
       ogg: {
         flac: ['audio/mp4;codecs="flac"'],
-        opus: ['audio/mp4;codecs="opus"', 'audio/webm;codecs="opus"'],
+        //opus: ['audio/mp4;codecs="opus"', 'audio/webm;codecs="opus"'],
         vorbis: ['audio/webm;codecs="vorbis"'],
       },
     };
