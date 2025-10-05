@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/icecast-metadata-js/static/css/main.ea025979.css",
-    "main.js": "/icecast-metadata-js/static/js/main.b6d7a1dd.js",
+    "main.js": "/icecast-metadata-js/static/js/main.a2eae2d1.js",
     "synaudio.js": "/icecast-metadata-js/static/js/synaudio.d9eb868f.chunk.js",
     "mediasource.js": "/icecast-metadata-js/static/js/mediasource.c2608d46.chunk.js",
     "mpeg.js": "/icecast-metadata-js/static/js/mpeg.b4540265.chunk.js",
@@ -13,7 +13,7 @@
     "static/js/683.e699c9e8.chunk.js": "/icecast-metadata-js/static/js/683.e699c9e8.chunk.js",
     "index.html": "/icecast-metadata-js/index.html",
     "main.ea025979.css.map": "/icecast-metadata-js/static/css/main.ea025979.css.map",
-    "main.b6d7a1dd.js.map": "/icecast-metadata-js/static/js/main.b6d7a1dd.js.map",
+    "main.a2eae2d1.js.map": "/icecast-metadata-js/static/js/main.a2eae2d1.js.map",
     "synaudio.d9eb868f.chunk.js.map": "/icecast-metadata-js/static/js/synaudio.d9eb868f.chunk.js.map",
     "mediasource.c2608d46.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.c2608d46.chunk.js.map",
     "mpeg.b4540265.chunk.js.map": "/icecast-metadata-js/static/js/mpeg.b4540265.chunk.js.map",
@@ -26,6 +26,6 @@
   },
   "entrypoints": [
     "static/css/main.ea025979.css",
-    "static/js/main.b6d7a1dd.js"
+    "static/js/main.a2eae2d1.js"
   ]
 }
