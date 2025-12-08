@@ -15,6 +15,17 @@
         "codec": "SARA",
         "metadataTypes": ["icy"],
         "statsSources": ["icy"]
+      },
+      {
+        "endpoint": [
+          "https://stream.radioparadise.com/mp3-320",
+          "https://stream.radioparadise.com/mp3-192",
+          "https://stream.radioparadise.com/mp3-128",
+          "https://stream.radioparadise.com/mp3-32"
+        ],
+        "codec": "Test",
+        "metadataTypes": [],
+        "statsSources": ["icy", "sevenhtml"]
       }
     ]
   },

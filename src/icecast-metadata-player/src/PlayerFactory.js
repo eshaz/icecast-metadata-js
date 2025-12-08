@@ -27,6 +27,8 @@ import {
   NOT_SYNCED,
   noOp,
   authentication,
+  endpointsBitrates,
+  averageBitrate,
 } from "./global.js";
 
 import Player from "./players/Player.js";
@@ -174,13 +176,32 @@ export default class PlayerFactory {
       onCodecHeader = resolve;
     });
 
+    const updateEndpointBitrate = (metadata) => {
+      const minEndpointBitrateSamples = 3;
+      const maxEndpointBitrateSamples = 20;
+
+      const endpointBitrateData = instanceVariables[endpointsBitrates].get(
+        this.endpoint,
+      );
+
+      endpointBitrateData.data.push(metadata.bitrate);
+      endpointBitrateData.currentAverage = averageBitrate(
+        endpointBitrateData.data,
+        minEndpointBitrateSamples,
+        maxEndpointBitrateSamples,
+      );
+    };
+
     const codecPromise = new Promise((onCodec) => {
       this._codecParser = new CodecParser(inputMimeType, {
         onCodec,
         onCodecHeader,
-        onCodecUpdate:
-          this._enableCodecUpdate &&
-          ((...args) => this._player.onCodecUpdate(...args)),
+        onCodecUpdate: this._enableCodecUpdate
+          ? (...args) => {
+              updateEndpointBitrate(...args);
+              this._player.onCodecUpdate(...args);
+            }
+          : (...args) => updateEndpointBitrate(...args),
         enableLogging: this._enableLogging,
       });
     });
@@ -190,6 +211,7 @@ export default class PlayerFactory {
         this._player.onMetadata(metadata);
       },
       onStream: async ({ stream }) => {
+        // listen to this event to collect data?
         this._icecast[fireEvent](event.STREAM, stream);
 
         const frames = [...this._codecParser.parseChunk(stream)];

@@ -62,6 +62,8 @@ export const endpointGenerator = Symbol();
 export const hasIcy = Symbol();
 export const abortController = Symbol();
 export const playerState = Symbol();
+export const endpointsBitrates = Symbol();
+export const networkBandwidth = Symbol();
 
 // sync state
 export const SYNCED = Symbol("synced");
@@ -80,4 +82,39 @@ export const concatBuffers = (buffers) => {
   }, 0);
 
   return buffer;
+};
+
+// [ts: timestamp, bytes: number of bytes]
+// null if not enough samples
+export const calculateBitrate = (bitrateArray, minSamples, maxSamples) => {
+  // calculate average network bandwidth
+  if (bitrateArray.length < minSamples) return null;
+  if (bitrateArray.length > maxSamples) bitrateArray.shift();
+
+  let totalWeightedBandwidth = 0;
+  let totalDuration = 0;
+
+  for (let i = 1; i < bitrateArray.length; i++) {
+    const prev = bitrateArray[i - 1];
+    const curr = bitrateArray[i];
+    const duration = curr.ts - prev.ts;
+
+    if (duration > 0) {
+      const bandwidth = curr.bytes / duration; // bytes/sec
+      totalWeightedBandwidth += bandwidth * duration; // weight by duration
+      totalDuration += duration;
+    }
+  }
+
+  return totalWeightedBandwidth && (totalWeightedBandwidth / totalDuration) * 8;
+};
+
+export const averageBitrate = (bitrateArray, minSamples, maxSamples) => {
+  if (bitrateArray.length < minSamples) return null;
+  if (bitrateArray.length > maxSamples) bitrateArray.shift();
+
+  return (
+    bitrateArray.reduce((acc, bitrate) => bitrate + acc, 0) /
+    bitrateArray.length
+  );
 };

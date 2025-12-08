@@ -25,6 +25,8 @@ import {
   event,
   // options,
   endpoints,
+  endpointsBitrates,
+  networkBandwidth, // array of [timestamp, bytes transfered]
   metadataTypes,
   playbackMethod,
   audioContext,
@@ -53,6 +55,8 @@ import {
   hasIcy,
   abortController,
   playerState,
+  // shared functions
+  calculateBitrate,
 } from "./global.js";
 
 import EventTargetPolyfill from "./EventTargetPolyfill.js";
@@ -76,11 +80,13 @@ const onAudioPlay = Symbol();
 const onPlayReady = Symbol();
 const onAudioError = Symbol();
 const onAudioWaiting = Symbol();
+const onCheckBandwidth = Symbol();
 
 const stopPlayback = Symbol();
 const endPlayback = Symbol();
 const retryAttempt = Symbol();
 const retryTimeoutId = Symbol();
+const checkBandwidth = Symbol();
 
 const play = Symbol();
 
@@ -130,13 +136,13 @@ export default class IcecastMetadataPlayer extends EventClass {
       [authentication]: options.authentication ?? instance[authentication],
     };
 
-    if (
-      newOptions[endpoints] !== instance[endpoints] &&
-      newOptions[endpointOrder] === "random"
-    )
-      newOptions[endpoints] = newOptions[endpoints].sort(
-        () => 0.5 - Math.random(),
-      );
+    if (newOptions[endpoints] !== instance[endpoints]) {
+      if (newOptions[endpointOrder] === "random") {
+        newOptions[endpoints] = newOptions[endpoints].sort(
+          () => 0.5 - Math.random(),
+        );
+      }
+    }
 
     return newOptions;
   }
@@ -296,12 +302,27 @@ export default class IcecastMetadataPlayer extends EventClass {
         }
       },
       [stopPlayback]: noOp,
+      [onCheckBandwidth]: (event) => this[checkBandwidth](event.detail[0]),
+      [networkBandwidth]: [],
+      [endpointsBitrates]: new Map(),
     });
 
     this[attachAudioElement]();
     this[playerState] = state.STOPPED;
 
     p.get(this)[playerFactory] = new PlayerFactory(this);
+
+    // populate the endpoint bitrate data
+    if (Array.isArray(urls)) {
+      for (const url of urls) {
+        if (!p.get(this)[endpointsBitrates].has(url)) {
+          p.get(this)[endpointsBitrates].set(url, {
+            currentAverage: null,
+            data: [],
+          });
+        }
+      }
+    }
   }
 
   /**
@@ -404,6 +425,11 @@ export default class IcecastMetadataPlayer extends EventClass {
         // start the audio element immediately after user action to prevent iOS Safari playback permissions issues
         this.audioElement.play();
 
+      if (true) {
+        // switchOnNetworkBandwidth
+        this.addEventListener(event.STREAM, p.get(this)[onCheckBandwidth]);
+      }
+
       const playing = new Promise((resolve) => {
         this.addEventListener(event.PLAY, resolve, { once: true });
       });
@@ -485,6 +511,7 @@ export default class IcecastMetadataPlayer extends EventClass {
       p.get(this)[abortController].abort();
       p.get(this)[stopPlayback]();
 
+      this.removeEventListener(event.STREAM, p.get(this)[onCheckBandwidth]);
       await new Promise((resolve) => {
         this.addEventListener(event.STOP, resolve, { once: true });
       });
@@ -506,6 +533,73 @@ export default class IcecastMetadataPlayer extends EventClass {
 
       return instance[playerFactory].switchStream();
     }
+  }
+
+  [checkBandwidth](streamChunk) {
+    if (this.state !== state.STOPPED && this.state !== state.STOPPING) {
+      const instance = p.get(this);
+      const minNetworkBandwidthSamples = 3;
+      const maxNetworkBandwidthSamples = 20;
+
+      // calculate average network bandwidth
+      const networkBandwidthMap = instance[networkBandwidth];
+      networkBandwidthMap.push({ ts: Date.now(), bytes: streamChunk.length });
+
+      const averageNetworkBandwidth = calculateBitrate(
+        networkBandwidthMap,
+        minNetworkBandwidthSamples,
+        maxNetworkBandwidthSamples,
+      );
+
+      // get the current endpoint bitrate
+      const endpointBitratesMap = instance[endpointsBitrates];
+      const averageEndpointBandwidth = endpointBitratesMap.get(
+        instance[playerFactory].endpoint,
+      ).currentAverage;
+
+      if (!(averageNetworkBandwidth || averageEndpointBandwidth)) {
+        console.log("not enough data to switch");
+        return; // not enough data to switch
+      }
+
+      // try to pick a better endpoint if one exists, only switch to unknown endpoint if bitrate is too high
+      const endpointsSortedByBitrate = [...endpointBitratesMap].sort(
+        (a, b) => a.currentAverage < b.currentAverage,
+      );
+
+      console.log(
+        "sorted bitrates",
+        averageNetworkBandwidth,
+        endpointsSortedByBitrate,
+      );
+
+      // only switch endpoints if stream is playing, collect data as long as possible
+    }
+    /*
+Given a list of streams is in a list ordered from highest to lowest bitrate where `n` is the stream index:
+1. Set `n` to 0
+2. Switch to stream `n`
+3. Wait to gather network bandwidth and stream bitrate, possibly some debouncing logic, Once enough data is collected, proceed.
+    * Use burst on connection speed, and possibly a few chunks from there
+    done * If not enough data, go to **3.**
+5. For each chunk of data returned from the endpoint
+    done * Update the network bandwidth rolling average
+    done * Update the stream bitrate average, possibly weighted on max bitrate
+    * Check if bandwidth is enough for the stream bitrate
+      * If there is existing stream bitrate information
+       * If the bandwidth is just below the stream bitrate, i.e. bitrate good
+         * go to **4.**
+       * If the bandwidth is higher or lower than the stream bitrate
+         * set `n` to the stream with bandwidth that is closest to, but still less than the measured bandwidth
+         * go to **2.**
+     * If there is not existing stream bitrate information
+       * If the bandwidth is just below the stream bitrate, i.e. bitrate good
+         * go to **4.**
+       * If the bandwidth average bitrate is lower than the current stream bitrate
+         * increment `n`, go to **2.**
+       * If the bandwidth average bitrate is higher than the current stream bitrate
+         * decrement `n`, go to **2.** 
+     */
   }
 
   async [shouldRetry](error) {
