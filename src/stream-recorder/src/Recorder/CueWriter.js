@@ -104,7 +104,7 @@ export default class CueWriter extends Transform {
     const file = fs.createWriteStream(fileName);
 
     this._cueFilePromise = new Promise(
-      (resolve) => (this._cueResolve = resolve)
+      (resolve) => (this._cueResolve = resolve),
     );
     file.on("ready", () => {
       this._fileNames.push(fileName);
@@ -147,7 +147,7 @@ export default class CueWriter extends Transform {
        * (i.e. Foobar2000 accepts up to 999 tracks in the cue file)
        */
       const timeStamp = new Date(
-        this._startDate.getTime() + meta.time * 1000
+        this._startDate.getTime() + meta.time * 1000,
       ).toISOString();
 
       const { StreamTitle, ...restOfMetadata } = meta.metadata;
@@ -162,7 +162,7 @@ export default class CueWriter extends Transform {
             : {}),
           ...restOfMetadata,
         },
-        (trackCount || this._cueRolloverCount) && meta.time // force metadata for first track to show immediately
+        (trackCount || this._cueRolloverCount) && meta.time, // force metadata for first track to show immediately
       );
 
       callback(null, track);

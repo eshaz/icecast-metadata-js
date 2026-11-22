@@ -59,7 +59,7 @@ const assertCronString = (obj, a) => {
     return obj[a] && cron.parseExpression(obj[a]);
   } catch (e) {
     throw new Error(
-      `Argument ${a} is not a valid cron expression. ${e.message}`
+      `Argument ${a} is not a valid cron expression. ${e.message}`,
     );
   }
 };
@@ -70,7 +70,7 @@ const getArgs = () =>
       // assert exclusive or condition for streams
       const exclusiveValid = ["output", "endpoint"].reduce(
         (acc, field) => exclusive(yarg, "streams", field),
-        false
+        false,
       );
 
       // assert per stream options
@@ -134,8 +134,8 @@ const getArgs = () =>
           },
         })
         .epilog(
-          "For more information, see https://github.com/eshaz/icecast-metadata-js"
-        )
+          "For more information, see https://github.com/eshaz/icecast-metadata-js",
+        ),
     )
     .command(
       "archive",
@@ -173,8 +173,8 @@ const getArgs = () =>
             ],
           ])
           .epilog(
-            "For more information, see https://github.com/eshaz/icecast-metadata-js"
-          )
+            "For more information, see https://github.com/eshaz/icecast-metadata-js",
+          ),
     )
     .config("config", (configPath) => {
       return JSON.parse(fs.readFileSync(configPath, "utf-8"));
@@ -253,12 +253,12 @@ const getArgs = () =>
     .group(["endpoint", "output"], "Options:")
     .group(
       ["name", "cue-rollover", "date-entries", "prepend-date"],
-      "Cue Options:"
+      "Cue Options:",
     )
     .group(["config", "streams", "output-path"], "JSON Options:")
     .group(["metadata-interval", "content-type"], "Advanced Options:")
     .epilog(
-      "For more information, see https://github.com/eshaz/icecast-metadata-js"
+      "For more information, see https://github.com/eshaz/icecast-metadata-js",
     )
     .wrap(yargs().terminalWidth()).argv;
 

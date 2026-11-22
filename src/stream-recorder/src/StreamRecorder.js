@@ -29,7 +29,7 @@ const getIcecastMetadataArchiveRecorder = (params) =>
     archivePath: params["archive-path"]
       ? path.join(
           path.isAbsolute(params["archive-path"]) ? "" : process.cwd(),
-          params["archive-path"]
+          params["archive-path"],
         )
       : process.cwd(),
     name: params.name,
@@ -43,7 +43,7 @@ const getIcecastMetadataArchiveRecorder = (params) =>
       path.isAbsolute(params.output)
         ? ""
         : params["output-path"] || process.cwd(),
-      params.output
+      params.output,
     ),
     fetch,
   });
@@ -61,7 +61,7 @@ const getIcecastMetadataRecorder = (params) =>
       path.isAbsolute(params.output)
         ? ""
         : params["output-path"] || process.cwd(),
-      params.output
+      params.output,
     ),
     fetch,
   });
@@ -71,7 +71,7 @@ const constructIcecastMetadataReaders = (args, recorder) => {
     args.streams.forEach((stream) => {
       recorderInstances.set(
         stream.output,
-        recorder({ ...args, ...stream }) // stream args should override global args
+        recorder({ ...args, ...stream }), // stream args should override global args
       );
     });
   } else {
@@ -85,7 +85,7 @@ const signalHandler = (signal) => {
   Promise.allSettled(recorderInstances.map((recorder) => recorder.stop())).then(
     () => {
       process.exit(0);
-    }
+    },
   );
 };
 
