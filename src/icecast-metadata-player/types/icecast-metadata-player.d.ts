@@ -186,8 +186,7 @@ declare module "icecast-metadata-player" {
   /**
    * IcecastMetadataPlayer `options` parameter when there is icy metadata
    */
-  export interface IcecastMetadataPlayerIcyOptions
-    extends IcecastMetadataPlayerOptions {
+  export interface IcecastMetadataPlayerIcyOptions extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
     metadataTypes?: ["icy"];
 
@@ -206,8 +205,7 @@ declare module "icecast-metadata-player" {
   }
 
   export interface IcecastMetadataPlayerIcyOptionsWithCallbacks
-    extends IcecastMetadataPlayerIcyOptions,
-      IcecastMetadataPlayerCallbacks {
+    extends IcecastMetadataPlayerIcyOptions, IcecastMetadataPlayerCallbacks {
     /** Called with metadata when synchronized with the audio */
     onMetadata?: (
       metadata: IcyMetadata,
@@ -226,15 +224,13 @@ declare module "icecast-metadata-player" {
   /**
    * IcecastMetadataPlayer `options` parameter when there is ogg metadata
    */
-  export interface IcecastMetadataPlayerOggOptions
-    extends IcecastMetadataPlayerOptions {
+  export interface IcecastMetadataPlayerOggOptions extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
     metadataTypes: ["ogg"];
   }
 
   export interface IcecastMetadataPlayerOggOptionsWithCallbacks
-    extends IcecastMetadataPlayerOggOptions,
-      IcecastMetadataPlayerCallbacks {
+    extends IcecastMetadataPlayerOggOptions, IcecastMetadataPlayerCallbacks {
     /** Called with metadata when synchronized with the audio */
     onMetadata?: (
       metadata: OggMetadata,
@@ -253,8 +249,7 @@ declare module "icecast-metadata-player" {
   /**
    * IcecastMetadataPlayer `options` parameter when there is icy and ogg metadata
    */
-  export interface IcecastMetadataPlayerIcyOggOptions
-    extends IcecastMetadataPlayerOptions {
+  export interface IcecastMetadataPlayerIcyOggOptions extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
     metadataTypes: ["icy", "ogg"];
 
@@ -268,8 +263,7 @@ declare module "icecast-metadata-player" {
   }
 
   export interface IcecastMetadataPlayerIcyOggOptionsWithCallbacks
-    extends IcecastMetadataPlayerIcyOggOptions,
-      IcecastMetadataPlayerCallbacks {
+    extends IcecastMetadataPlayerIcyOggOptions, IcecastMetadataPlayerCallbacks {
     /** Called with metadata when synchronized with the audio */
     onMetadata?: (
       metadata: IcyMetadata & OggMetadata,
@@ -288,14 +282,14 @@ declare module "icecast-metadata-player" {
   /**
    * IcecastMetadataPlayer `options` parameter when there is no metadata
    */
-  export interface IcecastMetadataPlayerNoMetadataOptions
-    extends IcecastMetadataPlayerOptions {
+  export interface IcecastMetadataPlayerNoMetadataOptions extends IcecastMetadataPlayerOptions {
     /** Array of metadata types to parse */
     metadataTypes: [];
   }
 
   export interface IcecastMetadataPlayerNoMetadataOptionsWithCallbacks
-    extends IcecastMetadataPlayerNoMetadataOptions,
+    extends
+      IcecastMetadataPlayerNoMetadataOptions,
       IcecastMetadataPlayerCallbacks {
     /** Metadata callbacks are not allowed if there is no metadata being parsed */
     onMetadata?: undefined;
@@ -384,12 +378,7 @@ declare module "icecast-metadata-player" {
 
     /** Returns the current state of the IcecastMetadataPlayer */
     get state():
-      | "loading"
-      | "playing"
-      | "stopping"
-      | "stopped"
-      | "retrying"
-      | "switching";
+      "loading" | "playing" | "stopping" | "stopped" | "retrying" | "switching";
 
     /** Returns the audio playback method being used */
     get playbackMethod(): "mediasource" | "webaudio" | "html5" | "";

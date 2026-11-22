@@ -7,7 +7,7 @@
       name="description"
       content="Icecast Metadata JS - Javascript library that reads, parses, and queues real-time metadata from an Icecast stream."
     />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.17.13.main.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.17.14.main.min.js"></script>
     <style>
       body {
         background:
@@ -98,7 +98,10 @@
     </script>
   </head>
   <body
-    onload="document.getElementById('endpoint').value = 'https:\/\/dsmrad.io/stream/isics-all';"
+    onload="
+      document.getElementById('endpoint').value =
+        'https:\/\/dsmrad.io/stream/isics-all'
+    "
   >
     <header>
       <h1 style="margin-bottom: 0px">
@@ -176,7 +179,7 @@
       </ol>
       <b>Example</b>
       <pre>
-    &lt;script src="icecast-metadata-player-1.17.13.main.min.js"&gt;&lt;/script&gt;
+    &lt;script src="icecast-metadata-player-1.17.14.main.min.js"&gt;&lt;/script&gt;
     &lt;script&gt;
       const onMetadata = (metadata) =&gt; {
         document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -192,8 +195,7 @@
       &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
       &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
     &lt;/body&gt;
-  </pre
-      >
+  </pre>
     </details>
     <hr />
     <ul>

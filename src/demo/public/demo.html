@@ -10,8 +10,8 @@
     />
     <meta name="theme-color" content="#000000" />
     <meta name="title" content="Icecast Metadata Player Demo" />
-    <script src="/icecast-metadata-js/icecast-metadata-player-1.17.13.main.min.js"></script>
-    <script src="/icecast-metadata-js/icecast-metadata-stats-0.1.12.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-player-1.17.14.main.min.js"></script>
+    <script src="/icecast-metadata-js/icecast-metadata-stats-0.1.13.min.js"></script>
     <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
@@ -419,7 +419,7 @@
       };
     </script>
   </head>
-  <body onload="bodyLoad();">
+  <body onload="bodyLoad()">
     <header>
       <h1 style="margin-bottom: 0px">
         <a href="https://github.com/eshaz/icecast-metadata-js"
@@ -951,7 +951,7 @@
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-player-1.17.13.main.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-player-1.17.14.main.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onMetadata = (metadata) =&gt; {
           document.getElementById("metadata").innerHTML = metadata.StreamTitle;
@@ -967,8 +967,7 @@
         &lt;button onclick="player.stop();"&gt; Stop &lt;/button&gt;
         &lt;p&gt; Now Playing: &lt;span id="metadata"&gt;&lt;/span&gt; &lt;/p&gt;
       &lt;/body&gt;
-    </pre
-        >
+    </pre>
       </details>
     </details>
     <hr />
@@ -1010,7 +1009,7 @@
               <button
                 id="stats-fetch"
                 title="Fetches all checked sources."
-                onclick="manualQuery(this, icecastMetadataStats.fetch());"
+                onclick="manualQuery(this, icecastMetadataStats.fetch())"
               >
                 Fetch All
               </button>
@@ -1057,7 +1056,9 @@
                 <button
                   id="icy-manual-query"
                   name="icy-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getIcyMetadata())"
+                  onclick="
+                    manualQuery(this, icecastMetadataStats.getIcyMetadata())
+                  "
                 >
                   Fetch
                 </button>
@@ -1087,7 +1088,9 @@
                 <button
                   id="ogg-manual-query"
                   name="ogg-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getOggMetadata())"
+                  onclick="
+                    manualQuery(this, icecastMetadataStats.getOggMetadata())
+                  "
                 >
                   Fetch
                 </button>
@@ -1117,7 +1120,9 @@
                 <button
                   id="sevenhtml-manual-query"
                   name="sevenhtml-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getSevenhtml())"
+                  onclick="
+                    manualQuery(this, icecastMetadataStats.getSevenhtml())
+                  "
                 >
                   Fetch
                 </button>
@@ -1146,7 +1151,9 @@
                 <button
                   id="icestats-manual-query"
                   name="icestats-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getIcestats())"
+                  onclick="
+                    manualQuery(this, icecastMetadataStats.getIcestats())
+                  "
                 >
                   Fetch
                 </button>
@@ -1204,7 +1211,9 @@
                 <button
                   id="nextsongs-manual-query"
                   name="nextsongs-manual-query"
-                  onclick="manualQuery(this, icecastMetadataStats.getNextsongs())"
+                  onclick="
+                    manualQuery(this, icecastMetadataStats.getNextsongs())
+                  "
                 >
                   Fetch
                 </button>
@@ -1233,7 +1242,7 @@
           <li>
             Download the
             <a
-              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.1.12.min.js"
+              href="https://raw.githubusercontent.com/eshaz/icecast-metadata-js/master/src/icecast-metadata-stats/build/icecast-metadata-stats-0.1.13.min.js"
               >latest build</a
             >, or install via
             <a href="https://www.npmjs.com/package/icecast-metadata-stats"
@@ -1256,7 +1265,7 @@
         </ol>
         <b>Example</b>
         <pre>
-      &lt;script src="icecast-metadata-stats-0.1.12.min.js"&gt;&lt;/script&gt;
+      &lt;script src="icecast-metadata-stats-0.1.13.min.js"&gt;&lt;/script&gt;
       &lt;script&gt;
         const onStats = (stats) =&gt; {
           document.getElementById("stats").innerHTML = stats.icy.StreamTitle;
@@ -1271,8 +1280,7 @@
       &lt;body&gt;
         &lt;p&gt; Now Playing: &lt;span id="stats"&gt;&lt;/span&gt; &lt;/p&gt;
       &lt;/body&gt;
-    </pre
-        >
+    </pre>
       </details>
     </details>
     <hr />
