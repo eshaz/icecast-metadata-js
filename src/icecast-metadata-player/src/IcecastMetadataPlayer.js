@@ -115,8 +115,8 @@ export default class IcecastMetadataPlayer extends EventClass {
         options.enableLogging ?? instance[enableLogging] ?? false,
       [enableCodecUpdate]: Boolean(
         options.enableCodecUpdate ??
-          instance[enableCodecUpdate] ??
-          options.onCodecUpdate,
+        instance[enableCodecUpdate] ??
+        options.onCodecUpdate,
       ),
       [endpointOrder]:
         options.endpointOrder ?? instance[endpointOrder] ?? "ordered",

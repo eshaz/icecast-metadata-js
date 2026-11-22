@@ -46,7 +46,7 @@ describe("Given the IcecastMetadataRecorder", () => {
 
   const runIcecastParser = async (params, headers) => {
     const body = fs.createReadStream(
-      `${params.expectedPath}${params.expectedFileName}.${params.expectedFileFormat}.raw`
+      `${params.expectedPath}${params.expectedFileName}.${params.expectedFileFormat}.raw`,
     );
 
     fetch.mockResolvedValue({ headers, body });
@@ -91,7 +91,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedStreamTitle,
           expectedPrependDate,
         },
-        headers
+        headers,
       );
     });
 
@@ -99,7 +99,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "isics-all.mp3"
+        "isics-all.mp3",
       );
       expect(notMatch).toEqual(0);
     });
@@ -108,7 +108,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "isics-all.cue"
+        "isics-all.cue",
       );
       expect(notMatch).toEqual(0);
     });
@@ -139,7 +139,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedPrependDate,
           expectedCueRollover,
         },
-        headers
+        headers,
       );
     });
 
@@ -147,7 +147,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "isics-all.mp3"
+        "isics-all.mp3",
       );
       expect(notMatch).toEqual(0);
     });
@@ -156,7 +156,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "isics-all.cue"
+        "isics-all.cue",
       );
       expect(notMatch).toEqual(0);
     });
@@ -207,8 +207,8 @@ describe("Given the IcecastMetadataRecorder", () => {
         assertFilesMatch(
           expectedPath,
           actualPath,
-          `${expectedFileName}.${i + 1}.cue`
-        )
+          `${expectedFileName}.${i + 1}.cue`,
+        ),
       );
   });
 
@@ -234,7 +234,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedStreamTitle,
           expectedPrependDate,
         },
-        headers
+        headers,
       );
     });
 
@@ -242,7 +242,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "isics-all.mp3"
+        "isics-all.mp3",
       );
       expect(notMatch).toEqual(0);
     });
@@ -251,7 +251,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "isics-all.cue"
+        "isics-all.cue",
       );
       expect(notMatch).toEqual(0);
     });
@@ -272,15 +272,15 @@ describe("Given the IcecastMetadataRecorder", () => {
       headers.set("icy-genre", "Techno Ambient Space");
       headers.set(
         "icy-name",
-        "Drone Zone: Atmospheric ambient space music. Serve Best Chilled. Safe with most medications. [SomaFM]"
+        "Drone Zone: Atmospheric ambient space music. Serve Best Chilled. Safe with most medications. [SomaFM]",
       );
       headers.set(
         "icy-notice1",
-        `<BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>`
+        `<BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>`,
       );
       headers.set(
         "icy-notice2",
-        `SHOUTcast Distributed Network Audio Server/Linux v1.9.5<BR>`
+        `SHOUTcast Distributed Network Audio Server/Linux v1.9.5<BR>`,
       );
       headers.set("icy-pub", "0");
       headers.set("icy-url", "http://somafm.com");
@@ -293,7 +293,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedFileFormat,
           expectedPrependDate,
         },
-        headers
+        headers,
       );
     });
 
@@ -301,7 +301,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "music-256k.mp3"
+        "music-256k.mp3",
       );
 
       expect(notMatch).toEqual(0);
@@ -311,7 +311,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "music-256k.cue"
+        "music-256k.cue",
       );
 
       expect(notMatch).toEqual(0);
@@ -335,15 +335,15 @@ describe("Given the IcecastMetadataRecorder", () => {
       headers.set("icy-genre", "Ambient Space");
       headers.set(
         "icy-name",
-        "Deep Space One: Deep ambient electronic and space music. [SomaFM]"
+        "Deep Space One: Deep ambient electronic and space music. [SomaFM]",
       );
       headers.set(
         "icy-notice1",
-        `<BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>`
+        `<BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>`,
       );
       headers.set(
         "icy-notice2",
-        `SHOUTcast Distributed Network Audio Server/Linux v1.9.5<BR>`
+        `SHOUTcast Distributed Network Audio Server/Linux v1.9.5<BR>`,
       );
       headers.set("icy-pub", "0");
       headers.set("icy-url", "http://somafm.com");
@@ -357,7 +357,7 @@ describe("Given the IcecastMetadataRecorder", () => {
           expectedPrependDate,
           expectedDateEntries,
         },
-        headers
+        headers,
       );
     });
 
@@ -365,7 +365,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "music-128k.aac"
+        "music-128k.aac",
       );
       expect(notMatch).toEqual(0);
     });
@@ -374,7 +374,7 @@ describe("Given the IcecastMetadataRecorder", () => {
       const notMatch = await matchFiles(
         expectedPath,
         actualPath,
-        "music-128k.cue"
+        "music-128k.cue",
       );
       expect(notMatch).toEqual(0);
     });

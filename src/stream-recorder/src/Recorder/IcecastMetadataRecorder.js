@@ -85,10 +85,10 @@ export default class IcecastMetadataRecorder {
 
     if (!icecastParams.icyMetaInt) {
       console.error(
-        `Icecast server: ${this._endpoint} did not respond with a valid Icy-MetaInt header`
+        `Icecast server: ${this._endpoint} did not respond with a valid Icy-MetaInt header`,
       );
       console.error(
-        "Please manually specify a metadata interval to record this stream"
+        "Please manually specify a metadata interval to record this stream",
       );
       console.error("Received 'ICY-' headers", this._icyHeaders);
       throw new Error("Invalid Icecast Metadata Interval");
@@ -96,7 +96,7 @@ export default class IcecastMetadataRecorder {
 
     if (!icecastParams.mimeType) {
       console.warn(
-        `Icecast server: ${this._endpoint} did not respond with a valid Content-Type header`
+        `Icecast server: ${this._endpoint} did not respond with a valid Content-Type header`,
       );
       console.error("Please manually specify a mimetype to record this stream");
       console.error("Received 'ICY-' headers", this._icyHeaders);
@@ -164,7 +164,7 @@ export default class IcecastMetadataRecorder {
         res.body.pipe(this._icecast);
 
         return this._audioFilePromise.then(
-          () => this._cueWriter?.cueFilePromise
+          () => this._cueWriter?.cueFilePromise,
         );
       })
       .catch((e) => {
@@ -197,7 +197,7 @@ export default class IcecastMetadataRecorder {
     const file = fs.createWriteStream(fileName);
 
     this._audioFilePromise = new Promise(
-      (resolve) => (this._audioResolve = resolve)
+      (resolve) => (this._audioResolve = resolve),
     );
     file.on("ready", () => {
       this._fileNames.push(fileName);

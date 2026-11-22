@@ -87,9 +87,9 @@ export default class CueBuilder {
       `    ${CueBuilder._getEntries(
         entries,
         comments,
-        supportedTrackEntries
+        supportedTrackEntries,
       ).join("\n    ")}`,
-      `    INDEX 01 ${CueBuilder._getMinutesSecondsFrames(time)}`
+      `    INDEX 01 ${CueBuilder._getMinutesSecondsFrames(time)}`,
     );
 
     return "\n" + trackEntries.join("\n");
@@ -125,7 +125,7 @@ export default class CueBuilder {
         fileEntry,
         supportedFileTypes.includes(filetype.toUpperCase())
           ? filetype.toUpperCase()
-          : DEFAULT_FILETYPE
+          : DEFAULT_FILETYPE,
       );
     }
   }

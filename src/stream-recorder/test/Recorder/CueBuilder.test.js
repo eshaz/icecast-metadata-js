@@ -8,7 +8,7 @@ describe("Cue Builder", () => {
           title: "someTitle",
           performer: "somePerformer",
         },
-        ["a comment", "another comment"]
+        ["a comment", "another comment"],
       );
 
       // prettier-ignore
@@ -30,7 +30,7 @@ PERFORMER "somePerformer"`;
             file: "some-file.mp3",
           },
           ["a comment", "another comment"],
-          "AIFF"
+          "AIFF",
         );
 
         // prettier-ignore
@@ -51,7 +51,7 @@ FILE "some-file.mp3" AIFF`;
             performer: "somePerformer",
             file: "some-file.mp3",
           },
-          ["a comment", "another comment"]
+          ["a comment", "another comment"],
         );
 
         // prettier-ignore
@@ -73,7 +73,7 @@ FILE "some-file.mp3" WAVE`;
             file: "some-file.flac",
           },
           ["a comment", "another comment"],
-          "FLAC"
+          "FLAC",
         );
 
         // prettier-ignore
@@ -99,7 +99,7 @@ FILE "some-file.flac" WAVE`;
             album: "My Album",
             date: "1/1/2020",
           },
-          ["a comment", "another comment"]
+          ["a comment", "another comment"],
         );
 
         // prettier-ignore
@@ -124,7 +124,7 @@ CATALOG "asdbc1321654"`;
             songwriter: "A Songwriter",
             catalog: "asdbc1321654",
           },
-          ["a comment", "TITLE another title", "My very own cue file"]
+          ["a comment", "TITLE another title", "My very own cue file"],
         );
 
         // prettier-ignore
@@ -156,7 +156,7 @@ CATALOG "asdbc1321654"`;
             title: "My Track",
             performer: "My Performer",
           },
-          0
+          0,
         );
 
         // prettier-ignore
@@ -175,7 +175,7 @@ CATALOG "asdbc1321654"`;
             title: "My Track",
             performer: "My Performer",
           },
-          0
+          0,
         );
 
         const track2 = cueBuilder.addTrack(
@@ -183,7 +183,7 @@ CATALOG "asdbc1321654"`;
             title: "Another Track",
             performer: "My Performer 2",
           },
-          10
+          10,
         );
 
         // prettier-ignore
@@ -191,7 +191,7 @@ CATALOG "asdbc1321654"`;
   TRACK 1 AUDIO
     TITLE "My Track"
     PERFORMER "My Performer"
-    INDEX 01 00:00:00`
+    INDEX 01 00:00:00`;
         // prettier-ignore
         const expectedTrack2 = `
   TRACK 2 AUDIO
@@ -209,7 +209,7 @@ CATALOG "asdbc1321654"`;
             title: "My Track",
             performer: "My Performer",
           },
-          0
+          0,
         );
 
         cueBuilder.addTrack(
@@ -217,7 +217,7 @@ CATALOG "asdbc1321654"`;
             title: "Another Track",
             performer: "My Performer 2",
           },
-          10
+          10,
         );
         expect(cueBuilder.trackCount).toEqual(2);
       });
@@ -233,7 +233,7 @@ CATALOG "asdbc1321654"`;
           },
           0,
           [],
-          "MP3"
+          "MP3",
         );
 
         // prettier-ignore
@@ -255,7 +255,7 @@ FILE "Track 1.mp3" MP3
             file: "Track 1.mp3",
           },
           0,
-          []
+          [],
         );
 
         // prettier-ignore
@@ -278,7 +278,7 @@ FILE "Track 1.mp3" WAVE
           },
           0,
           [],
-          "MIDI"
+          "MIDI",
         );
 
         // prettier-ignore
@@ -299,7 +299,7 @@ FILE "Track 1.mp3" WAVE
             performer: "My Performer",
             file: "Track 1.mp3",
           },
-          0
+          0,
         );
         const track2 = cueBuilder.addTrack(
           {
@@ -308,7 +308,7 @@ FILE "Track 1.mp3" WAVE
           },
           75,
           [],
-          "AIFF"
+          "AIFF",
         );
         const track3 = cueBuilder.addTrack(
           {
@@ -318,7 +318,7 @@ FILE "Track 1.mp3" WAVE
           },
           465,
           [],
-          "AIFF"
+          "AIFF",
         );
 
         // prettier-ignore
@@ -356,7 +356,7 @@ FILE "sound2.aiff" AIFF
           },
           0,
           [],
-          "MP3"
+          "MP3",
         );
 
         // prettier-ignore
@@ -387,7 +387,7 @@ FILE "Track 1.mp3" MP3
           },
           0,
           ['title "Some Title"', "Am I a Comment?"],
-          "MP3"
+          "MP3",
         );
 
         // prettier-ignore
@@ -415,7 +415,7 @@ FILE "Track 1.mp3" MP3
             title: "My Track",
             performer: "My Performer",
           },
-          1.4567
+          1.4567,
         );
 
         // prettier-ignore
@@ -434,7 +434,7 @@ FILE "Track 1.mp3" MP3
             title: "My Track",
             performer: "My Performer",
           },
-          1.994
+          1.994,
         );
 
         // prettier-ignore
@@ -453,7 +453,7 @@ FILE "Track 1.mp3" MP3
             title: "My Track",
             performer: "My Performer",
           },
-          1.993
+          1.993,
         );
 
         // prettier-ignore
@@ -472,7 +472,7 @@ FILE "Track 1.mp3" MP3
             title: "My Track",
             performer: "My Performer",
           },
-          60
+          60,
         );
 
         // prettier-ignore
@@ -491,7 +491,7 @@ FILE "Track 1.mp3" MP3
             title: "My Track",
             performer: "My Performer",
           },
-          10001234
+          10001234,
         );
 
         // prettier-ignore

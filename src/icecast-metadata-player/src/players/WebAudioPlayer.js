@@ -21,6 +21,8 @@ export default class WebAudioPlayer extends Player {
 
   static canPlayType(mimeType) {
     const mapping = {
+      aac: ["audio/aac"],
+      aacp: ["audio/aacp"],
       flac: ["audio/flac"],
       mpeg: ["audio/mpeg"],
       ogg: {
@@ -34,9 +36,13 @@ export default class WebAudioPlayer extends Player {
 
     return super.canPlayType(
       (codec) =>
+        codec === 'audio/ogg;codecs="aac"' ||
+        codec === 'audio/ogg;codecs="aacp"' ||
         codec === 'audio/ogg;codecs="opus"' ||
         codec === 'audio/ogg;codecs="flac"' ||
         codec === 'audio/ogg;codecs="vorbis"' ||
+        codec === "audio/aac" ||
+        codec === "audio/aacp" ||
         codec === "audio/mpeg" ||
         codec === "audio/flac",
       mimeType,
@@ -47,8 +53,8 @@ export default class WebAudioPlayer extends Player {
   static get isSupported() {
     return Boolean(
       window.WebAssembly &&
-        (window.AudioContext || window.webkitAudioContext) &&
-        window.MediaStream,
+      (window.AudioContext || window.webkitAudioContext) &&
+      window.MediaStream,
     );
   }
 
@@ -112,6 +118,13 @@ export default class WebAudioPlayer extends Player {
 
     try {
       switch (this._codec) {
+        case "aac":
+        case "aacp":
+          const { AACDecoderWebWorker } = await import(
+            /* webpackChunkName: "aac" */ "@wasm-audio-decoders/aac"
+          );
+          DecoderClass = AACDecoderWebWorker;
+          break;
         case "mpeg":
           const { MPEGDecoderWebWorker } = await import(
             /* webpackChunkName: "mpeg" */ "mpg123-decoder"

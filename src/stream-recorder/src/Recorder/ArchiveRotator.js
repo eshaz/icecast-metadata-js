@@ -40,8 +40,8 @@ export default class ArchiveRotator {
     this._filesToArchive.forEach((fileName) =>
       this._moveSync(
         path.join(fileName),
-        path.join(this._archivePath, path.basename(fileName))
-      )
+        path.join(this._archivePath, path.basename(fileName)),
+      ),
     );
   }
 
@@ -66,9 +66,9 @@ export default class ArchiveRotator {
       this._filesToArchive.map(async (fileName) =>
         this._move(
           path.join(fileName),
-          path.join(this._archivePath, path.basename(fileName))
-        )
-      )
+          path.join(this._archivePath, path.basename(fileName)),
+        ),
+      ),
     );
   }
 
