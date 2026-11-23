@@ -1,33 +1,33 @@
 {
   "files": {
     "main.css": "/icecast-metadata-js/static/css/main.733f59c2.css",
-    "main.js": "/icecast-metadata-js/static/js/main.fd2ceffb.js",
+    "main.js": "/icecast-metadata-js/static/js/main.21acc70f.js",
     "synaudio.js": "/icecast-metadata-js/static/js/synaudio.25dce4c7.chunk.js",
     "mediasource.js": "/icecast-metadata-js/static/js/mediasource.c8030415.chunk.js",
     "aac.js": "/icecast-metadata-js/static/js/aac.a363b261.chunk.js",
     "mpeg.js": "/icecast-metadata-js/static/js/mpeg.402bc9bc.chunk.js",
     "opus.js": "/icecast-metadata-js/static/js/opus.c8aec216.chunk.js",
-    "flac.js": "/icecast-metadata-js/static/js/flac.59181c6a.chunk.js",
+    "flac.js": "/icecast-metadata-js/static/js/flac.cd443057.chunk.js",
     "vorbis.js": "/icecast-metadata-js/static/js/vorbis.221a0a85.chunk.js",
-    "static/js/114.db20b545.chunk.js": "/icecast-metadata-js/static/js/114.db20b545.chunk.js",
+    "static/js/114.602bd8ca.chunk.js": "/icecast-metadata-js/static/js/114.602bd8ca.chunk.js",
     "static/js/476.f007a26a.chunk.js": "/icecast-metadata-js/static/js/476.f007a26a.chunk.js",
     "static/js/683.89c36e92.chunk.js": "/icecast-metadata-js/static/js/683.89c36e92.chunk.js",
     "index.html": "/icecast-metadata-js/index.html",
     "main.733f59c2.css.map": "/icecast-metadata-js/static/css/main.733f59c2.css.map",
-    "main.fd2ceffb.js.map": "/icecast-metadata-js/static/js/main.fd2ceffb.js.map",
+    "main.21acc70f.js.map": "/icecast-metadata-js/static/js/main.21acc70f.js.map",
     "synaudio.25dce4c7.chunk.js.map": "/icecast-metadata-js/static/js/synaudio.25dce4c7.chunk.js.map",
     "mediasource.c8030415.chunk.js.map": "/icecast-metadata-js/static/js/mediasource.c8030415.chunk.js.map",
     "aac.a363b261.chunk.js.map": "/icecast-metadata-js/static/js/aac.a363b261.chunk.js.map",
     "mpeg.402bc9bc.chunk.js.map": "/icecast-metadata-js/static/js/mpeg.402bc9bc.chunk.js.map",
     "opus.c8aec216.chunk.js.map": "/icecast-metadata-js/static/js/opus.c8aec216.chunk.js.map",
-    "flac.59181c6a.chunk.js.map": "/icecast-metadata-js/static/js/flac.59181c6a.chunk.js.map",
+    "flac.cd443057.chunk.js.map": "/icecast-metadata-js/static/js/flac.cd443057.chunk.js.map",
     "vorbis.221a0a85.chunk.js.map": "/icecast-metadata-js/static/js/vorbis.221a0a85.chunk.js.map",
-    "114.db20b545.chunk.js.map": "/icecast-metadata-js/static/js/114.db20b545.chunk.js.map",
+    "114.602bd8ca.chunk.js.map": "/icecast-metadata-js/static/js/114.602bd8ca.chunk.js.map",
     "476.f007a26a.chunk.js.map": "/icecast-metadata-js/static/js/476.f007a26a.chunk.js.map",
     "683.89c36e92.chunk.js.map": "/icecast-metadata-js/static/js/683.89c36e92.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.733f59c2.css",
-    "static/js/main.fd2ceffb.js"
+    "static/js/main.21acc70f.js"
   ]
 }
